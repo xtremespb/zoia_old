@@ -1,0 +1,16 @@
+{
+  "name": "Zoia",
+  "version": "0.0.1",
+  "private": false,
+  "scripts": {
+    "start": "node ./bin/webserver.js"
+  },
+  "dependencies": {
+    "body-parser": "~1.17.1",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.3",
+    "express": "~4.15.2",
+    "i18n-2": "^0.6.3",
+    "nunjucks": "^3.0.1"
+  }
+}
