@@ -1,0 +1,125 @@
+html,
+body {
+    height: 100%;
+}
+
+.admin-navbar {
+    /*border-right: 1px solid #c5d6de;*/
+    background: #f1f2f7;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    border-right: 1px solid #e0e1e7;
+}
+
+.admin-navbar-hidden {
+    opacity: 0;
+}
+
+.admin-content {
+    background: #fff;
+    padding-top: 14px;
+    padding-bottom: 20px;
+    z-index: 100;
+}
+
+.admin-content-shift {
+    position: relative;
+    margin-left: -250px;
+    z-index: -1;
+}
+
+.admin-navbar-rsp {
+    width: 250px;
+}
+
+.admin-main-row {
+    padding-top: 50px;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    min-height: 100%
+}
+
+.admin-nav-item > .nav-link {
+    color: #333;
+}
+
+.admin-nav-item > .disabled {
+    color: #888;
+}
+
+.admin-nav-item:hover {
+    background: #aeb2b7;
+    transition: background 0.2s;
+}
+
+.admin-nav-item:hover > .nav-link:hover {
+    color: #000;
+}
+
+.admin-nav-item:hover > .disabled:hover {
+    color: #888;
+}
+
+.admin-nav-item-active > .nav-link {
+    color: #fff;
+}
+
+.admin-nav-item-active {
+    background: #474752;
+}
+
+.admin-nav-item-active:hover {
+    background: #474752;
+}
+
+.admin-nav-item-active:hover > .nav-link:hover {
+    color: #fff;
+}
+
+.admin-container-fluid {
+    min-height: 100%;
+}
+
+.admin-nav-toggle-icon {
+    color: #aeb2b7;
+}
+
+.admin-nav-toggle-icon:hover {
+    color: #ccc;
+}
+
+.admin-nav-toggle {
+    cursor: pointer;
+}
+
+.admin-navbar-top {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    background-color: #32323a;
+}
+
+.admin-content-shadow {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    opacity: 0.4;
+    z-index: 100;
+}
+
+.admin-content-shadow-hidden {
+    display: none;
+}
+
+.admin-navbar-wrap {
+    height: 100%;
+    position: fixed;
+    width: 250px;
+    margin-top: 4px;
+}
