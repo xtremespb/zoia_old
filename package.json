@@ -15,9 +15,8 @@
     "debug": "~2.6.3",
     "express": "~4.15.2",
     "express-session": "^1.15.3",
-    "i18n-2": "^0.6.3",
     "mongodb": "^2.2.27",
-    "mz": "^2.6.0",
-    "nunjucks": "^3.0.1"
+    "nunjucks": "^3.0.1",
+    "sprintf": "^0.1.5"
   }
 }

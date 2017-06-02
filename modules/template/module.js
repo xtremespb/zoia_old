@@ -6,7 +6,8 @@ module.exports = function(app) {
     return {
         backend: {
             prefix: "/template",
-            routes: backend.routes
+            routes: backend.routes,
+            info: backend.info
         },
         frontend: {
             prefix: "/template",

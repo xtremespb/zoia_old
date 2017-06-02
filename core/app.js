@@ -10,32 +10,52 @@ const path = require('path'),
     fs = require('fs');
 
 (async function init() {
-    // Init database
-    const db = new(require(path.join(__dirname, 'database.js')))(app, config.mongo, config.session);
-    await db.connect();
-    // Init parsers and other stuff
-    app.use(bodyParser.json(), bodyParser.urlencoded({ extended: false }), cookieParser(), express.static(path.join(__dirname, '..', 'public')));
-    // Load modules
-    let modules = fs.readdirSync(path.join(__dirname, '..', 'modules')),
-        templateFilters = {};
-    for (let m in modules) {
-        let moduleLoaded = require(path.join(__dirname, '..', 'modules', modules[m], 'module'))(app);
-        if (moduleLoaded) {
-            if (moduleLoaded.frontend) {
-                if (moduleLoaded.frontend.routes) {
-                    app.use(moduleLoaded.frontend.prefix, moduleLoaded.frontend.routes);
+    try {
+        // Init database
+        const db = new(require(path.join(__dirname, 'database.js')))(app, config.mongo, config.session);
+        await db.connect();
+        // Init parsers and other stuff
+        app.use(bodyParser.json(), bodyParser.urlencoded({ extended: false }), cookieParser(), express.static(path.join(__dirname, '..', 'public')));
+        // Load preroutes
+        const preroutes = new(require(path.join(__dirname, 'preroutes.js')))(app);
+        for (let key of Object.keys(preroutes)) {
+            app.use(preroutes[key]);
+        }
+        // Load modules
+        let modules = fs.readdirSync(path.join(__dirname, '..', 'modules')),
+            templateFilters = {},
+            backendModules = [];
+        for (let m in modules) {
+            let moduleLoaded = require(path.join(__dirname, '..', 'modules', modules[m], 'module'))(app);
+            if (moduleLoaded) {
+                if (moduleLoaded.frontend) {
+                    if (moduleLoaded.frontend.routes) {
+                        app.use(moduleLoaded.frontend.prefix, moduleLoaded.frontend.routes);
+                    }
+                    if (moduleLoaded.frontend.filters) {
+                        for (let f in moduleLoaded.frontend.filters) {
+                            templateFilters[f] = moduleLoaded.frontend.filters[f];
+                        }
+                    }
                 }
-                if (moduleLoaded.frontend.filters) {
-                    for (let f in moduleLoaded.frontend.filters) {
-                        templateFilters[f] = moduleLoaded.frontend.filters[f];
+                if (moduleLoaded.backend) {
+                    if (moduleLoaded.backend.routes) {
+                        if (moduleLoaded.backend.info) {
+                            backendModules.push(moduleLoaded.backend.info);
+                        }
+                        app.use('/admin' + moduleLoaded.backend.prefix, moduleLoaded.backend.routes);
                     }
                 }
             }
         }
+        app.set('backendModules', backendModules);
+        app.set('templateFilters', templateFilters);
+        const errors = new(require(path.join(__dirname, 'errors.js')))(app);
+        app.use(errors.notFound, cowrap(errors.errorHandler));
+    } catch (e) {
+        // That's error
+        console.log(e);
     }
-    app.set('templateFilters', templateFilters);
-    const errors = new(require(path.join(__dirname, 'errors.js')))(app);
-    app.use(errors.notFound, cowrap(errors.errorHandler));
 })();
 
 module.exports = app;
