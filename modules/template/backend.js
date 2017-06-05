@@ -1,14 +1,21 @@
 const moduleId = "template",
-	path = require('path'),
+    moduleURL = "/admin/template";
+
+const path = require('path'),
     config = require(path.join(__dirname, '..', '..', 'etc', 'config.js')),
     cowrap = require('co-express');
 
 module.exports = function(app) {
     const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app),
-        panel = new(require(path.join(__dirname, '..', '..', 'core', 'panel.js')))(app);
+        panel = new(require(path.join(__dirname, '..', '..', 'core', 'panel.js')))(app),
+        render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), undefined, app);
     let test = async function(req, res, next) {
         const locale = req.session.currentLocale;
-        res.send(await panel.html(req, moduleId, i18n.get().__(locale, "title")));
+        let html = await render.file("test.html", {
+            i18n: i18n.get(),
+            locale: locale
+        });
+        res.send(await panel.html(req, moduleId, i18n.get().__(locale, "title"), html));
     };
     let router = app.get('express').Router();
     router.get('/', cowrap(test));
@@ -20,8 +27,9 @@ module.exports = function(app) {
         routes: router,
         info: {
             id: moduleId,
-            url: "/admin/template",
-            title: titles
+            url: moduleURL,
+            title: titles,
+            icon: "dashboard"
         }
     }
 }

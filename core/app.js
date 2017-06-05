@@ -1,10 +1,23 @@
 'use strict';
 
-const path = require('path'),
-    config = require(path.join(__dirname, '..', 'etc', 'config.js')),
-    express = require('express'),
-    app = express().set('express', express),
-    cookieParser = require('cookie-parser'),
+const log = require("loglevel"),
+    logprefix = require('loglevel-prefix'),
+    path = require('path'),
+    config = require(path.join(__dirname, '..', 'etc', 'config.js'));
+
+
+// Log settings
+logprefix(log, config.logOptions);
+log.setLevel(config.logLevel)
+
+const express = require('express'),
+    app = express().set('express', express);
+
+// Set app data
+app.set('log', log);
+app.set('trust proxy', config.trustProxy);
+
+const cookieParser = require('cookie-parser'),
     bodyParser = require('body-parser'),
     cowrap = require('co-express'),
     fs = require('fs');
@@ -14,12 +27,13 @@ const path = require('path'),
         // Init database
         const db = new(require(path.join(__dirname, 'database.js')))(app, config.mongo, config.session);
         await db.connect();
+        app.set('db', db.get());
         // Init parsers and other stuff
         app.use(bodyParser.json(), bodyParser.urlencoded({ extended: false }), cookieParser(), express.static(path.join(__dirname, '..', 'public')));
         // Load preroutes
         const preroutes = new(require(path.join(__dirname, 'preroutes.js')))(app);
         for (let key of Object.keys(preroutes)) {
-            app.use(preroutes[key]);
+            app.use(cowrap(preroutes[key]));
         }
         // Load modules
         let modules = fs.readdirSync(path.join(__dirname, '..', 'modules')),
@@ -38,23 +52,26 @@ const path = require('path'),
                         }
                     }
                 }
-                if (moduleLoaded.backend) {
-                    if (moduleLoaded.backend.routes) {
-                        if (moduleLoaded.backend.info) {
-                            backendModules.push(moduleLoaded.backend.info);
-                        }
-                        app.use('/admin' + moduleLoaded.backend.prefix, moduleLoaded.backend.routes);
+                if (moduleLoaded.backend && moduleLoaded.backend.routes) {
+                    if (moduleLoaded.backend.info) {
+                        backendModules.push(moduleLoaded.backend.info);
                     }
+                    app.use('/admin' + moduleLoaded.backend.prefix, moduleLoaded.backend.routes);
+                }
+                if (moduleLoaded.api && moduleLoaded.api.routes) {
+                    app.use('/api' + moduleLoaded.api.prefix, moduleLoaded.api.routes);
                 }
             }
         }
         app.set('backendModules', backendModules);
         app.set('templateFilters', templateFilters);
+        app.set('log', log);
         const errors = new(require(path.join(__dirname, 'errors.js')))(app);
         app.use(errors.notFound, cowrap(errors.errorHandler));
     } catch (e) {
         // That's error
-        console.log(e);
+        log.error(e.stack || e.message);
+        process.exit(1);
     }
 })();
 

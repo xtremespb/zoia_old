@@ -4,7 +4,7 @@ const path = require('path'),
 module.exports = class Panel {
     constructor(app) {
         this.app = app;
-        this.render = new(require(path.join(__dirname, 'render.js')))(path.join(__dirname, 'views'));
+        this.render = new(require(path.join(__dirname, 'render.js')))(path.join(__dirname, 'views'), undefined, app);
         this.i18n = new(require(path.join(__dirname, 'i18n.js')))(path.join(__dirname, 'lang'), app);
     }
     async html(req, id, title, data) {

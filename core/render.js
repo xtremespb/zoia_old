@@ -3,7 +3,7 @@ const path = require('path'),
     nunjucks = require('nunjucks');
 
 module.exports = class Render {
-    constructor(dir, filters) {
+    constructor(dir, filters, app) {
         if (dir) {
             this.env = new nunjucks.Environment(new nunjucks.FileSystemLoader(dir, { watch: true, noCache: false }));
             this.env.opts.autoescape = false;
@@ -13,11 +13,18 @@ module.exports = class Render {
                 this.env.addFilter(key, filters[key], true);
             });
         }
+        if (app) {
+            this.app = app;
+            this.log = app.get('log');
+        }
     }
     _render(file, data) {
         let that = this;
         return new Promise((resolve, reject) => {
             that.env.render(file, data, function(err, res) {
+                if (err && that.log) {
+                    that.log.error(err);
+                }
                 resolve(res);
             });
         });

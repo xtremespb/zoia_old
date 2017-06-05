@@ -21,13 +21,14 @@
                 <div class="admin-navbar-wrap">
                     <ul class="nav flex-column">
                         {% for item in modules %}<li class="nav-item admin-nav-item" id="admin-nav-item-{{ item.id }}">
-                            <a class="nav-link" href="{{ item.url }}">{{ item.title[locale] }}</a>
+                            <a class="nav-link" href="{{ item.url }}">{% if item.icon %}<i class="fa fa-{{ item.icon }}"></i>&nbsp;{% endif %}{{ item.title[locale] }}</a>
                         </li>{% endfor %}
                     </ul>
                 </div>
                 <div class="admin-navbar-rsp"></div>
             </div>
             <div class="col admin-content">
+                {{ data }}
                 <div class="admin-content-shadow admin-content-shadow-hidden"></div>
             </div>
         </div>
