@@ -1,6 +1,6 @@
 'use strict';
 
-const log = require("loglevel"),
+const log = require('loglevel'),
     logprefix = require('loglevel-prefix'),
     path = require('path'),
     config = require(path.join(__dirname, '..', 'etc', 'config.js'));
@@ -13,13 +13,12 @@ log.setLevel(config.logLevel)
 const express = require('express'),
     app = express().set('express', express);
 
-// Set app data
+// Patch express to allow async functions and set app data
 app.set('log', log);
 app.set('trust proxy', config.trustProxy);
 
 const cookieParser = require('cookie-parser'),
     bodyParser = require('body-parser'),
-    cowrap = require('co-express'),
     fs = require('fs');
 
 (async function init() {
@@ -33,7 +32,7 @@ const cookieParser = require('cookie-parser'),
         // Load preroutes
         const preroutes = new(require(path.join(__dirname, 'preroutes.js')))(app);
         for (let key of Object.keys(preroutes)) {
-            app.use(cowrap(preroutes[key]));
+            app.use(preroutes[key]);
         }
         // Load modules
         let modules = fs.readdirSync(path.join(__dirname, '..', 'modules')),
@@ -67,7 +66,7 @@ const cookieParser = require('cookie-parser'),
         app.set('templateFilters', templateFilters);
         app.set('log', log);
         const errors = new(require(path.join(__dirname, 'errors.js')))(app);
-        app.use(errors.notFound, cowrap(errors.errorHandler));
+        app.use(errors.notFound, errors.errorHandler);
     } catch (e) {
         // That's error
         log.error(e.stack || e.message);

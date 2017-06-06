@@ -22,10 +22,10 @@ module.exports = class Database {
         }));
         let that = this;
         this.db.on('close', function() {
-            that.log.error("Database connection lost");
+            that.log.error('Database connection lost');
         });
         this.db.on('reconnect', function() {
-            that.log.info("Database reconnected");
+            that.log.info('Database reconnected');
         });
     }
     get() {

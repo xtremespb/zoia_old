@@ -9,7 +9,7 @@ module.exports = class Panel {
     }
     async html(req, id, title, data) {
         const locale = req.session.currentLocale;
-        return await this.render.file("panel.html", {
+        return await this.render.file('panel.html', {
             i18n: this.i18n.get(),
             locale: locale,
             config: config,

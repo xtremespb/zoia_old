@@ -1,0 +1,111 @@
+html,
+body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    align-items: center;
+}
+
+body,
+html {
+    height: 100%;
+}
+
+.card {
+    background-color: #e5e5e5;
+    /* just in case there no content*/
+    padding: 20px 25px 30px;
+    margin: 0 auto 25px;
+    margin-top: 50px;
+    /* shadows and rounded borders */
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    border: 0;
+    margin-top: -15px;
+}
+
+.card-container.card {
+    max-width: 350px;
+    padding: 40px 40px;
+}
+
+.form-signin #inputUsername,
+.form-signin #inputPassword {
+    direction: ltr;
+    height: 44px;
+    font-size: 16px;
+}
+
+.form-signin input[type=email],
+.form-signin input[type=password],
+.form-signin input[type=text],
+.form-signin button {
+    width: 100%;
+    display: block;
+    margin-bottom: 10px;
+    z-index: 1;
+    position: relative;
+}
+
+.form-signin .form-control:focus {
+    border-color: rgb(160, 160, 160);
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .045), 0 0 8px rgb(180, 180, 180);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .045), 0 0 8px rgb(180, 180, 180);
+}
+
+.forgot-password {
+    text-align: center;
+}
+
+.zoia-login-btn {
+    background: #374140;
+    border: 0;
+    border: none !important;
+    outline: none !important;
+}
+
+.zoia-login-btn:hover {
+    background: #E74C3C;
+    border: 0;
+    box-shadow: none;
+}
+
+.zoia-login-btn:focus {
+    outline-style: none;
+    outline-width: 0px !important;
+    outline-color: none !important;
+    box-shadow: none;
+}
+
+a:focus {
+    text-decoration: none;
+}
+
+.zoia-login-btn:focus,
+.zoia-login-btn:active,
+{
+    border: 4px solid red;
+    box-shadow: none;
+}
+
+.forgot-password {
+    color: #374140;
+}
+
+.forgot-password:hover,
+.forgot-password:link,
+.forgot-password:focus,
+.forgot-password:active {
+    color: #2A2C2B;
+}
+
+.zoia-info-div {
+    text-align: center;
+    font-size: 70%;
+    color: #666;
+    margin-top: -15px;
+}

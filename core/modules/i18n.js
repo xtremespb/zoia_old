@@ -9,9 +9,9 @@
  */
 
 // dependencies
-var vsprintf = require("sprintf").vsprintf,
-    fs = require("fs"),
-    path = require("path");
+var vsprintf = require('sprintf').vsprintf,
+    fs = require('fs'),
+    path = require('path');
 
 
 function dotNotation(obj, is, value) {
@@ -37,7 +37,7 @@ var i18n = module.exports = function(opt) {
     var self = this;
 
     // Put into dev or production mode
-    this.devMode = process.env.NODE_ENV !== "production";
+    this.devMode = process.env.NODE_ENV !== 'production';
 
     // Copy over options
     for (var prop in opt) {
@@ -45,7 +45,7 @@ var i18n = module.exports = function(opt) {
     }
 
     // you may register helpers in global scope, up to you
-    if (typeof this.register === "object") {
+    if (typeof this.register === 'object') {
         i18n.resMethods.forEach(function(method) {
             self.register[method] = self[method].bind(self);
         });
@@ -68,7 +68,7 @@ var i18n = module.exports = function(opt) {
 
     // Check the defaultLocale
     if (!this.locales[this.defaultLocale]) {
-        console.error("Not a valid default locale.");
+        console.error('Not a valid default locale.');
     }
 
     if (this.request) {
@@ -92,10 +92,10 @@ var i18n = module.exports = function(opt) {
     }
 };
 
-i18n.version = "0.4.7";
+i18n.version = '0.4.7';
 
 i18n.localeCache = {};
-i18n.resMethods = ["__", "__n", "getLocale", "isPreferredLocale"];
+i18n.resMethods = ['__', '__n', 'getLocale', 'isPreferredLocale'];
 
 i18n.registerMethods = function(helpers, req) {
     i18n.resMethods.forEach(function(method) {
@@ -113,12 +113,12 @@ i18n.registerMethods = function(helpers, req) {
 };
 
 i18n.prototype = {
-    defaultLocale: "en",
-    extension: ".js",
-    directory: "./locales",
-    cookieName: "lang",
-    sessionVarName: "locale",
-    indent: "\t",
+    defaultLocale: 'en',
+    extension: '.js',
+    directory: './locales',
+    cookieName: 'lang',
+    sessionVarName: 'locale',
+    indent: '\t',
 
     parse: JSON.parse,
 
@@ -140,7 +140,7 @@ i18n.prototype = {
 
         if (!this.locales[locale]) {
             if (this.devMode) {
-                console.warn("Locale (" + locale + ") not found.");
+                console.warn('Locale (' + locale + ') not found.');
             }
 
             locale = this.defaultLocale;
@@ -169,7 +169,7 @@ i18n.prototype = {
 
         if (this.locales[locale]) {
             if (this.devMode) {
-                console.log("Overriding locale from query: " + locale);
+                console.log('Overriding locale from query: ' + locale);
             }
             this.setLocale(locale);
         }
@@ -187,7 +187,7 @@ i18n.prototype = {
 
         if (this.locales[locale]) {
             if (this.devMode) {
-                console.log("Overriding locale from query: " + locale);
+                console.log('Overriding locale from query: ' + locale);
             }
 
             this.setLocale(locale);
@@ -203,7 +203,7 @@ i18n.prototype = {
 
         if (/^([^.]+)/.test(req.headers.host) && this.locales[RegExp.$1]) {
             if (this.devMode) {
-                console.log("Overriding locale from host: " + RegExp.$1);
+                console.log('Overriding locale from host: ' + RegExp.$1);
             }
 
             this.setLocale(RegExp.$1);
@@ -221,7 +221,7 @@ i18n.prototype = {
 
         if (this.locales[locale]) {
             if (this.devMode) {
-                console.log("Overriding locale from cookie: " + locale);
+                console.log('Overriding locale from cookie: ' + locale);
             }
 
             this.setLocale(locale);
@@ -232,10 +232,10 @@ i18n.prototype = {
         if (!process.env.LANG) {
             return;
         }
-        var locale = process.env.LANG.split("_")[0];
+        var locale = process.env.LANG.split('_')[0];
         if (this.locales[locale]) {
             if (this.devMode) {
-                console.log("Overriding locale from environment variable: " + locale);
+                console.log('Overriding locale from environment variable: ' + locale);
             }
 
             this.setLocale(locale);
@@ -249,14 +249,14 @@ i18n.prototype = {
             return;
         }
 
-        var accept = req.headers["accept-language"] || "",
+        var accept = req.headers['accept-language'] || '',
             regExp = /(^|,\s*)([a-z0-9-]+)/gi,
             self = this,
             prefLocale;
 
         while (!prefLocale && (match = regExp.exec(accept))) {
             var locale = match[2].toLowerCase();
-            var parts = locale.split("-");
+            var parts = locale.split('-');
 
             if (self.locales[locale]) {
                 prefLocale = locale;
@@ -272,8 +272,8 @@ i18n.prototype = {
     translate: function(locale, singular, plural) {
         if (!locale || !this.locales[locale]) {
             if (this.devMode) {
-                console.warn("WARN: No locale found. Using the default (" +
-                    this.defaultLocale + ") as current locale");
+                console.warn('WARN: No locale found. Using the default (' +
+                    this.defaultLocale + ') as current locale');
             }
 
             locale = this.defaultLocale;
@@ -305,7 +305,7 @@ i18n.prototype = {
             var base;
 
             // reading base file if 'base' provided
-            if (typeof this.base === "function") {
+            if (typeof this.base === 'function') {
                 var baseFilename;
 
                 try {
@@ -314,7 +314,7 @@ i18n.prototype = {
                     console.error('base function threw exception for locale %s', locale, e);
                 }
 
-                if (typeof baseFilename === "string") {
+                if (typeof baseFilename === 'string') {
                     try {
                         base = this.parse(fs.readFileSync(this.locateFile(baseFilename)));
                     } catch (e) {
@@ -370,7 +370,7 @@ i18n.prototype = {
                 console.log('creating locales dir in: ' + this.directory);
             }
 
-            fs.mkdirSync(this.directory, 0755);
+            fs.mkdirSync(this.directory, 755);
         }
 
         // Initialize the locale if didn't exist already
@@ -379,11 +379,11 @@ i18n.prototype = {
         // writing to tmp and rename on success
         try {
             var target = this.locateFile(locale),
-                tmp = target + ".tmp";
+                tmp = target + '.tmp';
 
             fs.writeFileSync(tmp,
                 this.dump(this.locales[locale], this.indent),
-                "utf8");
+                'utf8');
 
             if (fs.statSync(tmp).isFile()) {
                 fs.renameSync(tmp, target);

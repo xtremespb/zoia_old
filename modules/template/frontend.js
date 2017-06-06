@@ -1,21 +1,21 @@
 const path = require('path'),
-    cowrap = require('co-express');
+    Router = require('co-router');
 
 module.exports = function(app) {
 
     let test = async function(req, res, next) {
-        req.session.test = "Hello world";
-        res.send("OK there");
+        req.session.test = 'Hello world';
+        res.send('OK there');
     };
 
     let filter1 = (data, callback) => {
         setTimeout(function() {
-            callback(null, data + "F1");
+            callback(null, data + 'F1');
         }, 10);
     }
 
-    let router = app.get('express').Router();
-    router.get('/test', cowrap(test));
+    let router = Router();
+    router.get('/test', test);
 
     return {
         routes: router,

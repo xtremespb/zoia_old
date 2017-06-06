@@ -3,13 +3,14 @@
   "version": "0.0.1",
   "private": false,
   "scripts": {
-    "start": "node ./bin/webserver.js"
+    "start": "node ./bin/webserver.js",
+    "lint": "eslint src"
   },
   "dependencies": {
     "body-parser": "~1.17.1",
     "chokidar": "^1.7.0",
     "co": "^4.6.0",
-    "co-express": "^2.0.0",
+    "co-router": "^1.0.4",
     "connect-mongo": "^1.3.2",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.3",
@@ -20,5 +21,9 @@
     "mongodb": "^2.2.27",
     "nunjucks": "^3.0.1",
     "sprintf": "^0.1.5"
+  },
+  "devDependencies": {
+    "babel-eslint": "^7.2.3",
+    "eslint": "^3.19.0"
   }
 }

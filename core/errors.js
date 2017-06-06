@@ -11,10 +11,13 @@ module.exports = function(app) {
             next(err);
         },
         errorHandler: async(err, req, res, next) => {
-            const locale = req.session.currentLocale;
+            let locale = config.i18n.locales[0];
+            if (req.session && req.session.currentLocale) {
+                locale = req.session.currentLocale;
+            }
             err.status = !err.status ? 500 : err.status;
             if (err.status == 404) { err.message = i18n.get().__(locale, 'Not found'); }
-            const html = await render.file("error.html", {
+            const html = await render.file('error.html', {
                 locale: locale,
                 i18n: i18n.get(),
                 err: err,
