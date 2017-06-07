@@ -3,5 +3,12 @@
 	"Username": "Username",
 	"Password": "Password",
 	"Sign In": "Sign In",
-	"Reset password": "Reset password"
+	"Reset password": "Reset password",
+	"fieldErrors": {
+		"username": "Invalid username, should contain 3-20 latin characters or numbers",
+		"password": "Invalid password, should contain at least 5 characters"
+	},
+	"Register": "Register",
+	"Invalid username or password": "Invalid username or password",
+	"Error while authorizing": "Error while authorizing"
 }

@@ -25,6 +25,7 @@ html {
     border-radius: 2px;
     border: 0;
     margin-top: -15px;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
 }
 
 .card-container.card {
@@ -50,34 +51,46 @@ html {
     position: relative;
 }
 
-.form-signin .form-control:focus {
+.form-control:focus:not(.form-control-danger) {
     border-color: rgb(160, 160, 160);
     outline: 0;
     -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .045), 0 0 8px rgb(180, 180, 180);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, .045), 0 0 8px rgb(180, 180, 180);
 }
 
-.forgot-password {
-    text-align: center;
+.form-control:not(.form-control-danger) {
+    border-color: rgb(160, 160, 160);
+    outline: 0;
 }
 
-.zoia-login-btn {
+.zoia-login-btn:not(.zoia-btn-loading) {
     background: #374140;
     border: 0;
     border: none !important;
     outline: none !important;
 }
 
-.zoia-login-btn:hover {
-    background: #E74C3C;
+.zoia-login-btn:hover:not(.zoia-btn-loading) {
+    background: #3E606F;
     border: 0;
     box-shadow: none;
 }
 
-.zoia-login-btn:focus {
+.zoia-login-btn:focus:not(.zoia-btn-loading) {
     outline-style: none;
     outline-width: 0px !important;
     outline-color: none !important;
+    box-shadow: none;
+}
+
+.zoia-btn-loading {
+    background: #aaa;
+    border: 0;
+}
+
+.zoia-btn-loading:hover,
+.zoia-btn-loading:focus {
+    background: #aaa;
     box-shadow: none;
 }
 
@@ -85,22 +98,11 @@ a:focus {
     text-decoration: none;
 }
 
-.zoia-login-btn:focus,
-.zoia-login-btn:active,
-{
-    border: 4px solid red;
-    box-shadow: none;
-}
-
-.forgot-password {
-    color: #374140;
-}
-
-.forgot-password:hover,
-.forgot-password:link,
-.forgot-password:focus,
-.forgot-password:active {
-    color: #2A2C2B;
+.zoia-links > a:hover,
+.zoia-links > a:link,
+.zoia-links > a:focus,
+.zoia-links > a:active {
+    color: #3E606F;
 }
 
 .zoia-info-div {
@@ -108,4 +110,72 @@ a:focus {
     font-size: 70%;
     color: #666;
     margin-top: -15px;
+}
+
+.formError {
+    font-size: 60%;
+    margin-bottom: 10px;
+    margin-top: -5px;
+    color: #B9121B;
+    display: none;
+}
+
+.zoia-links {
+    color: #aaa;
+    text-align: center;
+}
+
+.zoia-links > a {
+    color: #444;
+}
+
+.zoia-spinner {
+    display: none;
+}
+
+.zoia-spinner > div {
+    width: 15px;
+    height: 15px;
+    background-color: #fff;
+    border-radius: 100%;
+    display: inline-block;
+    -webkit-animation: bouncedelay 1.4s infinite ease-in-out;
+    animation: bouncedelay 1.4s infinite ease-in-out;
+    /* Prevent first frame from flickering when animation starts */
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+}
+
+.zoia-spinner .zoia-spinner-bounce1 {
+    -webkit-animation-delay: -0.32s;
+    animation-delay: -0.32s;
+}
+
+.zoia-spinner .zoia-spinner-bounce2 {
+    -webkit-animation-delay: -0.16s;
+    animation-delay: -0.16s;
+}
+
+@-webkit-keyframes bouncedelay {
+    0%,
+    80%,
+    100% {
+        -webkit-transform: scale(0.0)
+    }
+    40% {
+        -webkit-transform: scale(1.0)
+    }
+}
+
+@keyframes bouncedelay {
+    0%,
+    80%,
+    100% {
+        transform: scale(0.0);
+        -webkit-transform: scale(0.0);
+    }
+    40% {
+        transform: scale(1.0);
+        -webkit-transform: scale(1.0);
+    }
 }

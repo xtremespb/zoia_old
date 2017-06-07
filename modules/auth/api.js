@@ -1,5 +1,7 @@
 const path = require('path'),
     Module = require(path.join(__dirname, '..', '..', 'core', 'module.js')),
+    loginFields = require(path.join(__dirname, 'public', 'js', 'loginFields.js')),
+    shared = require(path.join(__dirname, '..', '..', 'public', 'zoia', 'core', 'js', 'shared.js')),
     Router = require('co-router'),
     crypto = require('crypto'),
     config = require(path.join(__dirname, '..', '..', 'etc', 'config.js'));
@@ -21,33 +23,9 @@ module.exports = function(app) {
         let output = {
             result: 1
         };
-        const fieldList = {
-            username: {
-                mandatory: true,
-                length: {
-                    min: 3,
-                    max: 20
-                },
-                type: 'string',
-                regexp: /^[A-Za-z0-9_\-]+$/,
-                process: function(item) {
-                    return item.trim().toLowerCase();
-                }
-            },
-            password: {
-                mandatory: true,
-                length: {
-                    min: 5,
-                    max: 50
-                },
-                type: 'string',
-                process: function(item) {
-                    return item.trim();
-                }
-            }
-        };
-        let fields = Module.checkRequest(req, fieldList);
-        let fieldsFailed = Module.getCheckRequestFailedFields(fields);
+        const fieldList = loginFields.getLoginFields();
+        let fields = shared.checkRequest(req, fieldList);
+        let fieldsFailed = shared.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
             output.result = 0;
             output.fields = fieldsFailed;
@@ -57,7 +35,7 @@ module.exports = function(app) {
             const passwordHash = crypto.createHash('md5').update(config.salt + fields.password.value).digest("hex");
             const user = await db.collection('users').findOne({ username: fields.username.value, password: passwordHash });
             if (user == null) {
-                output.result = 0;
+                output.result = -1;
             } else {
                 req.session.auth = user;
             }
@@ -100,8 +78,8 @@ module.exports = function(app) {
     };
 
     let router = Router();
-    router.get('/login', login);
-    router.get('/logout', logout);
+    router.post('/login', login);
+    router.post('/logout', logout);
 
     return {
         routes: router

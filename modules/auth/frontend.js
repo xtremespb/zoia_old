@@ -16,6 +16,7 @@ module.exports = function(app) {
         let html = await render.file('login.html', {
             i18n: i18n.get(),
             locale: locale,
+            lang: JSON.stringify(i18n.get().locales[locale]),
             config: config
         })
         res.send(html);
@@ -24,7 +25,6 @@ module.exports = function(app) {
     app.use('/auth/static', app.get('express').static(path.join(__dirname, 'public')));
     let router = Router();
     router.get('/', login);
-
     return {
         routes: router
     }

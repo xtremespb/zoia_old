@@ -1,9 +1,10 @@
 const path = require('path'),
-    config = require(path.join(__dirname, '..', 'etc', 'config.js'));
+    config = require(path.join(__dirname, '..', 'etc', 'config.js')),
+    ObjectID = require('mongodb').ObjectID;
 
 module.exports = function(app) {
-    const log = app.get('log');
-    db = app.get('db');
+    const db = app.get('db'),
+        log = app.get('log');
     return {
         setLocale: async(req, res, next) => {
             const i18n = new(require(path.join(__dirname, 'i18n.js')))(path.join(__dirname, 'lang'), app);
@@ -17,6 +18,14 @@ module.exports = function(app) {
             next();
         },
         auth: async(req, res, next) => {
+            try {
+                if (db && req.session && req.session.auth && req.session.auth._id) {
+                    let user = await db.collection("users").findOne({ _id: new ObjectID(req.session.auth._id) });
+                    (user != null) ? req.session.auth = user : req.session.auth = undefined;
+                }
+            } catch (e) {
+                log.error(e.message);
+            }
             next();
         }
     };
