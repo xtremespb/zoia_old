@@ -1,6 +1,7 @@
 const path = require('path'),
     config = require(path.join(__dirname, '..', 'etc', 'config.js')),
-    nunjucks = require('nunjucks');
+    nunjucks = require('nunjucks'),
+    fs = require('mz/fs');
 
 module.exports = class Render {
     constructor(dir, filters, app) {
@@ -31,5 +32,20 @@ module.exports = class Render {
     }
     async file(file, data) {
         return await this._render(file, data);
+    }
+    async template(req, i18n, locale, pageTitle, data2, tpl) {
+        let template = (tpl || config.website.templates[0]) + '_' + locale + '.html';
+        if (config.i18n.fallback && locale != config.i18n.locales[0] && !await fs.exists(path.join(__dirname, '..', '..', 'views', template))) {
+            template = (tpl || config.website.templates[0]) + '_' + config.i18n.locales[0] + '.html';
+        }
+        let data1 = {
+            i18n: i18n.get(),
+            locale: locale,
+            lang: JSON.stringify(i18n.get().locales[locale]),
+            config: config,
+            pageTitle: pageTitle
+        };
+        let data = Object.assign(data1, data2);
+        return await this._render(template, data);
     }
 }

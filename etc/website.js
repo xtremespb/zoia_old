@@ -3,5 +3,6 @@ module.exports = {
     title: {
         'en': 'Example Website',
         'ru': 'Тестовый сайт'
-    }
-}; 
+    },
+    templates: ['default']
+};

@@ -15,5 +15,17 @@ module.exports = class Module {
             titles[config.i18n.locales[i]] = i18n.get().__(config.i18n.locales[i], 'title');
         }
         return titles;
-    }    
+    }
+    static isAuthorized(req) {
+        if (req && req.session && req.session.auth && req.session.auth._id) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    static logout(req) {
+        if (req && req.session) {
+            req.session.auth = undefined;
+        }
+    }
 }

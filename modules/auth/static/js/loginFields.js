@@ -25,6 +25,17 @@
                 process: function(item) {
                     return item.trim();
                 }
+            },
+            captcha: {
+                mandatory: true,
+                length: {
+                    min: 4,
+                    max: 4
+                },
+                regexp: /^[0-9]+$/,
+                process: function(item) {
+                    return item.trim();
+                }
             }
         };
     }

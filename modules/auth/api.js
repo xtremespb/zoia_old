@@ -1,7 +1,7 @@
 const path = require('path'),
     Module = require(path.join(__dirname, '..', '..', 'core', 'module.js')),
-    loginFields = require(path.join(__dirname, 'public', 'js', 'loginFields.js')),
-    shared = require(path.join(__dirname, '..', '..', 'public', 'zoia', 'core', 'js', 'shared.js')),
+    loginFields = require(path.join(__dirname, 'static', 'js', 'loginFields.js')),
+    shared = require(path.join(__dirname, '..', '..', 'static', 'zoia', 'core', 'js', 'shared.js')),
     Router = require('co-router'),
     crypto = require('crypto'),
     config = require(path.join(__dirname, '..', '..', 'etc', 'config.js'));
@@ -31,6 +31,12 @@ module.exports = function(app) {
             output.fields = fieldsFailed;
             return res.send(JSON.stringify(output));
         }
+        if (!req.session || fields.captcha.value != req.session.captcha) {
+            output.result = 0;
+            output.fields = ['captcha'];
+            return res.send(JSON.stringify(output));
+        }
+        req.session.captcha = Math.random().toString().substr(2,4);
         try {
             const passwordHash = crypto.createHash('md5').update(config.salt + fields.password.value).digest("hex");
             const user = await db.collection('users').findOne({ username: fields.username.value, password: passwordHash });
@@ -62,13 +68,12 @@ module.exports = function(app) {
         let output = {
             result: 1
         };
-        if (!req.session || !req.session.auth) {
+        if (!Module.isAuthorized(req)) {
         	output.result = 0;
         	return res.send(JSON.stringify(output));
         }
-        console.log(req.session.auth);
         try {
-            req.session.auth = undefined;
+            Module.logout(req);
             return res.send(JSON.stringify(output));
         } catch (e) {
         	output.result = 0;
@@ -79,7 +84,7 @@ module.exports = function(app) {
 
     let router = Router();
     router.post('/login', login);
-    router.post('/logout', logout);
+    router.all('/logout', logout);
 
     return {
         routes: router

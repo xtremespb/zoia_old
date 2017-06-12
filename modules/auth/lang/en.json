@@ -6,9 +6,18 @@
 	"Reset password": "Reset password",
 	"fieldErrors": {
 		"username": "Invalid username, should contain 3-20 latin characters or numbers",
-		"password": "Invalid password, should contain at least 5 characters"
+		"password": "Invalid password, should contain at least 5 characters",
+		"captcha": "Invalid code, should contain 4 digits"
 	},
 	"Register": "Register",
 	"Invalid username or password": "Invalid username or password",
-	"Error while authorizing": "Error while authorizing"
+	"Error while authorizing": "Error while authorizing",
+	"Code": "Code",
+	"Latin characters and numbers, length: 3-20": "Latin characters and numbers, length: 3-20",
+	"Minimal length: 5 characters": "Minimal length: 5 characters",
+	"Example: user@domain.com": "Example: user@domain.com",
+	"Captcha": "Captcha",
+	"4 digits": "4 digits, click image to reload",
+	"Register new user": "Register new user",
+	"E-mail": "E-mail"
 }

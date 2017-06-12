@@ -1,54 +1,5 @@
-html,
-body {
-    height: 100%;
-}
-
-body {
-    display: flex;
-    align-items: center;
-}
-
-body,
-html {
-    height: 100%;
-}
-
-.card {
-    background-color: #e5e5e5;
-    /* just in case there no content*/
-    padding: 20px 25px 30px;
-    margin: 0 auto 25px;
-    margin-top: 50px;
-    /* shadows and rounded borders */
-    -moz-border-radius: 2px;
-    -webkit-border-radius: 2px;
-    border-radius: 2px;
-    border: 0;
-    margin-top: -15px;
-    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
-}
-
-.card-container.card {
-    max-width: 350px;
-    padding: 40px 40px;
-}
-
-.form-signin #inputUsername,
-.form-signin #inputPassword {
-    direction: ltr;
-    height: 44px;
-    font-size: 16px;
-}
-
-.form-signin input[type=email],
-.form-signin input[type=password],
-.form-signin input[type=text],
-.form-signin button {
-    width: 100%;
-    display: block;
-    margin-bottom: 10px;
-    z-index: 1;
-    position: relative;
+.password-confirm {
+    margin-left: -25px
 }
 
 .form-control:focus:not(.form-control-danger) {
@@ -63,20 +14,39 @@ html {
     outline: 0;
 }
 
-.zoia-login-btn:not(.zoia-btn-loading) {
-    background: #374140;
-    border: 0;
-    border: none !important;
-    outline: none !important;
+.zoia-captcha-img {
+    cursor: pointer;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    margin-left: 10px;
 }
 
-.zoia-login-btn:hover:not(.zoia-btn-loading) {
-    background: #3E606F;
-    border: 0;
+#captcha {
+    height: 51px;
+    width: 80px;
+    text-align: center;
+}
+
+.zoia-reg-header {
+    margin-bottom: 20px;
+}
+
+.zoia-captcha-refresh {
+    margin-left: -20px;
+    margin-top: 20px;
+    color: #3E606F;
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.zoia-register-btn:focus:not(.zoia-btn-loading) {
+    outline-style: none;
+    outline-width: 0px !important;
+    outline-color: none !important;
     box-shadow: none;
 }
 
-.zoia-login-btn:focus:not(.zoia-btn-loading) {
+.zoia-register-btn:focus:not(.zoia-btn-loading) {
     outline-style: none;
     outline-width: 0px !important;
     outline-color: none !important;
@@ -86,6 +56,7 @@ html {
 .zoia-btn-loading {
     background: #aaa;
     border: 0;
+    margin-top: 15px;
 }
 
 .zoia-btn-loading:hover,
@@ -94,39 +65,30 @@ html {
     box-shadow: none;
 }
 
-a:focus {
-    text-decoration: none;
+.zoia-register-btn:not(.zoia-btn-loading) {
+    background: #374140;
+    border: 0;
+    border: none !important;
+    outline: none !important;
+    margin-top: 15px;
 }
 
-.zoia-links > a:hover,
-.zoia-links > a:link,
-.zoia-links > a:focus,
-.zoia-links > a:active {
-    color: #3E606F;
+.zoia-register-btn:hover:not(.zoia-btn-loading) {
+    background: #3E606F;
+    border: 0;
+    box-shadow: none;
 }
 
-.zoia-info-div {
-    text-align: center;
-    font-size: 70%;
-    color: #666;
-    margin-top: -15px;
+.zoia-register-btn:focus:not(.zoia-btn-loading) {
+    outline-style: none;
+    outline-width: 0px !important;
+    outline-color: none !important;
+    box-shadow: none;
 }
 
-.formError {
-    font-size: 60%;
-    margin-bottom: 10px;
-    margin-top: -5px;
-    color: #B9121B;
-    display: none;
-}
-
-.zoia-links {
-    color: #aaa;
-    text-align: center;
-}
-
-.zoia-links > a {
-    color: #444;
+.zoia-captcha-wrap {
+    width: 130px;
+    height: 51px;
 }
 
 .zoia-spinner {
@@ -134,8 +96,8 @@ a:focus {
 }
 
 .zoia-spinner > div {
-    width: 15px;
-    height: 15px;
+    width: 8px;
+    height: 8px;
     background-color: #fff;
     border-radius: 100%;
     display: inline-block;
@@ -178,4 +140,12 @@ a:focus {
         transform: scale(1.0);
         -webkit-transform: scale(1.0);
     }
+}
+
+.formError {
+    font-size: 60%;
+    margin-bottom: 10px;
+    margin-top: -5px;
+    color: #B9121B;
+    display: none;
 }

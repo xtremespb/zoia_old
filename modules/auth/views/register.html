@@ -1,0 +1,44 @@
+<div class="zoia-reg-header">
+    <h1>{{ i18n.__(locale, 'Register new user') }}</h1>
+</div>
+<form id="zoia-register-form">
+    <div class="form-group">
+        <label for="username">{{ i18n.__(locale, 'Username') }}:</label>
+        <input type="text" class="form-control col-lg-3 col-md-6 col-sm-12" id="username" aria-describedby="usernameHelp" autofocus>
+        <small id="usernameHelp" class="form-text text-muted">{{ i18n.__(locale, 'Latin characters and numbers, length: 3-20') }}</small>
+        <div id="usernameError" class="formError"></div>
+    </div>
+    <div class="form-group">
+        <label for="email">{{ i18n.__(locale, 'E-mail') }}:</label>
+        <input type="email" class="form-control col-lg-5 col-md-8 col-sm-12" id="email" aria-describedby="emailHelp">
+        <small id="emailHelp" class="form-text text-muted">{{ i18n.__(locale, 'Example: user@domain.com') }}</small>
+    </div>
+    <div class="form-group">
+        <label for="password">{{ i18n.__(locale, 'Password') }}:</label>
+        <div class="row">
+            <div class="col-6 col-lg-2 col-md-3 col-sm-6">
+                <input type="password" class="form-control" id="password" aria-describedby="passwordHelp">
+            </div>
+            <div class="col-6 col-lg-2 col-md-3 col-sm-6">
+                <input type="password" class="form-control password-confirm" id="password-confirm" aria-describedby="passwordHelp">
+            </div>
+        </div>
+        <small id="passwordHelp" class="form-text text-muted">{{ i18n.__(locale, 'Minimal length: 5 characters') }}</small>
+    </div>
+    <div class="form-group">
+        <label for="password">{{ i18n.__(locale, 'Captcha') }}&nbsp;:</label>
+        <div class="form-inline">
+            <input type="text" class="form-control" id="captcha" aria-describedby="captchaHelp">
+            <div class="zoia-captcha-wrap"><img src="/api/captcha" class="zoia-captcha-img"></div><i class="fa fa-refresh zoia-captcha-refresh" aria-hidden="true"></i>
+        </div>
+        <small id="captchaHelp" class="form-text text-muted">{{ i18n.__(locale, '4 digits') }}</small>
+    </div>
+    <button class="btn btn-primary zoia-register-btn" type="submit">
+        <div class="zoia-spinner">
+            <div class="zoia-spinner-bounce1"></div>
+            <div class="zoia-spinner-bounce2"></div>
+            <div class="zoia-spinner-bounce3"></div>
+        </div>
+        <div class="zoia-register-btn-label">{{ i18n.__(locale, 'Register') }}</div>
+    </button>
+</form>

@@ -36,7 +36,8 @@ module.exports = {
             cookie: true
         },
         dev: true,
-        cookieName: 'zoiaLang'
+        cookieName: 'zoiaLang',
+        fallback: false
     },
     website: require(path.join(__dirname, 'website.js'))
 };

@@ -16,10 +16,13 @@
     "debug": "~2.6.3",
     "express": "~4.15.2",
     "express-session": "^1.15.3",
+    "jimp": "^0.2.28",
     "loglevel": "^1.4.1",
     "loglevel-prefix": "^0.3.1",
     "mongodb": "^2.2.27",
+    "mz": "^2.6.0",
     "nunjucks": "^3.0.1",
+    "promisify-node": "^0.4.0",
     "sprintf": "^0.1.5"
   },
   "devDependencies": {

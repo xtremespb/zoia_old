@@ -10,6 +10,7 @@ const showError = function(field, error) {
 }
 
 $(document).ready(function() {
+    // Login form submit
     $('#zoia-login-form').submit(function(e) {
         e.preventDefault();
         if ($('.zoia-login-btn').hasClass('zoia-btn-loading')) {
@@ -19,7 +20,8 @@ $(document).ready(function() {
         const scheme = getLoginFields();
         let request = {
             username: $('#username').val(),
-            password: $('#password').val()
+            password: $('#password').val(),
+            captcha: $('#captcha').val()
         };
         let fields = checkRequest(request, scheme),
             failed = getCheckRequestFailedFields(fields);
@@ -48,18 +50,45 @@ $(document).ready(function() {
             cache: false
         }).done(function(res) {
             if (res && res.result == 1) {
-                alert('OK');
+                location.href = redirectURL;
             } else {
+                captchaRefresh();
                 showLoading(false);
+                if (res.fields) {
+                    $('#zoia-login-form').addClass('has-danger');
+                    for (let i in res.fields) {
+                        let focusSet = false;
+                        $('#' + res.fields[i]).addClass('form-control-danger');
+                        showError(res.fields[i], lang.fieldErrors[res.fields[i]]);
+                        if (!focusSet) {
+                            $('#' + res.fields[i]).focus();
+                            focusSet = true;
+                        }
+                    }
+                }
                 if (res && res.result && res.result == -1) {
+                    $('#zoia-login-form').addClass('has-danger');
+                    $('#username').focus();
+                    $('#username').add('#password').addClass('form-control-danger');
                     showError('form', lang['Invalid username or password']);
                 } else {
-                    showError('form', lang['Error while authorizing']);
+                    if (!res.fields) { showError('form', lang['Error while authorizing']); }
                 }
             }
-        }).fail(function (jqXHR, exception) {
+        }).fail(function(jqXHR, exception) {
+            captchaRefresh();
             showLoading(false);
             showError('form', lang['Error while authorizing']);
         });
+    });
+
+    function captchaRefresh() {
+        $(".zoia-auth-captcha").attr("src", "/api/captcha?" + new Date().getTime());
+        $('#captcha').val('');
+    }
+    captchaRefresh();
+    // Refresh captcha
+    $('.zoia-auth-captcha, .zoia-captcha-refresh').click(function() {
+        captchaRefresh();
     });
 });

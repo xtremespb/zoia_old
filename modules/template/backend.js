@@ -11,8 +11,11 @@ module.exports = function(app) {
         panel = new(require(path.join(__dirname, '..', '..', 'core', 'panel.js')))(app),
         render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), undefined, app);
 
-    let test = async(req, res, next) => {
+    let test = async(req, res, next) => {        
         try {
+            if (!Module.isAuthorized(req)) {
+                return res.redirect(303, '/auth?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace(".", ""));
+            }            
             const locale = req.session.currentLocale;
             let html = await render.file('test.html', {
                 i18n: i18n.get(),
