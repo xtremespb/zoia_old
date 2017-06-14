@@ -39,5 +39,15 @@ module.exports = {
         cookieName: 'zoiaLang',
         fallback: false
     },
-    website: require(path.join(__dirname, 'website.js'))
+    mailer: {
+        host: 'smtp.yandex.ru',
+        port: 465,
+        secure: true,
+        auth: {
+            user: '',
+            pass: ''
+        }
+    },
+    website: require(path.join(__dirname, 'website.js')),
+    version: require(path.join(__dirname, 'version.js'))
 };

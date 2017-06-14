@@ -93,6 +93,8 @@ body {
 
 .admin-nav-toggle {
     cursor: pointer;
+    float: left;
+    margin-top: 6px;
 }
 
 .admin-navbar-top {
@@ -100,6 +102,7 @@ body {
     -moz-user-select: none;
     -ms-user-select: none;
     background-color: #32323a;
+    height:54px;
 }
 
 .admin-content-shadow {
@@ -122,4 +125,25 @@ body {
     position: fixed;
     width: 250px;
     margin-top: 4px;
+}
+
+.admin-panel-logo {
+    width: 65px;
+    height: 25px;
+    margin-top: 9px;
+}
+
+.admin-panel-username {
+    color: #f3f3f3;
+    font-size: 90%;
+    margin-top: 7px;
+    cursor: pointer;
+}
+
+.admin-nav-float-left {
+    float: left;
+}
+
+.admin-nav-float-right {
+    float: right;
 }

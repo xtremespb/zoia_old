@@ -1,7 +1,3 @@
-.password-confirm {
-    margin-left: -25px
-}
-
 .form-control:focus:not(.form-control-danger) {
     border-color: rgb(160, 160, 160);
     outline: 0;
@@ -27,7 +23,7 @@
     text-align: center;
 }
 
-.zoia-reg-header {
+.zoia-res-header {
     margin-bottom: 20px;
 }
 
@@ -39,14 +35,14 @@
     cursor: pointer;
 }
 
-.zoia-register-btn:focus:not(.zoia-btn-loading) {
+.zoia-reset-btn:focus:not(.zoia-btn-loading) {
     outline-style: none;
     outline-width: 0px !important;
     outline-color: none !important;
     box-shadow: none;
 }
 
-.zoia-register-btn:focus:not(.zoia-btn-loading) {
+.zoia-reset-btn:focus:not(.zoia-btn-loading) {
     outline-style: none;
     outline-width: 0px !important;
     outline-color: none !important;
@@ -64,20 +60,20 @@
     box-shadow: none;
 }
 
-.zoia-register-btn:not(.zoia-btn-loading) {
+.zoia-reset-btn:not(.zoia-btn-loading) {
     background: #374140;
     border: 0;
     border: none !important;
     outline: none !important;
 }
 
-.zoia-register-btn:hover:not(.zoia-btn-loading) {
+.zoia-reset-btn:hover:not(.zoia-btn-loading) {
     background: #3E606F;
     border: 0;
     box-shadow: none;
 }
 
-.zoia-register-btn:focus:not(.zoia-btn-loading) {
+.zoia-reset-btn:focus:not(.zoia-btn-loading) {
     outline-style: none;
     outline-width: 0px !important;
     outline-color: none !important;

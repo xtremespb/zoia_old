@@ -1,6 +1,6 @@
 const showLoading = function(show) {
-    show ? $('.zoia-register-btn').addClass('zoia-btn-loading') : $('.zoia-register-btn').removeClass('zoia-btn-loading');
-    show ? $('.zoia-register-btn-label').hide() : $('.zoia-register-btn-label').show();
+    show ? $('.zoia-reset-btn').addClass('zoia-btn-loading') : $('.zoia-reset-btn').removeClass('zoia-btn-loading');
+    show ? $('.zoia-reset-btn-label').hide() : $('.zoia-reset-btn-label').show();
     show ? $('.zoia-spinner').show() : $('.zoia-spinner').hide();
 }
 
@@ -18,40 +18,25 @@ const showErrorTop = function(error) {
 }
 
 $(document).ready(function() {
-    // Login form submit
-    $('#zoia-register-form').submit(function(e) {
+    $('#zoia-reset-form').submit(function(e) {
         e.preventDefault();
-        if ($('.zoia-register-btn').hasClass('zoia-btn-loading')) {
+        if ($('.zoia-reset-btn').hasClass('zoia-btn-loading')) {
             return;
         }
         showLoading(false);
         $('.formErrorTop').hide();
-        $('#zoia-register-form').removeClass('has-danger');
-        $('.zoia-register-field').removeClass('form-control-danger');
+        $('#zoia-reset-form').removeClass('has-danger');
+        $('.zoia-reset-field').removeClass('form-control-danger');
         const scheme = getRegisterFields();
         let request = {
-            username: $('#username').val(),
             email: $('#email').val(),
-            password: $('#password').val(),
-            passwordConfirm: $('#passwordConfirm').val(),
             captcha: $('#captcha').val()
         };
         let fields = checkRequest(request, scheme),
             failed = getCheckRequestFailedFields(fields);
-        if (request.password != request.passwordConfirm) {
-            $('#zoia-register-form').addClass('has-danger');
-            $('#password').addClass('form-control-danger');
-            $('#passwordConfirm').addClass('form-control-danger');
-            showError("password", lang.fieldErrors.passwordsNotMatch);
-            $('#password').focus();
-            return;
-        }
-        if (!fields.password.success) {
-            failed.push('passwordConfirm');
-        }
         $('.formError').hide();
         if (failed.length > 0) {
-            $('#zoia-register-form').addClass('has-danger');
+            $('#zoia-reset-form').addClass('has-danger');
             let focusSet = false;
             for (let i in failed) {
                 $('#' + failed[i]).addClass('form-control-danger');
@@ -67,21 +52,21 @@ $(document).ready(function() {
         let data = getFieldValues(fields);
         $.ajax({
             type: 'POST',
-            url: '/api/auth/register',
+            url: '/api/auth/reset',
             data: data,
             cache: false
         }).done(function(res) {
             if (res && res.result == 1) {
-                $('#zoia-register-form').hide();
-                $('#registrationSuccessful').show();
+                $('#zoia-reset-form').hide();
+                $('#requestSuccessful').show();
                 $('html, body').animate({
-                    scrollTop: $('.zoia-reg-header').offset().top - 20
+                    scrollTop: $('.zoia-res-header').offset().top - 20
                 }, 'fast');
             } else {
                 captchaRefresh();
                 showLoading(false);
                 if (res.fields) {
-                    $('#zoia-register-form').addClass('has-danger');
+                    $('#zoia-reset-form').addClass('has-danger');
                     for (let i in res.fields) {
                         let focusSet = false;
                         $('#' + res.fields[i]).addClass('form-control-danger');
@@ -93,7 +78,7 @@ $(document).ready(function() {
                     }
                 }
                 if (res.fields && res.result < 0) {
-                    $('#zoia-register-form').addClass('has-danger');
+                    $('#zoia-reset-form').addClass('has-danger');
                     switch (res.result) {
                         case -1:
                             showError('username', lang.fieldErrors.usernameTaken);
@@ -102,17 +87,17 @@ $(document).ready(function() {
                             showError('email', lang.fieldErrors.emailTaken);
                             break;
                         default:
-                            showErrorTop(lang['Error while registering new account']);
+                            showErrorTop(lang['Error while reseting new account']);
                             break;
                     }
                 } else {                    
-                    showErrorTop(lang['Error while registering new account']);
+                    showErrorTop(lang['Error while reseting new account']);
                 }
             }
         }).fail(function(jqXHR, exception) {
             showLoading(false);
             captchaRefresh();
-            showErrorTop(lang['Error while registering new account']);
+            showErrorTop(lang['Error while reseting new account']);
         });
     });
 

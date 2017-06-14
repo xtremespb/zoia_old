@@ -3,33 +3,40 @@
 </div>
 <form id="zoia-register-form">
     <div class="form-group">
+        <div class="formErrorTop alert alert-danger"></div>
         <label for="username">{{ i18n.__(locale, 'Username') }}:</label>
-        <input type="text" class="form-control col-lg-3 col-md-6 col-sm-12" id="username" aria-describedby="usernameHelp" autofocus>
+        <div id="usernameError" style="display:none" class="formError badge badge-danger"></div>
+        <input type="text" class="zoia-register-field form-control col-lg-3 col-md-6 col-sm-12" id="username" aria-describedby="usernameHelp" autofocus>
         <small id="usernameHelp" class="form-text text-muted">{{ i18n.__(locale, 'Latin characters and numbers, length: 3-20') }}</small>
-        <div id="usernameError" class="formError"></div>
     </div>
     <div class="form-group">
         <label for="email">{{ i18n.__(locale, 'E-mail') }}:</label>
-        <input type="email" class="form-control col-lg-5 col-md-8 col-sm-12" id="email" aria-describedby="emailHelp">
+        <div id="emailError" style="display:none" class="formError badge badge-danger"></div>
+        <input type="email" class="zoia-register-field form-control col-lg-5 col-md-8 col-sm-12" id="email" aria-describedby="emailHelp">
         <small id="emailHelp" class="form-text text-muted">{{ i18n.__(locale, 'Example: user@domain.com') }}</small>
     </div>
     <div class="form-group">
         <label for="password">{{ i18n.__(locale, 'Password') }}:</label>
+        <div id="passwordError" style="display:none" class="formError badge badge-danger"></div>
         <div class="row">
             <div class="col-6 col-lg-2 col-md-3 col-sm-6">
-                <input type="password" class="form-control" id="password" aria-describedby="passwordHelp">
+                <input type="password" class="zoia-register-field form-control" id="password" aria-describedby="passwordHelp">
             </div>
             <div class="col-6 col-lg-2 col-md-3 col-sm-6">
-                <input type="password" class="form-control password-confirm" id="password-confirm" aria-describedby="passwordHelp">
+                <input type="password" class="zoia-register-field form-control password-confirm" id="passwordConfirm" aria-describedby="passwordHelp">
             </div>
         </div>
         <small id="passwordHelp" class="form-text text-muted">{{ i18n.__(locale, 'Minimal length: 5 characters') }}</small>
     </div>
     <div class="form-group">
         <label for="password">{{ i18n.__(locale, 'Captcha') }}&nbsp;:</label>
+        <div id="captchaError" style="display:none" class="formError badge badge-danger"></div>
         <div class="form-inline">
-            <input type="text" class="form-control" id="captcha" aria-describedby="captchaHelp">
-            <div class="zoia-captcha-wrap"><img src="/api/captcha" class="zoia-captcha-img"></div><i class="fa fa-refresh zoia-captcha-refresh" aria-hidden="true"></i>
+            <input type="text" class="zoia-register-field form-control" id="captcha" aria-describedby="captchaHelp">
+            <div class="zoia-captcha-wrap">
+                <img src="/api/captcha" class="zoia-captcha-img" style="display:none">
+            </div>
+            <i class="fa fa-refresh zoia-captcha-refresh" aria-hidden="true"></i>
         </div>
         <small id="captchaHelp" class="form-text text-muted">{{ i18n.__(locale, '4 digits') }}</small>
     </div>
@@ -42,3 +49,10 @@
         <div class="zoia-register-btn-label">{{ i18n.__(locale, 'Register') }}</div>
     </button>
 </form>
+<div id="registrationSuccessful" style="display:none">
+  <p>{{ i18n.__(locale, 'Registration was successful.') }}</p>
+  <p>{{ i18n.__(locale, 'Please check your mailbox and confirm your registration by clicking the confirmation link.') }}</p>
+</div>
+<script type="text/javascript">
+const lang = {{ lang }};
+</script>

@@ -1,0 +1,24 @@
+<h1>{{ i18n.__(locale, 'title') }}</h1>
+<p>{{ i18n.__(locale, 'Up and running.') }}</p>
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th>{{ i18n.__(locale, 'Parameter') }}</th>
+      <th>{{ i18n.__(locale, 'Value') }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>{{ i18n.__(locale, 'Software version') }}:</td>
+      <td>{{ config.version.code }} {{ config.version.state }}</td>
+    </tr>
+    <tr>
+      <td>{{ i18n.__(locale, 'OS Type') }}:</td>
+      <td>{{ os.type() }}&nbsp;{{ os.arch() }}</td>
+    </tr>
+    <tr>
+      <td>{{ i18n.__(locale, 'Running on hostname') }}:</td>
+      <td>{{ os.hostname() }}</td>
+    </tr>    
+  </tbody>
+</table>

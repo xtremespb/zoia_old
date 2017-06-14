@@ -1,0 +1,17 @@
+<div class="zoia-reg-header">
+    <h1>{{ i18n.__(locale, 'Confirm registration') }}</h1>    
+</div>
+<div id="confirmLoading">
+    <div class="spinner"></div>{{ i18n.__(locale, 'Loading confirmation data from server, please wait...') }}
+</div>
+<div style="display:none" id="confirmSuccess">
+    <p>{{ i18n.__(locale, 'Your e-mail has been confirmed and the account has been activated successfully.') }}</p>
+    <p><a class="btn btn-primary zoia-btn" href="/auth">{{ i18n.__(locale, 'Login') }}</a></p>
+</div>
+<div style="display:none" id="confirmFail">
+    {{ i18n.__(locale, 'Could not activate your account. Please check your link or try again in several moments.') }}
+</div>
+<script>
+var usernameConfirm = '{{ fields.username.value }}';
+var codeConfirm = '{{ fields.code.value }}';
+</script>

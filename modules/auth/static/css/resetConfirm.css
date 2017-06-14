@@ -39,14 +39,14 @@
     cursor: pointer;
 }
 
-.zoia-register-btn:focus:not(.zoia-btn-loading) {
+.zoia-resetconfirm-btn:focus:not(.zoia-btn-loading) {
     outline-style: none;
     outline-width: 0px !important;
     outline-color: none !important;
     box-shadow: none;
 }
 
-.zoia-register-btn:focus:not(.zoia-btn-loading) {
+.zoia-resetconfirm-btn:focus:not(.zoia-btn-loading) {
     outline-style: none;
     outline-width: 0px !important;
     outline-color: none !important;
@@ -64,20 +64,20 @@
     box-shadow: none;
 }
 
-.zoia-register-btn:not(.zoia-btn-loading) {
+.zoia-resetconfirm-btn:not(.zoia-btn-loading) {
     background: #374140;
     border: 0;
     border: none !important;
     outline: none !important;
 }
 
-.zoia-register-btn:hover:not(.zoia-btn-loading) {
+.zoia-resetconfirm-btn:hover:not(.zoia-btn-loading) {
     background: #3E606F;
     border: 0;
     box-shadow: none;
 }
 
-.zoia-register-btn:focus:not(.zoia-btn-loading) {
+.zoia-resetconfirm-btn:focus:not(.zoia-btn-loading) {
     outline-style: none;
     outline-width: 0px !important;
     outline-color: none !important;
@@ -147,7 +147,27 @@
 }
 
 .formErrorTop {
-	margin-bottom: 10px;
-    margin-top: -5px;
-    display: none;	
+    margin-bottom: 10px;
+    margin-top: 20px;
+    display: none;
+}
+
+.zoia-btn {
+    background: #374140;
+    border: 0;
+    border: none !important;
+    outline: none !important;
+}
+
+.zoia-btn:hover {
+    background: #3E606F;
+    border: 0;
+    box-shadow: none;
+}
+
+.zoia-btn:focus {
+    outline-style: none;
+    outline-width: 0px !important;
+    outline-color: none !important;
+    box-shadow: none;
 }

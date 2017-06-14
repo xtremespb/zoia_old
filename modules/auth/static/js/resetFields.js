@@ -3,18 +3,6 @@
 })({
     getRegisterFields: function() {
         return {
-            username: {
-                mandatory: true,
-                length: {
-                    min: 3,
-                    max: 20
-                },
-                type: 'string',
-                regexp: /^[A-Za-z0-9_\-]+$/,
-                process: function(item) {
-                    return item.trim().toLowerCase();
-                }
-            },
             email: {
                 mandatory: true,
                 length: {
@@ -25,17 +13,6 @@
                 regexp: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
                 process: function(item) {
                     return item.trim().toLowerCase();
-                }
-            },
-            password: {
-                mandatory: true,
-                length: {
-                    min: 5,
-                    max: 50
-                },
-                type: 'string',
-                process: function(item) {
-                    return item.trim();
                 }
             },
             captcha: {

@@ -1,0 +1,4 @@
+{{ content }}
+
+{{ config.website.title[locale] }}
+{{ i18n.__(locale, 'Powered by') }} Zoia Web Framework

@@ -23,6 +23,13 @@ module.exports = class Module {
             return false;
         }
     }
+    static isAuthorizedAdmin(req) {
+        if (req && req.session && req.session.auth && req.session.auth._id && req.session.auth.status && req.session.auth.status == 2) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     static logout(req) {
         if (req && req.session) {
             req.session.auth = undefined;

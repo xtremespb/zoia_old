@@ -13,14 +13,31 @@
 
 <body>
     <nav class="navbar admin-navbar-top navbar-inverse fixed-top">
-        <span class="navbar-brand"><span class="hidden-md-up admin-nav-toggle"><i class="fa fa-bars fa-lg admin-nav-toggle-icon"></i>&nbsp;&nbsp;</span>{{ i18n.__(locale, 'Zoia') }}</span>
+        <div>
+            <div class="admin-nav-float-left">
+                <span><div class="hidden-md-up admin-nav-toggle"><i class="fa fa-bars fa-lg admin-nav-toggle-icon"></i>&nbsp;&nbsp;</div>
+                <a href="/admin"><img src="/zoia/core/images/zoia_logo_panel.png" alt="{{ i18n.__(locale, 'Zoia') }}" class="admin-panel-logo"></a>
+                </span>
+            </div>
+            <div class="admin-nav-float-right">
+                <div class="btn-group">
+                    <div class="dropdown-toggle admin-panel-username" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{ auth.username }}
+                    </div>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item" href="/auth/logout">{{ i18n.__(locale, 'Log out') }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </nav>
     <div class="container-fluid admin-container-fluid h-100">
         <div class="row admin-main-row">
             <div class="col-md-auto admin-navbar hidden-sm-down">
                 <div class="admin-navbar-wrap">
                     <ul class="nav flex-column">
-                        {% for item in modules %}<li class="nav-item admin-nav-item" id="admin-nav-item-{{ item.id }}">
+                        {% for item in modules %}
+                        <li class="nav-item admin-nav-item" id="admin-nav-item-{{ item.id }}">
                             <a class="nav-link" href="{{ item.url }}">{% if item.icon %}<i class="fa fa-{{ item.icon }}"></i>&nbsp;{% endif %}{{ item.title[locale] }}</a>
                         </li>{% endfor %}
                     </ul>
