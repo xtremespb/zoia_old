@@ -323,7 +323,7 @@ module.exports = function(app) {
             log.error(e);
             res.send(JSON.stringify(output));
         }
-    };    
+    };
 
     let router = Router();
     router.post('/login', login);
@@ -332,6 +332,24 @@ module.exports = function(app) {
     router.all('/register/confirm', registerConfirm);
     router.all('/reset', reset);
     router.all('/reset/confirm', resetConfirm);
+
+    router.all('/test', async function(req, res) {
+        res.contentType('application/json');
+        const db = app.get('db');
+        const sortField = req.query.sort || 'firstname';
+        const skip = req.query.skip || 0;
+        const limit = req.query.limit || 10;
+        const total = await db.collection('test').find({}, { skip: skip, limit: limit, sort: sortField }).count();
+        const test = await db.collection('test').find({}, { skip: skip, limit: limit, sort: sortField }).toArray();
+        let data = {
+            count: test.length,
+            total: total,
+            items: test
+        }
+        setTimeout(function() {
+            res.send(JSON.stringify(data));
+        }, 1100);
+    })
 
     return {
         routes: router
