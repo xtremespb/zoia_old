@@ -1,149 +1,88 @@
+.za-navbar-container.za-navbar {
+    background: #32323a;
+}
+
+.za-navbar-nav>li.za-active>a {
+    color: #f5f5f5;
+}
+
+.za-navbar-nav>li>a {
+    color: #a5a5a5;
+}
+
+.za-navbar-nav>li>a:hover {
+    color: #fff;
+}
+
+.za-navbar,
+.za-navbar > * > *,
+.za-navbar-nav > li > a {
+    height: 64px;
+    text-transform: none;
+}
+
+.za-navbar-dropdown.za-open {
+    padding: 5px 10px 5px 20px;
+}
+
+.za-navbar-toggle {
+    margin-right: -10px;
+}
+
 html,
 body {
     height: 100%;
 }
 
-.admin-navbar {
-    /*border-right: 1px solid #c5d6de;*/
-    background: #f1f2f7;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    border-right: 1px solid #e0e1e7;
+.zoia-panel-logo {
+    margin-top: -2px;
 }
 
-.admin-navbar-hidden {
-    opacity: 0;
-}
-
-.admin-content {
-    background: #fff;
-    padding-top: 14px;
-    padding-bottom: 20px;
-    z-index: 100;
-}
-
-.admin-content-shift {
-    position: relative;
-    margin-left: -250px;
-    z-index: -1;
-}
-
-.admin-navbar-rsp {
-    width: 250px;
-}
-
-.admin-main-row {
-    padding-top: 50px;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    min-height: 100%
-}
-
-.admin-nav-item > .nav-link {
-    color: #333;
-}
-
-.admin-nav-item > .disabled {
-    color: #888;
-}
-
-.admin-nav-item:hover {
-    background: #aeb2b7;
-    transition: background 0.2s;
-}
-
-.admin-nav-item:hover > .nav-link:hover {
-    color: #000;
-}
-
-.admin-nav-item:hover > .disabled:hover {
-    color: #888;
-}
-
-.admin-nav-item-active > .nav-link {
-    color: #fff;
-}
-
-.admin-nav-item-active {
-    background: #474752;
-}
-
-.admin-nav-item-active:hover {
-    background: #474752;
-}
-
-.admin-nav-item-active:hover > .nav-link:hover {
-    color: #fff;
-}
-
-.admin-container-fluid {
-    min-height: 100%;
-}
-
-.admin-nav-toggle-icon {
-    color: #aeb2b7;
-}
-
-.admin-nav-toggle-icon:hover {
-    color: #ccc;
-}
-
-.admin-nav-toggle {
-    cursor: pointer;
-    float: left;
-    margin-top: 6px;
-}
-
-.admin-navbar-top {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    background-color: #32323a;
-    height:54px;
-}
-
-.admin-content-shadow {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    opacity: 0.4;
-    z-index: 100;
-}
-
-.admin-content-shadow-hidden {
-    display: none;
-}
-
-.admin-navbar-wrap {
-    height: 100%;
+.zoia-panel-nav-col {
     position: fixed;
     width: 250px;
-    margin-top: 4px;
+    border-right: 1px solid #ddd;
+    background: #f1f2f7;
 }
 
-.admin-panel-logo {
-    width: 65px;
-    height: 25px;
-    margin-top: 9px;
+.zoia-panel-nav-content {
+    display: flex;
+    min-height: 100%;
+    margin-left: 250px
 }
 
-.admin-panel-username {
-    color: #f3f3f3;
-    font-size: 90%;
-    margin-top: 7px;
-    cursor: pointer;
+.zoia-panel-nav-wrap {}
+
+.za-nav-default > li > a {
+    color: #555;
 }
 
-.admin-nav-float-left {
+.za-nav-default > li {
+    padding: 0 10px 0 10px;
+}
+
+.za-nav-default > li:hover {
+    background: #474752;
+}
+
+.za-nav-default > li.za-nav-active {
+    background: #474752;
+}
+
+.za-nav-default > li.za-nav-active > a{
+    color: #fff;
+}
+
+.za-nav-default > li:not(.za-nav-header) > a:hover {
+    color: #fff;
+}
+
+.za-icon {
     float: left;
 }
 
-.admin-nav-float-right {
-    float: right;
+@media (max-width: 640px) {
+    .zoia-panel-nav-content {
+        margin-left: 0;
+    }
 }

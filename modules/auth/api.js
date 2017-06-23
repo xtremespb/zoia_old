@@ -45,6 +45,7 @@ module.exports = function(app) {
         req.session.captcha = Math.random().toString().substr(2, 4);
         try {
             const passwordHash = crypto.createHash('md5').update(config.salt + fields.password.value).digest("hex");
+            console.log(passwordHash);
             const user = await db.collection('users').findOne({ username: fields.username.value, password: passwordHash });
             if (user == null || !user.status) {
                 output.result = -1;
@@ -336,19 +337,33 @@ module.exports = function(app) {
     router.all('/test', async function(req, res) {
         res.contentType('application/json');
         const db = app.get('db');
-        const sortField = req.query.sort || 'firstname';
-        const skip = req.query.skip || 0;
-        const limit = req.query.limit || 10;
-        const total = await db.collection('test').find({}, { skip: skip, limit: limit, sort: sortField }).count();
-        const test = await db.collection('test').find({}, { skip: skip, limit: limit, sort: sortField }).toArray();
-        let data = {
-            count: test.length,
-            total: total,
-            items: test
-        }
-        setTimeout(function() {
+        const sortField = req.query.sortField || 'firstname';
+        const sortDirection = (req.query.sortDirection == 'asc') ? 1 : -1;
+        const sort = {};
+        sort[sortField] = sortDirection;
+        const skip = parseInt(req.query.skip || 0);
+        const limit = parseInt(req.query.limit || 10);
+        const search = req.query.search || '';
+        console.log(search);
+        let fquery = {};
+        db.collection('test').ensureIndex({ '$**': 'text' });
+        try {
+            if (search) {
+                fquery = { $text: { $search: search } };
+            }
+            const total = await db.collection('test').find(fquery, { skip: skip, limit: limit }).count();
+            const test = await db.collection('test').find(fquery, { skip: skip, limit: limit }).sort(sort).toArray();
+            let data = {
+                count: test.length,
+                total: total,
+                items: test
+            }
+            console.log(data);
             res.send(JSON.stringify(data));
-        }, 1100);
+            //res.send('[]');
+        } catch (e) {
+            console.log(e);
+        }
     })
 
     return {

@@ -15,7 +15,7 @@ module.exports = class Captcha {
         // Load fonts
         if (!this.font1) { this.font1 = await Jimp.loadFont(Jimp.FONT_SANS_16_BLACK); }
         // Get image object        
-        let image = await new Jimp(120, 50, 0xE5E5E5FF);
+        let image = await new Jimp(120, 50, 0xFFFFFFFF);
         // Iterate the code string
         for (let x = 0; x < 120; x++) {
             for (let y = 0; y < 50; y++) {

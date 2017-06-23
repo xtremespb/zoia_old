@@ -38,7 +38,7 @@ module.exports = function(app) {
             id: moduleId,
             url: moduleURL,
             title: Module.getTitles(i18n),
-            icon: 'dashboard'
+            icon: 'cog'
         }
     }
 }

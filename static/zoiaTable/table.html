@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="bootstrap.min.css">
+    <script src="https://use.fontawesome.com/de72524e46.js"></script>
     <title>Zoia Table</title>
     <style type="text/css">
     .zoia-page {
@@ -23,18 +24,39 @@
     .page-item.active > .page-link:hover {
         color: #fff;
     }
+    
+    .zoiaTableSortingIndicator {
+        font-size: 80%;
+    }
     </style>
 </head>
 <bod>
     <div class="container">
         <h1>Example table</h1>
+        <div class="row">
+            <div class="col">
+                <div class="mb-2">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-secondary testBtnSelectAll">Select all</button>
+                        <button type="button" class="btn btn-secondary testBtnSelectNone">Select none</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col text-right">
+                <div class="input-group">
+                    <input type="text" class="testSearchInput" has-feedback>
+                    <i class="form-control-feedback fa fa-user"></i>
+                </div>
+            </div>
+        </div>
         <table class="table" id="test">
             <thead>
                 <tr>
-                    <th style="width:15px"></th>
-                    <th class="firstname">First Name</th>
-                    <th class="lastname">Last Name</th>
-                    <th class="username">Username</th>
+                    <th id="testID" style="width:15px"></th>
+                    <th id="test_firstname">First Name</th>
+                    <th id="test_lastname">Last Name</th>
+                    <th id="test_username">Username</th>
+                    <th id="test_actions" style="width:200px">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -47,27 +69,34 @@
     <script type="text/javascript">
     $('#test').zoiaTable({
         url: 'http://127.0.0.1:3000/api/auth/test',
-        limit: 3,
+        limit: 10,
+        sort: {
+            field: 'firstname',
+            direction: 'asc'
+        },
         fields: {
             firstname: {
                 sortable: true,
-                selector: 'firstname',
-                process: function(items, item, value) {
+                process: function(id, item, value) {
                     return value;
                 }
             },
             lastname: {
                 sortable: true,
-                selector: 'lastname',
-                process: function(items, item, value) {
+                process: function(id, item, value) {
                     return value;
                 }
             },
             username: {
                 sortable: true,
-                selector: 'username',
-                process: function(items, item, value) {
+                process: function(id, item, value) {
                     return value;
+                }
+            },
+            actions: {
+                sortable: false,
+                process: function(id, item, value) {
+                    return '<button type="button" class="btn btn-secondary">Edit</button>&nbsp;<button type="button" class="btn btn-secondary">Delete</button>';
                 }
             }
         }

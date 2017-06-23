@@ -5,14 +5,14 @@ const showLoading = function(show) {
 }
 
 const showError = function(field, error) {
-    $('#' + field + 'Error').html(error);
-    $('#' + field + 'Error').show();
+    zaUIkit.notification(error, { status: 'danger', timeout: 1500 });
 }
 
 $(document).ready(function() {
     // Login form submit
     $('#zoia-login-form').submit(function(e) {
         e.preventDefault();
+        zaUIkit.notification.closeAll()
         if ($('.zoia-login-btn').hasClass('zoia-btn-loading')) {
             return;
         }
@@ -25,14 +25,11 @@ $(document).ready(function() {
         };
         let fields = checkRequest(request, scheme),
             failed = getCheckRequestFailedFields(fields);
-        $('#zoia-login-form').removeClass('has-danger');
-        $('.zoia-login-field').removeClass('form-control-danger');
-        $('.formError').hide();
+        $('.zoia-login-field').removeClass('za-form-danger');
         if (failed.length > 0) {
-            $('#zoia-login-form').addClass('has-danger');
             let focusSet = false;
             for (let i in failed) {
-                $('#' + failed[i]).addClass('form-control-danger');
+                $('#' + failed[i]).addClass('za-form-danger');
                 showError(failed[i], lang.fieldErrors[failed[i]]);
                 if (!focusSet) {
                     $('#' + failed[i]).focus();
@@ -55,10 +52,9 @@ $(document).ready(function() {
                 captchaRefresh();
                 showLoading(false);
                 if (res.fields) {
-                    $('#zoia-login-form').addClass('has-danger');
                     for (let i in res.fields) {
                         let focusSet = false;
-                        $('#' + res.fields[i]).addClass('form-control-danger');
+                        $('#' + res.fields[i]).addClass('za-form-danger');
                         showError(res.fields[i], lang.fieldErrors[res.fields[i]]);
                         if (!focusSet) {
                             $('#' + res.fields[i]).focus();
@@ -67,9 +63,8 @@ $(document).ready(function() {
                     }
                 }
                 if (res && res.result && res.result == -1) {
-                    $('#zoia-login-form').addClass('has-danger');
                     $('#username').focus();
-                    $('#username').add('#password').addClass('form-control-danger');
+                    $('#username').add('#password').addClass('za-form-danger');
                     showError('form', lang['Invalid username or password']);
                 } else {
                     if (!res.fields) { showError('form', lang['Error while authorizing']); }

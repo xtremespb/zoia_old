@@ -19,14 +19,14 @@ const showErrorTop = function(error) {
 
 $(document).ready(function() {
     // Login form submit
-    $('#zoia-register-form').submit(function(e) {
+    $('#zoia_register_form').submit(function(e) {
         e.preventDefault();
         if ($('.zoia-register-btn').hasClass('zoia-btn-loading')) {
             return;
         }
         showLoading(false);
         $('.formErrorTop').hide();
-        $('#zoia-register-form').removeClass('has-danger');
+        $('#zoia_register_form').removeClass('has-danger');
         $('.zoia-register-field').removeClass('form-control-danger');
         const scheme = getRegisterFields();
         let request = {
@@ -39,7 +39,7 @@ $(document).ready(function() {
         let fields = checkRequest(request, scheme),
             failed = getCheckRequestFailedFields(fields);
         if (request.password != request.passwordConfirm) {
-            $('#zoia-register-form').addClass('has-danger');
+            $('#zoia_register_form').addClass('has-danger');
             $('#password').addClass('form-control-danger');
             $('#passwordConfirm').addClass('form-control-danger');
             showError("password", lang.fieldErrors.passwordsNotMatch);
@@ -51,7 +51,7 @@ $(document).ready(function() {
         }
         $('.formError').hide();
         if (failed.length > 0) {
-            $('#zoia-register-form').addClass('has-danger');
+            $('#zoia_register_form').addClass('has-danger');
             let focusSet = false;
             for (let i in failed) {
                 $('#' + failed[i]).addClass('form-control-danger');
@@ -72,7 +72,7 @@ $(document).ready(function() {
             cache: false
         }).done(function(res) {
             if (res && res.result == 1) {
-                $('#zoia-register-form').hide();
+                $('#zoia_register_form').hide();
                 $('#registrationSuccessful').show();
                 $('html, body').animate({
                     scrollTop: $('.zoia-reg-header').offset().top - 20
@@ -81,7 +81,7 @@ $(document).ready(function() {
                 captchaRefresh();
                 showLoading(false);
                 if (res.fields) {
-                    $('#zoia-register-form').addClass('has-danger');
+                    $('#zoia_register_form').addClass('has-danger');
                     for (let i in res.fields) {
                         let focusSet = false;
                         $('#' + res.fields[i]).addClass('form-control-danger');
@@ -93,7 +93,7 @@ $(document).ready(function() {
                     }
                 }
                 if (res.fields && res.result < 0) {
-                    $('#zoia-register-form').addClass('has-danger');
+                    $('#zoia_register_form').addClass('has-danger');
                     switch (res.result) {
                         case -1:
                             showError('username', lang.fieldErrors.usernameTaken);
