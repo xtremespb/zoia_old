@@ -1,103 +1,19 @@
-.form-control:focus:not(.form-control-danger) {
-    border-color: rgb(160, 160, 160);
-    outline: 0;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .045), 0 0 8px rgb(180, 180, 180);
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .045), 0 0 8px rgb(180, 180, 180);
-}
-
-.form-control:not(.form-control-danger) {
-    border-color: rgb(160, 160, 160);
-    outline: 0;
-}
-
-.zoia-captcha-img {
-    cursor: pointer;
-    border: 1px solid #aaa;
-    border-radius: 5px;
-    margin-left: 10px;
-}
-
-#captcha {
-    height: 51px;
-    width: 100px;
-    text-align: center;
-}
-
-.zoia-res-header {
-    margin-bottom: 20px;
-}
-
-.zoia-captcha-refresh {
-    margin-left: -20px;
-    margin-top: 20px;
-    color: #3E606F;
-    opacity: 0.5;
-    cursor: pointer;
-}
-
-.zoia-reset-btn:focus:not(.zoia-btn-loading) {
-    outline-style: none;
-    outline-width: 0px !important;
-    outline-color: none !important;
-    box-shadow: none;
-}
-
-.zoia-reset-btn:focus:not(.zoia-btn-loading) {
-    outline-style: none;
-    outline-width: 0px !important;
-    outline-color: none !important;
-    box-shadow: none;
-}
-
-.zoia-btn-loading {
-    background: #aaa;
-    border: 0;
-}
-
-.zoia-btn-loading:hover,
-.zoia-btn-loading:focus {
-    background: #aaa;
-    box-shadow: none;
-}
-
-.zoia-reset-btn:not(.zoia-btn-loading) {
-    background: #374140;
-    border: 0;
-    border: none !important;
-    outline: none !important;
-}
-
-.zoia-reset-btn:hover:not(.zoia-btn-loading) {
-    background: #3E606F;
-    border: 0;
-    box-shadow: none;
-}
-
-.zoia-reset-btn:focus:not(.zoia-btn-loading) {
-    outline-style: none;
-    outline-width: 0px !important;
-    outline-color: none !important;
-    box-shadow: none;
-}
-
-.zoia-captcha-wrap {
-    width: 130px;
-    height: 51px;
-}
+.za-input:focus:not(.za-form-danger) {
+    border: 1px solid #5B7876;
+} 
 
 .zoia-spinner {
     display: none;
 }
 
 .zoia-spinner > div {
-    width: 8px;
-    height: 8px;
-    background-color: #fff;
+    width: 15px;
+    height: 15px;
+    background-color: #ddd;
     border-radius: 100%;
     display: inline-block;
     -webkit-animation: bouncedelay 1.4s infinite ease-in-out;
     animation: bouncedelay 1.4s infinite ease-in-out;
-    /* Prevent first frame from flickering when animation starts */
     -webkit-animation-fill-mode: both;
     animation-fill-mode: both;
 }
@@ -136,14 +52,22 @@
     }
 }
 
-.formError {
-    margin-bottom: 10px;
-    margin-top: -5px;
-    display: none;
+.zoia-captcha-img-wrap {
+    margin-bottom: -10px;
 }
 
-.formErrorTop {
-	margin-bottom: 10px;
-    margin-top: -5px;
-    display: none;	
+.zoia-captcha-img {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#captcha {
+    height: 50px;
+    width: 80px;
+    text-align: center;
+}
+
+.zoia-help-text {
+    font-size: 75%;
 }

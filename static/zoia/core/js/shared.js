@@ -71,6 +71,83 @@
             }
         }
         return result;
+    },
+    showLoading: function(show) {
+        show ? $('.zoia-form-btn').addClass('zoia-btn-loading') : $('.zoia-form-btn').removeClass('zoia-btn-loading');
+        show ? $('.zoia-form-btn-label').hide() : $('.zoia-form-btn-label').show();
+        show ? $('.zoia-spinner').show() : $('.zoia-spinner').hide();
+    },
+    showError: function(field, error) {
+        if (field) {
+            $('#' + field).addClass('za-form-danger');
+        }
+        if (error) {
+            zaUIkit.notification(error, { status: 'danger', timeout: 1500 });
+        }
+    },
+    formPreprocess: function(request, fields, failed) {
+        zaUIkit.notification.closeAll()
+        if ($('.zoia-form-btn').hasClass('zoia-btn-loading')) {
+            return false;
+        }
+        $('.zoia-form-field').removeClass('za-form-danger');
+        showLoading(false);
+        $('.formError').hide();
+        if (failed.length > 0) {
+            if (fields.password && !fields.password.success) {
+                failed.push('passwordConfirm');
+            }
+            let focusSet = false;
+            for (let i in failed) {
+                $('#' + failed[i]).addClass('za-form-danger');
+                if (!failed[i].match(/Confirm/)) {
+                    showError(failed[i], lang.fieldErrors[failed[i]]);
+                }
+                if (!focusSet) {
+                    $('#' + failed[i]).focus();
+                    focusSet = true;
+                }
+            }
+            return false;
+        }        
+        if (request.passwordConfirm && request.password != request.passwordConfirm) {
+            $('#password').addClass('za-form-danger');
+            $('#passwordConfirm').addClass('za-form-danger');
+            showError("password", lang.fieldErrors.passwordsNotMatch);
+            $('#password').focus();
+            return false;
+        }
+        showLoading(true);
+        let data = getFieldValues(fields);
+        return data;
+    },
+    formPostprocess: function(request, res) {
+        captchaRefresh();
+        showLoading(false);
+        var errors = false;
+        if (res.fields) {
+            for (let i in res.fields) {
+                let focusSet = false;
+                $('#' + res.fields[i]).addClass('za-form-danger');
+                showError(res.fields[i], lang.fieldErrors[res.fields[i]]);
+                errors = true;
+                if (!focusSet) {
+                    $('#' + res.fields[i]).focus();
+                    focusSet = true;
+                }
+            }
+        }
+        return errors;
+    },
+    captchaRefresh: function() {
+        $(".zoia-captcha-img").show();
+        $(".zoia-captcha-img").attr("src", "/api/captcha?" + new Date().getTime());
+        $('#captcha').val('');
+    },
+    initCaptcha: function() {
+        captchaRefresh();
+        $('.zoia-captcha-img, .zoia-captcha-refresh').click(function() {
+            captchaRefresh();
+        });
     }
-
 }, typeof exports === "undefined" ? this : exports);

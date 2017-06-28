@@ -46,5 +46,7 @@
 	"Confirm password reset": "Confirm password reset",
 	"Set new password": "Set new password",
 	"Password change was successful. You may login to the website using your new password right now.": "Password change was successful. You may login to the website using your new password right now.",
-	"Set": "Set"
+	"Set": "Set",
+	"Minimal length: 5 characters, type twice to verify": "Minimal length: 5 characters, type twice to verify",
+	"New password": "New password"
 }

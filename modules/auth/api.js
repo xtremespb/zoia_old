@@ -293,14 +293,12 @@ module.exports = function(app) {
         let fieldsFailed = shared.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
             output.result = 0;
+            console.log('P1');
             output.fields = fieldsFailed;
             return res.send(JSON.stringify(output));
         }
         try {
             const user = await db.collection('users').findOne({ username: fields.username.value });
-            console.log(user);
-            console.log(fields.code.value);
-            console.log(user.activationCode);
             if (user == null || user.status == 0 || fields.code.value != user.activationCode) {
                 output.result = -1;
                 return res.send(JSON.stringify(output));
@@ -315,6 +313,7 @@ module.exports = function(app) {
                 }
             });
             if (!updResult || !updResult.result || !updResult.result.ok) {
+                console.log('P2');
                 output.result = 0;
                 return res.send(JSON.stringify(output));
             }

@@ -1,37 +1,41 @@
-<div class="zoia-res-header">
+<div class="zoia-form-header">
     <h1>{{ i18n.__(locale, 'Reset password') }}</h1>
 </div>
-<form id="zoia-reset-form">
-    <div class="form-group">
-        <label for="email">{{ i18n.__(locale, 'E-mail') }}:</label>
-        <div id="emailError" style="display:none" class="formError badge badge-danger"></div>
-        <input type="email" class="zoia-reset-field form-control col-lg-5 col-md-8 col-sm-12" id="email" aria-describedby="emailHelp" autofocus>
-        <small id="emailHelp" class="form-text text-muted">{{ i18n.__(locale, 'Example: user@domain.com') }}</small>
+<form id="zoia_reset_form" class="za-form-stacked">
+    <div class="za-margin">
+        <label class="za-form-label" for="email">{{ i18n.__(locale, 'E-mail') }}:</label>
+        <div class="za-form-controls">
+            <input class="za-input za-width-medium zoia-form-field" id="email" type="email" placeholder="" autofocus>
+            <div class="zoia-help-text">{{ i18n.__(locale, 'Example: user@domain.com') }}</div>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="password">{{ i18n.__(locale, 'Captcha') }}&nbsp;:</label>
-        <div id="captchaError" style="display:none" class="formError badge badge-danger"></div>
-        <div class="form-inline">
-            <input type="text" class="zoia-reset-field form-control" id="captcha" aria-describedby="captchaHelp">
-            <div class="zoia-captcha-wrap">
-                <img src="/api/captcha" class="zoia-captcha-img" style="display:none">
+    <div>
+        <label class="za-form-label za-margin" for="captcha">{{ i18n.__(locale, 'Code') }}:</label>
+    </div>
+    <div class="za-grid za-grid-small">
+        <div>
+            <input class="za-input zoia-form-field" type="text" placeholder="" id="captcha">
+        </div>
+        <div>
+            <div class="za-form-controls">
+                <img class="zoia-captcha-img">
             </div>
-            <i class="fa fa-refresh zoia-captcha-refresh" aria-hidden="true"></i>
         </div>
-        <small id="captchaHelp" class="form-text text-muted">{{ i18n.__(locale, '4 digits') }}</small>
     </div>
-    <button class="btn btn-primary zoia-reset-btn" type="submit">
-        <div class="zoia-spinner">
-            <div class="zoia-spinner-bounce1"></div>
-            <div class="zoia-spinner-bounce2"></div>
-            <div class="zoia-spinner-bounce3"></div>
-        </div>
-        <div class="zoia-reset-btn-label">{{ i18n.__(locale, 'Reset') }}</div>
-    </button>
+    <div class="za-margin zoia-form-wrap">
+        <button class="za-button za-button-default za-button-large zoia-form-btn">
+            <div class="zoia-spinner">
+                <div class="zoia-spinner-bounce1"></div>
+                <div class="zoia-spinner-bounce2"></div>
+                <div class="zoia-spinner-bounce3"></div>
+            </div>
+            <div class="zoia-form-btn-label">{{ i18n.__(locale, 'Reset') }}</div>
+        </button>
+    </div>
 </form>
 <div id="requestSuccessful" style="display:none">
-  <p>{{ i18n.__(locale, 'Request was successful.') }}</p>
-  <p>{{ i18n.__(locale, 'Please check your mailbox and click the confirmation link.') }}</p>
+    <p>{{ i18n.__(locale, 'Request was successful.') }}</p>
+    <p>{{ i18n.__(locale, 'Please check your mailbox and click the confirmation link.') }}</p>
 </div>
 <script type="text/javascript">
 const lang = {{ lang }};

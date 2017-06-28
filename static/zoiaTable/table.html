@@ -4,8 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="bootstrap.min.css">
-    <script src="https://use.fontawesome.com/de72524e46.js"></script>
+    <link rel="stylesheet" href="/zoia/3rdparty/uikit/css/uikit.min.css">
     <title>Zoia Table</title>
     <style type="text/css">
     .zoia-page {
@@ -28,35 +27,47 @@
     .zoiaTableSortingIndicator {
         font-size: 80%;
     }
+    
+    .zoiaTableSearchWrap {
+        text-align: right;
+    }
+    
+    .za-pagination > li.za-active > a {
+        font-weight: bold;
+    }
+
     </style>
 </head>
-<bod>
-    <div class="container">
+
+<body>
+    <div class="za-container">
         <h1>Example table</h1>
-        <div class="row">
-            <div class="col">
-                <div class="mb-2">
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-secondary testBtnSelectAll">Select all</button>
-                        <button type="button" class="btn btn-secondary testBtnSelectNone">Select none</button>
-                    </div>
-                </div>
+        <div class="za-grid za-grid-small">
+            <div>
+                <ul class="za-iconnav">
+                    <li>
+                        <button za-icon="icon: plus-circle; ratio: 1.8" class="testBtnSelectAll"></button>
+                    </li>
+                    <li>
+                        <button za-icon="icon: minus-circle; ratio: 1.8" class="testBtnSelectNone"></button>
+                    </li>
+                </ul>
             </div>
-            <div class="col text-right">
-                <div class="input-group">
-                    <input type="text" class="testSearchInput" has-feedback>
-                    <i class="form-control-feedback fa fa-user"></i>
+            <div class="za-width-expand">
+                <div class="za-inline za-float-right">
+                    <span class="za-form-icon" za-icon="icon: search"></span>
+                    <input type="text" class="testSearchInput za-input za-width-medium">
                 </div>
             </div>
         </div>
-        <table class="table" id="test">
+        <table class="za-table za-table-divider za-table-striped za-table-hover" id="test">
             <thead>
                 <tr>
                     <th id="testID" style="width:15px"></th>
                     <th id="test_firstname">First Name</th>
                     <th id="test_lastname">Last Name</th>
                     <th id="test_username">Username</th>
-                    <th id="test_actions" style="width:200px">Actions</th>
+                    <th id="test_actions" style="width:100px" class="za-width-small">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -65,11 +76,13 @@
         <div class="testPagination"></div>
     </div>
     <script src="jquery.min.js" type="text/javascript"></script>
+    <script src="/zoia/3rdparty/uikit/js/uikit.min.js" type="text/javascript"></script>
+    <script src="/zoia/3rdparty/uikit/js/uikit-icons.min.js" type="text/javascript"></script>
     <script src="jquery.zoiaTable.js" type="text/javascript"></script>
     <script type="text/javascript">
     $('#test').zoiaTable({
         url: 'http://127.0.0.1:3000/api/auth/test',
-        limit: 10,
+        limit: 1,
         sort: {
             field: 'firstname',
             direction: 'asc'
@@ -102,6 +115,6 @@
         }
     });
     </script>
-    </body>
+</body>
 
 </html>

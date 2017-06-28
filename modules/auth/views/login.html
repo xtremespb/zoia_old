@@ -11,21 +11,18 @@
 
 <body class="za-flex za-flex-center za-flex-middle">
     <div>
-        <div class="zoia-logo">
-            <img src="{{ config.website.logo.small.url }}" class="zoia-logo-img">
-        </div>
         <div class="za-card za-card-default za-card-body za-card-small">
-            <form class="za-form-stacked" id="zoia-login-form">
+            <form class="za-form-stacked" id="zoia_auth_form">
                 <div class="za-margin">
                     <label class="za-form-label" for="username">{{ i18n.__(locale, 'Username') }}:</label>
                     <div class="za-form-controls">
-                        <input class="za-input zoia-login-field" type="text" placeholder="" autofocus="" id="username">
+                        <input class="za-input zoia-form-field" type="text" placeholder="" autofocus="" id="username">
                     </div>
                 </div>
                 <div class="za-margin">
                     <label class="za-form-label" for="password">{{ i18n.__(locale, 'Password') }}:</label>
                     <div class="za-form-controls">
-                        <input class="za-input zoia-login-field" type="password" placeholder="" id="password">
+                        <input class="za-input zoia-form-field" type="password" placeholder="" id="password">
                     </div>
                 </div>
                 <div>
@@ -33,22 +30,22 @@
                 </div>
                 <div class="za-grid za-grid-small">
                     <div>
-                        <input class="za-input zoia-login-field" type="text" placeholder="" id="captcha">
+                        <input class="za-input zoia-form-field" type="text" placeholder="" id="captcha">
                     </div>
                     <div>
                         <div class="za-form-controls">
-                            <img class="zoia-auth-captcha">
+                            <img class="zoia-captcha-img">
                         </div>
                     </div>
                 </div>
                 <div class="za-margin zoia-signin-wrap">
-                    <button class="za-button za-button-default za-button-large zoia-login-btn">
+                    <button class="za-button za-button-default za-button-large zoia-form-btn">
                         <div class="zoia-spinner">
                             <div class="zoia-spinner-bounce1"></div>
                             <div class="zoia-spinner-bounce2"></div>
                             <div class="zoia-spinner-bounce3"></div>
                         </div>
-                        <div class="zoia-login-btn-label">{{ i18n.__(locale, 'Sign In') }}</div>
+                        <div class="zoia-form-btn-label">{{ i18n.__(locale, 'Sign In') }}</div>
                     </button>
                 </div>
             </form>

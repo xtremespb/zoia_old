@@ -8,9 +8,8 @@ html {
     background: #ECF0F1;
 }
 
-.zoia-logo {
-    text-align: center;
-    margin-bottom: 10px;
+.za-card {
+    min-width: 260px;
 }
 
 .za-input:focus:not(.za-form-danger) {
@@ -33,14 +32,6 @@ html {
     font-size: 50%;
     color: #666;
     margin-top: 5px;
-}
-
-.formError {
-    font-size: 60%;
-    margin-bottom: 10px;
-    margin-top: -5px;
-    color: #B9121B;
-    display: none;
 }
 
 .zoia-links {
@@ -104,11 +95,7 @@ html {
     }
 }
 
-.zoia-auth-captcha-wrap {
-    margin-bottom: -10px;
-}
-
-.zoia-auth-captcha {
+.zoia-captcha-img {
     border: 1px solid #ddd;
     border-radius: 5px;
     cursor: pointer;
@@ -118,8 +105,4 @@ html {
     height: 50px;
     width: 80px;
     text-align: center;
-}
-
-#captchaError {
-    margin-top: -20px;
 }

@@ -12,12 +12,12 @@
                 spinnerHTML: '<div style="width:40px;height:40px;background-color:#333;-webkit-animation:sk-rotateplane 1.2s infinite ease-in-out;animation: sk-rotateplane 1.2s infinite ease-in-out;margin: auto;position: absolute;top:0;left:0;bottom:0;right:0"></div>',
                 spinnerWrapCSS: 'background:#fff;position:absolute;opacity:0.6',
                 headCSS: '@-webkit-keyframes sk-rotateplane{0%{-webkit-transform:perspective(120px)}50%{-webkit-transform:perspective(120px) rotateY(180deg)}100%{-webkit-transform:perspective(120px) rotateY(180deg) rotateX(180deg)}}@keyframes sk-rotateplane{0%{transform:perspective(120px) rotateX(0deg) rotateY(0deg);-webkit-transform:perspective(120px) rotateX(0deg) rotateY(0deg)}50%{transform:perspective(120px) rotateX(-180.1deg) rotateY(0deg);-webkit-transform:perspective(120px) rotateX(-180.1deg) rotateY(0deg)}100%{transform:perspective(120px) rotateX(-180deg) rotateY(-179.9deg);-webkit-transform:perspective(120px) rotateX(-180deg) rotateY(-179.9deg)}}',
-                listWrapStartHTML: '<ul class="pagination">',
+                listWrapStartHTML: '<ul class="za-pagination za-flex-center" za-margin>',
                 listWrapEndHTML: '</ul>',
-                itemPagePrevHTML: '<li class="page-item"><a class="page-link zoia-page {elementId}PaginationLink" data-page="{page}">&laquo;</a></li>',
-                itemPageNextHTML: '<li class="page-item"><a class="page-link zoia-page {elementId}PaginationLink" data-page="{page}">&raquo;</a></li>',
-                itemPageHTML: '<li class="page-item"><a class="page-link zoia-page {elementId}PaginationLink" data-page="{page}">{page}</a></li>',
-                itemPageDotsHTML: '<li class="page-item"><span class="page-link zoia-page-dots">...</span></li>',
+                itemPagePrevHTML: '<li><a href="#"><a class="zoia-page {elementId}PaginationLink" data-page="{page}"><span za-pagination-previous></span></a></li>',
+                itemPageNextHTML: '<li><a href="#"><a class="zoia-page {elementId}PaginationLink" data-page="{page}"><span za-pagination-next></span></a></li>',
+                itemPageHTML: '<li><a class="zoia-page {elementId}PaginationLink" data-page="{page}">{page}</a></li>',
+                itemPageDotsHTML: '<li class="za-disabled"><span>...</span></li>',
                 arrowDown: '&nbsp;&#x25BC;',
                 arrowUp: '&nbsp;&#x25B2;'
             },
@@ -251,7 +251,7 @@
                     }
                     $(that.element).find('tbody').html(html);
                     that._loading(false);
-                    $('*[data-page="' + that.page + '"]').parent().addClass('active');
+                    $('*[data-page="' + that.page + '"]').parent().addClass('za-active');
                     that._bindSelectButtons();
                     if (that.settings.sort.field) {
                         that._sortIndicator(that.settings.sort.field, that.settings.sort.direction);

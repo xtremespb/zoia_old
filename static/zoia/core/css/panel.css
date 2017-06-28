@@ -48,7 +48,7 @@ body {
 .zoia-panel-nav-content {
     display: flex;
     min-height: 100%;
-    margin-left: 250px
+    margin-left: 240px
 }
 
 .zoia-panel-nav-wrap {}
@@ -85,4 +85,18 @@ body {
     .zoia-panel-nav-content {
         margin-left: 0;
     }
+}
+
+.zoia-panel-nav-content-wrap {
+    width: 100%;
+    padding: 10px 10px 10px 10px;
+}
+
+.zoia-nav-menu > li {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.zoia-nav-menu > li:hover > a {
+    color: #f5f5f5;
 }
