@@ -7,35 +7,26 @@
     <link rel="stylesheet" href="/zoia/3rdparty/uikit/css/uikit.min.css">
     <title>Zoia Table</title>
     <style type="text/css">
-    .zoia-page {
-        cursor: pointer;
-    }
-    
-    .zoia-page-dots {
-        border-top: none;
-        border-bottom: none;
-    }
-    
-    .zoia-page-dots:hover {
-        background: transparent;
-    }
-    
-    .page-item.active > .page-link:hover {
-        color: #fff;
-    }
-    
     .zoiaTableSortingIndicator {
         font-size: 80%;
-    }
-    
-    .zoiaTableSearchWrap {
-        text-align: right;
     }
     
     .za-pagination > li.za-active > a {
         font-weight: bold;
     }
+    
+    .noselect {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
 
+    .testSearchInput {
+        height: 35px;
+    }
     </style>
 </head>
 
@@ -44,7 +35,7 @@
         <h1>Example table</h1>
         <div class="za-grid za-grid-small">
             <div>
-                <ul class="za-iconnav">
+                <ul class="za-iconnav za-hidden@m">
                     <li>
                         <button za-icon="icon: plus-circle; ratio: 1.8" class="testBtnSelectAll"></button>
                     </li>
@@ -52,6 +43,10 @@
                         <button za-icon="icon: minus-circle; ratio: 1.8" class="testBtnSelectNone"></button>
                     </li>
                 </ul>
+                <div class="za-button-group za-visible@m">
+                    <button class="za-button za-button-default testBtnSelectAll">Select all</button>
+                    <button class="za-button za-button-default testBtnSelectNone">Select none</button>
+                </div>
             </div>
             <div class="za-width-expand">
                 <div class="za-inline za-float-right">
@@ -60,20 +55,23 @@
                 </div>
             </div>
         </div>
-        <table class="za-table za-table-divider za-table-striped za-table-hover" id="test">
-            <thead>
-                <tr>
-                    <th id="testID" style="width:15px"></th>
-                    <th id="test_firstname">First Name</th>
-                    <th id="test_lastname">Last Name</th>
-                    <th id="test_username">Username</th>
-                    <th id="test_actions" style="width:100px" class="za-width-small">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-        <div class="testPagination"></div>
+        <div class="za-overflow-auto">
+            <div class="testPagination za-margin-top noselect"></div>
+            <table class="za-table za-table-divider za-table-striped za-table-hover" id="test">
+                <thead class="noselect">
+                    <tr>
+                        <th id="testID"style="width:15px"></th>
+                        <th id="test_firstname">First Name</th>
+                        <th id="test_lastname">Last Name</th>
+                        <th id="test_username">Username</th>
+                        <th id="test_actions" style="width:100px" class="za-width-small">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div class="testPagination za-margin noselect"></div>
     </div>
     <script src="jquery.min.js" type="text/javascript"></script>
     <script src="/zoia/3rdparty/uikit/js/uikit.min.js" type="text/javascript"></script>
@@ -82,7 +80,7 @@
     <script type="text/javascript">
     $('#test').zoiaTable({
         url: 'http://127.0.0.1:3000/api/auth/test',
-        limit: 1,
+        limit: 5,
         sort: {
             field: 'firstname',
             direction: 'asc'

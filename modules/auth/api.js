@@ -345,7 +345,7 @@ module.exports = function(app) {
         const search = req.query.search || '';
         console.log(search);
         let fquery = {};
-        db.collection('test').ensureIndex({ '$**': 'text' });
+        //db.collection('test').ensureIndex({ '$**': 'text' });
         try {
             if (search) {
                 fquery = { $text: { $search: search } };
@@ -359,6 +359,9 @@ module.exports = function(app) {
             }
             console.log(data);
             res.send(JSON.stringify(data));
+            /*setTimeout(function() {
+                res.send(JSON.stringify(data));
+            }, 1000);*/
             //res.send('[]');
         } catch (e) {
             console.log(e);
