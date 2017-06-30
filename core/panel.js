@@ -7,7 +7,7 @@ module.exports = class Panel {
         this.render = new(require(path.join(__dirname, 'render.js')))(path.join(__dirname, 'views'), undefined, app);
         this.i18n = new(require(path.join(__dirname, 'i18n.js')))(path.join(__dirname, 'lang'), app);
     }
-    async html(req, id, title, data) {
+    async html(req, id, title, data, extraCSS, extraJS) {
         const locale = req.session.currentLocale,
             auth = req.session.auth;
         return await this.render.file('panel.html', {
@@ -18,7 +18,9 @@ module.exports = class Panel {
             moduleId: id,
             moduleName: title,
             modules: this.app.get('backendModules'),
-            auth: auth
+            auth: auth,
+            extraJS: extraJS,
+            extraCSS: extraCSS
         });
     }
 }

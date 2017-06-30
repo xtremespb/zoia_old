@@ -4,12 +4,13 @@ module.exports = function(app) {
         backend = require(path.join(__dirname, 'backend.js'))(app);
 
     return {
-        frontend: {
-            prefix: '/auth',
-            routes: frontend.routes
+        backend: {
+            prefix: '/users',
+            routes: backend.routes,
+            info: backend.info
         },
         api: {
-            prefix: '/auth',
+            prefix: '/users',
             routes: api.routes
         }
     };

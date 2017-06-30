@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="/zoia/3rdparty/uikit/css/uikit.min.css" />
     <link rel="stylesheet" href="/zoia/3rdparty/uikit/css/uikit.min.css" />
     <link rel='stylesheet' href='/zoia/3rdparty/perfect-scrollbar/css/perfect-scrollbar.min.css' />
-    <link rel="stylesheet" href="/zoia/core/css/panel.css">
+    <link rel="stylesheet" href="/zoia/core/css/panel.css">{% if extraCSS %} {% for item in extraCSS %}
+    <link rel="stylesheet" href="{{ item }}">{% endfor %}{% endif %}
 </head>
 
 <body>
@@ -61,7 +62,8 @@
         $('.zoia-panel-nav-col').height($(window).height() - $('.zoia-panel-navbar').height());
         $('.zoia-panel-nav-col').perfectScrollbar('update');
     });
-    </script>
+    </script>{% if extraJS %}
+    {% for item in extraJS %}<script src="{{ item }}" type="text/javascript"></script>{% endfor %}{% endif %}
 </body>
 
 </html>

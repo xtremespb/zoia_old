@@ -12,6 +12,8 @@ module.exports = function(app) {
         render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), undefined, app),
         log = app.get('log');
 
+    const sortFields = ['username', 'email', 'status'];
+
     let list = async function(req, res, next) {
         res.contentType('application/json');
         const db = app.get('db');
@@ -22,6 +24,13 @@ module.exports = function(app) {
         const skip = parseInt(req.query.skip || 0);
         const limit = parseInt(req.query.limit || 10);
         const search = req.query.search || '';
+        let result = {
+            status: 0
+        };
+        if (sortFields.indexOf(sortField) == -1) {
+            result.failedField = 'sortField';
+            return res.send(result);
+        }
         let fquery = {};
         try {
             if (search) {
@@ -38,13 +47,14 @@ module.exports = function(app) {
             res.send(JSON.stringify(data));
         } catch (e) {
             res.send(JSON.stringify({
-                status: 0
+                status: 0,
+                error: e.message
             }))
         }
     };
 
     let router = Router();
-    router.post('/list', list);
+    router.get('/list', list);
 
     return {
         routes: router

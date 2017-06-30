@@ -12,7 +12,7 @@ module.exports = function(app) {
         panel = new(require(path.join(__dirname, '..', '..', 'core', 'panel.js')))(app),
         render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), undefined, app);
 
-    let test = async(req, res, next) => {
+    let dashboard = async(req, res, next) => {
         try {
             if (!Module.isAuthorizedAdmin(req)) {
                 return res.redirect(303, '/auth?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace(".", ""));
@@ -31,7 +31,7 @@ module.exports = function(app) {
     };
 
     let router = Router();
-    router.get('/', test);
+    router.get('/', dashboard);
     return {
         routes: router,
         info: {
