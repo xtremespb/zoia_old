@@ -20,7 +20,8 @@ module.exports = function(app) {
             let html = await render.file('users.html', {
                 i18n: i18n.get(),
                 config: config,
-                locale: locale
+                locale: locale,
+                lang: JSON.stringify(i18n.get().locales[locale])
             });
             res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, ['/users/static/css/users.css'], ['/zoia/core/js/jquery.zoiaTable.js', '/users/static/js/users.js']));
         } catch (e) {

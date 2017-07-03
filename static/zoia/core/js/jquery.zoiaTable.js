@@ -23,7 +23,8 @@
                 errorText: 'Could not load data from server. Please try to refresh page in a few moments.',
                 errorHTML: '<tr><td colspan="100%">{error}</td></tr>'
             },
-            sort: {}
+            sort: {},
+            onLoad: function() {}
         };
 
     // The actual plugin constructor
@@ -84,7 +85,7 @@
         },
         _sortColumn(e) {
             e.preventDefault();
-            if (!e.target.id) {
+            if (!e.target.id || e.target.id == (this.element.id + 'SortingIndicator')) {
                 return;
             }
             var id = e.target.id.replace(new RegExp('^' + this.element.id + '_'), '');
@@ -235,7 +236,7 @@
                         html += '<tr>';
                         for (var h in that.header) {
                             if (that.header[h] == that.element.id + 'ID') {
-                                html += '<td><input type="checkbox" id="' + item._id + '" class="' + that.element.id + 'Checkbox"></td>';
+                                html += '<td><input type="checkbox" id="' + item._id + '" class="za-checkbox ' + that.element.id + 'Checkbox"></td>';
                             } else {
                                 var found = false;
                                 var th = that.header[h].replace(new RegExp('^' + that.element.id + '_'), '');
@@ -263,6 +264,7 @@
                     if (that.settings.sort.field) {
                         that._sortIndicator(that.settings.sort.field, that.settings.sort.direction);
                     }
+                    that.settings.onLoad();
                 } else {
                     that.loading = false;
                     that._loading(false);

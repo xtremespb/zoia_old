@@ -3,12 +3,22 @@
     <div>
         <ul class="za-iconnav za-hidden@m">
             <li>
-                <button za-icon="icon: plus-circle; ratio: 1.8" class="usersBtnSelectAll"></button>
+                <button za-icon="icon: plus" class="za-icon-button zoiaAdd" title="{{ i18n.__(locale, 'Add')}}" za-tooltip="pos: bottom-right"></button>
             </li>
             <li>
-                <button za-icon="icon: minus-circle; ratio: 1.8" class="usersBtnSelectNone"></button>
+                <button za-icon="icon: trash" class="za-icon-button zoiaDelete" title="{{ i18n.__(locale, 'Delete')}}" za-tooltip="pos: bottom-right"></button>
+            </li>
+            <li>
+                <button za-icon="icon: check" class="za-icon-button usersBtnSelectAll" title="{{ i18n.__(locale, 'Select all')}}" za-tooltip="pos: bottom-right"></button>
+            </li>
+            <li>
+                <button za-icon="icon: close" class="za-icon-button usersBtnSelectNone" title="{{ i18n.__(locale, 'Select none')}}" za-tooltip="pos: bottom-right"></button>
             </li>
         </ul>
+        <div class="za-button-group za-margin-right za-visible@m">
+            <button class="za-button za-button-success zoiaAdd">{{ i18n.__(locale, 'Add')}}</button>
+            <button class="za-button za-button-danger zoiaDelete">{{ i18n.__(locale, 'Delete')}}</button>
+        </div>
         <div class="za-button-group za-visible@m">
             <button class="za-button za-button-default usersBtnSelectAll">{{ i18n.__(locale, 'Select all')}}</button>
             <button class="za-button za-button-default usersBtnSelectNone">{{ i18n.__(locale, 'Select none')}}</button>
@@ -21,20 +31,21 @@
         </div>
     </div>
 </div>
-<div class="za-overflow-auto">
-    <div class="usersPagination za-margin-top noselect"></div>
-    <table class="za-table za-table-divider za-table-striped za-table-hover" id="users">
-        <thead class="noselect">
-            <tr>
-                <th id="usersID" style="width:15px"></th>
-                <th id="users_username">{{ i18n.__(locale, 'Username')}}</th>
-                <th id="users_email">{{ i18n.__(locale, 'E-mail')}}</th>
-                <th id="users_status">{{ i18n.__(locale, 'Status')}}</th>
-                <th id="users_actions" style="width:100px" class="za-width-small">{{ i18n.__(locale, 'Actions')}}</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
-</div>
+<div class="usersPagination za-margin-top noselect"></div>
+<table class="za-table za-table-divider za-table-striped za-table-hover za-table-responsive za-table-middle" id="users">
+    <thead class="noselect">
+        <tr>
+            <th id="usersID" class="za-table-shrink"></th>
+            <th id="users_username" class="za-table-shrink">{{ i18n.__(locale, 'Username')}}</th>
+            <th id="users_email">{{ i18n.__(locale, 'E-mail')}}</th>
+            <th id="users_status">{{ i18n.__(locale, 'Status')}}</th>
+            <th id="users_actions">{{ i18n.__(locale, 'Actions')}}</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
 <div class="usersPagination za-margin noselect"></div>
+<script type="text/javascript">
+var lang = {{ lang }};
+</script>

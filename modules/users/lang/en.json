@@ -5,5 +5,13 @@
 	"Username": "Username",
 	"E-mail": "E-mail",
 	"Status": "Status",
-	"Actions": "Actions"
+	"Actions": "Actions",
+	"statuses": [
+		"Disabled",
+		"Active",
+		"Administrator"
+	],
+	"Edit": "Edit",
+	"Delete": "Delete",
+	"Add": "Add"
 }
