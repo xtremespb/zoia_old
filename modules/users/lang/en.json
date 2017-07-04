@@ -13,5 +13,7 @@
 	],
 	"Edit": "Edit",
 	"Delete": "Delete",
-	"Add": "Add"
+	"Add": "Add",
+	"editItem": "Edit user",
+	"addItem": "Create new user"
 }

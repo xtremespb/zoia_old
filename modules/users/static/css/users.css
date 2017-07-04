@@ -52,3 +52,8 @@
 	text-decoration: none;
 	background: #eee;
 }
+
+.za-checkbox:selection {
+	border: 1px solid #ddd;
+	background: #ddd;
+}

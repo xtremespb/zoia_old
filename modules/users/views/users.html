@@ -1,51 +1,57 @@
-<h1>{{ i18n.__(locale, 'title')}}</h1>
-<div class="za-grid za-grid-small">
-    <div>
-        <ul class="za-iconnav za-hidden@m">
-            <li>
-                <button za-icon="icon: plus" class="za-icon-button zoiaAdd" title="{{ i18n.__(locale, 'Add')}}" za-tooltip="pos: bottom-right"></button>
-            </li>
-            <li>
-                <button za-icon="icon: trash" class="za-icon-button zoiaDelete" title="{{ i18n.__(locale, 'Delete')}}" za-tooltip="pos: bottom-right"></button>
-            </li>
-            <li>
-                <button za-icon="icon: check" class="za-icon-button usersBtnSelectAll" title="{{ i18n.__(locale, 'Select all')}}" za-tooltip="pos: bottom-right"></button>
-            </li>
-            <li>
-                <button za-icon="icon: close" class="za-icon-button usersBtnSelectNone" title="{{ i18n.__(locale, 'Select none')}}" za-tooltip="pos: bottom-right"></button>
-            </li>
-        </ul>
-        <div class="za-button-group za-margin-right za-visible@m">
-            <button class="za-button za-button-success zoiaAdd">{{ i18n.__(locale, 'Add')}}</button>
-            <button class="za-button za-button-danger zoiaDelete">{{ i18n.__(locale, 'Delete')}}</button>
+<div class="zoiaScreen" id="screenTable" style="display:none">
+    <h1>{{ i18n.__(locale, 'title')}}</h1>
+    <div class="za-grid za-grid-small">
+        <div>
+            <ul class="za-iconnav za-hidden@m">
+                <li>
+                    <button za-icon="icon: plus" class="za-icon-button zoiaAdd" title="{{ i18n.__(locale, 'Add')}}" za-tooltip="pos: bottom-right"></button>
+                </li>
+                <li>
+                    <button za-icon="icon: trash" class="za-icon-button zoiaDelete" title="{{ i18n.__(locale, 'Delete')}}" za-tooltip="pos: bottom-right"></button>
+                </li>
+                <li>
+                    <button za-icon="icon: check" class="za-icon-button usersBtnSelectAll" title="{{ i18n.__(locale, 'Select all')}}" za-tooltip="pos: bottom-right"></button>
+                </li>
+                <li>
+                    <button za-icon="icon: close" class="za-icon-button usersBtnSelectNone" title="{{ i18n.__(locale, 'Select none')}}" za-tooltip="pos: bottom-right"></button>
+                </li>
+            </ul>
+            <div class="za-button-group za-margin-right za-visible@m">
+                <button class="za-button za-button-success zoiaAdd">{{ i18n.__(locale, 'Add')}}</button>
+                <button class="za-button za-button-danger zoiaDelete">{{ i18n.__(locale, 'Delete')}}</button>
+            </div>
+            <div class="za-button-group za-visible@m">
+                <button class="za-button za-button-default usersBtnSelectAll">{{ i18n.__(locale, 'Select all')}}</button>
+                <button class="za-button za-button-default usersBtnSelectNone">{{ i18n.__(locale, 'Select none')}}</button>
+            </div>
         </div>
-        <div class="za-button-group za-visible@m">
-            <button class="za-button za-button-default usersBtnSelectAll">{{ i18n.__(locale, 'Select all')}}</button>
-            <button class="za-button za-button-default usersBtnSelectNone">{{ i18n.__(locale, 'Select none')}}</button>
+        <div class="za-width-expand">
+            <div class="za-inline za-float-right">
+                <span class="za-form-icon" za-icon="icon: search"></span>
+                <a class="za-form-icon za-form-icon-flip" href="#" za-icon="icon: close"></a>
+                <input type="text" class="usersSearchInput za-input za-width-medium">
+            </div>
         </div>
     </div>
-    <div class="za-width-expand">
-        <div class="za-inline za-float-right">
-            <span class="za-form-icon" za-icon="icon: search"></span>
-            <input type="text" class="usersSearchInput za-input za-width-medium">
-        </div>
-    </div>
+    <div class="usersPagination za-margin-top noselect"></div>
+    <table class="za-table za-table-divider za-table-striped za-table-hover za-table-responsive za-table-middle" id="users">
+        <thead class="noselect">
+            <tr>
+                <th id="usersID" class="za-table-shrink"></th>
+                <th id="users_username" class="za-table-shrink">{{ i18n.__(locale, 'Username')}}</th>
+                <th id="users_email">{{ i18n.__(locale, 'E-mail')}}</th>
+                <th id="users_status">{{ i18n.__(locale, 'Status')}}</th>
+                <th id="users_actions">{{ i18n.__(locale, 'Actions')}}</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <div class="usersPagination za-margin noselect"></div>
 </div>
-<div class="usersPagination za-margin-top noselect"></div>
-<table class="za-table za-table-divider za-table-striped za-table-hover za-table-responsive za-table-middle" id="users">
-    <thead class="noselect">
-        <tr>
-            <th id="usersID" class="za-table-shrink"></th>
-            <th id="users_username" class="za-table-shrink">{{ i18n.__(locale, 'Username')}}</th>
-            <th id="users_email">{{ i18n.__(locale, 'E-mail')}}</th>
-            <th id="users_status">{{ i18n.__(locale, 'Status')}}</th>
-            <th id="users_actions">{{ i18n.__(locale, 'Actions')}}</th>
-        </tr>
-    </thead>
-    <tbody>
-    </tbody>
-</table>
-<div class="usersPagination za-margin noselect"></div>
+<div class="zoiaScreen" id="screenAddEdit" style="display:none">
+	<h1 id="screenAddEditHeader"></h1>
+</div>
 <script type="text/javascript">
 var lang = {{ lang }};
 </script>

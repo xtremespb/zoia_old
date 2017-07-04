@@ -24,6 +24,7 @@
                 errorHTML: '<tr><td colspan="100%">{error}</td></tr>'
             },
             sort: {},
+            loadOnStart: false,
             onLoad: function() {}
         };
 
@@ -63,7 +64,9 @@
             $('.' + this.element.id + 'SearchInput').keypress(this._debounce(function(e) {
                 that._search(e);
             }, 250));
-            this.load();
+            if (this.settings.loadOnStart) {
+                this.load();
+            }
         },
         _search(e) {
             if (this.loading) {
@@ -279,12 +282,15 @@
     });
     // Plugin wrapper
     $.fn[pluginName] = function(options) {
-        return this.each(function() {
-            if (!$.data(this, 'plugin_' + pluginName)) {
-                $.data(this, 'plugin_' +
-                    pluginName, new Plugin(this, options));
+        var plugin;
+        this.each(function() {
+            plugin = $.data(this, 'plugin_' + pluginName);
+            if (!plugin) {
+                plugin = new Plugin(this, options);
+                $.data(this, 'plugin_' + pluginName, plugin);
             }
         });
+        return plugin;
     };
 
 })(jQuery, window, document);
