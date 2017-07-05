@@ -15,5 +15,12 @@
 	"Delete": "Delete",
 	"Add": "Add",
 	"editItem": "Edit user",
-	"addItem": "Create new user"
+	"addItem": "Create new user",
+	"Cancel": "Cancel",
+	"Save": "Save",
+	"Search": "Search",
+	"Latin characters and numbers, length: 3-20": "Latin characters and numbers, length: 3-20",
+	"Example: user@domain.com": "Example: user@domain.com",
+	"Password": "Password",
+	"Minimal length: 5 characters, type twice to verify": "Minimal length: 5 characters, type twice to verify"
 }

@@ -15,25 +15,8 @@
     user-select: none;
 }
 
-.usersSearchInput {
-    height: 40px;
-}
-
-#users > tbody > tr:hover {
-	background: #FFF8E3;
-}
-
 .za-input:focus:not(.za-form-danger) {
     border: 1px solid #5B7876;
-}
-
-.zoia-users-action-btn {
-	padding: 0 10px 0 10px;
-	margin-right: 2px;
-}
-
-#users_actions {
-	width: 90px;
 }
 
 .zoia-action-btn-mobile-wrap {
@@ -56,4 +39,40 @@
 .za-checkbox:selection {
 	border: 1px solid #ddd;
 	background: #ddd;
+}
+
+#zoiaEditDialogLoading {
+	height: 200px;
+}
+
+#zoiaEditDialogForm {
+}
+
+.zoiaEditDialogLoadingSpinnerWrap {
+	margin: 0 auto;
+	width: 30px;
+	padding-top: 85px;
+	position: relative;
+}
+
+.zoia-help-text {
+    font-size: 75%;
+}
+
+.zoia-field-wrap {
+    margin-right: 5px;
+}
+
+/* Module-specific styles */
+
+#users_actions {
+	width: 90px;
+}
+
+.usersSearchInput {
+    height: 40px;
+}
+
+#users > tbody > tr:hover {
+	background: #FFF8E3;
 }

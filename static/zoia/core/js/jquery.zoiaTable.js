@@ -24,7 +24,7 @@
                 errorHTML: '<tr><td colspan="100%">{error}</td></tr>'
             },
             sort: {},
-            loadOnStart: false,
+            loadOnStart: true,
             onLoad: function() {}
         };
 
