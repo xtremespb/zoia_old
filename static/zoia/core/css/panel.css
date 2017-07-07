@@ -1,3 +1,12 @@
+.za-notification-message {
+    opacity: 1;
+    background-color: #fff;
+    -webkit-box-shadow: -1px 2px 5px 0px rgba(0, 0, 0, 0.34);
+    -moz-box-shadow: -1px 2px 5px 0px rgba(0, 0, 0, 0.34);
+    box-shadow: -1px 2px 5px 0px rgba(0, 0, 0, 0.34);
+    text-align: center;
+}
+
 .za-navbar-container.za-navbar {
     background: #32323a;
 }
@@ -69,7 +78,7 @@ body {
     background: #474752;
 }
 
-.za-nav-default > li.za-nav-active > a{
+.za-nav-default > li.za-nav-active > a {
     color: #fff;
 }
 

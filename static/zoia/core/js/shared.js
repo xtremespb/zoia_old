@@ -14,10 +14,15 @@
             }
             result[key].success = false;
             // Check if field exists
+            if (!item.mandatory && !field) {
+                result[key].value = '';
+                result[key].success = true;
+                continue;
+            }
             if (item.mandatory && !field) {
                 result[key].errorCode = 1;
                 continue;
-            }
+            }            
             // Check field length
             if (item.length) {
                 if (item.length.min && field.length < item.length.min) {
@@ -85,7 +90,12 @@
             zaUIkit.notification(error, { status: 'danger', timeout: 1500 });
         }
     },
-    formPreprocess: function(request, fields, failed) {
+    formPreprocess: function(request, fields, failed, prefix) {
+        if (prefix) {
+            prefix += '_';
+        } else {
+            prefix = '';
+        }
         zaUIkit.notification.closeAll()
         if ($('.zoia-form-btn').hasClass('zoia-btn-loading')) {
             return false;
@@ -99,22 +109,22 @@
             }
             let focusSet = false;
             for (let i in failed) {
-                $('#' + failed[i]).addClass('za-form-danger');
+                $('#' + prefix + failed[i]).addClass('za-form-danger');
                 if (!failed[i].match(/Confirm/)) {
-                    showError(failed[i], lang.fieldErrors[failed[i]]);
+                    showError(prefix + failed[i], lang.fieldErrors[failed[i]]);
                 }
                 if (!focusSet) {
-                    $('#' + failed[i]).focus();
+                    $('#' + prefix + failed[i]).focus();
                     focusSet = true;
                 }
             }
             return false;
         }
-        if (request.passwordConfirm && request.password != request.passwordConfirm) {
-            $('#password').addClass('za-form-danger');
-            $('#passwordConfirm').addClass('za-form-danger');
-            showError("password", lang.fieldErrors.passwordsNotMatch);
-            $('#password').focus();
+        if (request.hasOwnProperty('passwordConfirm') && (request.password || request.passwordConfirm) && request.password != request.passwordConfirm) {
+            $('#' + prefix + 'password').addClass('za-form-danger');
+            $('#' + prefix + 'passwordConfirm').addClass('za-form-danger');
+            showError(prefix + "password", lang.fieldErrors.passwordsNotMatch);
+            $('#' + prefix + 'password').focus();
             return false;
         }
         showLoading(true);

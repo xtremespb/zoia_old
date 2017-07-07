@@ -56,45 +56,52 @@
             </div>
         </div>
         <div id="zoiaEditDialogForm" style="display:none">
-            <button class="za-modal-close-default" type="button" za-close></button>
             <div class="za-modal-header">
                 <h2 class="za-modal-title" id="editDialogHeader"></h2>
             </div>
-            <div class="za-modal-body">
-                <form id="zoia_register_form" class="za-form-stacked">
-                    <div class="za-margin">
-                        <label class="za-form-label" for="username">{{ i18n.__(locale, 'Username') }}:</label>
+            <form id="zoia_edituser_form" class="za-form-stacked">
+                <div class="za-modal-body">
+                    <div class="za-alert-danger za-margin" id="zoiaEditDialogFormError" za-alert style="display:none"></div>
+                    <div class="za-margin-bottom">
+                        <label class="za-form-label" for="edit_username">{{ i18n.__(locale, 'Username') }}:</label>
                         <div class="za-form-controls">
-                            <input class="za-input za-width-medium zoia-form-field" id="username" type="text" placeholder="" autofocus>
+                            <input class="za-input za-width-medium zoia-form-field" id="edit_username" type="text" placeholder="" autofocus>
                             <div class="zoia-help-text">{{ i18n.__(locale, 'Latin characters and numbers, length: 3-20') }}</div>
                         </div>
                     </div>
                     <div class="za-margin">
-                        <label class="za-form-label" for="email">{{ i18n.__(locale, 'E-mail') }}:</label>
+                        <label class="za-form-label" for="edit_email">{{ i18n.__(locale, 'E-mail') }}:</label>
                         <div class="za-form-controls">
-                            <input class="za-input za-width-medium zoia-form-field" id="email" type="email" placeholder="">
+                            <input class="za-input za-width-medium zoia-form-field" id="edit_email" type="email" placeholder="">
                             <div class="zoia-help-text">{{ i18n.__(locale, 'Example: user@domain.com') }}</div>
                         </div>
                     </div>
                     <div class="za-margin">
-                        <label class="za-form-label" for="password">{{ i18n.__(locale, 'Password') }}:</label>
+                        <label class="za-form-label" for="edit_password">{{ i18n.__(locale, 'Password') }}:</label>
                         <div class="za-flex">
                             <div class="zoia-field-wrap">
-                                <input class="za-input za-input-1-6 zoia-form-field" id="password" type="password" placeholder="">
+                                <input class="za-input zoia-form-field" id="edit_password" type="password" placeholder="">
                             </div>
                             <div>
-                                <input class="za-input za-input-1-6 zoia-form-field" id="passwordConfirm" type="password" placeholder="">
+                                <input class="za-input zoia-form-field" id="edit_passwordConfirm" type="password" placeholder="">
                             </div>
                         </div>
                         <div class="zoia-help-text">{{ i18n.__(locale, 'Minimal length: 5 characters, type twice to verify') }}</div>
-                    </div>                    
-                </form>
-            </div>
-            <div class="za-modal-footer za-text-right">
-                <button class="za-button za-button-default za-modal-close za-edit-dialog-btn" type="button">{{ i18n.__(locale, 'Cancel')}}</button>
-                <button class="za-button za-button-primary za-edit-dialog-btn" id="zoiaEditDialogSave" type="button">{{ i18n.__(locale, 'Save')}}</button>
-                <div za-spinner style="float:right;display:none" id="zoiaEditDialogSpinner"></div>
-            </div>
+                    </div>
+                    <div class="za-margin">
+                        <label class="za-form-label" for="edit_status">{{ i18n.__(locale, 'Status') }}:</label>
+                        <select class="za-select za-form-width-medium zoia-form-field" id="edit_status">
+                            {% for item in i18n.__(locale, 'statuses') %}
+                            <option value="{{ loop.index0 }}">{{ item }}</option>{% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="za-modal-footer za-text-right">
+                    <button class="za-button za-button-default za-modal-close za-edit-dialog-btn" type="button">{{ i18n.__(locale, 'Cancel')}}</button>
+                    <button class="za-button za-button-primary za-edit-dialog-btn" id="zoiaEditDialogSave" type="submit">{{ i18n.__(locale, 'Save')}}</button>
+                    <div za-spinner style="float:right;display:none" id="zoiaEditDialogSpinner"></div>
+                </div>
+            </form>
         </div>
     </div>
 </div>

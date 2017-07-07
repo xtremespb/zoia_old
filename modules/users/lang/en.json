@@ -11,6 +11,18 @@
 		"Active",
 		"Administrator"
 	],
+	"fieldErrors": {
+		"username": "Invalid username",
+		"password": "Invalid password",
+		"passwordsNotMatch": "Passwords do not match",
+		"status": "Invalid status",
+		"email": "Invalid e-mail address",
+		"Could not save to the database": "Could not save to the database",
+		"User not found": "User not found",
+		"Username already exists in database": "Username already exists in database",
+		"Saved successfully": "Saved successfully"
+	},
+	"Could not load information from database": "Could not load information from database",
 	"Edit": "Edit",
 	"Delete": "Delete",
 	"Add": "Add",
@@ -22,5 +34,6 @@
 	"Latin characters and numbers, length: 3-20": "Latin characters and numbers, length: 3-20",
 	"Example: user@domain.com": "Example: user@domain.com",
 	"Password": "Password",
-	"Minimal length: 5 characters, type twice to verify": "Minimal length: 5 characters, type twice to verify"
+	"Minimal length: 5 characters, type twice to verify": "Minimal length: 5 characters, type twice to verify",
+	"s": "s"
 }
