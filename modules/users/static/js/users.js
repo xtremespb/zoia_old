@@ -1,6 +1,5 @@
 var editDialog,
     currentID;
-
 var setZoiaEditHeader = function(edit) {
     if (edit) {
         $('#editDialogHeader').html(lang.editItem);
@@ -8,7 +7,6 @@ var setZoiaEditHeader = function(edit) {
         $('#editDialogHeader').html(lang.addItem);
     }
 };
-
 var editItem = function(id) {
     if (!id) {
         return showTable();
@@ -54,7 +52,6 @@ var editItem = function(id) {
         showError(undefined, lang['Could not load information from database']);
     });
 };
-
 var createItem = function() {
     currentID = undefined;
     setZoiaEditHeader(false);
@@ -69,12 +66,10 @@ var createItem = function() {
     editDialog.show();
     $('#edit_username').focus();
 };
-
 var showTable = function(id) {
     editDialog.hide();
     $('#users').zoiaTable().load();
 }
-
 var processState = function(eventState) {
     var state = eventState || {
         action: getUrlParam('action'),
@@ -92,7 +87,6 @@ var processState = function(eventState) {
             break;
     }
 };
-
 var editItemSubmit = function(e) {
     e.preventDefault();
     $('#zoiaEditDialogFormError').hide();
@@ -121,7 +115,10 @@ var editItemSubmit = function(e) {
     }).done(function(res) {
         if (res && res.status == 1) {
             editDialog.hide();
-            zaUIkit.notification(lang.fieldErrors['Saved successfully'], { status: 'success', timeout: 1500 });
+            zaUIkit.notification(lang.fieldErrors['Saved successfully'], {
+                status: 'success',
+                timeout: 1500
+            });
             $('#users').zoiaTable().load();
         } else {
             $('.za-edit-dialog-btn').show();
@@ -148,7 +145,6 @@ var editItemSubmit = function(e) {
         $('#zoiaEditDialogFormError').html('Could not save to the database').show();
     });
 };
-
 $(document).ready(function() {
     editDialog = zaUIkit.modal('#zoiaEditDialog', {
         bgClose: false,
@@ -157,84 +153,89 @@ $(document).ready(function() {
     $('#testForm').zoiaFormBuilder({
         urlLoad: '/api/users/load',
         urlSave: '/api/users/save',
-        items: [{
-            type: 'text',
-            name: 'username',
-            label: lang['Username'],
-            css: 'za-form-width-medium',
-            autofocus: true,
-            helpText: lang['Latin characters and numbers, length: 3-20'],
-            validation: {
-                mandatory: true,
-                length: {
-                    min: 3,
-                    max: 20
-                },
-                type: 'string',
-                regexp: /^[A-Za-z0-9_\-]+$/,
-                process: function(item) {
-                    return item.trim().toLowerCase();
+        items: {
+            username: {
+                type: 'text',
+                label: lang['Username'],
+                css: 'za-form-width-medium',
+                autofocus: true,
+                helpText: lang['Latin characters and numbers, length: 3-20'],
+                validation: {
+                    mandatory: true,
+                    length: {
+                        min: 3,
+                        max: 20
+                    },
+                    regexp: /^[A-Za-z0-9_\-]+$/,
+                    process: function(item) {
+                        return item.trim().toLowerCase();
+                    }
                 }
-            }
-        }, {
-            type: 'email',
-            name: 'email',
-            label: lang['E-mail'],
-            css: 'za-width-medium',
-            helpText: lang['Example: user@domain.com'],
-            validation: {
-                mandatory: true,
-                length: {
-                    min: 6,
-                    max: 129
-                },
-                type: 'string',
-                regexp: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-                process: function(item) {
-                    return item.trim().toLowerCase();
-                }
-            }
-        }, {
-            type: 'passwordConfirm',
-            name: 'password',
-            label: lang['Password'],
-            helpText: lang['Minimal length: 5 characters, type twice to verify'],
-            validation: {
-                mandatory: false,
-                length: {
-                    min: 5,
-                    max: 50
-                },
-                type: 'string',
-                process: function(item) {
-                    return item.trim();
-                }
-            }
-        }, {
-            type: 'select',
-            name: 'status',
-            label: lang['Status'],
-            css: 'za-form-width-small',
-            values: {
-                '0': lang.statuses[0],
-                '1': lang.statuses[1],
-                '2': lang.statuses[2]
             },
-            validation: {
-                mandatory: true,
-                length: {
-                    min: 1,
-                    max: 1
+            email: {
+                type: 'email',
+                label: lang['E-mail'],
+                css: 'za-width-medium',
+                helpText: lang['Example: user@domain.com'],
+                validation: {
+                    mandatory: true,
+                    length: {
+                        min: 6,
+                        max: 129
+                    },
+                    regexp: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                    process: function(item) {
+                        return item.trim().toLowerCase();
+                    }
+                }
+            },
+            password: {
+                type: 'passwordConfirm',
+                label: lang['Password'],
+                helpText: lang['Minimal length: 5 characters, type twice to verify'],
+                validation: {
+                    mandatory: true,
+                    length: {
+                        min: 5,
+                        max: 50
+                    },
+                    process: function(item) {
+                        return item.trim();
+                    }
+                }
+            },
+            status: {
+                type: 'select',
+                label: lang['Status'],
+                css: 'za-form-width-small',
+                values: {
+                    '0': lang.statuses[0],
+                    '1': lang.statuses[1],
+                    '2': lang.statuses[2]
                 },
-                type: 'string',
-                regexp: /^(0|1|2)$/
+                validation: {
+                    mandatory: true,
+                    length: {
+                        min: 1,
+                        max: 1
+                    },
+                    regexp: /^(0|1|2)$/
+                }
+            },
+            buttons: {
+                type: 'buttons',
+                css: 'za-modal-footer za-text-right',
+                buttons: [{
+                    label: lang['Cancel'],
+                    css: 'za-button-default za-modal-close za-edit-dialog-btn'
+                }, {
+                    name: "btnSave",
+                    label: lang['Save'],
+                    css: 'za-button-default za-edit-dialog-btn',
+                    type: 'submit'
+                }]
             }
-        }, {
-            type: 'buttons',
-            buttons: [{
-                
-            }]
-        }]
+        }
     });
     /*$('#users').zoiaTable({
         url: 'http://127.0.0.1:3000/api/users/list',
