@@ -1,5 +1,6 @@
 var editDialog,
     currentID;
+
 var setZoiaEditHeader = function(edit) {
     if (edit) {
         $('#editDialogHeader').html(lang.editItem);
@@ -7,64 +8,32 @@ var setZoiaEditHeader = function(edit) {
         $('#editDialogHeader').html(lang.addItem);
     }
 };
+var createItem = function() {
+    $('#editForm').zoiaFormBuilder().setEditMode(false);
+    $('#editForm').zoiaFormBuilder().resetForm(false);
+    currentID = undefined;
+    setZoiaEditHeader(false);
+    $('#zoiaEditDialogLoading').hide();
+    $('#zoiaEditDialogForm').show();
+    $('.editForm-form-button').show();
+    $('#zoiaEditDialogSpinner').hide();
+    editDialog.show();
+    $('#editUser_username').focus();
+};
 var editItem = function(id) {
     if (!id) {
         return showTable();
     }
     currentID = id;
     setZoiaEditHeader(true);
-    $('.za-edit-dialog-btn').show();
-    $('#zoiaEditDialogSpinner').hide();
     $('#zoiaEditDialogForm').hide();
     $('#zoiaEditDialogLoading').show();
-    $('.zoia-form-field').removeClass('za-form-danger');
-    $('#zoiaEditDialogFormError').hide()
-    editDialog.show();
-    // Load data from server
-    $.ajax({
-        type: 'GET',
-        url: '/api/users/load',
-        data: {
-            id: id
-        },
-        cache: false
-    }).done(function(res) {
-        if (res && res.status == 1) {
-            // OK
-            $('#zoiaEditDialogLoading').hide();
-            $('#zoiaEditDialogForm').show();
-            $('#edit_username').focus();
-            $('.zoia-form-field').val('');
-            jQuery.each(res.item, function(key, value) {
-                if (key == 'password') {
-                    return;
-                }
-                $('#edit_' + key).val(value);
-            });
-        } else {
-            // FAIL
-            editDialog.hide();
-            showError(undefined, lang['Could not load information from database']);
-        }
-    }).fail(function(jqXHR, exception) {
-        // FAIL
-        editDialog.hide();
-        showError(undefined, lang['Could not load information from database']);
-    });
-};
-var createItem = function() {
-    currentID = undefined;
-    setZoiaEditHeader(false);
-    $('.za-edit-dialog-btn').show();
+    $('#editForm').zoiaFormBuilder().setEditMode(true);
+    $('#editForm').zoiaFormBuilder().resetForm(false);
+    $('.editForm-form-button').show();
     $('#zoiaEditDialogSpinner').hide();
-    $('.zoia-form-field').removeClass('za-form-danger');
-    $('#zoiaEditDialogFormError').hide();
-    $('#zoiaEditDialogLoading').hide();
-    $('#zoiaEditDialogForm').show();
-    $('.zoia-form-field').val('');
-    $('select.zoia-form-field').prop("selectedIndex", 0);
     editDialog.show();
-    $('#edit_username').focus();
+    $('#editForm').zoiaFormBuilder().loadData({ id: id });
 };
 var showTable = function(id) {
     editDialog.hide();
@@ -87,72 +56,79 @@ var processState = function(eventState) {
             break;
     }
 };
-var editItemSubmit = function(e) {
-    e.preventDefault();
-    $('#zoiaEditDialogFormError').hide();
-    const scheme = getUsersFields(currentID == undefined ? true : false);
-    let request = {
-        username: $('#edit_username').val(),
-        email: $('#edit_email').val(),
-        password: $('#edit_password').val(),
-        passwordConfirm: $('#edit_passwordConfirm').val(),
-        status: $('#edit_status').val()
-    };
-    let fields = checkRequest(request, scheme),
-        failed = getCheckRequestFailedFields(fields);
-    var data = formPreprocess(request, fields, failed, 'edit');
-    if (!data) {
-        return;
-    }
-    data.id = currentID;
-    $('.za-edit-dialog-btn').hide();
-    $('#zoiaEditDialogSpinner').show();
-    $.ajax({
-        type: 'POST',
-        url: '/api/users/save',
-        data: data,
-        cache: false
-    }).done(function(res) {
-        if (res && res.status == 1) {
-            editDialog.hide();
-            zaUIkit.notification(lang.fieldErrors['Saved successfully'], {
-                status: 'success',
-                timeout: 1500
-            });
-            $('#users').zoiaTable().load();
-        } else {
-            $('.za-edit-dialog-btn').show();
-            $('#zoiaEditDialogSpinner').hide();
-            formPostprocess(request, res);
-            $('#edit_username').addClass('za-form-danger');
-            $('#edit_username').focus();
-            switch (res.status) {
-                case -1:
-                    $('#zoiaEditDialogFormError').html('User not found').show();
-                    break;
-                case -2:
-                    $('#zoiaEditDialogFormError').html('Username already exists in database').show();
-                    break;
-                default:
-                    $('#zoiaEditDialogFormError').html('Could not save to the database').show();
-                    break;
-            }
-        }
-    }).fail(function(jqXHR, exception) {
-        $('#edit_username').focus();
-        $('.za-edit-dialog-btn').show();
-        $('#zoiaEditDialogSpinner').hide();
-        $('#zoiaEditDialogFormError').html('Could not save to the database').show();
-    });
-};
 $(document).ready(function() {
     editDialog = zaUIkit.modal('#zoiaEditDialog', {
         bgClose: false,
         escClose: false
     });
-    $('#testForm').zoiaFormBuilder({
-        urlLoad: '/api/users/load',
-        urlSave: '/api/users/save',
+    $('#editForm').zoiaFormBuilder({
+        save: {
+            url: '/api/users/save',
+            method: 'POST'
+        },
+        load: {
+            url: '/api/users/load',
+            method: 'GET'
+        },
+        template: {
+            fields: '<div class="za-modal-body">{fields}</div>',
+            buttons: '{buttons}'
+        },
+        events: {
+            onInit: function() {},
+            onSaveSubmit: function() {},
+            onSaveValidate: function(data) {
+                $('.editForm-form-button').hide();
+                $('#zoiaEditDialogSpinner').show();
+                data.id = currentID;
+                return data;
+            },
+            onSaveSuccess: function() {
+                editDialog.hide();
+                zaUIkit.notification(lang.fieldErrors['Saved successfully'], {
+                    status: 'success',
+                    timeout: 1500
+                });
+                $('#users').zoiaTable().load();
+            },
+            onSaveError: function(res) {
+                $('.editForm-form-button').show();
+                $('#zoiaEditDialogSpinner').hide();
+                if (res && res.status) {
+                    switch (res.status) {
+                        case -1:
+                            zaUIkit.notification(lang.fieldErrors['User not found'], {
+                                status: 'danger',
+                                timeout: 1500
+                            });
+                            break;
+                        case -2:
+                            zaUIkit.notification(lang.fieldErrors['Username already exists in database'], {
+                                status: 'danger',
+                                timeout: 1500
+                            });
+                            break;
+                        default:
+                            zaUIkit.notification(lang.fieldErrors['Could not save to the database'], {
+                                status: 'danger',
+                                timeout: 1500
+                            });
+                            break;
+                    }
+                }
+            },
+            onLoadStart: function() {},
+            onLoadSuccess: function() {
+                $('#zoiaEditDialogLoading').hide();
+                $('#zoiaEditDialogForm').show();
+                $('#editForm_username').focus();
+            },
+            onLoadError: function() {
+                console.log("onLoadError");
+                editDialog.hide();
+                showError(undefined, lang['Could not load information from database']);
+            }
+        },
         items: {
             username: {
                 type: 'text',
@@ -161,7 +137,8 @@ $(document).ready(function() {
                 autofocus: true,
                 helpText: lang['Latin characters and numbers, length: 3-20'],
                 validation: {
-                    mandatory: true,
+                    mandatoryCreate: true,
+                    mandatoryEdit: true,
                     length: {
                         min: 3,
                         max: 20
@@ -178,7 +155,8 @@ $(document).ready(function() {
                 css: 'za-width-medium',
                 helpText: lang['Example: user@domain.com'],
                 validation: {
-                    mandatory: true,
+                    mandatoryCreate: true,
+                    mandatoryEdit: true,
                     length: {
                         min: 6,
                         max: 129
@@ -194,7 +172,8 @@ $(document).ready(function() {
                 label: lang['Password'],
                 helpText: lang['Minimal length: 5 characters, type twice to verify'],
                 validation: {
-                    mandatory: true,
+                    mandatoryCreate: true,
+                    mandatoryEdit: false,
                     length: {
                         min: 5,
                         max: 50
@@ -214,7 +193,8 @@ $(document).ready(function() {
                     '2': lang.statuses[2]
                 },
                 validation: {
-                    mandatory: true,
+                    mandatoryCreate: true,
+                    mandatoryEdit: true,
                     length: {
                         min: 1,
                         max: 1
@@ -227,17 +207,19 @@ $(document).ready(function() {
                 css: 'za-modal-footer za-text-right',
                 buttons: [{
                     label: lang['Cancel'],
-                    css: 'za-button-default za-modal-close za-edit-dialog-btn'
+                    css: 'za-button-default za-modal-close'
                 }, {
                     name: "btnSave",
                     label: lang['Save'],
-                    css: 'za-button-default za-edit-dialog-btn',
+                    css: 'za-button-primary',
                     type: 'submit'
-                }]
+                }],
+                html: '<div za-spinner style="float:right;display:none" id="zoiaEditDialogSpinner"></div>'
             }
         }
     });
-    /*$('#users').zoiaTable({
+    // $('#zoia').zoiaFormBuilder().loadData({ id: '594a7aef2f52622536f41b97' });
+    $('#users').zoiaTable({
         url: 'http://127.0.0.1:3000/api/users/list',
         limit: 20,
         sort: {
@@ -280,7 +262,6 @@ $(document).ready(function() {
             //});
         }
     });
-    $('#zoia_edituser_form').submit(editItemSubmit);
     $('.zoiaAdd').click(function() {
         window.history.pushState({ action: 'create' }, document.title, '/admin/users?action=create');
         createItem();
@@ -289,5 +270,5 @@ $(document).ready(function() {
         function(event) {
             processState(event.originalEvent.state);
         });
-    processState();*/
+    processState();
 });

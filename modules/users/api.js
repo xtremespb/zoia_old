@@ -98,7 +98,12 @@ module.exports = function(app) {
             }
             return res.send(JSON.stringify({
                 status: 1,
-                item: item
+                item: {
+                    _id: item._id,
+                    username: item.username,
+                    email: item.email,
+                    status: item.status
+                }
             }));
         } catch (e) {
             res.send(JSON.stringify({
@@ -139,12 +144,14 @@ module.exports = function(app) {
                 const user = await db.collection('users').findOne({ _id: new ObjectID(id) });
                 if (user == null) {
                     output.status = -1;
+                    output.fields = ['username'];
                     return res.send(JSON.stringify(output));
                 }
                 if (fields.username.value != user.username) {
                     const userDuplicate = await db.collection('users').findOne({ username: fields.username.value });
                     if (userDuplicate) {
                         output.status = -2;
+                        output.fields = ['username'];
                         return res.send(JSON.stringify(output));
                     }
                 }
@@ -152,6 +159,7 @@ module.exports = function(app) {
                 const userDuplicate = await db.collection('users').findOne({ username: fields.username.value });
                 if (userDuplicate) {
                     output.status = -2;
+                    output.fields = ['username'];
                     return res.send(JSON.stringify(output));
                 }
             }
