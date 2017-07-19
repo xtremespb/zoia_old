@@ -186,10 +186,55 @@ module.exports = function(app) {
         }
     };
 
+    let del = async function(req, res, next) {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let output = {};
+        let ids = req.body['id[]'];
+        if (!ids || (typeof ids != 'object' && typeof ids != 'string') || !ids.length) {
+            output.status = -1;
+            return res.send(JSON.stringify(output));
+        }
+        if (typeof ids == 'string') {
+            const id = ids;
+            ids = [];
+            ids.push(id);
+        }
+        let did = [];
+        for (let i in ids) {
+            const id = ids[i];
+            if (!id.match(/^[a-f0-9]{24}$/)) {
+                output.status = -2;
+                return res.send(JSON.stringify(output));
+            }
+            did.push({ _id: new ObjectID(id) });
+        }
+        try {
+            var delResult = await db.collection('users').deleteMany({
+                $or: did
+            });
+            if (!delResult || !delResult.result || !delResult.result.ok || delResult.result.n != ids.length) {
+                output.status = -3;
+                return res.send(JSON.stringify(output));
+            }
+            output.status = 1;
+            res.send(JSON.stringify(output));
+        } catch (e) {
+            output.status = 0;
+            log.error(e);
+            res.send(JSON.stringify(output));
+        }
+    };
+
     let router = Router();
     router.get('/list', list);
     router.get('/load', load);
     router.post('/save', save);
+    router.post('/delete', del);
 
     return {
         routes: router

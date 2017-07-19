@@ -7,7 +7,7 @@
                     <button za-icon="icon: plus" class="za-icon-button zoiaAdd" title="{{ i18n.__(locale, 'Add')}}" za-tooltip="pos: bottom-right"></button>
                 </li>
                 <li>
-                    <button za-icon="icon: trash" class="za-icon-button zoiaDelete" title="{{ i18n.__(locale, 'Delete')}}" za-tooltip="pos: bottom-right"></button>
+                    <button za-icon="icon: trash" class="za-icon-button zoiaDeleteButton" title="{{ i18n.__(locale, 'Delete')}}" za-tooltip="pos: bottom-right"></button>
                 </li>
                 <li>
                     <button za-icon="icon: check" class="za-icon-button usersBtnSelectAll" title="{{ i18n.__(locale, 'Select all')}}" za-tooltip="pos: bottom-right"></button>
@@ -18,7 +18,7 @@
             </ul>
             <div class="za-button-group za-margin-right za-visible@m">
                 <button class="za-button za-button-success zoiaAdd">{{ i18n.__(locale, 'Add')}}</button>
-                <button class="za-button za-button-danger zoiaDelete">{{ i18n.__(locale, 'Delete')}}</button>
+                <button class="za-button za-button-danger zoiaDeleteButton">{{ i18n.__(locale, 'Delete')}}</button>
             </div>
             <div class="za-button-group za-visible@m">
                 <button class="za-button za-button-default usersBtnSelectAll">{{ i18n.__(locale, 'Select all')}}</button>
@@ -27,7 +27,7 @@
         </div>
         <div class="za-width-expand">
             <div class="za-inline za-float-right">
-                <a class="za-form-icon za-form-icon-flip" za-icon="icon: close"></a>
+                <a class="za-form-icon za-form-icon-flip usersSearchInputClear" za-icon="icon: close"></a>
                 <input type="text" class="usersSearchInput za-input za-width-medium" placeholder="{{ i18n.__(locale, 'Search')}}">
             </div>
         </div>
@@ -61,6 +61,22 @@
             </div>
             <form id="editForm">
             </form>
+        </div>
+    </div>
+</div>
+<div id="zoiaDeleteDialog" style="display:none">
+    <div class="za-modal-dialog">
+        <div class="za-modal-header">
+            <h2>{{ i18n.__(locale, 'Delete')}}</h2>
+        </div>
+        <div class="za-modal-body">
+            <p>{{ i18n.__(locale, 'The following user(s) will be removed from the database')}}:</p>
+            <ul class="za-list za-list-striped" id="zoiaDeleteDialogList"></ul>
+        </div>
+        <div class="za-modal-footer za-text-right">
+            <button class="za-button za-button-default za-modal-close zoia-delete-dialog-button" type="button">{{ i18n.__(locale, 'Cancel')}}</button>
+            <button class="za-button za-button-primary zoia-delete-dialog-button" id="zoiaDeleteDialogButton" type="button">{{ i18n.__(locale, 'Delete')}}</button>
+            <div za-spinner style="float:right;display:none" id="zoiaDeleteDialogSpinner"></div>
         </div>
     </div>
 </div>

@@ -1,18 +1,26 @@
 ;
 (function($, window, document, undefined) {
+
     "use strict";
+
     var pluginName = "zoiaFormBuilder",
         defaults = {
-            urlLoad: '#',
-            urlSave: '#',
-            action: 'POST',
+            load: {
+                url: '#',
+                method: 'POST'
+            },
+            save: {
+                url: '#',
+                method: 'POST'
+            },
             items: [],
             edit: false,
             html: {
-                helpText: '<div class="{prefix}-help-text">{text}</div>',
+                helpText: '<div class="za-text-meta">{text}</div>',
                 text: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><div class="za-form-controls"><input class="za-input {prefix}-form-field{css}" id="{prefix}_{name}" type="{type}" placeholder=""{autofocus}><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>',
                 select: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><select class="za-select {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}>{values}</select><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
                 passwordConfirm: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-flex"><div class="{prefix}-field-wrap"><input class="za-input {prefix}-form-field" id="{prefix}_{name}" type="password" placeholder=""></div><div><input class="za-input {prefix}-form-field" id="{prefix}_{name}Confirm" type="password" placeholder=""></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
+                captcha: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-grid za-grid-small"><div><input class="za-input {prefix}-form-field{css}" type="text" placeholder="" id="{prefix}_{name}"{autofocus}></div><div><div class="za-form-controls"><img class="zoia-captcha-img"></div></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}',
                 buttonsWrap: '<div class="{css}">{buttons}{html}</div>',
                 button: '<button class="za-button {prefix}-form-button{css}" id="{prefix}_{name}" type="{type}">{label}</button>'
             },
@@ -46,9 +54,11 @@
         this._defaults = defaults;
         this._name = pluginName;
         this._prefix = this.element.id;
-        this._formTypes = ['text', 'email', 'password', 'select', 'passwordConfirm'];
+        this._formTypes = ['text', 'email', 'password', 'select', 'passwordConfirm', 'captcha'];
+        this._saving = false;
         this.init();
     }
+
     $.extend(Plugin.prototype, {
         init: function() {
             var fieldsHTML = '',
@@ -105,6 +115,19 @@
                             type: 'password'
                         });
                         break;
+                    case 'captcha':
+                        fieldsHTML += this._template(this.settings.html.captcha, {
+                            prefix: this._prefix,
+                            name: n,
+                            css: (item.css ? ' ' + item.css : ''),
+                            label: item.label,
+                            helpText: (item.helpText ? this._template(this.settings.html.helpText, {
+                                text: item.helpText,
+                                prefix: this._prefix
+                            }) : ''),
+                            autofocus: (item.autofocus ? 'autofocus' : '')
+                        });
+                        break;
                     case 'buttons':
                         var buttons = '';
                         for (var i = 0; i < item.buttons.length; i++) {
@@ -127,7 +150,7 @@
                 }
             }
             $(this.element).html(this._template(this.settings.template.fields, { fields: fieldsHTML }) + this._template(this.settings.template.buttons, { buttons: buttonsHTML }));
-            this.settings.events.onInit();
+            this.settings.events.onInit ? this.settings.events.onInit() : false;;
             var that = this;
             $(this.element).submit(function(e) {
                 e.preventDefault();
@@ -145,9 +168,15 @@
             this.clearErrors();
             $('.' + this._prefix + '-form-field').val('');
             $('select.' + this._prefix + '-form-field').prop("selectedIndex", 0);
+            for (var n in this.settings.items) {
+                var item = this.settings.items[n];
+                if (item.default) {
+                    $('#' + this._prefix + '_' + n).val(item.default);
+                }
+            }
         },
         loadData(data) {
-            this.settings.events.onLoadStart();
+            this.settings.events.onLoadStart ? this.settings.events.onLoadStart() : false;
             this.resetForm();
             var that = this;
             $.ajax({
@@ -160,12 +189,12 @@
                     jQuery.each(res.item, function(key, value) {
                         $('#' + that._prefix + '_' + key).val(value);
                     });
-                    that.settings.events.onLoadSuccess(res);
+                    that.settings.events.onLoadSuccess ? that.settings.events.onLoadSuccess(res) : false;
                 } else {
-                    that.settings.events.onLoadError(res);
+                    that.settings.events.onLoadError ? that.settings.events.onLoadError(res) : false;
                 }
             }).fail(function(jqXHR, exception) {
-                that.settings.events.onLoadError();
+                that.settings.events.onLoadError ? that.settings.events.onLoadError() : false;
             });
         },
         _template(s, d) {
@@ -175,7 +204,10 @@
             return s;
         },
         _submit() {
-            this.settings.events.onSaveSubmit();
+            if (this._saving) {
+                return;
+            }
+            this.settings.events.onSaveSubmit ? this.settings.events.onSaveSubmit() : false;
             this.clearErrors();
             var errors = {},
                 data = {},
@@ -228,14 +260,14 @@
                 }
             }
             if (Object.keys(errors).length > 0) {
-            	var focusSet = false;
+                var focusSet = false;
                 for (var k in errors) {
                     $('#' + this._prefix + '_' + k).addClass(this.settings.formDangerClass);
                     $('#' + this._prefix + '_' + k + '_error_text > span').html(errors[k]);
                     $('#' + this._prefix + '_' + k + '_error_text').show();
                     if (!focusSet) {
-                    	$('#' + this._prefix + '_' + k).focus();
-                    	focusSet = true;
+                        $('#' + this._prefix + '_' + k).focus();
+                        focusSet = true;
                     }
                     if (this.settings.items[k].type == 'passwordConfirm') {
                         $('#' + this._prefix + '_' + k + 'Confirm').addClass(this.settings.formDangerClass);
@@ -243,15 +275,19 @@
                 }
                 return;
             }
-            data = this.settings.events.onSaveValidate(data) || data;
+            if (this.settings.events.onSaveValidate) {
+                data = this.settings.events.onSaveValidate(data) || data;
+            }
+            that._saving = true;
             $.ajax({
                 type: this.settings.save.method,
                 url: this.settings.save.url,
                 data: data,
                 cache: false
             }).done(function(res) {
+                that._saving = false;
                 if (res && res.status == 1) {
-                    that.settings.events.onSaveSuccess(res);
+                    that.settings.events.onSaveSuccess ? that.settings.events.onSaveSuccess(res) : false;
                 } else {
                     if (res.fields) {
                         for (var i in res.fields) {
@@ -263,13 +299,15 @@
                             }
                         }
                     }
-                    that.settings.events.onSaveError(res);
+                    that.settings.events.onSaveError ? that.settings.events.onSaveError(res) : false;
                 }
             }).fail(function(jqXHR, exception) {
-                that.settings.events.onSaveError();
+                that._saving = false;
+                that.settings.events.onSaveError ? that.settings.events.onSaveError() : fals;
             });
         }
     });
+
     $.fn[pluginName] = function(options) {
         var plugin;
         this.each(function() {
@@ -281,4 +319,5 @@
         });
         return plugin;
     };
+
 })(jQuery, window, document);

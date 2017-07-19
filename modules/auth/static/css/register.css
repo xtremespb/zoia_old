@@ -62,14 +62,14 @@
     cursor: pointer;
 }
 
-#captcha {
+#zoiaRegister_captcha {
     height: 50px;
     width: 80px;
     text-align: center;
 }
 
-.zoia-password-wrap {
-    margin-right: 5px;
+#zoiaRegister_passwordConfirm {
+    margin-left: 5px;
 }
 
 .zoia-help-text {

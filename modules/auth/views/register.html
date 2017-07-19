@@ -1,8 +1,8 @@
 <div class="zoia-form-header">
     <h1>{{ i18n.__(locale, 'Register new user') }}</h1>
 </div>
-<form id="zoia_register_form" class="za-form-stacked">
-    <div class="za-margin">
+<form id="zoiaRegister">
+<!--     <div class="za-margin">
         <label class="za-form-label" for="username">{{ i18n.__(locale, 'Username') }}:</label>
         <div class="za-form-controls">
             <input class="za-input za-width-medium zoia-form-field" id="username" type="text" placeholder="" autofocus>
@@ -50,7 +50,7 @@
             </div>
             <div class="zoia-form-btn-label">{{ i18n.__(locale, 'Register') }}</div>
         </button>
-    </div>
+    </div> -->
 </form>
 <div id="registrationSuccessful" style="display:none">
     <p>{{ i18n.__(locale, 'Registration was successful.') }}</p>
@@ -62,6 +62,3 @@
 <script type="text/javascript">
 const lang = {{ lang }};
 </script>
-<script src="/zoia/core/js/shared.js" type="text/javascript"></script>
-<script src="/auth/static/js/registerFields.js" type="text/javascript"></script>
-<script src="/auth/static/js/register.js" type="text/javascript"></script>

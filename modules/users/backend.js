@@ -23,7 +23,7 @@ module.exports = function(app) {
                 locale: locale,
                 lang: JSON.stringify(i18n.get().locales[locale])
             });
-            res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, ['/users/static/css/users.css'], ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/zoia/core/js/jquery.zoiaTable.js', '/zoia/core/js/shared.js', '/users/static/js/usersFields.js', '/users/static/js/users.js']));
+            res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, ['/users/static/css/users.css'], ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/zoia/core/js/jquery.zoiaTable.js', '/zoia/core/js/shared.js', '/users/static/js/users.js']));
         } catch (e) {
             next(new Error(e.message));
         }

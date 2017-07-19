@@ -1,44 +1,8 @@
 var editDialog,
-    currentID;
+    deleteDialog,
+    currentEditID,
+    currentDeleteID;
 
-var setZoiaEditHeader = function(edit) {
-    if (edit) {
-        $('#editDialogHeader').html(lang.editItem);
-    } else {
-        $('#editDialogHeader').html(lang.addItem);
-    }
-};
-var createItem = function() {
-    $('#editForm').zoiaFormBuilder().setEditMode(false);
-    $('#editForm').zoiaFormBuilder().resetForm(false);
-    currentID = undefined;
-    setZoiaEditHeader(false);
-    $('#zoiaEditDialogLoading').hide();
-    $('#zoiaEditDialogForm').show();
-    $('.editForm-form-button').show();
-    $('#zoiaEditDialogSpinner').hide();
-    editDialog.show();
-    $('#editUser_username').focus();
-};
-var editItem = function(id) {
-    if (!id) {
-        return showTable();
-    }
-    currentID = id;
-    setZoiaEditHeader(true);
-    $('#zoiaEditDialogForm').hide();
-    $('#zoiaEditDialogLoading').show();
-    $('#editForm').zoiaFormBuilder().setEditMode(true);
-    $('#editForm').zoiaFormBuilder().resetForm(false);
-    $('.editForm-form-button').show();
-    $('#zoiaEditDialogSpinner').hide();
-    editDialog.show();
-    $('#editForm').zoiaFormBuilder().loadData({ id: id });
-};
-var showTable = function(id) {
-    editDialog.hide();
-    $('#users').zoiaTable().load();
-}
 var processState = function(eventState) {
     var state = eventState || {
         action: getUrlParam('action'),
@@ -56,10 +20,139 @@ var processState = function(eventState) {
             break;
     }
 };
+
+var setZoiaEditHeader = function(edit) {
+    if (edit) {
+        $('#editDialogHeader').html(lang.editItem);
+    } else {
+        $('#editDialogHeader').html(lang.addItem);
+    }
+};
+
+var editFormSpinner = function(show) {
+    show ? $('.editForm-form-button').hide() : $('.editForm-form-button').show();
+    show ? $('#zoiaEditDialogSpinner').show() : $('#zoiaEditDialogSpinner').hide();
+};
+
+var editDialogSpinner = function(show) {
+    show ? $('#zoiaEditDialogLoading').show() : $('#zoiaEditDialogLoading').hide();
+    show ? $('#zoiaEditDialogForm').hide() : $('#zoiaEditDialogForm').show();
+};
+
+var deleteDialogSpinner = function(show) {
+    show ? $('.zoia-delete-dialog-button').hide() : $('.zoia-delete-dialog-button').show();
+    show ? $('#zoiaDeleteDialogSpinner').show() : $('#zoiaDeleteDialogSpinner').hide();
+};
+
+var createItem = function() {
+    $('#editForm').zoiaFormBuilder().setEditMode(false);
+    $('#editForm').zoiaFormBuilder().resetForm(false);
+    currentEditID = undefined;
+    setZoiaEditHeader(false);
+    editDialogSpinner(false);
+    editFormSpinner(false);
+    editDialog.show();
+    $('#editUser_username').focus();
+};
+
+var editItem = function(id) {
+    if (!id) {
+        return showTable();
+    }
+    currentEditID = id;
+    setZoiaEditHeader(true);
+    $('#editForm').zoiaFormBuilder().setEditMode(true);
+    $('#editForm').zoiaFormBuilder().resetForm(false);
+    editDialogSpinner(true);
+    editFormSpinner(false);
+    editDialog.show();
+    $('#editForm').zoiaFormBuilder().loadData({ id: id });
+};
+
+var deleteItem = function(id) {
+    if (!id) {
+        return showTable();
+    }
+    var items = [],
+        names = [];
+    currentDeleteID = [];
+    if (typeof id == 'object') {
+        items = id;
+        currentDeleteID = id;
+        for (var i in id) {
+            names.push($('#users').zoiaTable().getCurrentData()[id[i]].username);
+        }
+    } else {
+        items.push(id);
+        currentDeleteID.push(id);
+        names.push($('#users').zoiaTable().getCurrentData()[id].username);
+    }    
+    $('#zoiaDeleteDialogList').html('');
+    for (var n in names) {
+        $('#zoiaDeleteDialogList').append('<li>' + names[n] + '</li>');
+    }    
+    deleteDialogSpinner(false);
+    deleteDialog.show();
+};
+
+var ajaxDeleteItem = function() {
+    deleteDialogSpinner(true);
+    $.ajax({
+        type: 'POST',
+        url: '/api/users/delete',
+        data: {
+            id: currentDeleteID
+        },
+        cache: false
+    }).done(function(res) {
+        $('#users').zoiaTable().load();
+        if (res && res.status == 1) {
+            deleteDialog.hide();
+            zaUIkit.notification(lang['Operation was successful'], {
+                status: 'success',
+                timeout: 1500
+            });
+        } else {
+            zaUIkit.notification(lang['Cannot delete one or more items'], {
+                status: 'danger',
+                timeout: 1500
+            });
+            deleteDialogSpinner(false);
+        }
+    }).fail(function(jqXHR, exception) {
+        $('#users').zoiaTable().load();
+        zaUIkit.notification(lang['Cannot delete one or more items'], {
+            status: 'danger',
+            timeout: 1500
+        });
+        deleteDialogSpinner(false);
+    });
+};
+
+var showTable = function(id) {
+    editDialog.hide();
+    $('#users').zoiaTable().load();
+};
+
 $(document).ready(function() {
     editDialog = zaUIkit.modal('#zoiaEditDialog', {
         bgClose: false,
         escClose: false
+    });
+    deleteDialog = zaUIkit.modal('#zoiaDeleteDialog', {
+        bgClose: false,
+        escClose: false
+    });
+    $('.zoiaDeleteButton').click(function(e) {
+        var checked = $('.usersCheckbox:checkbox:checked').map(function() {
+            return this.id;
+        }).get();
+        if (checked && checked.length > 0) {
+            deleteItem(checked);
+        }
+    });
+    $('#zoiaDeleteDialogButton').click(function(e) {
+        ajaxDeleteItem();
     });
     $('#editForm').zoiaFormBuilder({
         save: {
@@ -75,12 +168,9 @@ $(document).ready(function() {
             buttons: '{buttons}'
         },
         events: {
-            onInit: function() {},
-            onSaveSubmit: function() {},
             onSaveValidate: function(data) {
-                $('.editForm-form-button').hide();
-                $('#zoiaEditDialogSpinner').show();
-                data.id = currentID;
+                editFormSpinner(true);
+                data.id = currentEditID;
                 return data;
             },
             onSaveSuccess: function() {
@@ -92,8 +182,7 @@ $(document).ready(function() {
                 $('#users').zoiaTable().load();
             },
             onSaveError: function(res) {
-                $('.editForm-form-button').show();
-                $('#zoiaEditDialogSpinner').hide();
+                editFormSpinner(false);
                 if (res && res.status) {
                     switch (res.status) {
                         case -1:
@@ -117,14 +206,11 @@ $(document).ready(function() {
                     }
                 }
             },
-            onLoadStart: function() {},
             onLoadSuccess: function() {
-                $('#zoiaEditDialogLoading').hide();
-                $('#zoiaEditDialogForm').show();
+                editDialogSpinner(false);
                 $('#editForm_username').focus();
             },
             onLoadError: function() {
-                console.log("onLoadError");
                 editDialog.hide();
                 showError(undefined, lang['Could not load information from database']);
             }
@@ -192,6 +278,7 @@ $(document).ready(function() {
                     '1': lang.statuses[1],
                     '2': lang.statuses[2]
                 },
+                default: '1',
                 validation: {
                     mandatoryCreate: true,
                     mandatoryEdit: true,
@@ -218,7 +305,6 @@ $(document).ready(function() {
             }
         }
     });
-    // $('#zoia').zoiaFormBuilder().loadData({ id: '594a7aef2f52622536f41b97' });
     $('#users').zoiaTable({
         url: 'http://127.0.0.1:3000/api/users/list',
         limit: 20,
@@ -248,18 +334,18 @@ $(document).ready(function() {
             actions: {
                 sortable: false,
                 process: function(id, item, value) {
-                    return '<div class="za-visible@m"><button class="za-icon-button zoia-users-action-edit-btn" za-icon="icon: pencil" data="' + item._id + '"></button><button class="za-icon-button zoia-users-action-del-btn" za-icon="icon: trash" data="' + item._id + '"></button></div><div class="za-hidden@m zoia-action-btn-mobile-wrap"><a class="zoia-action-edit-btn-mobile" data="' + item._id + '">' + lang.Edit + '</a>&nbsp;<a class="zoia-action-del-btn-mobile" data="' + item._id + '">' + lang.Delete + '</a></div>';
+                    return '<button class="za-icon-button zoia-users-action-edit-btn" za-icon="icon: pencil" data="' + item._id + '" style="margin-right:5px"></button><button class="za-icon-button zoia-users-action-del-btn" za-icon="icon: trash" data="' + item._id + '"></button><div style="margin-bottom:17px" class="za-hidden@s">&nbsp;</div>';
                 }
             }
         },
         onLoad: function() {
-            $('.zoia-users-action-edit-btn').add('.zoia-action-edit-btn-mobile').click(function() {
+            $('.zoia-users-action-edit-btn').click(function() {
                 window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, '/admin/users?action=edit&id=' + $(this).attr('data'));
                 editItem($(this).attr('data'));
             });
-            //$('.zoia-users-action-del-btn').add('.zoia-action-del-btn-mobile').click(function() {
-            //    delItem($(this).attr('data'));
-            //});
+            $('.zoia-users-action-del-btn').click(function() {
+                deleteItem($(this).attr('data'));
+            });
         }
     });
     $('.zoiaAdd').click(function() {

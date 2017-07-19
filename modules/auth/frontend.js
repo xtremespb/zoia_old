@@ -67,7 +67,7 @@ module.exports = function(app) {
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Register'), {
             content: registerHTML,
             extraCSS: ['/auth/static/css/register.css'],
-            extraJS: ['/zoia/core/js/shared.js', '/auth/static/js/registerFields.js', '/auth/static/js/register.js']
+            extraJS: ['/zoia/core/js/shared.js', '/zoia/core/js/jquery.zoiaFormBuilder.js', '/auth/static/js/registerFields.js', '/auth/static/js/register.js']
         });
         res.send(html);
     };

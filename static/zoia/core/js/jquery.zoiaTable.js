@@ -37,6 +37,7 @@
         this.page = 1;
         this.loading = false;
         this.search = '';
+        this.currentData = {};
         this.init();
     }
 
@@ -64,6 +65,10 @@
             $('.' + this.element.id + 'SearchInput').keypress(this._debounce(function(e) {
                 that._search(e);
             }, 250));
+            $('.' + this.element.id + 'SearchInputClear').click(function(e) {
+                that._searchReset(e);
+
+            });
             if (this.settings.loadOnStart) {
                 this.load();
             }
@@ -75,6 +80,15 @@
             this.search = $(e.target).val().trim();
             this.page = 1;
             this.load();
+        },
+        _searchReset(e) {
+            if (this.loading) {
+                return;
+            }
+            $('.' + this.element.id + 'SearchInput').val('').focus();
+            this.search = '';            
+            this.page = 1;
+            this.load();            
         },
         _sortIndicator(column, direction) {
             $('#' + this.element.id + 'SortingIndicator').remove();
@@ -205,12 +219,14 @@
                 }, delay);
             };
         },
+        getCurrentData() {
+            return this.currentData;
+        },
         load: function(page) {
             if (!this.settings.url || this.loading) {
                 return;
             }
             var that = this;
-            // $(this.element).find('tbody').html('');
             var html = '';
             this._loading(true);
             this.loading = true;
@@ -234,8 +250,10 @@
                     }
                     that.total = res.total;
                     that._pagination();
-                    for (var i in res.items) {
+                    that.currentData = {};
+                    for (var i in res.items) {                        
                         var item = res.items[i];
+                        that.currentData[item._id] = item;
                         html += '<tr>';
                         for (var h in that.header) {
                             if (that.header[h] == that.element.id + 'ID') {

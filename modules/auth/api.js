@@ -27,18 +27,18 @@ module.exports = function(app) {
         const db = app.get('db');
         res.contentType('application/json');
         let output = {
-            result: 1
+            status: 1
         };
         const fieldList = loginFields.getLoginFields();
         let fields = shared.checkRequest(req, fieldList);
         let fieldsFailed = shared.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
-            output.result = 0;
+            output.status = 0;
             output.fields = fieldsFailed;
             return res.send(JSON.stringify(output));
         }
         if (!req.session || fields.captcha.value != req.session.captcha) {
-            output.result = 0;
+            output.status = 0;
             output.fields = ['captcha'];
             return res.send(JSON.stringify(output));
         }
@@ -48,13 +48,13 @@ module.exports = function(app) {
             console.log(passwordHash);
             const user = await db.collection('users').findOne({ username: fields.username.value, password: passwordHash });
             if (user == null || !user.status) {
-                output.result = -1;
+                output.status = -1;
             } else {
                 req.session.auth = user;
             }
             return res.send(JSON.stringify(output));
         } catch (e) {
-            output.result = 0;
+            output.status = 0;
             output.error = e.message;
             res.send(JSON.stringify(output));
         }
@@ -70,17 +70,17 @@ module.exports = function(app) {
         const db = app.get('db');
         res.contentType('application/json');
         let output = {
-            result: 1
+            status: 1
         };
         if (!Module.isAuthorized(req)) {
-            output.result = 0;
+            output.status = 0;
             return res.send(JSON.stringify(output));
         }
         try {
             Module.logout(req);
             return res.send(JSON.stringify(output));
         } catch (e) {
-            output.result = 0;
+            output.status = 0;
             output.error = e.message;
             res.send(JSON.stringify(output));
         }
@@ -96,7 +96,7 @@ module.exports = function(app) {
         const db = app.get('db');
         res.contentType('application/json');
         let output = {
-            result: 1
+            status: 1
         };
         let locale = config.i18n.locales[0];
         if (req.session && req.session.currentLocale) {
@@ -106,12 +106,12 @@ module.exports = function(app) {
         let fields = shared.checkRequest(req, fieldList);
         let fieldsFailed = shared.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
-            output.result = 0;
+            output.status = 0;
             output.fields = fieldsFailed;
             return res.send(JSON.stringify(output));
         }
         if (!req.session || fields.captcha.value != req.session.captcha) {
-            output.result = 0;
+            output.status = 0;
             output.fields = ['captcha'];
             return res.send(JSON.stringify(output));
         }
@@ -119,13 +119,13 @@ module.exports = function(app) {
         try {
             const user = await db.collection('users').findOne({ username: fields.username.value });
             if (user != null) {
-                output.result = -1;
+                output.status = -1;
                 output.fields = ['username'];
                 return res.send(JSON.stringify(output));
             }
             const email = await db.collection('users').findOne({ email: fields.email.value });
             if (email != null) {
-                output.result = -2;
+                output.status = -2;
                 output.fields = ['email'];
                 return res.send(JSON.stringify(output));
             }
@@ -138,8 +138,8 @@ module.exports = function(app) {
                 status: 0,
                 activationCode: activationCode
             });
-            if (!insResult || !insResult.result || !insResult.result.ok) {
-                output.result = 0;
+            if (!insResult || !insResult.status || !insResult.status.ok) {
+                output.status = 0;
                 return res.send(JSON.stringify(output));
             }
             let mailHTML = await render.file('mail_register.html', {
@@ -152,7 +152,7 @@ module.exports = function(app) {
             await mailer.send(req, fields.email.value, i18n.get().__(locale, 'Confirm your registration'), mailHTML);
             return res.send(JSON.stringify(output));
         } catch (e) {
-            output.result = 0;
+            output.status = 0;
             log.error(e);
             res.send(JSON.stringify(output));
         }
@@ -168,7 +168,7 @@ module.exports = function(app) {
         const db = app.get('db');
         res.contentType('application/json');
         let output = {
-            result: 1
+            status: 1
         };
         let locale = config.i18n.locales[0];
         if (req.session && req.session.currentLocale) {
@@ -178,14 +178,14 @@ module.exports = function(app) {
         let fields = shared.checkRequest(req, fieldList);
         let fieldsFailed = shared.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
-            output.result = 0;
+            output.status = 0;
             output.fields = fieldsFailed;
             return res.send(JSON.stringify(output));
         }
         try {
             const user = await db.collection('users').findOne({ username: fields.username.value });
             if (user == null || user.status > 0 || user.activationCode != fields.code.value) {
-                output.result = -1;
+                output.status = -1;
                 return res.send(JSON.stringify(output));
             }
             let updResult = await db.collection('users').update({
@@ -195,13 +195,13 @@ module.exports = function(app) {
                     status: 1
                 }
             });
-            if (!updResult || !updResult.result || !updResult.result.ok) {
-                output.result = 0;
+            if (!updResult || !updResult.status || !updResult.status.ok) {
+                output.status = 0;
                 return res.send(JSON.stringify(output));
             }
             return res.send(JSON.stringify(output));
         } catch (e) {
-            output.result = 0;
+            output.status = 0;
             log.error(e);
             res.send(JSON.stringify(output));
         }
@@ -217,7 +217,7 @@ module.exports = function(app) {
         const db = app.get('db');
         res.contentType('application/json');
         let output = {
-            result: 1
+            status: 1
         };
         let locale = config.i18n.locales[0];
         if (req.session && req.session.currentLocale) {
@@ -227,12 +227,12 @@ module.exports = function(app) {
         let fields = shared.checkRequest(req, fieldList);
         let fieldsFailed = shared.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
-            output.result = 0;
+            output.status = 0;
             output.fields = fieldsFailed;
             return res.send(JSON.stringify(output));
         }
         if (!req.session || fields.captcha.value != req.session.captcha) {
-            output.result = 0;
+            output.status = 0;
             output.fields = ['captcha'];
             return res.send(JSON.stringify(output));
         }
@@ -240,7 +240,7 @@ module.exports = function(app) {
         try {
             const user = await db.collection('users').findOne({ email: fields.email.value });
             if (user == null) {
-                output.result = -1;
+                output.status = -1;
                 output.fields = ['email'];
                 return res.send(JSON.stringify(output));
             }
@@ -252,8 +252,8 @@ module.exports = function(app) {
                     activationCode: activationCode
                 }
             });
-            if (!updResult || !updResult.result || !updResult.result.ok) {
-                output.result = 0;
+            if (!updResult || !updResult.status || !updResult.status.ok) {
+                output.status = 0;
                 return res.send(JSON.stringify(output));
             }
             let mailHTML = await render.file('mail_reset.html', {
@@ -266,7 +266,7 @@ module.exports = function(app) {
             await mailer.send(req, fields.email.value, i18n.get().__(locale, 'Confirm password reset'), mailHTML);
             return res.send(JSON.stringify(output));
         } catch (e) {
-            output.result = 0;
+            output.status = 0;
             log.error(e);
             res.send(JSON.stringify(output));
         }
@@ -282,7 +282,7 @@ module.exports = function(app) {
         const db = app.get('db');
         res.contentType('application/json');
         let output = {
-            result: 1
+            status: 1
         };
         let locale = config.i18n.locales[0];
         if (req.session && req.session.currentLocale) {
@@ -292,7 +292,7 @@ module.exports = function(app) {
         let fields = shared.checkRequest(req, fieldList);
         let fieldsFailed = shared.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
-            output.result = 0;
+            output.status = 0;
             console.log('P1');
             output.fields = fieldsFailed;
             return res.send(JSON.stringify(output));
@@ -300,7 +300,7 @@ module.exports = function(app) {
         try {
             const user = await db.collection('users').findOne({ username: fields.username.value });
             if (user == null || user.status == 0 || fields.code.value != user.activationCode) {
-                output.result = -1;
+                output.status = -1;
                 return res.send(JSON.stringify(output));
             }
             const passwordHash = crypto.createHash('md5').update(config.salt + fields.password.value).digest("hex");
@@ -312,14 +312,14 @@ module.exports = function(app) {
                     password: passwordHash
                 }
             });
-            if (!updResult || !updResult.result || !updResult.result.ok) {
+            if (!updResult || !updResult.status || !updResult.status.ok) {
                 console.log('P2');
-                output.result = 0;
+                output.status = 0;
                 return res.send(JSON.stringify(output));
             }
             return res.send(JSON.stringify(output));
         } catch (e) {
-            output.result = 0;
+            output.status = 0;
             log.error(e);
             res.send(JSON.stringify(output));
         }
