@@ -2,9 +2,9 @@ const path = require('path'),
     config = require(path.join(__dirname, '..', '..', 'etc', 'config.js')),
     Module = require(path.join(__dirname, '..', '..', 'core', 'module.js')),
     Router = require('co-router'),
-    shared = require(path.join(__dirname, '..', '..', 'static', 'zoia', 'core', 'js', 'shared.js')),
-    registerConfirmFields = require(path.join(__dirname, 'static', 'js', 'registerConfirmFields.js')),
-    resetConfirmFields = require(path.join(__dirname, 'static', 'js', 'resetConfirmFields.js'));
+    validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js'))),
+    registerConfirmFields = require(path.join(__dirname, 'schemas', 'registerConfirmFields.js')),
+    resetConfirmFields = require(path.join(__dirname, 'schemas', 'resetConfirmFields.js'));
 
 module.exports = function(app) {
 
@@ -51,7 +51,7 @@ module.exports = function(app) {
     };
 
     let register = async function(req, res, next) {
-        if (Module.isAuthorized(req)) {            
+        if (Module.isAuthorized(req)) {
             return res.redirect(303, '/');
         }
         let locale = config.i18n.locales[0];
@@ -67,13 +67,13 @@ module.exports = function(app) {
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Register'), {
             content: registerHTML,
             extraCSS: ['/auth/static/css/register.css'],
-            extraJS: ['/zoia/core/js/shared.js', '/zoia/core/js/jquery.zoiaFormBuilder.js', '/auth/static/js/registerFields.js', '/auth/static/js/register.js']
+            extraJS: ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/auth/static/js/register.js']
         });
         res.send(html);
     };
 
-    let registerConfirm = async function(req, res, next) {        
-        if (Module.isAuthorized(req)) {            
+    let registerConfirm = async function(req, res, next) {
+        if (Module.isAuthorized(req)) {
             return res.redirect(303, '/');
         }
         let locale = config.i18n.locales[0];
@@ -81,8 +81,8 @@ module.exports = function(app) {
             locale = req.session.currentLocale;
         }
         const fieldList = registerConfirmFields.getConfirmFields();
-        let fields = shared.checkRequest(req, fieldList);
-        let fieldsFailed = shared.getCheckRequestFailedFields(fields);
+        let fields = validation.checkRequest(req, fieldList);
+        let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
             return res.redirect(303, '/');
         }
@@ -102,7 +102,7 @@ module.exports = function(app) {
     };
 
     let reset = async function(req, res, next) {
-        if (Module.isAuthorized(req)) {            
+        if (Module.isAuthorized(req)) {
             return res.redirect(303, '/');
         }
         let locale = config.i18n.locales[0];
@@ -118,13 +118,13 @@ module.exports = function(app) {
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Reset password'), {
             content: resetHTML,
             extraCSS: ['/auth/static/css/reset.css'],
-            extraJS: ['/zoia/core/js/shared.js', '/auth/static/js/resetFields.js', '/auth/static/js/reset.js']
+            extraJS: ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/auth/static/js/reset.js']
         });
         res.send(html);
     };
 
     let resetConfirm = async function(req, res, next) {
-        if (Module.isAuthorized(req)) {            
+        if (Module.isAuthorized(req)) {
             return res.redirect(303, '/');
         }
         let locale = config.i18n.locales[0];
@@ -132,8 +132,8 @@ module.exports = function(app) {
             locale = req.session.currentLocale;
         }
         const fieldList = resetConfirmFields.getResetConfirmFields();
-        let fields = shared.checkRequest(req, fieldList);
-        let fieldsFailed = shared.getCheckRequestFailedFields(fields);
+        let fields = validation.checkRequest(req, fieldList);
+        let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
             return res.redirect(303, '/');
         }
@@ -148,7 +148,7 @@ module.exports = function(app) {
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Set new password'), {
             content: resetConfirmHTML,
             extraCSS: ['/auth/static/css/resetConfirm.css'],
-            extraJS: ['/zoia/core/js/shared.js', '/auth/static/js/resetConfirmFields.js', '/auth/static/js/resetConfirm.js']
+            extraJS: ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/auth/static/js/resetConfirm.js']
         });
         res.send(html);
     };

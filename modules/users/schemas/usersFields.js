@@ -1,10 +1,13 @@
 (function(vars, global) {
     for (var i in vars) global[i] = vars[i];
 })({
-    getResetConfirmFields: function() {
+    getUsersFields: function(_passwordMandatory) {
+        if (_passwordMandatory == undefined) {
+            _passwordMandatory = true;
+        }
         return {
             username: {
-                mandatory: true,
+                mandatoryCreate: true,
                 length: {
                     min: 3,
                     max: 20
@@ -15,20 +18,20 @@
                     return item.trim().toLowerCase();
                 }
             },
-            code: {
-                mandatory: true,
+            email: {
+                mandatoryCreate: true,
                 length: {
-                    min: 32,
-                    max: 32
+                    min: 6,
+                    max: 129
                 },
                 type: 'string',
-                regexp: /^[a-f0-9]+$/,
+                regexp: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
                 process: function(item) {
-                    return item.trim();
+                    return item.trim().toLowerCase();
                 }
             },
             password: {
-                mandatory: true,
+                mandatoryCreate: _passwordMandatory,
                 length: {
                     min: 5,
                     max: 50
@@ -37,6 +40,15 @@
                 process: function(item) {
                     return item.trim();
                 }
+            },
+            status: {
+                mandatoryCreate: true,
+                length: {
+                    min: 1,
+                    max: 1
+                },
+                type: 'string',
+                regexp: /^(0|1|2)$/
             }
         };
     }

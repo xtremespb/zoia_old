@@ -1,42 +1,116 @@
 $(document).ready(function() {
-    // Login form submit
-    $('#zoia_auth_form').submit(function(e) {
-        e.preventDefault();
-        const scheme = getLoginFields();
-        let request = {
-            username: $('#username').val(),
-            password: $('#password').val(),
-            captcha: $('#captcha').val()
-        };
-        let fields = checkRequest(request, scheme),
-            failed = getCheckRequestFailedFields(fields);
-        var data = formPreprocess(request, fields, failed);
-        if (!data) {
-            return;
-        }
-        $.ajax({
-            type: 'POST',
+    $('#zoiaAuth').zoiaFormBuilder({
+        save: {
             url: '/api/auth/login',
-            data: data,
-            cache: false
-        }).done(function(res) {
-            if (res && res.result == 1) {
+            method: 'POST'
+        },
+        template: {
+            fields: '{fields}',
+            buttons: '{buttons}'
+        },
+        lang: {
+            mandatoryMissing: lang['Should not be empty'],
+            tooShort: lang['Too short'],
+            tooLong: lang['Too long'],
+            invalidFormat: lang['Doesn\'t match required format'],
+            passwordsNotMatch: lang['Passwords do not match']
+        },
+        events: {
+            onInit: function() {},
+            onSaveSubmit: function() {},
+            onSaveValidate: function() {
+                $('#zoiaAuthSpinner').show();
+                $('#zoiaAuth_btnSave').toggleClass('za-button-primary').toggleClass('za-button-default');
+            },
+            onSaveSuccess: function() {
+                $('html, body').animate({
+                    scrollTop: $('#zoiaAuth').offset().top - 20
+                }, 'fast');
+                $('#zoiaAuth').hide();
+                $('#zoiaAuthSpinner').show();
                 location.href = redirectURL;
-            } else {
-                formPostprocess(request, res);
-                if (res && res.result && res.result == -1) {
-                    $('#username').focus();
-                    $('#username').add('#password').addClass('za-form-danger');
-                    showError(undefined, lang['Invalid username or password']);
-                } else {
-                    if (!res.fields) { showError(undefined, lang['Error while authorizing']); }
+            },
+            onSaveError: function(res) {
+                $('#zoiaAuthSpinner').hide();
+                $('#zoiaAuth_btnSave').toggleClass('za-button-primary').toggleClass('za-button-default');
+                res = res ? res : {};
+                switch (res.status) {
+                    case -1:
+                        $('#zoiaAuth_username_error_text > span').html(lang['Invalid username or password']).show();
+                        $('#zoiaAuth_username_error_text').show();
+                        $('#zoiaAuth_username').addClass('za-form-danger').focus();
+                        $('#zoiaAuth_password').addClass('za-form-danger');
+                        break;
+                    case -2:
+                        $('#zoiaAuth_captcha_error_text > span').html(lang.fieldErrors.captcha).show();
+                        $('#zoiaAuth_captcha_error_text').show();
+                        break;
+                    default:
+                        zaUIkit.notification(lang['Error while authorizing'], {
+                            status: 'danger'
+                        });
+                        break;
                 }
             }
-        }).fail(function(jqXHR, exception) {
-            captchaRefresh();
-            showLoading(false);
-            showError(undefined, lang['Error while authorizing']);
-        });
+        },
+        items: {
+            username: {
+                type: 'text',
+                label: lang['Username'],
+                css: 'za-width-1-1',
+                autofocus: true,
+                validation: {
+                    mandatoryCreate: true,
+                    length: {
+                        min: 3,
+                        max: 20
+                    },
+                    regexp: /^[A-Za-z0-9_\-]+$/,
+                    process: function(item) {
+                        return item.trim().toLowerCase();
+                    }
+                }
+            },
+            password: {
+                type: 'password',
+                css: 'za-width-1-1',
+                label: lang['Password'],
+                validation: {
+                    mandatoryCreate: true,
+                    length: {
+                        min: 5,
+                        max: 50
+                    },
+                    process: function(item) {
+                        return item.trim();
+                    }
+                }
+            },
+            captcha: {
+                type: 'captcha',
+                label: lang['Code'],
+                validation: {
+                    mandatoryCreate: true,
+                    length: {
+                        min: 4,
+                        max: 4
+                    },
+                    regexp: /^[0-9]+$/,
+                    process: function(item) {
+                        return item.trim();
+                    }
+                }
+            },
+            buttons: {
+                type: 'buttons',
+                css: 'za-margin-top za-text-center',
+                buttons: [{
+                    name: "btnSave",
+                    label: '<div za-spinner class="za-margin-right" id="zoiaAuthSpinner" style="display:none"></div>' + lang['Log in'],
+                    css: 'za-button-primary za-button-large',
+                    type: 'submit'
+                }]
+            }
+        }
     });
-    initCaptcha();
 });

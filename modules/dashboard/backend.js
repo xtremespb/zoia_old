@@ -15,6 +15,7 @@ module.exports = function(app) {
     let dashboard = async(req, res, next) => {
         try {
             if (!Module.isAuthorizedAdmin(req)) {
+                Module.logout(req);
                 return res.redirect(303, '/auth?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace(".", ""));
             }            
             const locale = req.session.currentLocale;

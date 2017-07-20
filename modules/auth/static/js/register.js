@@ -1,5 +1,4 @@
 $(document).ready(function() {
-
     $('#zoiaRegister').zoiaFormBuilder({
         save: {
             url: '/api/auth/register',
@@ -9,25 +8,32 @@ $(document).ready(function() {
             fields: '{fields}',
             buttons: '{buttons}'
         },
+        lang: {
+            mandatoryMissing: lang['Should not be empty'],
+            tooShort: lang['Too short'],
+            tooLong: lang['Too long'],
+            invalidFormat: lang['Doesn\'t match required format'],
+            passwordsNotMatch: lang['Passwords do not match']
+        },
         events: {
             onInit: function() {},
             onSaveSubmit: function() {},
             onSaveValidate: function() {
                 $('#zoiaRegisterSpinner').show();
+                $('#zoiaRegister_btnSave').toggleClass('za-button-primary').toggleClass('za-button-default');
             },
             onSaveSuccess: function() {
-                $('#zoia_register_form').hide();
+                $('#zoiaRegister').hide();
                 $('#registrationSuccessful').show();
                 $('html, body').animate({
-                    scrollTop: $('.zoia-form-header').offset().top - 20
+                    scrollTop: $('#zoiaRegister').offset().top - 20
                 }, 'fast');
             },
             onSaveError: function(res) {
-                captchaRefresh();
                 $('#zoiaRegisterSpinner').hide();
-                $('#zoiaRegister_captcha').val('');
+                $('#zoiaRegister_btnSave').toggleClass('za-button-primary').toggleClass('za-button-default');
                 res = res ? res : {};
-                switch (res.result) {
+                switch (res.status) {
                     case -1:
                         $('#zoiaRegister_username_error_text > span').html(lang.fieldErrors.usernameTaken).show();
                         $('#zoiaRegister_username_error_text').show();
@@ -35,6 +41,10 @@ $(document).ready(function() {
                     case -2:
                         $('#zoiaRegister_email_error_text > span').html(lang.fieldErrors.emailTaken).show();
                         $('#zoiaRegister_email_error_text').show();
+                        break;
+                    case -3:
+                        $('#zoiaRegister_captcha_error_text > span').html(lang.fieldErrors.captcha).show();
+                        $('#zoiaRegister_captcha_error_text').show();
                         break;
                     default:
                         zaUIkit.notification(lang['Error while registering new account'], {
@@ -123,60 +133,4 @@ $(document).ready(function() {
             }
         }
     });
-
-    initCaptcha();
-
-    // Login form submit
-    /*$('#zoia_register_form').submit(function(e) {
-        e.preventDefault();
-        const scheme = getRegisterFields();
-        let request = {
-            username: $('#username').val(),
-            email: $('#email').val(),
-            password: $('#password').val(),
-            passwordConfirm: $('#passwordConfirm').val(),
-            captcha: $('#captcha').val()
-        };
-        let fields = checkRequest(request, scheme),
-            failed = getCheckRequestFailedFields(fields);
-        var data = formPreprocess(request, fields, failed);
-        if (!data) {
-            return;
-        }
-        $.ajax({
-            type: 'POST',
-            url: '/api/auth/register',
-            data: data,
-            cache: false
-        }).done(function(res) {
-            if (res && res.result == 1) {
-                $('#zoia_register_form').hide();
-                $('#registrationSuccessful').show();
-                $('html, body').animate({
-                    scrollTop: $('.zoia-form-header').offset().top - 20
-                }, 'fast');
-            } else {
-                formPostprocess(request, res);
-                if (res.fields && res.result < 0) {
-                    switch (res.result) {
-                        case -1:
-                            showError('username', lang.fieldErrors.usernameTaken);
-                            break;
-                        case -2:
-                            showError('email', lang.fieldErrors.emailTaken);
-                            break;
-                        default:
-                            showError(undefined, lang['Error while forming new account']);
-                            break;
-                    }
-                } else {
-                    showError(undefined, lang['Error while forming new account']);
-                }
-            }
-        }).fail(function(jqXHR, exception) {
-            showLoading(false);
-            captchaRefresh();
-            showError(undefined, lang['Error while forming new account']);
-        });
-    });*/
 });

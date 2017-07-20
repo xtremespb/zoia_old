@@ -13,14 +13,15 @@
                 url: '#',
                 method: 'POST'
             },
+            captcha: '/api/captcha',
             items: [],
             edit: false,
             html: {
                 helpText: '<div class="za-text-meta">{text}</div>',
                 text: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><div class="za-form-controls"><input class="za-input {prefix}-form-field{css}" id="{prefix}_{name}" type="{type}" placeholder=""{autofocus}><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>',
                 select: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><select class="za-select {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}>{values}</select><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
-                passwordConfirm: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-flex"><div class="{prefix}-field-wrap"><input class="za-input {prefix}-form-field" id="{prefix}_{name}" type="password" placeholder=""></div><div><input class="za-input {prefix}-form-field" id="{prefix}_{name}Confirm" type="password" placeholder=""></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
-                captcha: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-grid za-grid-small"><div><input class="za-input {prefix}-form-field{css}" type="text" placeholder="" id="{prefix}_{name}"{autofocus}></div><div><div class="za-form-controls"><img class="zoia-captcha-img"></div></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}',
+                passwordConfirm: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-flex"><div class="{prefix}-field-wrap"><input class="za-input {prefix}-form-field" id="{prefix}_{name}" type="password" placeholder=""{autofocus}></div><div><input class="za-input {prefix}-form-field" id="{prefix}_{name}Confirm" type="password" placeholder=""></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
+                captcha: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-grid za-grid-small"><div><input class="za-input {prefix}-form-field {prefix}-captcha-field{css}" type="text" placeholder="" id="{prefix}_{name}"{autofocus}></div><div><div class="za-form-controls"><img class="{prefix}-captcha-img"></div></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}',
                 buttonsWrap: '<div class="{css}">{buttons}{html}</div>',
                 button: '<button class="za-button {prefix}-form-button{css}" id="{prefix}_{name}" type="{type}">{label}</button>'
             },
@@ -156,6 +157,7 @@
                 e.preventDefault();
                 that._submit()
             });
+            this._captchaInit();
         },
         setEditMode(mode) {
             this.settings.edit = mode;
@@ -195,6 +197,18 @@
                 }
             }).fail(function(jqXHR, exception) {
                 that.settings.events.onLoadError ? that.settings.events.onLoadError() : false;
+            });
+        },
+        captchaRefresh() {
+            $('.' + this._prefix + '-captcha-img').show();
+            $('.' + this._prefix + '-captcha-img').attr('src', this.settings.captcha + '?' + new Date().getTime());
+            $('.' + this._prefix + '-captcha-field').val('');
+        },
+        _captchaInit() {
+            this.captchaRefresh();
+            var that = this;
+            $('img.' + this._prefix + '-captcha-img').click(function() {
+                that.captchaRefresh();
             });
         },
         _template(s, d) {
@@ -299,10 +313,12 @@
                             }
                         }
                     }
+                    that.captchaRefresh();
                     that.settings.events.onSaveError ? that.settings.events.onSaveError(res) : false;
                 }
             }).fail(function(jqXHR, exception) {
                 that._saving = false;
+                that.captchaRefresh();
                 that.settings.events.onSaveError ? that.settings.events.onSaveError() : fals;
             });
         }

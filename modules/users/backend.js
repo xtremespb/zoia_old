@@ -14,6 +14,7 @@ module.exports = function(app) {
     let list = async(req, res, next) => {
         try {
             if (!Module.isAuthorizedAdmin(req)) {
+                Module.logout(req);
                 return res.redirect(303, '/auth?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace(".", ""));
             }
             const locale = req.session.currentLocale;
@@ -23,7 +24,7 @@ module.exports = function(app) {
                 locale: locale,
                 lang: JSON.stringify(i18n.get().locales[locale])
             });
-            res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, ['/users/static/css/users.css'], ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/zoia/core/js/jquery.zoiaTable.js', '/zoia/core/js/shared.js', '/users/static/js/users.js']));
+            res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, ['/users/static/css/users.css'], ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/zoia/core/js/jquery.zoiaTable.js', '/users/static/js/users.js']));
         } catch (e) {
             next(new Error(e.message));
         }

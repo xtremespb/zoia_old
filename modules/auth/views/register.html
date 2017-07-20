@@ -2,63 +2,11 @@
     <h1>{{ i18n.__(locale, 'Register new user') }}</h1>
 </div>
 <form id="zoiaRegister">
-<!--     <div class="za-margin">
-        <label class="za-form-label" for="username">{{ i18n.__(locale, 'Username') }}:</label>
-        <div class="za-form-controls">
-            <input class="za-input za-width-medium zoia-form-field" id="username" type="text" placeholder="" autofocus>
-            <div class="zoia-help-text">{{ i18n.__(locale, 'Latin characters and numbers, length: 3-20') }}</div>
-        </div>
-    </div>
-    <div class="za-margin">
-        <label class="za-form-label" for="email">{{ i18n.__(locale, 'E-mail') }}:</label>
-        <div class="za-form-controls">
-            <input class="za-input za-width-medium zoia-form-field" id="email" type="email" placeholder="">
-            <div class="zoia-help-text">{{ i18n.__(locale, 'Example: user@domain.com') }}</div>
-        </div>
-    </div>
-    <div class="za-margin">
-        <label class="za-form-label" for="password">{{ i18n.__(locale, 'Password') }}:</label>
-        <div class="za-flex">
-            <div class="zoia-password-wrap">
-                <input class="za-input za-input-1-6 zoia-form-field" id="password" type="password" placeholder="">
-            </div>
-            <div>
-                <input class="za-input za-input-1-6 zoia-form-field" id="passwordConfirm" type="password" placeholder="">
-            </div>
-        </div>
-        <div class="zoia-help-text">{{ i18n.__(locale, 'Minimal length: 5 characters, type twice to verify') }}</div>
-    </div>
-    <div>
-        <label class="za-form-label za-margin" for="captcha">{{ i18n.__(locale, 'Code') }}:</label>
-    </div>
-    <div class="za-grid za-grid-small">
-        <div>
-            <input class="za-input zoia-form-field" type="text" placeholder="" id="captcha">
-        </div>
-        <div>
-            <div class="za-form-controls">
-                <img class="zoia-captcha-img">
-            </div>
-        </div>
-    </div>
-    <div class="za-margin zoia-form-wrap">
-        <button class="za-button za-button-default za-button-large zoia-form-btn">
-            <div class="zoia-spinner">
-                <div class="zoia-spinner-bounce1"></div>
-                <div class="zoia-spinner-bounce2"></div>
-                <div class="zoia-spinner-bounce3"></div>
-            </div>
-            <div class="zoia-form-btn-label">{{ i18n.__(locale, 'Register') }}</div>
-        </button>
-    </div> -->
 </form>
 <div id="registrationSuccessful" style="display:none">
     <p>{{ i18n.__(locale, 'Registration was successful.') }}</p>
     <p>{{ i18n.__(locale, 'Please check your mailbox and confirm your registration by clicking the confirmation link.') }}</p>
 </div>
-<script src="/zoia/3rdparty/jquery/jquery.min.js" type="text/javascript"></script>
-<script src="/zoia/3rdparty/uikit/js/uikit.min.js" type="text/javascript"></script>
-<script src="/zoia/3rdparty/uikit/js/uikit-icons.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 const lang = {{ lang }};
 </script>

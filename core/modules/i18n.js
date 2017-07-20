@@ -168,9 +168,9 @@ i18n.prototype = {
         var locale = req.session[this.sessionVarName];
 
         if (this.locales[locale]) {
-            if (this.devMode) {
+            /*if (this.devMode) {
                 console.log('Overriding locale from query: ' + locale);
-            }
+            }*/
             this.setLocale(locale);
         }
 
@@ -186,10 +186,9 @@ i18n.prototype = {
         var locale = (req.query.lang + '').toLowerCase();
 
         if (this.locales[locale]) {
-            if (this.devMode) {
+            /*if (this.devMode) {
                 console.log('Overriding locale from query: ' + locale);
-            }
-
+            }*/
             this.setLocale(locale);
         }
     },
@@ -202,10 +201,9 @@ i18n.prototype = {
         }
 
         if (/^([^.]+)/.test(req.headers.host) && this.locales[RegExp.$1]) {
-            if (this.devMode) {
+            /*if (this.devMode) {
                 console.log('Overriding locale from host: ' + RegExp.$1);
-            }
-
+            }*/
             this.setLocale(RegExp.$1);
         }
     },
@@ -220,10 +218,9 @@ i18n.prototype = {
         var locale = req.cookies[this.cookieName].toLowerCase();
 
         if (this.locales[locale]) {
-            if (this.devMode) {
+            /*if (this.devMode) {
                 console.log('Overriding locale from cookie: ' + locale);
-            }
-
+            }*/
             this.setLocale(locale);
         }
     },
@@ -234,10 +231,9 @@ i18n.prototype = {
         }
         var locale = process.env.LANG.split('_')[0];
         if (this.locales[locale]) {
-            if (this.devMode) {
+            /*if (this.devMode) {
                 console.log('Overriding locale from environment variable: ' + locale);
-            }
-
+            }*/
             this.setLocale(locale);
         }
     },
@@ -366,10 +362,9 @@ i18n.prototype = {
             fs.lstatSync(this.directory);
 
         } catch (e) {
-            if (this.devMode) {
+            /*if (this.devMode) {
                 console.log('creating locales dir in: ' + this.directory);
-            }
-
+            }*/
             fs.mkdirSync(this.directory, 755);
         }
 

@@ -4,7 +4,7 @@
     getConfirmFields: function() {
         return {
             username: {
-                mandatory: true,
+                mandatoryCreate: true,
                 length: {
                     min: 3,
                     max: 20
@@ -16,7 +16,7 @@
                 }
             },
             code: {
-                mandatory: true,
+                mandatoryCreate: true,
                 length: {
                     min: 32,
                     max: 32

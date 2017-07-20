@@ -1,11 +1,11 @@
 const path = require('path'),
     Module = require(path.join(__dirname, '..', '..', 'core', 'module.js')),
-    loginFields = require(path.join(__dirname, 'static', 'js', 'loginFields.js')),
-    registerFields = require(path.join(__dirname, 'static', 'js', 'registerFields.js')),
-    registerConfirmFields = require(path.join(__dirname, 'static', 'js', 'registerConfirmFields.js')),
-    resetFields = require(path.join(__dirname, 'static', 'js', 'resetFields.js')),
-    resetConfirmFields = require(path.join(__dirname, 'static', 'js', 'resetConfirmFields.js')),
-    shared = require(path.join(__dirname, '..', '..', 'static', 'zoia', 'core', 'js', 'shared.js')),
+    loginFields = require(path.join(__dirname, 'schemas', 'loginFields.js')),
+    registerFields = require(path.join(__dirname, 'schemas', 'registerFields.js')),
+    registerConfirmFields = require(path.join(__dirname, 'schemas', 'registerConfirmFields.js')),
+    resetFields = require(path.join(__dirname, 'schemas', 'resetFields.js')),
+    resetConfirmFields = require(path.join(__dirname, 'schemas', 'resetConfirmFields.js')),
+    validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js'))),
     Router = require('co-router'),
     crypto = require('crypto'),
     config = require(path.join(__dirname, '..', '..', 'etc', 'config.js'));
@@ -30,15 +30,15 @@ module.exports = function(app) {
             status: 1
         };
         const fieldList = loginFields.getLoginFields();
-        let fields = shared.checkRequest(req, fieldList);
-        let fieldsFailed = shared.getCheckRequestFailedFields(fields);
+        let fields = validation.checkRequest(req, fieldList);
+        let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
             output.status = 0;
             output.fields = fieldsFailed;
             return res.send(JSON.stringify(output));
         }
         if (!req.session || fields.captcha.value != req.session.captcha) {
-            output.status = 0;
+            output.status = -2;
             output.fields = ['captcha'];
             return res.send(JSON.stringify(output));
         }
@@ -103,15 +103,15 @@ module.exports = function(app) {
             locale = req.session.currentLocale;
         }
         const fieldList = registerFields.getRegisterFields();
-        let fields = shared.checkRequest(req, fieldList);
-        let fieldsFailed = shared.getCheckRequestFailedFields(fields);
+        let fields = validation.checkRequest(req, fieldList);
+        let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
             output.status = 0;
             output.fields = fieldsFailed;
             return res.send(JSON.stringify(output));
         }
         if (!req.session || fields.captcha.value != req.session.captcha) {
-            output.status = 0;
+            output.status = -3;
             output.fields = ['captcha'];
             return res.send(JSON.stringify(output));
         }
@@ -138,7 +138,7 @@ module.exports = function(app) {
                 status: 0,
                 activationCode: activationCode
             });
-            if (!insResult || !insResult.status || !insResult.status.ok) {
+            if (!insResult || !insResult.result || !insResult.result.ok) {
                 output.status = 0;
                 return res.send(JSON.stringify(output));
             }
@@ -175,8 +175,8 @@ module.exports = function(app) {
             locale = req.session.currentLocale;
         }
         const fieldList = registerConfirmFields.getConfirmFields();
-        let fields = shared.checkRequest(req, fieldList);
-        let fieldsFailed = shared.getCheckRequestFailedFields(fields);
+        let fields = validation.checkRequest(req, fieldList);
+        let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
             output.status = 0;
             output.fields = fieldsFailed;
@@ -195,7 +195,7 @@ module.exports = function(app) {
                     status: 1
                 }
             });
-            if (!updResult || !updResult.status || !updResult.status.ok) {
+            if (!updResult || !updResult.result || !updResult.result.ok) {
                 output.status = 0;
                 return res.send(JSON.stringify(output));
             }
@@ -224,8 +224,8 @@ module.exports = function(app) {
             locale = req.session.currentLocale;
         }
         const fieldList = resetFields.getRegisterFields();
-        let fields = shared.checkRequest(req, fieldList);
-        let fieldsFailed = shared.getCheckRequestFailedFields(fields);
+        let fields = validation.checkRequest(req, fieldList);
+        let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
             output.status = 0;
             output.fields = fieldsFailed;
@@ -252,7 +252,7 @@ module.exports = function(app) {
                     activationCode: activationCode
                 }
             });
-            if (!updResult || !updResult.status || !updResult.status.ok) {
+            if (!updResult || !updResult.result || !updResult.result.ok) {
                 output.status = 0;
                 return res.send(JSON.stringify(output));
             }
@@ -289,16 +289,16 @@ module.exports = function(app) {
             locale = req.session.currentLocale;
         }
         const fieldList = resetConfirmFields.getResetConfirmFields();
-        let fields = shared.checkRequest(req, fieldList);
-        let fieldsFailed = shared.getCheckRequestFailedFields(fields);
+        let fields = validation.checkRequest(req, fieldList);
+        let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
             output.status = 0;
-            console.log('P1');
             output.fields = fieldsFailed;
             return res.send(JSON.stringify(output));
         }
         try {
             const user = await db.collection('users').findOne({ username: fields.username.value });
+            // console.log(user);
             if (user == null || user.status == 0 || fields.code.value != user.activationCode) {
                 output.status = -1;
                 return res.send(JSON.stringify(output));
@@ -312,8 +312,7 @@ module.exports = function(app) {
                     password: passwordHash
                 }
             });
-            if (!updResult || !updResult.status || !updResult.status.ok) {
-                console.log('P2');
+            if (!updResult || !updResult.result || !updResult.result.ok) {
                 output.status = 0;
                 return res.send(JSON.stringify(output));
             }
@@ -332,41 +331,6 @@ module.exports = function(app) {
     router.all('/register/confirm', registerConfirm);
     router.all('/reset', reset);
     router.all('/reset/confirm', resetConfirm);
-
-    router.all('/test', async function(req, res) {
-        res.contentType('application/json');
-        const db = app.get('db');
-        const sortField = req.query.sortField || 'firstname';
-        const sortDirection = (req.query.sortDirection == 'asc') ? 1 : -1;
-        const sort = {};
-        sort[sortField] = sortDirection;
-        const skip = parseInt(req.query.skip || 0);
-        const limit = parseInt(req.query.limit || 10);
-        const search = req.query.search || '';
-        console.log(search);
-        let fquery = {};
-        //db.collection('test').ensureIndex({ '$**': 'text' });
-        try {
-            if (search) {
-                fquery = { $text: { $search: search } };
-            }
-            const total = await db.collection('test').find(fquery, { skip: skip, limit: limit }).count();
-            const test = await db.collection('test').find(fquery, { skip: skip, limit: limit }).sort(sort).toArray();
-            let data = {
-                count: test.length,
-                total: total,
-                items: test
-            }
-            console.log(data);
-            res.send(JSON.stringify(data));
-            /*setTimeout(function() {
-                res.send(JSON.stringify(data));
-            }, 1000);*/
-            //res.send('[]');
-        } catch (e) {
-            console.log(e);
-        }
-    })
 
     return {
         routes: router

@@ -49,5 +49,9 @@
 	"Set": "Set",
 	"Minimal length: 5 characters, type twice to verify": "Minimal length: 5 characters, type twice to verify",
 	"New password": "New password",
-	"Digits you see on the picture": "Digits you see on the picture"
+	"Digits you see on the picture": "Digits you see on the picture",
+	"Should not be empty": "Should not be empty",
+	"Too short": "Too short",
+	"Doesn't match required format": "Doesn't match required format",
+	"Passwords do not match": "Passwords do not match"
 }

@@ -1,37 +1,7 @@
 <div class="zoia-form-header">
     <h1>{{ i18n.__(locale, 'Reset password') }}</h1>
 </div>
-<form id="zoia_reset_form" class="za-form-stacked">
-    <div class="za-margin">
-        <label class="za-form-label" for="email">{{ i18n.__(locale, 'E-mail') }}:</label>
-        <div class="za-form-controls">
-            <input class="za-input za-width-medium zoia-form-field" id="email" type="email" placeholder="" autofocus>
-            <div class="zoia-help-text">{{ i18n.__(locale, 'Example: user@domain.com') }}</div>
-        </div>
-    </div>
-    <div>
-        <label class="za-form-label za-margin" for="captcha">{{ i18n.__(locale, 'Code') }}:</label>
-    </div>
-    <div class="za-grid za-grid-small">
-        <div>
-            <input class="za-input zoia-form-field" type="text" placeholder="" id="captcha">
-        </div>
-        <div>
-            <div class="za-form-controls">
-                <img class="zoia-captcha-img">
-            </div>
-        </div>
-    </div>
-    <div class="za-margin zoia-form-wrap">
-        <button class="za-button za-button-default za-button-large zoia-form-btn">
-            <div class="zoia-spinner">
-                <div class="zoia-spinner-bounce1"></div>
-                <div class="zoia-spinner-bounce2"></div>
-                <div class="zoia-spinner-bounce3"></div>
-            </div>
-            <div class="zoia-form-btn-label">{{ i18n.__(locale, 'Reset') }}</div>
-        </button>
-    </div>
+<form id="zoiaReset">
 </form>
 <div id="requestSuccessful" style="display:none">
     <p>{{ i18n.__(locale, 'Request was successful.') }}</p>

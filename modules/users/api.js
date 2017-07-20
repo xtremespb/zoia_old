@@ -1,11 +1,11 @@
 const path = require('path'),
     Module = require(path.join(__dirname, '..', '..', 'core', 'module.js')),
-    shared = require(path.join(__dirname, '..', '..', 'static', 'zoia', 'core', 'js', 'shared.js')),
+    validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js'))),
     Router = require('co-router'),
     crypto = require('crypto'),
     config = require(path.join(__dirname, '..', '..', 'etc', 'config.js')),
     ObjectID = require('mongodb').ObjectID,
-    usersFields = require(path.join(__dirname, 'static', 'js', 'usersFields.js'));
+    usersFields = require(path.join(__dirname, 'schemas', 'usersFields.js'));
 
 module.exports = function(app) {
 
@@ -132,8 +132,8 @@ module.exports = function(app) {
             locale = req.session.currentLocale;
         }
         const fieldList = usersFields.getUsersFields(id ? false : true);
-        let fields = shared.checkRequest(req, fieldList);
-        let fieldsFailed = shared.getCheckRequestFailedFields(fields);
+        let fields = validation.checkRequest(req, fieldList);
+        let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
             output.status = 0;
             output.fields = fieldsFailed;

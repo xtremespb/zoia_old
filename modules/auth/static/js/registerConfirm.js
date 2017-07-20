@@ -15,7 +15,7 @@ $(document).ready(function() {
     }).done(function(res) {        
         setTimeout(function() {
         	$('#confirmLoading').hide();
-            if (res && res.result == 1) {
+            if (res && res.status == 1) {
                 $('#confirmSuccess').show();
             } else {
                 $('#confirmFail').show();

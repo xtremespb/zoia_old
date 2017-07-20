@@ -2,29 +2,7 @@
 <div class="zoia-form-header">
     <h1>{{ i18n.__(locale, 'Set new password') }}</h1>
 </div>
-<form id="zoia_resetconfirm_form" class="za-form-stacked">
-    <div class="za-margin">
-        <label class="za-form-label" for="password">{{ i18n.__(locale, 'New password') }}:</label>
-        <div class="za-flex">
-            <div class="zoia-password-wrap">
-                <input class="za-input za-input-1-6 zoia-form-field" id="password" type="password" placeholder="" autofocus>
-            </div>
-            <div>
-                <input class="za-input za-input-1-6 zoia-form-field" id="passwordConfirm" type="password" placeholder="">
-            </div>
-        </div>
-        <div class="zoia-help-text">{{ i18n.__(locale, 'Minimal length: 5 characters, type twice to verify') }}</div>
-    </div>
-    <div class="za-margin zoia-form-wrap">
-        <button class="za-button za-button-default za-button-large zoia-form-btn">
-            <div class="zoia-spinner">
-                <div class="zoia-spinner-bounce1"></div>
-                <div class="zoia-spinner-bounce2"></div>
-                <div class="zoia-spinner-bounce3"></div>
-            </div>
-            <div class="zoia-form-btn-label">{{ i18n.__(locale, 'Set') }}</div>
-        </button>
-    </div>
+<form id="zoiaResetConfirm">
 </form>
 <div id="resetConfirmSuccessful" style="display:none">
     <p>{{ i18n.__(locale, 'Password change was successful. You may login to the website using your new password right now.') }}</p>
