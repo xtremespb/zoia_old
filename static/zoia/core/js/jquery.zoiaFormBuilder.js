@@ -159,8 +159,8 @@
             });
             this._captchaInit();
         },
-        setEditMode(mode) {
-            this.settings.edit = mode;
+        setEditMode(m) {
+            this.settings.edit = m;
         },
         clearErrors() {
             $('.' + this._prefix + '-form-field').removeClass(this.settings.formDangerClass);

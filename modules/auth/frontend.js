@@ -67,7 +67,7 @@ module.exports = function(app) {
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Register'), {
             content: registerHTML,
             extraCSS: ['/auth/static/css/register.css'],
-            extraJS: ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/auth/static/js/register.js']
+            extraJS: config.production ? ['/auth/static/js/register.min.js'] : ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/auth/static/js/register.js']
         });
         res.send(html);
     };
@@ -96,7 +96,7 @@ module.exports = function(app) {
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Confirm registraton'), {
             content: confirmHTML,
             extraCSS: ['/auth/static/css/registerConfirm.css'],
-            extraJS: ['/auth/static/js/registerConfirm.js']
+            extraJS: config.production ? ['/auth/static/js/registerConfirm.min.js'] : ['/auth/static/js/registerConfirm.js']
         });
         return res.send(html);
     };
@@ -118,7 +118,7 @@ module.exports = function(app) {
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Reset password'), {
             content: resetHTML,
             extraCSS: ['/auth/static/css/reset.css'],
-            extraJS: ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/auth/static/js/reset.js']
+            extraJS: config.production ? ['/auth/static/js/reset.min.js'] : ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/auth/static/js/reset.js']
         });
         res.send(html);
     };
@@ -148,7 +148,7 @@ module.exports = function(app) {
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Set new password'), {
             content: resetConfirmHTML,
             extraCSS: ['/auth/static/css/resetConfirm.css'],
-            extraJS: ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/auth/static/js/resetConfirm.js']
+            extraJS: config.production ? ['/auth/static/js/resetConfirm.min.js'] : ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/auth/static/js/resetConfirm.js']
         });
         res.send(html);
     };

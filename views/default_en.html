@@ -5,8 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{{ pageTitle }} | {{ config.website.title[locale] }}</title>
-    <link rel="stylesheet" href="/zoia/3rdparty/uikit/css/uikit.min.css" />
-    <link rel="stylesheet" href="/zoia/core/css/default.css">{% if extraCSS %} {% for item in extraCSS %}
+    <link rel="stylesheet" href="/zoia/3rdparty/uikit/css/uikit.min.css" />{% if extraCSS %}{% for item in extraCSS %}
     <link rel="stylesheet" href="{{ item }}">{% endfor %}{% endif %}
 </head>
 
@@ -14,8 +13,8 @@
     <div class="za-container">
         {{ content }}
     </div>
-    <script src="/zoia/3rdparty/jquery/jquery.min.js" type="text/javascript"></script>
-    <script src="/zoia/3rdparty/uikit/js/uikit.min.js" type="text/javascript"></script>{% if extraJS %}
+    {% if config.production %}<script src="/zoia/3rdparty/uikit/js/bundle.min.js" type="text/javascript"></script>{% else %}<script src="/zoia/3rdparty/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="/zoia/3rdparty/uikit/js/uikit.min.js" type="text/javascript"></script>{% endif %}{% if extraJS %}
     {% for item in extraJS %}<script src="{{ item }}" type="text/javascript"></script>{% endfor %}{% endif %}
 </body>
 
