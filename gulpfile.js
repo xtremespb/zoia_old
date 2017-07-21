@@ -7,11 +7,39 @@ const fs = require('fs');
 const path = require('path');
 
 gulp.task('auth', async() => {
-	// Generate CSS for Login form
+	// Generate CSS
     await new Promise((resolve, reject) => {
         gulp.src(['static/zoia/3rdparty/uikit/css/uikit.min.css', 'modules/auth/static/css/login.css'], { base: __dirname })
             .pipe(minifyCSS())
             .pipe(concat('login.min.css'))
+            .pipe(gulp.dest('modules/auth/static/css/'))
+            .on('end', resolve);
+    });
+    await new Promise((resolve, reject) => {
+        gulp.src(['modules/auth/static/css/register.css'], { base: __dirname })
+            .pipe(minifyCSS())
+            .pipe(concat('register.min.css'))
+            .pipe(gulp.dest('modules/auth/static/css/'))
+            .on('end', resolve);
+    });
+    await new Promise((resolve, reject) => {
+        gulp.src(['modules/auth/static/css/resetConfirm.css'], { base: __dirname })
+            .pipe(minifyCSS())
+            .pipe(concat('resetConfirm.min.css'))
+            .pipe(gulp.dest('modules/auth/static/css/'))
+            .on('end', resolve);
+    });
+    await new Promise((resolve, reject) => {
+        gulp.src(['modules/auth/static/css/reset.css'], { base: __dirname })
+            .pipe(minifyCSS())
+            .pipe(concat('reset.min.css'))
+            .pipe(gulp.dest('modules/auth/static/css/'))
+            .on('end', resolve);
+    });
+    await new Promise((resolve, reject) => {
+        gulp.src(['modules/auth/static/css/registerConfirm.css'], { base: __dirname })
+            .pipe(minifyCSS())
+            .pipe(concat('registerConfirm.min.css'))
             .pipe(gulp.dest('modules/auth/static/css/'))
             .on('end', resolve);
     });

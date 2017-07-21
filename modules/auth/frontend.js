@@ -66,7 +66,7 @@ module.exports = function(app) {
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Register'), {
             content: registerHTML,
-            extraCSS: ['/auth/static/css/register.css'],
+            extraCSS: config.production ? ['/auth/static/css/register.min.css'] : ['/auth/static/css/register.css'],
             extraJS: config.production ? ['/auth/static/js/register.min.js'] : ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/auth/static/js/register.js']
         });
         res.send(html);
@@ -95,7 +95,7 @@ module.exports = function(app) {
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Confirm registraton'), {
             content: confirmHTML,
-            extraCSS: ['/auth/static/css/registerConfirm.css'],
+            extraCSS: config.production ? ['/auth/static/css/registerConfirm.min.css'] : ['/auth/static/css/registerConfirm.css'],
             extraJS: config.production ? ['/auth/static/js/registerConfirm.min.js'] : ['/auth/static/js/registerConfirm.js']
         });
         return res.send(html);
@@ -117,7 +117,7 @@ module.exports = function(app) {
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Reset password'), {
             content: resetHTML,
-            extraCSS: ['/auth/static/css/reset.css'],
+            extraCSS: config.production ? ['/auth/static/css/reset.min.css'] : ['/auth/static/css/reset.css'],
             extraJS: config.production ? ['/auth/static/js/reset.min.js'] : ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/auth/static/js/reset.js']
         });
         res.send(html);
@@ -147,7 +147,7 @@ module.exports = function(app) {
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Set new password'), {
             content: resetConfirmHTML,
-            extraCSS: ['/auth/static/css/resetConfirm.css'],
+            extraCSS: config.production ? ['/auth/static/css/resetConfirm.min.css'] : ['/auth/static/css/resetConfirm.css'],
             extraJS: config.production ? ['/auth/static/js/resetConfirm.min.js'] : ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/auth/static/js/resetConfirm.js']
         });
         res.send(html);
