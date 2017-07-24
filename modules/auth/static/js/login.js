@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(() => {
     $('#zoiaAuth').zoiaFormBuilder({
         save: {
             url: '/api/auth/login',
@@ -16,13 +16,13 @@ $(document).ready(function() {
             passwordsNotMatch: lang['Passwords do not match']
         },
         events: {
-            onInit: function() {},
-            onSaveSubmit: function() {},
-            onSaveValidate: function() {
+            onInit: () => {},
+            onSaveSubmit: () => {},
+            onSaveValidate: () => {
                 $('#zoiaAuthSpinner').show();
                 $('#zoiaAuth_btnSave').toggleClass('za-button-primary').toggleClass('za-button-default');
             },
-            onSaveSuccess: function() {
+            onSaveSuccess: () => {
                 $('html, body').animate({
                     scrollTop: $('#zoiaAuth').offset().top - 20
                 }, 'fast');
@@ -30,7 +30,7 @@ $(document).ready(function() {
                 $('#zoiaAuthSpinner').show();
                 location.href = redirectURL;
             },
-            onSaveError: function(res) {
+            onSaveError: (res) => {
                 $('#zoiaAuthSpinner').hide();
                 $('#zoiaAuth_btnSave').toggleClass('za-button-primary').toggleClass('za-button-default');
                 res = res ? res : {};
@@ -46,7 +46,7 @@ $(document).ready(function() {
                         $('#zoiaAuth_captcha_error_text').show();
                         break;
                     default:
-                        zaUIkit.notification(lang['Error while authorizing'], {
+                        $zUI.notification(lang['Error while authorizing'], {
                             status: 'danger'
                         });
                         break;
@@ -66,7 +66,7 @@ $(document).ready(function() {
                         max: 20
                     },
                     regexp: /^[A-Za-z0-9_\-]+$/,
-                    process: function(item) {
+                    process: (item) => {
                         return item.trim().toLowerCase();
                     }
                 }
@@ -81,7 +81,7 @@ $(document).ready(function() {
                         min: 5,
                         max: 50
                     },
-                    process: function(item) {
+                    process: (item) => {
                         return item.trim();
                     }
                 }
@@ -96,7 +96,7 @@ $(document).ready(function() {
                         max: 4
                     },
                     regexp: /^[0-9]+$/,
-                    process: function(item) {
+                    process: (item) => {
                         return item.trim();
                     }
                 }

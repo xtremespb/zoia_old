@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(() => {
     $('#zoiaResetConfirm').zoiaFormBuilder({
         save: {
             url: '/api/auth/reset/confirm',
@@ -16,28 +16,28 @@ $(document).ready(function() {
             passwordsNotMatch: lang['Passwords do not match']
         },
         events: {
-            onInit: function() {},
-            onSaveSubmit: function() {},
-            onSaveValidate: function(data) {
+            onInit: () => {},
+            onSaveSubmit: () => {},
+            onSaveValidate: (data) => {
                 $('#zoiaResetConfirmSpinner').show();
                 $('#zoiaResetConfirm_btnSave').toggleClass('za-button-primary').toggleClass('za-button-default');
                 data.username = usernameConfirm;
                 data.code = codeConfirm;
                 return data;
             },
-            onSaveSuccess: function() {
+            onSaveSuccess: () => {
                 $('#zoiaResetConfirm').hide();
                 $('#resetConfirmSuccessful').show();
                 $('html, body').animate({
                     scrollTop: $('#zoiaResetConfirm').offset().top - 20
                 }, 'fast');
             },
-            onSaveError: function(res) {
+            onSaveError: (res) => {
                 $('#zoiaResetConfirmSpinner').hide();
                 $('#zoiaResetConfirm_btnSave').toggleClass('za-button-primary').toggleClass('za-button-default');
                 res = res ? res : {};
                 $('#zoiaResetConfirm_password').focus();
-                zaUIkit.notification(lang['Error while setting new password'], {
+                $zUI.notification(lang['Error while setting new password'], {
                     status: 'danger'
                 });
             }
@@ -54,7 +54,7 @@ $(document).ready(function() {
                         min: 5,
                         max: 50
                     },
-                    process: function(item) {
+                    process: (item) => {
                         return item.trim();
                     }
                 }

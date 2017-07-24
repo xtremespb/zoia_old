@@ -1,55 +1,55 @@
 ;
-(function($, window, document, undefined) {
+(($, window, document, undefined) => {
 
     "use strict";
 
-    var pluginName = "zoiaFormBuilder",
-        defaults = {
-            load: {
-                url: '#',
-                method: 'POST'
-            },
-            save: {
-                url: '#',
-                method: 'POST'
-            },
-            captcha: '/api/captcha',
-            items: [],
-            edit: false,
-            html: {
-                helpText: '<div class="za-text-meta">{text}</div>',
-                text: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><div class="za-form-controls"><input class="za-input {prefix}-form-field{css}" id="{prefix}_{name}" type="{type}" placeholder=""{autofocus}><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>',
-                select: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><select class="za-select {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}>{values}</select><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
-                passwordConfirm: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-flex"><div class="{prefix}-field-wrap"><input class="za-input {prefix}-form-field" id="{prefix}_{name}" type="password" placeholder=""{autofocus}></div><div><input class="za-input {prefix}-form-field" id="{prefix}_{name}Confirm" type="password" placeholder=""></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
-                captcha: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-grid za-grid-small"><div><input class="za-input {prefix}-form-field {prefix}-captcha-field{css}" type="text" placeholder="" id="{prefix}_{name}"{autofocus}></div><div><div class="za-form-controls"><img class="{prefix}-captcha-img"></div></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}',
-                buttonsWrap: '<div class="{css}">{buttons}{html}</div>',
-                button: '<button class="za-button {prefix}-form-button{css}" id="{prefix}_{name}" type="{type}">{label}</button>'
-            },
-            template: {
-                fields: '{fields}',
-                buttons: '{buttons}'
-            },
-            lang: {
-                mandatoryMissing: 'Should not be empty',
-                tooShort: 'Too short',
-                tooLong: 'Too long',
-                invalidFormat: 'Doesn\'t match required format',
-                passwordsNotMatch: 'Passwords do not match'
-            },
-            events: {
-                onInit: function() {},
-                onSaveSubmit: function() {},
-                onSaveValidate: function() {},
-                onSaveSuccess: function() {},
-                onSaveError: function() {},
-                onLoadStart: function() {},
-                onLoadSuccess: function() {},
-                onLoadError: function() {}
-            },
-            formDangerClass: 'za-form-danger'
-        };
+    const pluginName = "zoiaFormBuilder";
+    let defaults = {
+        load: {
+            url: '#',
+            method: 'POST'
+        },
+        save: {
+            url: '#',
+            method: 'POST'
+        },
+        captcha: '/api/captcha',
+        items: [],
+        edit: false,
+        html: {
+            helpText: '<div class="za-text-meta">{text}</div>',
+            text: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><div class="za-form-controls"><input class="za-input {prefix}-form-field{css}" id="{prefix}_{name}" type="{type}" placeholder=""{autofocus}><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>',
+            select: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><select class="za-select {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}>{values}</select><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
+            passwordConfirm: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-flex"><div class="{prefix}-field-wrap"><input class="za-input {prefix}-form-field" id="{prefix}_{name}" type="password" placeholder=""{autofocus}></div><div><input class="za-input {prefix}-form-field" id="{prefix}_{name}Confirm" type="password" placeholder=""></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
+            captcha: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-grid za-grid-small"><div><input class="za-input {prefix}-form-field {prefix}-captcha-field{css}" type="text" placeholder="" id="{prefix}_{name}"{autofocus}></div><div><div class="za-form-controls"><img class="{prefix}-captcha-img"></div></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}',
+            buttonsWrap: '<div class="{css}">{buttons}{html}</div>',
+            button: '<button class="za-button {prefix}-form-button{css}" id="{prefix}_{name}" type="{type}">{label}</button>'
+        },
+        template: {
+            fields: '{fields}',
+            buttons: '{buttons}'
+        },
+        lang: {
+            mandatoryMissing: 'Should not be empty',
+            tooShort: 'Too short',
+            tooLong: 'Too long',
+            invalidFormat: 'Doesn\'t match required format',
+            passwordsNotMatch: 'Passwords do not match'
+        },
+        events: {
+            onInit: () => {},
+            onSaveSubmit: () => {},
+            onSaveValidate: () => {},
+            onSaveSuccess: () => {},
+            onSaveError: () => {},
+            onLoadStart: () => {},
+            onLoadSuccess: () => {},
+            onLoadError: () => {}
+        },
+        formDangerClass: 'za-form-danger'
+    };
 
-    function Plugin(element, options) {
+    const Plugin = function(element, options) {
         this.element = element;
         this.settings = $.extend({}, defaults, options);
         this._defaults = defaults;
@@ -62,10 +62,10 @@
 
     $.extend(Plugin.prototype, {
         init: function() {
-            var fieldsHTML = '',
+            let fieldsHTML = '',
                 buttonsHTML = '';
-            for (var n in this.settings.items) {
-                var item = this.settings.items[n];
+            for (let n in this.settings.items) {
+                let item = this.settings.items[n];
                 switch (item.type) {
                     case 'text':
                     case 'email':
@@ -84,8 +84,8 @@
                         });
                         break;
                     case 'select':
-                        var valuesHTML = '';
-                        for (var v in item.values) {
+                        let valuesHTML = '';
+                        for (let v in item.values) {
                             valuesHTML += '<option value="' + v + '">' + item.values[v] + '</option>';
                         }
                         fieldsHTML += this._template(this.settings.html.select, {
@@ -130,9 +130,9 @@
                         });
                         break;
                     case 'buttons':
-                        var buttons = '';
-                        for (var i = 0; i < item.buttons.length; i++) {
-                            var button = item.buttons[i];
+                        let buttons = '';
+                        for (let i = 0; i < item.buttons.length; i++) {
+                            let button = item.buttons[i];
                             buttons += this._template(this.settings.html.button, {
                                 css: (button.css ? ' ' + button.css : ''),
                                 prefix: this._prefix,
@@ -152,8 +152,8 @@
             }
             $(this.element).html(this._template(this.settings.template.fields, { fields: fieldsHTML }) + this._template(this.settings.template.buttons, { buttons: buttonsHTML }));
             this.settings.events.onInit ? this.settings.events.onInit() : false;;
-            var that = this;
-            $(this.element).submit(function(e) {
+            const that = this;
+            $(this.element).submit((e) => {
                 e.preventDefault();
                 that._submit()
             });
@@ -170,8 +170,8 @@
             this.clearErrors();
             $('.' + this._prefix + '-form-field').val('');
             $('select.' + this._prefix + '-form-field').prop("selectedIndex", 0);
-            for (var n in this.settings.items) {
-                var item = this.settings.items[n];
+            for (let n in this.settings.items) {
+                let item = this.settings.items[n];
                 if (item.default) {
                     $('#' + this._prefix + '_' + n).val(item.default);
                 }
@@ -180,22 +180,22 @@
         loadData(data) {
             this.settings.events.onLoadStart ? this.settings.events.onLoadStart() : false;
             this.resetForm();
-            var that = this;
+            const that = this;
             $.ajax({
                 type: this.settings.load.method,
                 url: this.settings.load.url,
                 data: data,
                 cache: false
-            }).done(function(res) {
+            }).done((res) => {
                 if (res && res.status == 1) {
-                    jQuery.each(res.item, function(key, value) {
+                    jQuery.each(res.item, (key, value) => {
                         $('#' + that._prefix + '_' + key).val(value);
                     });
                     that.settings.events.onLoadSuccess ? that.settings.events.onLoadSuccess(res) : false;
                 } else {
                     that.settings.events.onLoadError ? that.settings.events.onLoadError(res) : false;
                 }
-            }).fail(function(jqXHR, exception) {
+            }).fail((jqXHR, exception) => {
                 that.settings.events.onLoadError ? that.settings.events.onLoadError() : false;
             });
         },
@@ -206,13 +206,13 @@
         },
         _captchaInit() {
             this.captchaRefresh();
-            var that = this;
-            $('img.' + this._prefix + '-captcha-img').click(function() {
+            const that = this;
+            $('img.' + this._prefix + '-captcha-img').click(() => {
                 that.captchaRefresh();
             });
         },
         _template(s, d) {
-            for (var p in d) {
+            for (let p in d) {
                 s = s.replace(new RegExp('{' + p + '}', 'g'), d[p]);
             }
             return s;
@@ -223,15 +223,15 @@
             }
             this.settings.events.onSaveSubmit ? this.settings.events.onSaveSubmit() : false;
             this.clearErrors();
-            var errors = {},
+            let errors = {},
                 data = {},
                 that = this;
-            for (var n in this.settings.items) {
-                var field = this.settings.items[n];
+            for (let n in this.settings.items) {
+                let field = this.settings.items[n];
                 if (this._formTypes.indexOf(field.type) == -1) {
                     continue;
                 }
-                var fieldValue = $('#' + this._prefix + '_' + n).val();
+                let fieldValue = $('#' + this._prefix + '_' + n).val();
                 if (field.validation) {
                     if ((!field.validation.mandatoryEdit && !fieldValue && this.settings.edit) || (!field.validation.mandatoryCreate && !fieldValue && !this.settings.edit)) {
                         continue;
@@ -248,7 +248,7 @@
                         fieldValue = field.validation.process(fieldValue);
                     }
                     if (field.type == 'passwordConfirm') {
-                        var fieldConfirmValue = $('#' + this._prefix + '_' + n + 'Confirm').val();
+                        let fieldConfirmValue = $('#' + this._prefix + '_' + n + 'Confirm').val();
                         if (fieldConfirmValue != fieldValue) {
                             errors[n] = this.settings.lang.passwordsNotMatch;
                             continue;
@@ -274,8 +274,8 @@
                 }
             }
             if (Object.keys(errors).length > 0) {
-                var focusSet = false;
-                for (var k in errors) {
+                let focusSet = false;
+                for (let k in errors) {
                     $('#' + this._prefix + '_' + k).addClass(this.settings.formDangerClass);
                     $('#' + this._prefix + '_' + k + '_error_text > span').html(errors[k]);
                     $('#' + this._prefix + '_' + k + '_error_text').show();
@@ -298,14 +298,14 @@
                 url: this.settings.save.url,
                 data: data,
                 cache: false
-            }).done(function(res) {
+            }).done((res) => {
                 that._saving = false;
                 if (res && res.status == 1) {
                     that.settings.events.onSaveSuccess ? that.settings.events.onSaveSuccess(res) : false;
                 } else {
                     if (res.fields) {
-                        for (var i in res.fields) {
-                            var focusSet = false;
+                        for (let i in res.fields) {
+                            let focusSet = false;
                             $('#' + that._prefix + '_' + res.fields[i]).addClass(that.settings.formDangerClass);
                             if (!focusSet) {
                                 $('#' + that._prefix + '_' + res.fields[i]).focus();
@@ -316,7 +316,7 @@
                     that.captchaRefresh();
                     that.settings.events.onSaveError ? that.settings.events.onSaveError(res) : false;
                 }
-            }).fail(function(jqXHR, exception) {
+            }).fail((jqXHR, exception) => {
                 that._saving = false;
                 that.captchaRefresh();
                 that.settings.events.onSaveError ? that.settings.events.onSaveError() : fals;
@@ -325,7 +325,7 @@
     });
 
     $.fn[pluginName] = function(options) {
-        var plugin;
+        let plugin;
         this.each(function() {
             plugin = $.data(this, 'plugin_' + pluginName);
             if (!plugin) {

@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(() => {
     if (!usernameConfirm || !codeConfirm) {
         $('#confirmLoading').hide();
         $('#confirmFail').show();
@@ -12,8 +12,8 @@ $(document).ready(function() {
             code: codeConfirm
         },
         cache: false
-    }).done(function(res) {        
-        setTimeout(function() {
+    }).done((res) => {        
+        setTimeout(() => {
         	$('#confirmLoading').hide();
             if (res && res.status == 1) {
                 $('#confirmSuccess').show();
@@ -21,9 +21,9 @@ $(document).ready(function() {
                 $('#confirmFail').show();
             }
         }, 1000);
-    }).fail(function(jqXHR, exception) {
+    }).fail((jqXHR, exception) => {
         // Fail
-        setTimeout(function() {
+        setTimeout(() => {
             $('#confirmLoading').hide();
             $('#confirmFail').show();
         }, 1000);

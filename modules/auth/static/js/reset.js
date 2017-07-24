@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(() => {
     $('#zoiaReset').zoiaFormBuilder({
         save: {
             url: '/api/auth/reset',
@@ -16,20 +16,20 @@ $(document).ready(function() {
             passwordsNotMatch: lang['Passwords do not match']
         },
         events: {
-            onInit: function() {},
-            onSaveSubmit: function() {},
-            onSaveValidate: function() {
+            onInit: () => {},
+            onSaveSubmit: () => {},
+            onSaveValidate: () => {
                 $('#zoiaResetSpinner').show();
                 $('#zoiaReset_btnSave').toggleClass('za-button-primary').toggleClass('za-button-default');
             },
-            onSaveSuccess: function() {
+            onSaveSuccess: () => {
                 $('#zoiaReset').hide();
                 $('#requestSuccessful').show();
                 $('html, body').animate({
                     scrollTop: $('#zoiaReset').offset().top - 20
                 }, 'fast');
             },
-            onSaveError: function(res) {
+            onSaveError: (res) => {
                 $('#zoiaResetSpinner').hide();
                 $('#zoiaReset_btnSave').toggleClass('za-button-primary').toggleClass('za-button-default');
                 res = res ? res : {};
@@ -39,7 +39,7 @@ $(document).ready(function() {
                         $('#zoiaReset_email_error_text').show();
                         break;
                     default:
-                        zaUIkit.notification(lang['Error while setting new password'], {
+                        $zUI.notification(lang['Error while setting new password'], {
                             status: 'danger'
                         });
                         break;
@@ -60,7 +60,7 @@ $(document).ready(function() {
                         max: 129
                     },
                     regexp: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-                    process: function(item) {
+                    process: (item) => {
                         return item.trim().toLowerCase();
                     }
                 }
@@ -76,7 +76,7 @@ $(document).ready(function() {
                         max: 4
                     },
                     regexp: /^[0-9]+$/,
-                    process: function(item) {
+                    process: (item) => {
                         return item.trim();
                     }
                 }

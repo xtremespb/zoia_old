@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(() => {
     $('#zoiaRegister').zoiaFormBuilder({
         save: {
             url: '/api/auth/register',
@@ -16,20 +16,20 @@ $(document).ready(function() {
             passwordsNotMatch: lang['Passwords do not match']
         },
         events: {
-            onInit: function() {},
-            onSaveSubmit: function() {},
-            onSaveValidate: function() {
+            onInit: () => {},
+            onSaveSubmit: () => {},
+            onSaveValidate: () => {
                 $('#zoiaRegisterSpinner').show();
                 $('#zoiaRegister_btnSave').toggleClass('za-button-primary').toggleClass('za-button-default');
             },
-            onSaveSuccess: function() {
+            onSaveSuccess: () => {
                 $('#zoiaRegister').hide();
                 $('#registrationSuccessful').show();
                 $('html, body').animate({
                     scrollTop: $('#zoiaRegister').offset().top - 20
                 }, 'fast');
             },
-            onSaveError: function(res) {
+            onSaveError: (res) => {
                 $('#zoiaRegisterSpinner').hide();
                 $('#zoiaRegister_btnSave').toggleClass('za-button-primary').toggleClass('za-button-default');
                 res = res ? res : {};
@@ -47,7 +47,7 @@ $(document).ready(function() {
                         $('#zoiaRegister_captcha_error_text').show();
                         break;
                     default:
-                        zaUIkit.notification(lang['Error while registering new account'], {
+                        $zUI.notification(lang['Error while registering new account'], {
                             status: 'danger'
                         });
                         break;
@@ -68,7 +68,7 @@ $(document).ready(function() {
                         max: 20
                     },
                     regexp: /^[A-Za-z0-9_\-]+$/,
-                    process: function(item) {
+                    process: (item) => {
                         return item.trim().toLowerCase();
                     }
                 }
@@ -85,7 +85,7 @@ $(document).ready(function() {
                         max: 129
                     },
                     regexp: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-                    process: function(item) {
+                    process: (item) => {
                         return item.trim().toLowerCase();
                     }
                 }
@@ -100,7 +100,7 @@ $(document).ready(function() {
                         min: 5,
                         max: 50
                     },
-                    process: function(item) {
+                    process: (item) => {
                         return item.trim();
                     }
                 }
@@ -116,7 +116,7 @@ $(document).ready(function() {
                         max: 4
                     },
                     regexp: /^[0-9]+$/,
-                    process: function(item) {
+                    process: (item) => {
                         return item.trim();
                     }
                 }

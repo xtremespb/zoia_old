@@ -1,10 +1,10 @@
-var editDialog,
+let editDialog,
     deleteDialog,
     currentEditID,
     currentDeleteID;
 
-var getUrlParam = function(sParam) {
-    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+const getUrlParam = (sParam) => {
+    let sPageURL = decodeURIComponent(window.location.search.substring(1)),
         sURLVariables = sPageURL.split('&'),
         sParameterName,
         i;
@@ -16,8 +16,8 @@ var getUrlParam = function(sParam) {
     }
 };
 
-var processState = function(eventState) {
-    var state = eventState || {
+const processState = (eventState) => {
+    const state = eventState || {
         action: getUrlParam('action'),
         id: getUrlParam('id')
     };
@@ -34,30 +34,26 @@ var processState = function(eventState) {
     }
 };
 
-var setZoiaEditHeader = function(edit) {
-    if (edit) {
-        $('#editDialogHeader').html(lang.editItem);
-    } else {
-        $('#editDialogHeader').html(lang.addItem);
-    }
+const setZoiaEditHeader = (edit) => {
+    edit ? $('#editDialogHeader').html(lang.editItem) : $('#editDialogHeader').html(lang.addItem);
 };
 
-var editFormSpinner = function(show) {
+const editFormSpinner = (show) => {
     show ? $('.editForm-form-button').hide() : $('.editForm-form-button').show();
     show ? $('#zoiaEditDialogSpinner').show() : $('#zoiaEditDialogSpinner').hide();
 };
 
-var editDialogSpinner = function(show) {
+const editDialogSpinner = (show) => {
     show ? $('#zoiaEditDialogLoading').show() : $('#zoiaEditDialogLoading').hide();
     show ? $('#zoiaEditDialogForm').hide() : $('#zoiaEditDialogForm').show();
 };
 
-var deleteDialogSpinner = function(show) {
+const deleteDialogSpinner = (show) => {
     show ? $('.zoia-delete-dialog-button').hide() : $('.zoia-delete-dialog-button').show();
     show ? $('#zoiaDeleteDialogSpinner').show() : $('#zoiaDeleteDialogSpinner').hide();
 };
 
-var createItem = function() {
+const createItem = () => {
     $('#editForm').zoiaFormBuilder().setEditMode(false);
     $('#editForm').zoiaFormBuilder().resetForm(false);
     currentEditID = undefined;
@@ -68,8 +64,8 @@ var createItem = function() {
     $('#editUser_username').focus();
 };
 
-var editItem = function(id) {
-    if (!id) {
+const editItem = (id) => {
+    if (!id || typeof id != 'string' || !id.match(/^[a-f0-9]{24}$/)) {
         return showTable();
     }
     currentEditID = id;
@@ -78,21 +74,21 @@ var editItem = function(id) {
     $('#editForm').zoiaFormBuilder().resetForm(false);
     editDialogSpinner(true);
     editFormSpinner(false);
-    editDialog.show();
     $('#editForm').zoiaFormBuilder().loadData({ id: id });
+    editDialog.show();
 };
 
-var deleteItem = function(id) {
+const deleteItem = (id) => {
     if (!id) {
         return showTable();
     }
-    var items = [],
+    let items = [],
         names = [];
     currentDeleteID = [];
     if (typeof id == 'object') {
         items = id;
         currentDeleteID = id;
-        for (var i in id) {
+        for (let i in id) {
             names.push($('#users').zoiaTable().getCurrentData()[id[i]].username);
         }
     } else {
@@ -101,14 +97,14 @@ var deleteItem = function(id) {
         names.push($('#users').zoiaTable().getCurrentData()[id].username);
     }
     $('#zoiaDeleteDialogList').html('');
-    for (var n in names) {
+    for (let n in names) {
         $('#zoiaDeleteDialogList').append('<li>' + names[n] + '</li>');
     }
     deleteDialogSpinner(false);
     deleteDialog.show();
 };
 
-var ajaxDeleteItem = function() {
+const ajaxDeleteItem = () => {
     deleteDialogSpinner(true);
     $.ajax({
         type: 'POST',
@@ -117,24 +113,24 @@ var ajaxDeleteItem = function() {
             id: currentDeleteID
         },
         cache: false
-    }).done(function(res) {
+    }).done((res) => {
         $('#users').zoiaTable().load();
         if (res && res.status == 1) {
             deleteDialog.hide();
-            zaUIkit.notification(lang['Operation was successful'], {
+            $zUI.notification(lang['Operation was successful'], {
                 status: 'success',
                 timeout: 1500
             });
         } else {
-            zaUIkit.notification(lang['Cannot delete one or more items'], {
+            $zUI.notification(lang['Cannot delete one or more items'], {
                 status: 'danger',
                 timeout: 1500
             });
             deleteDialogSpinner(false);
         }
-    }).fail(function(jqXHR, exception) {
+    }).fail((jqXHR, exception) => {
         $('#users').zoiaTable().load();
-        zaUIkit.notification(lang['Cannot delete one or more items'], {
+        $zUI.notification(lang['Cannot delete one or more items'], {
             status: 'danger',
             timeout: 1500
         });
@@ -142,29 +138,29 @@ var ajaxDeleteItem = function() {
     });
 };
 
-var showTable = function(id) {
+const showTable = (id) => {
     editDialog.hide();
     $('#users').zoiaTable().load();
 };
 
-$(document).ready(function() {
-    editDialog = zaUIkit.modal('#zoiaEditDialog', {
+$(document).ready(() => {
+    editDialog = $zUI.modal('#zoiaEditDialog', {
         bgClose: false,
         escClose: false
     });
-    deleteDialog = zaUIkit.modal('#zoiaDeleteDialog', {
+    deleteDialog = $zUI.modal('#zoiaDeleteDialog', {
         bgClose: false,
         escClose: false
     });
     $('.zoiaDeleteButton').click(function(e) {
-        var checked = $('.usersCheckbox:checkbox:checked').map(function() {
+        const checked = $('.usersCheckbox:checkbox:checked').map(function() {
             return this.id;
         }).get();
         if (checked && checked.length > 0) {
             deleteItem(checked);
         }
     });
-    $('#zoiaDeleteDialogButton').click(function(e) {
+    $('#zoiaDeleteDialogButton').click((e) => {
         ajaxDeleteItem();
     });
     $('#editForm').zoiaFormBuilder({
@@ -181,37 +177,37 @@ $(document).ready(function() {
             buttons: '{buttons}'
         },
         events: {
-            onSaveValidate: function(data) {
+            onSaveValidate: (data) => {
                 editFormSpinner(true);
                 data.id = currentEditID;
                 return data;
             },
-            onSaveSuccess: function() {
+            onSaveSuccess: () => {
                 editDialog.hide();
-                zaUIkit.notification(lang.fieldErrors['Saved successfully'], {
+                $zUI.notification(lang.fieldErrors['Saved successfully'], {
                     status: 'success',
                     timeout: 1500
                 });
                 $('#users').zoiaTable().load();
             },
-            onSaveError: function(res) {
+            onSaveError: (res) => {
                 editFormSpinner(false);
                 if (res && res.status) {
                     switch (res.status) {
                         case -1:
-                            zaUIkit.notification(lang.fieldErrors['User not found'], {
+                            $zUI.notification(lang.fieldErrors['User not found'], {
                                 status: 'danger',
                                 timeout: 1500
                             });
                             break;
                         case -2:
-                            zaUIkit.notification(lang.fieldErrors['Username already exists in database'], {
+                            $zUI.notification(lang.fieldErrors['Username already exists in database'], {
                                 status: 'danger',
                                 timeout: 1500
                             });
                             break;
                         default:
-                            zaUIkit.notification(lang.fieldErrors['Could not save to the database'], {
+                            $zUI.notification(lang.fieldErrors['Could not save to the database'], {
                                 status: 'danger',
                                 timeout: 1500
                             });
@@ -219,13 +215,17 @@ $(document).ready(function() {
                     }
                 }
             },
-            onLoadSuccess: function() {
+            onLoadSuccess: () => {
                 editDialogSpinner(false);
                 $('#editForm_username').focus();
             },
-            onLoadError: function() {
+            onLoadError: () => {
                 editDialog.hide();
-                showError(undefined, lang['Could not load information from database']);
+                $('#zoiaEditDialog').hide();
+                $zUI.notification(lang['Could not load information from database'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
             }
         },
         items: {
@@ -243,7 +243,7 @@ $(document).ready(function() {
                         max: 20
                     },
                     regexp: /^[A-Za-z0-9_\-]+$/,
-                    process: function(item) {
+                    process: (item) => {
                         return item.trim().toLowerCase();
                     }
                 }
@@ -261,7 +261,7 @@ $(document).ready(function() {
                         max: 129
                     },
                     regexp: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-                    process: function(item) {
+                    process: (item) => {
                         return item.trim().toLowerCase();
                     }
                 }
@@ -277,7 +277,7 @@ $(document).ready(function() {
                         min: 5,
                         max: 50
                     },
-                    process: function(item) {
+                    process: (item) => {
                         return item.trim();
                     }
                 }
@@ -328,30 +328,30 @@ $(document).ready(function() {
         fields: {
             username: {
                 sortable: true,
-                process: function(id, item, value) {
+                process: (id, item, value) => {
                     return value;
                 }
             },
             email: {
                 sortable: true,
-                process: function(id, item, value) {
+                process: (id, item, value) => {
                     return value;
                 }
             },
             status: {
                 sortable: true,
-                process: function(id, item, value) {
+                process: (id, item, value) => {
                     return lang.statuses[value] || '&ndash;';
                 }
             },
             actions: {
                 sortable: false,
-                process: function(id, item, value) {
+                process: (id, item, value) => {
                     return '<button class="za-icon-button zoia-users-action-edit-btn" za-icon="icon: pencil" data="' + item._id + '" style="margin-right:5px"></button><button class="za-icon-button zoia-users-action-del-btn" za-icon="icon: trash" data="' + item._id + '"></button><div style="margin-bottom:17px" class="za-hidden@s">&nbsp;</div>';
                 }
             }
         },
-        onLoad: function() {
+        onLoad: () => {
             $('.zoia-users-action-edit-btn').click(function() {
                 window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, '/admin/users?action=edit&id=' + $(this).attr('data'));
                 editItem($(this).attr('data'));
@@ -361,12 +361,12 @@ $(document).ready(function() {
             });
         }
     });
-    $('.zoiaAdd').click(function() {
+    $('.zoiaAdd').click(() => {
         window.history.pushState({ action: 'create' }, document.title, '/admin/users?action=create');
         createItem();
-    });
+    });    
     $(window).bind('popstate',
-        function(event) {
+        (event) => {
             processState(event.originalEvent.state);
         });
     processState();
