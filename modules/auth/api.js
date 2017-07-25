@@ -44,7 +44,7 @@ module.exports = function(app) {
         }
         req.session.captcha = Math.random().toString().substr(2, 4);
         try {
-            const passwordHash = crypto.createHash('md5').update(config.salt + fields.password.value).digest("hex");
+            const passwordHash = crypto.createHash('md5').update(config.salt + fields.password.value).digest('hex');
             console.log(passwordHash);
             const user = await db.collection('users').findOne({ username: fields.username.value, password: passwordHash });
             if (user == null || !user.status) {
@@ -129,8 +129,8 @@ module.exports = function(app) {
                 output.fields = ['email'];
                 return res.send(JSON.stringify(output));
             }
-            const passwordHash = crypto.createHash('md5').update(config.salt + fields.password.value).digest("hex");
-            const activationCode = crypto.createHash('md5').update(config.salt + Math.random()).digest("hex");
+            const passwordHash = crypto.createHash('md5').update(config.salt + fields.password.value).digest('hex');
+            const activationCode = crypto.createHash('md5').update(config.salt + Math.random()).digest('hex');
             const insResult = await db.collection('users').insertOne({
                 username: fields.username.value,
                 email: fields.email.value,
@@ -244,7 +244,7 @@ module.exports = function(app) {
                 output.fields = ['email'];
                 return res.send(JSON.stringify(output));
             }
-            const activationCode = crypto.createHash('md5').update(config.salt + Math.random()).digest("hex");
+            const activationCode = crypto.createHash('md5').update(config.salt + Math.random()).digest('hex');
             let updResult = await db.collection('users').update({
                 email: fields.email.value
             }, {
@@ -303,7 +303,7 @@ module.exports = function(app) {
                 output.status = -1;
                 return res.send(JSON.stringify(output));
             }
-            const passwordHash = crypto.createHash('md5').update(config.salt + fields.password.value).digest("hex");
+            const passwordHash = crypto.createHash('md5').update(config.salt + fields.password.value).digest('hex');
             let updResult = await db.collection('users').update({
                 username: fields.username.value
             }, {

@@ -1,27 +1,27 @@
 'use strict';
 
-const log = require('loglevel'),
-    logprefix = require('loglevel-prefix'),
-    path = require('path'),
-    config = require(path.join(__dirname, '..', 'etc', 'config.js'));
+const log = require('loglevel');
+const logprefix = require('loglevel-prefix');
+const path = require('path');
+const config = require(path.join(__dirname, '..', 'etc', 'config.js'));
 
 
 // Log settings
 logprefix(log, config.logOptions);
-log.setLevel(config.logLevel)
+log.setLevel(config.logLevel);
 
-const express = require('express'),
-    app = express().set('express', express);
+const express = require('express');
+const app = express().set('express', express);
 
 // Patch express to allow async functions and set app data
 app.set('log', log);
 app.set('trust proxy', config.trustProxy);
 
-const cookieParser = require('cookie-parser'),
-    bodyParser = require('body-parser'),
-    fs = require('fs');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const fs = require('fs');
 
-(async function init() {
+((async function init() {
     try {
         // Init database
         const db = new(require(path.join(__dirname, 'database.js')))(app, config.mongo, config.session);
@@ -35,9 +35,9 @@ const cookieParser = require('cookie-parser'),
             app.use(preroutes[key]);
         }
         // Load modules
-        let modules = fs.readdirSync(path.join(__dirname, '..', 'modules')),
-            templateFilters = {},
-            backendModules = [];
+        let modules = fs.readdirSync(path.join(__dirname, '..', 'modules'));
+        let templateFilters = {};
+        let backendModules = [];
         for (let m in modules) {
             let moduleLoaded = require(path.join(__dirname, '..', 'modules', modules[m], 'module'))(app);
             if (moduleLoaded) {
@@ -72,6 +72,6 @@ const cookieParser = require('cookie-parser'),
         log.error(e.stack || e.message);
         process.exit(1);
     }
-})();
+})());
 
 module.exports = app;

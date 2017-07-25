@@ -63,7 +63,7 @@ $(document).ready(() => {
                 type: 'buttons',
                 css: 'za-margin-top',
                 buttons: [{
-                    name: "btnSave",
+                    name: 'btnSave',
                     label: '<div za-spinner class="za-margin-right" id="zoiaResetConfirmSpinner" style="display:none"></div>' + lang['Set'],
                     css: 'za-button-primary',
                     type: 'submit'

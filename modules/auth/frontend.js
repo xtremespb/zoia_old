@@ -40,7 +40,7 @@ module.exports = function(app) {
 
     let logout = async function(req, res, next) {
         if (!Module.isAuthorized(req)) {
-            return res.redirect(303, '/auth?rnd=' + Math.random().toString().replace(".", ""));
+            return res.redirect(303, '/auth?rnd=' + Math.random().toString().replace('.', ''));
         }
         let url = req.query.redirect;
         if (!url || !url.match(/^[A-Za-z0-9-_.~\:\/\?#\[\]\@\!\$\&\'\(\)\*\+,;=]*$/) || url.length > 100) {

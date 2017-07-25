@@ -20,8 +20,11 @@
             itemPageDotsHTML: '<li class="za-disabled"><span>...</span></li>',
             arrowDown: '&nbsp;&#x25BC;',
             arrowUp: '&nbsp;&#x25B2;',
-            errorText: 'Could not load data from server. Please try to refresh page in a few moments.',
             errorHTML: '<tr><td colspan="100%">{error}</td></tr>'
+        },
+        lang: {
+            error: 'Could not load data from server. Please try to refresh page in a few moments.',
+            noitems: 'No items to display'
         },
         sort: {},
         loadOnStart: true,
@@ -278,7 +281,7 @@
                         }
                         html += '</tr>';
                     }
-                    $(that.element).find('tbody').html(html);
+                    $(that.element).find('tbody').html(html.length ? html : that._template(that.settings.html.errorHTML, { error: that.settings.lang.noitems }));
                     that._loading(false);
                     $('*[data-page="' + that.page + '"]').parent().addClass('za-active');
                     that._bindSelectButtons();
@@ -289,12 +292,12 @@
                 } else {
                     that.loading = false;
                     that._loading(false);
-                    $(that.element).find('tbody').html(that._template(that.settings.html.errorHTML, { error: that.settings.html.errorText }));
+                    $(that.element).find('tbody').html(that._template(that.settings.html.errorHTML, { error: that.settings.lang.error }));
                 }
             }).fail((jqXHR, exception) => {
                 that.loading = false;
                 that._loading(false);
-                $(that.element).find('tbody').html(that._template(that.settings.html.errorHTML, { error: that.settings.html.errorText }));
+                $(that.element).find('tbody').html(that._template(that.settings.html.errorHTML, { error: that.settings.lang.error }));
             });
         }
     });

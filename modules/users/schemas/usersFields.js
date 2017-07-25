@@ -52,4 +52,4 @@
             }
         };
     }
-}, typeof exports === "undefined" ? this : exports);
+}, typeof exports === 'undefined' ? this : exports);

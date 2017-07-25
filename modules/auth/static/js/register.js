@@ -125,7 +125,7 @@ $(document).ready(() => {
                 type: 'buttons',
                 css: 'za-margin-top',
                 buttons: [{
-                    name: "btnSave",
+                    name: 'btnSave',
                     label: '<div za-spinner class="za-margin-right" id="zoiaRegisterSpinner" style="display:none"></div>' + lang['Register'],
                     css: 'za-button-primary',
                     type: 'submit'

@@ -1,7 +1,7 @@
-const path = require('path'),
-    config = require(path.join(__dirname, '..', 'etc', 'config.js')),
-    nodemailer = require('nodemailer'),
-    htmlToText = require('html-to-text');
+const path = require('path');
+const config = require(path.join(__dirname, '..', 'etc', 'config.js'));
+const nodemailer = require('nodemailer');
+const htmlToText = require('html-to-text');
 
 module.exports = class Mailer {
     constructor(app) {
@@ -60,4 +60,4 @@ module.exports = class Mailer {
         }
         return result;
     }
-}
+};

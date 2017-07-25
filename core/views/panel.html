@@ -4,10 +4,9 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{{ moduleName }} | {{ i18n.__(locale, 'Admin Panel') }}</title>
-    <link rel="stylesheet" href="/zoia/3rdparty/uikit/css/uikit.min.css" />
-    <link rel="stylesheet" href="/zoia/3rdparty/uikit/css/uikit.min.css" />
+    {% if config.production %}<link rel="stylesheet" href="/zoia/core/css/panel.min.css">{% else %}<link rel="stylesheet" href="/zoia/3rdparty/uikit/css/uikit.min.css" />
     <link rel='stylesheet' href='/zoia/3rdparty/perfect-scrollbar/css/perfect-scrollbar.min.css' />
-    <link rel="stylesheet" href="/zoia/core/css/panel.css">{% if extraCSS %} {% for item in extraCSS %}
+    <link rel="stylesheet" href="/zoia/core/css/panel.css">{% endif %}{% if extraCSS %}{% for item in extraCSS %}
     <link rel="stylesheet" href="{{ item }}">{% endfor %}{% endif %}
 </head>
 
@@ -49,10 +48,10 @@
             </div>
         </div>
     </div>
-    <script src="/zoia/3rdparty/jquery/jquery.min.js" type="text/javascript"></script>
+    {% if config.production %}<script src="/zoia/core/js/panel.min.js" type="text/javascript"></script>{% else %}<script src="/zoia/3rdparty/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="/zoia/3rdparty/uikit/js/uikit.min.js" type="text/javascript"></script>
     <script src="/zoia/3rdparty/uikit/js/uikit-icons.min.js" type="text/javascript"></script>
-    <script src="/zoia/3rdparty/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+    <script src="/zoia/3rdparty/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>{% endif %}
     <script>
     $('#admin-nav-item-{{ moduleId }}').addClass('za-nav-active');
     $('.zoia-panel-offcanvas').html($('.zoia-panel-nav-col').html());

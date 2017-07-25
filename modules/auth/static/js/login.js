@@ -105,7 +105,7 @@ $(document).ready(() => {
                 type: 'buttons',
                 css: 'za-margin-top za-text-center',
                 buttons: [{
-                    name: "btnSave",
+                    name: 'btnSave',
                     label: '<div za-spinner class="za-margin-right" id="zoiaAuthSpinner" style="display:none"></div>' + lang['Log in'],
                     css: 'za-button-primary za-button-large',
                     type: 'submit'

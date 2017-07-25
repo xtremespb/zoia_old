@@ -1,5 +1,5 @@
-const path = require('path'),
-    config = require(path.join(__dirname, '..', 'etc', 'config.js'));
+const path = require('path');
+const config = require(path.join(__dirname, '..', 'etc', 'config.js'));
 
 module.exports = class Panel {
     constructor(app) {
@@ -8,8 +8,8 @@ module.exports = class Panel {
         this.i18n = new(require(path.join(__dirname, 'i18n.js')))(path.join(__dirname, 'lang'), app);
     }
     async html(req, id, title, data, extraCSS, extraJS) {
-        const locale = req.session.currentLocale,
-            auth = req.session.auth;
+        const locale = req.session.currentLocale;
+        const auth = req.session.auth;
         return await this.render.file('panel.html', {
             i18n: this.i18n.get(),
             locale: locale,
@@ -23,4 +23,4 @@ module.exports = class Panel {
             extraCSS: extraCSS
         });
     }
-}
+};

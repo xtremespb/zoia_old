@@ -309,7 +309,7 @@ $(document).ready(() => {
                     label: lang['Cancel'],
                     css: 'za-button-default za-modal-close'
                 }, {
-                    name: "btnSave",
+                    name: 'btnSave',
                     label: lang['Save'],
                     css: 'za-button-primary',
                     type: 'submit'
@@ -359,12 +359,16 @@ $(document).ready(() => {
             $('.zoia-users-action-del-btn').click(function() {
                 deleteItem($(this).attr('data'));
             });
+        },
+        lang: {
+            error: lang['Could not load data from server. Please try to refresh page in a few moments.'],
+            noitems: lang['No items to display']
         }
     });
     $('.zoiaAdd').click(() => {
         window.history.pushState({ action: 'create' }, document.title, '/admin/users?action=create');
         createItem();
-    });    
+    });
     $(window).bind('popstate',
         (event) => {
             processState(event.originalEvent.state);

@@ -1,11 +1,11 @@
 module.exports = class Validation {
-	checkRequest(req, data) {
+    checkRequest(req, data) {
         let result = {};
         for (let key in data) {
             const item = data[key];
             result[key] = {};
             let field;
-            if (req[key] != undefined) {
+            if (req[key] !== undefined) {
                 field = req[key];
             } else {
                 field = req.body[key] || req.query[key];
@@ -20,7 +20,7 @@ module.exports = class Validation {
             if (item.mandatoryCreate && !field) {
                 result[key].errorCode = 1;
                 continue;
-            }            
+            }
             // Check field length
             if (item.length) {
                 if (item.length.min && field.length < item.length.min) {
@@ -34,7 +34,7 @@ module.exports = class Validation {
             }
             // Check field type
             if (item.type) {
-                if (typeof field != item.type) {
+                if (typeof field !== item.type) {
                     result[key].errorCode = 4;
                     continue;
                 }
@@ -70,9 +70,9 @@ module.exports = class Validation {
         let result = {};
         for (let key in data) {
             if (data[key].value) {
-                result[key] = data[key].value
+                result[key] = data[key].value;
             }
         }
         return result;
     }
-}
+};

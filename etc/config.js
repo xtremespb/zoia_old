@@ -4,7 +4,7 @@ module.exports = {
     hostname: '127.0.0.1',
     port: 3000,
     protocol: 'http',
-    production: true,
+    production: false,
     salt: '58MpFjp6N3zPwL8evWnWDhBcR233Ah4b',
     trustProxy: true,
     stackTrace: false,

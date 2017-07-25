@@ -1,13 +1,12 @@
-const MongoClient = require('mongodb').MongoClient,
-    co = require('co'),
-    session = require('express-session'),
-    MongoStore = require('connect-mongo')(session);
+const MongoClient = require('mongodb').MongoClient;
+const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
 
 module.exports = class Database {
-    constructor(app, mongo, session) {
+    constructor(app, mongo, _session) {
         this.app = app;
         this.mongo = mongo;
-        this.session = session;
+        this.session = _session;
         this.log = app ? app.get('log') : undefined;
     }
     async connect() {
@@ -24,13 +23,21 @@ module.exports = class Database {
         }
         let that = this;
         this.db.on('close', function() {
-            that.log ? that.log.error('Database connection lost') : console.log('Database connection lost');
+            if (that.log) {
+                that.log.error('Database connection lost');
+            } else {
+                console.log('Database connection lost');
+            }
         });
         this.db.on('reconnect', function() {
-            that.log ? that.log.info('Database reconnected') : console.log('Database reconnected');
+            if (that.log) {
+                that.log.info('Database reconnected');
+            } else {
+                console.log('Database reconnected');
+            }
         });
     }
     get() {
         return this.db;
     }
-}
+};

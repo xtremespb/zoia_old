@@ -1,9 +1,9 @@
 ;
 (($, window, document, undefined) => {
 
-    "use strict";
+    'use strict';
 
-    const pluginName = "zoiaFormBuilder";
+    const pluginName = 'zoiaFormBuilder';
     let defaults = {
         load: {
             url: '#',
@@ -169,7 +169,7 @@
         resetForm() {
             this.clearErrors();
             $('.' + this._prefix + '-form-field').val('');
-            $('select.' + this._prefix + '-form-field').prop("selectedIndex", 0);
+            $('select.' + this._prefix + '-form-field').prop('selectedIndex', 0);
             for (let n in this.settings.items) {
                 let item = this.settings.items[n];
                 if (item.default) {

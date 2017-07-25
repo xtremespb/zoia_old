@@ -12,10 +12,6 @@ html {
     min-width: 260px;
 }
 
-.za-input:focus:not(.za-form-danger) {
-    border: 1px solid #5B7876;
-}
-
 .zoia-signin-wrap {
     text-align: center;
 }

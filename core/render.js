@@ -1,7 +1,7 @@
-const path = require('path'),
-    config = require(path.join(__dirname, '..', 'etc', 'config.js')),
-    nunjucks = require('nunjucks'),
-    fs = require('mz/fs');
+const path = require('path');
+const config = require(path.join(__dirname, '..', 'etc', 'config.js'));
+const nunjucks = require('nunjucks');
+const fs = require('mz/fs');
 
 module.exports = class Render {
     constructor(dir, filters, app) {
@@ -21,7 +21,7 @@ module.exports = class Render {
     }
     _render(file, data) {
         let that = this;
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             that.env.render(file, data, function(err, res) {
                 if (err && that.log) {
                     that.log.error(err);
@@ -35,7 +35,7 @@ module.exports = class Render {
     }
     async template(req, i18n, locale, pageTitle, data2, tpl) {
         let template = (tpl || config.website.templates[0]) + '_' + locale + '.html';
-        if (config.i18n.fallback && locale != config.i18n.locales[0] && !await fs.exists(path.join(__dirname, '..', '..', 'views', template))) {
+        if (config.i18n.fallback && locale !== config.i18n.locales[0] && !await fs.exists(path.join(__dirname, '..', '..', 'views', template))) {
             template = (tpl || config.website.templates[0]) + '_' + config.i18n.locales[0] + '.html';
         }
         let data1 = {
@@ -48,4 +48,4 @@ module.exports = class Render {
         let data = Object.assign(data1, data2);
         return await this._render(template, data);
     }
-}
+};

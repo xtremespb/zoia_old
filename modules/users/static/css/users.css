@@ -15,10 +15,6 @@
     user-select: none;
 }
 
-.za-input:focus:not(.za-form-danger) {
-    border: 1px solid #5B7876;
-}
-
 .zoia-action-btn-mobile-wrap {
 	margin-top: 10px;
 }
@@ -43,9 +39,6 @@
 
 #zoiaEditDialogLoading {
 	height: 200px;
-}
-
-#zoiaEditDialogForm {
 }
 
 .zoiaEditDialogLoadingSpinnerWrap {

@@ -1,7 +1,3 @@
-.za-input:focus:not(.za-form-danger) {
-    border: 1px solid #5B7876;
-} 
-
 #zoiaResetConfirmSpinner {
     margin-bottom: 5px;
 }
