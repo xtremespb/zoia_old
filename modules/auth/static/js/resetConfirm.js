@@ -1,3 +1,4 @@
+/* eslint no-undef: 0 */
 $(document).ready(() => {
     $('#zoiaResetConfirm').zoiaFormBuilder({
         save: {
@@ -32,10 +33,9 @@ $(document).ready(() => {
                     scrollTop: $('#zoiaResetConfirm').offset().top - 20
                 }, 'fast');
             },
-            onSaveError: (res) => {
+            onSaveError: () => {
                 $('#zoiaResetConfirmSpinner').hide();
                 $('#zoiaResetConfirm_btnSave').toggleClass('za-button-primary').toggleClass('za-button-default');
-                res = res ? res : {};
                 $('#zoiaResetConfirm_password').focus();
                 $zUI.notification(lang['Error while setting new password'], {
                     status: 'danger'
@@ -46,7 +46,7 @@ $(document).ready(() => {
             password: {
                 autofocus: true,
                 type: 'passwordConfirm',
-                label: lang['Password'],
+                label: lang.Password,
                 helpText: lang['Minimal length: 5 characters, type twice to verify'],
                 validation: {
                     mandatoryCreate: true,
@@ -64,7 +64,7 @@ $(document).ready(() => {
                 css: 'za-margin-top',
                 buttons: [{
                     name: 'btnSave',
-                    label: '<div za-spinner class="za-margin-right" id="zoiaResetConfirmSpinner" style="display:none"></div>' + lang['Set'],
+                    label: '<div za-spinner class="za-margin-right" id="zoiaResetConfirmSpinner" style="display:none"></div>' + lang.Set,
                     css: 'za-button-primary',
                     type: 'submit'
                 }]

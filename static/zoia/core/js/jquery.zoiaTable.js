@@ -1,8 +1,9 @@
+/* eslint no-extra-semi: 0 */
+/* eslint max-len: 0 */
+/* eslint no-undef: 0 */
 ;
-(($, window, document, undefined) => {
-
+(($) => {
     'use strict';
-
     // Create the defaults once
     const pluginName = 'zoiaTable';
     let defaults = {
@@ -51,7 +52,7 @@
             $('head').append('<style type="text/css">' + this.settings.html.headCSS + '</style>');
             $(this.element).before('<div style="' + this.settings.html.spinnerWrapCSS + '" id="' + this.element.id + 'LoadingDiv">' + this.settings.html.spinnerHTML + '</div>');
             this._loading(false);
-            this.header = []
+            this.header = [];
             for (let i = 0; i < $('#' + this.element.id + ' > thead > tr').children('th').length; i++) {
                 let th = $('#' + this.element.id + ' > thead > tr').children('th')[i];
                 if (th.id) {
@@ -70,7 +71,6 @@
             }, 250));
             $('.' + this.element.id + 'SearchInputClear').click((e) => {
                 that._searchReset(e);
-
             });
             if (this.settings.loadOnStart) {
                 this.load();
@@ -84,7 +84,7 @@
             this.page = 1;
             this.load();
         },
-        _searchReset(e) {
+        _searchReset() {
             if (this.loading) {
                 return;
             }
@@ -95,22 +95,22 @@
         },
         _sortIndicator(column, direction) {
             $('#' + this.element.id + 'SortingIndicator').remove();
-            let arrow = (direction == 'desc') ? this.settings.html.arrowDown : this.settings.html.arrowUp;
+            let arrow = (direction === 'desc') ? this.settings.html.arrowDown : this.settings.html.arrowUp;
             for (let i = 0; i < $('#' + this.element.id + ' > thead > tr').children('th').length; i++) {
                 let th = $('#' + this.element.id + ' > thead > tr').children('th')[i];
-                if (th.id == this.element.id + '_' + column) {
+                if (th.id === this.element.id + '_' + column) {
                     $(th).html($(th).html() + '<span class="zoiaTableSortingIndicator" id="' + this.element.id + 'SortingIndicator">' + arrow + '</span>');
                 }
             }
         },
         _sortColumn(e) {
             e.preventDefault();
-            if (!e.target.id || e.target.id == (this.element.id + 'SortingIndicator')) {
+            if (!e.target.id || e.target.id === (this.element.id + 'SortingIndicator')) {
                 return;
             }
             let id = e.target.id.replace(new RegExp('^' + this.element.id + '_'), '');
-            if (this.settings.sort.field == id) {
-                this.settings.sort.direction = (this.settings.sort.direction == 'asc') ? 'desc' : 'asc';
+            if (this.settings.sort.field === id) {
+                this.settings.sort.direction = (this.settings.sort.direction === 'asc') ? 'desc' : 'asc';
             } else {
                 this.settings.sort.field = id;
                 this.settings.sort.direction = 'asc';
@@ -191,8 +191,8 @@
             html += this.settings.html.listWrapEndHTML;
             $('.' + this.element.id + 'Pagination').html(html);
             $('.' + this.element.id + 'PaginationLink').click(function() {
-                const newPage = parseInt($(this).data('page'));
-                if (!that.loading && that.page != newPage) {
+                const newPage = parseInt($(this).data('page'), 10);
+                if (!that.loading && that.page !== newPage) {
                     that.page = newPage;
                     that.load();
                 }
@@ -209,23 +209,22 @@
                 clearTimeout(this.loadingInt);
                 $(ldSelector).hide();
             }
-
         },
         _debounce(fn, delay) {
             let timer = null;
             return function() {
-                const context = this,
-                    args = arguments;
+                const that = this;
+                const args = arguments;
                 clearTimeout(timer);
                 timer = setTimeout(() => {
-                    fn.apply(context, args);
+                    fn.apply(that, args);
                 }, delay);
             };
         },
         getCurrentData() {
             return this.currentData;
         },
-        load(page) {
+        load() {
             if (!this.settings.url || this.loading) {
                 return;
             }
@@ -247,7 +246,7 @@
             }).done((res) => {
                 that.loading = false;
                 if (res) {
-                    that.pages = parseInt(res.total / that.settings.limit);
+                    that.pages = parseInt(res.total / that.settings.limit, 10);
                     if (res.total % that.settings.limit > 0) {
                         that.pages++;
                     }
@@ -259,13 +258,13 @@
                         that.currentData[item._id] = item;
                         html += '<tr>';
                         for (let h in that.header) {
-                            if (that.header[h] == that.element.id + 'ID') {
+                            if (that.header[h] === that.element.id + 'ID') {
                                 html += '<td><input type="checkbox" id="' + item._id + '" class="za-checkbox ' + that.element.id + 'Checkbox"></td>';
                             } else {
                                 let found = false;
                                 let th = that.header[h].replace(new RegExp('^' + that.element.id + '_'), '');
                                 for (let ie in item) {
-                                    if (ie == th && that.settings.fields[ie]) {
+                                    if (ie === th && that.settings.fields[ie]) {
                                         html += '<td>' + that.settings.fields[ie].process(ie, item, item[ie]) + '</td>';
                                         found = true;
                                     }
@@ -294,7 +293,7 @@
                     that._loading(false);
                     $(that.element).find('tbody').html(that._template(that.settings.html.errorHTML, { error: that.settings.lang.error }));
                 }
-            }).fail((jqXHR, exception) => {
+            }).fail(() => {
                 that.loading = false;
                 that._loading(false);
                 $(that.element).find('tbody').html(that._template(that.settings.html.errorHTML, { error: that.settings.lang.error }));
@@ -313,5 +312,4 @@
         });
         return plugin;
     };
-
 })(jQuery, window, document);

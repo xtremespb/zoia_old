@@ -1,5 +1,7 @@
-(function(vars, global) {
-    for (var i in vars) global[i] = vars[i];
+((function(vars, global) {
+    for (let i in vars) {
+        global[i] = vars[i];
+    }
 })({
     getConfirmFields: function() {
         return {
@@ -29,4 +31,4 @@
             }
         };
     }
-}, typeof exports === 'undefined' ? this : exports);
+}, typeof exports === 'undefined' ? this : exports));

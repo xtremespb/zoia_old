@@ -1,3 +1,4 @@
+/* eslint no-undef: 0 */
 $(document).ready(() => {
     $('#zoiaRegister').zoiaFormBuilder({
         save: {
@@ -57,7 +58,7 @@ $(document).ready(() => {
         items: {
             username: {
                 type: 'text',
-                label: lang['Username'],
+                label: lang.Username,
                 css: 'za-form-width-medium',
                 autofocus: true,
                 helpText: lang['Latin characters and numbers, length: 3-20'],
@@ -92,7 +93,7 @@ $(document).ready(() => {
             },
             password: {
                 type: 'passwordConfirm',
-                label: lang['Password'],
+                label: lang.Password,
                 helpText: lang['Minimal length: 5 characters, type twice to verify'],
                 validation: {
                     mandatoryCreate: true,
@@ -107,7 +108,7 @@ $(document).ready(() => {
             },
             captcha: {
                 type: 'captcha',
-                label: lang['Code'],
+                label: lang.Code,
                 helpText: lang['Digits you see on the picture'],
                 validation: {
                     mandatoryCreate: true,
@@ -126,7 +127,7 @@ $(document).ready(() => {
                 css: 'za-margin-top',
                 buttons: [{
                     name: 'btnSave',
-                    label: '<div za-spinner class="za-margin-right" id="zoiaRegisterSpinner" style="display:none"></div>' + lang['Register'],
+                    label: '<div za-spinner class="za-margin-right" id="zoiaRegisterSpinner" style="display:none"></div>' + lang.Register,
                     css: 'za-button-primary',
                     type: 'submit'
                 }]

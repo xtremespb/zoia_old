@@ -1,21 +1,20 @@
-const path = require('path'),
-    Module = require(path.join(__dirname, '..', '..', 'core', 'module.js')),
-    loginFields = require(path.join(__dirname, 'schemas', 'loginFields.js')),
-    registerFields = require(path.join(__dirname, 'schemas', 'registerFields.js')),
-    registerConfirmFields = require(path.join(__dirname, 'schemas', 'registerConfirmFields.js')),
-    resetFields = require(path.join(__dirname, 'schemas', 'resetFields.js')),
-    resetConfirmFields = require(path.join(__dirname, 'schemas', 'resetConfirmFields.js')),
-    validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js'))),
-    Router = require('co-router'),
-    crypto = require('crypto'),
-    config = require(path.join(__dirname, '..', '..', 'etc', 'config.js'));
+const path = require('path');
+const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+const loginFields = require(path.join(__dirname, 'schemas', 'loginFields.js'));
+const registerFields = require(path.join(__dirname, 'schemas', 'registerFields.js'));
+const registerConfirmFields = require(path.join(__dirname, 'schemas', 'registerConfirmFields.js'));
+const resetFields = require(path.join(__dirname, 'schemas', 'resetFields.js'));
+const resetConfirmFields = require(path.join(__dirname, 'schemas', 'resetConfirmFields.js'));
+const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js')))();
+const Router = require('co-router');
+const crypto = require('crypto');
+const config = require(path.join(__dirname, '..', '..', 'etc', 'config.js'));
 
 module.exports = function(app) {
-
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app),
-        mailer = new(require(path.join(__dirname, '..', '..', 'core', 'mailer.js')))(app),
-        render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), undefined, app),
-        log = app.get('log');
+    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
+    const mailer = new(require(path.join(__dirname, '..', '..', 'core', 'mailer.js')))(app);
+    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), undefined, app);
+    const log = app.get('log');
 
     /*
 
@@ -23,7 +22,7 @@ module.exports = function(app) {
 
     */
 
-    let login = async function(req, res, next) {
+    const login = async(req, res) => {
         const db = app.get('db');
         res.contentType('application/json');
         let output = {
@@ -37,7 +36,7 @@ module.exports = function(app) {
             output.fields = fieldsFailed;
             return res.send(JSON.stringify(output));
         }
-        if (!req.session || fields.captcha.value != req.session.captcha) {
+        if (!req.session || fields.captcha.value !== req.session.captcha) {
             output.status = -2;
             output.fields = ['captcha'];
             return res.send(JSON.stringify(output));
@@ -47,7 +46,7 @@ module.exports = function(app) {
             const passwordHash = crypto.createHash('md5').update(config.salt + fields.password.value).digest('hex');
             console.log(passwordHash);
             const user = await db.collection('users').findOne({ username: fields.username.value, password: passwordHash });
-            if (user == null || !user.status) {
+            if (user === null || !user.status) {
                 output.status = -1;
             } else {
                 req.session.auth = user;
@@ -66,8 +65,7 @@ module.exports = function(app) {
     
     */
 
-    let logout = async function(req, res, next) {
-        const db = app.get('db');
+    const logout = async(req, res) => {
         res.contentType('application/json');
         let output = {
             status: 1
@@ -92,7 +90,7 @@ module.exports = function(app) {
     
     */
 
-    let register = async function(req, res, next) {
+    const register = async(req, res) => {
         const db = app.get('db');
         res.contentType('application/json');
         let output = {
@@ -110,7 +108,7 @@ module.exports = function(app) {
             output.fields = fieldsFailed;
             return res.send(JSON.stringify(output));
         }
-        if (!req.session || fields.captcha.value != req.session.captcha) {
+        if (!req.session || fields.captcha.value !== req.session.captcha) {
             output.status = -3;
             output.fields = ['captcha'];
             return res.send(JSON.stringify(output));
@@ -118,13 +116,13 @@ module.exports = function(app) {
         req.session.captcha = Math.random().toString().substr(2, 4);
         try {
             const user = await db.collection('users').findOne({ username: fields.username.value });
-            if (user != null) {
+            if (user !== null) {
                 output.status = -1;
                 output.fields = ['username'];
                 return res.send(JSON.stringify(output));
             }
             const email = await db.collection('users').findOne({ email: fields.email.value });
-            if (email != null) {
+            if (email !== null) {
                 output.status = -2;
                 output.fields = ['email'];
                 return res.send(JSON.stringify(output));
@@ -164,16 +162,12 @@ module.exports = function(app) {
     
     */
 
-    let registerConfirm = async function(req, res, next) {
+    const registerConfirm = async(req, res) => {
         const db = app.get('db');
         res.contentType('application/json');
         let output = {
             status: 1
         };
-        let locale = config.i18n.locales[0];
-        if (req.session && req.session.currentLocale) {
-            locale = req.session.currentLocale;
-        }
         const fieldList = registerConfirmFields.getConfirmFields();
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
@@ -184,7 +178,7 @@ module.exports = function(app) {
         }
         try {
             const user = await db.collection('users').findOne({ username: fields.username.value });
-            if (user == null || user.status > 0 || user.activationCode != fields.code.value) {
+            if (user === null || user.status > 0 || user.activationCode !== fields.code.value) {
                 output.status = -1;
                 return res.send(JSON.stringify(output));
             }
@@ -213,7 +207,7 @@ module.exports = function(app) {
     
     */
 
-    let reset = async function(req, res, next) {
+    const reset = async(req, res) => {
         const db = app.get('db');
         res.contentType('application/json');
         let output = {
@@ -231,7 +225,7 @@ module.exports = function(app) {
             output.fields = fieldsFailed;
             return res.send(JSON.stringify(output));
         }
-        if (!req.session || fields.captcha.value != req.session.captcha) {
+        if (!req.session || fields.captcha.value !== req.session.captcha) {
             output.status = 0;
             output.fields = ['captcha'];
             return res.send(JSON.stringify(output));
@@ -239,7 +233,7 @@ module.exports = function(app) {
         req.session.captcha = Math.random().toString().substr(2, 4);
         try {
             const user = await db.collection('users').findOne({ email: fields.email.value });
-            if (user == null) {
+            if (user === null) {
                 output.status = -1;
                 output.fields = ['email'];
                 return res.send(JSON.stringify(output));
@@ -278,16 +272,12 @@ module.exports = function(app) {
     
     */
 
-    let resetConfirm = async function(req, res, next) {
+    const resetConfirm = async(req, res) => {
         const db = app.get('db');
         res.contentType('application/json');
         let output = {
             status: 1
         };
-        let locale = config.i18n.locales[0];
-        if (req.session && req.session.currentLocale) {
-            locale = req.session.currentLocale;
-        }
         const fieldList = resetConfirmFields.getResetConfirmFields();
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
@@ -298,8 +288,7 @@ module.exports = function(app) {
         }
         try {
             const user = await db.collection('users').findOne({ username: fields.username.value });
-            // console.log(user);
-            if (user == null || user.status == 0 || fields.code.value != user.activationCode) {
+            if (user === null || user.status === 0 || fields.code.value !== user.activationCode) {
                 output.status = -1;
                 return res.send(JSON.stringify(output));
             }
@@ -334,6 +323,5 @@ module.exports = function(app) {
 
     return {
         routes: router
-    }
-
-}
+    };
+};

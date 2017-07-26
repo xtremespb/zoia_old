@@ -1,18 +1,17 @@
-const path = require('path'),
-    config = require(path.join(__dirname, '..', '..', 'etc', 'config.js')),
-    Module = require(path.join(__dirname, '..', '..', 'core', 'module.js')),
-    Router = require('co-router'),
-    validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js'))),
-    registerConfirmFields = require(path.join(__dirname, 'schemas', 'registerConfirmFields.js')),
-    resetConfirmFields = require(path.join(__dirname, 'schemas', 'resetConfirmFields.js'));
+const path = require('path');
+const config = require(path.join(__dirname, '..', '..', 'etc', 'config.js'));
+const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+const Router = require('co-router');
+const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js')))();
+const registerConfirmFields = require(path.join(__dirname, 'schemas', 'registerConfirmFields.js'));
+const resetConfirmFields = require(path.join(__dirname, 'schemas', 'resetConfirmFields.js'));
 
 module.exports = function(app) {
+    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
+    const renderAuth = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), undefined, app);
+    const renderRoot = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), undefined, app);
 
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app),
-        renderAuth = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), undefined, app),
-        renderRoot = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), undefined, app);
-
-    let login = async function(req, res, next) {
+    const login = async(req, res) => {
         if (Module.isAuthorized(req)) {
             let url = req.query.redirect;
             if (!url || !url.match(/^[A-Za-z0-9-_.~\:\/\?#\[\]\@\!\$\&\'\(\)\*\+,;=]*$/) || url.length > 100) {
@@ -38,7 +37,7 @@ module.exports = function(app) {
         res.send(html);
     };
 
-    let logout = async function(req, res, next) {
+    const logout = async(req, res) => {
         if (!Module.isAuthorized(req)) {
             return res.redirect(303, '/auth?rnd=' + Math.random().toString().replace('.', ''));
         }
@@ -50,7 +49,7 @@ module.exports = function(app) {
         res.redirect(303, url);
     };
 
-    let register = async function(req, res, next) {
+    const register = async(req, res) => {
         if (Module.isAuthorized(req)) {
             return res.redirect(303, '/');
         }
@@ -72,7 +71,7 @@ module.exports = function(app) {
         res.send(html);
     };
 
-    let registerConfirm = async function(req, res, next) {
+    const registerConfirm = async(req, res) => {
         if (Module.isAuthorized(req)) {
             return res.redirect(303, '/');
         }
@@ -101,7 +100,7 @@ module.exports = function(app) {
         return res.send(html);
     };
 
-    let reset = async function(req, res, next) {
+    const reset = async(req, res) => {
         if (Module.isAuthorized(req)) {
             return res.redirect(303, '/');
         }
@@ -123,7 +122,7 @@ module.exports = function(app) {
         res.send(html);
     };
 
-    let resetConfirm = async function(req, res, next) {
+    const resetConfirm = async(req, res) => {
         if (Module.isAuthorized(req)) {
             return res.redirect(303, '/');
         }
@@ -164,6 +163,5 @@ module.exports = function(app) {
 
     return {
         routes: router
-    }
-
-}
+    };
+};

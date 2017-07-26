@@ -1,23 +1,19 @@
-const path = require('path'),
-    Module = require(path.join(__dirname, '..', '..', 'core', 'module.js')),
-    validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js'))),
-    Router = require('co-router'),
-    crypto = require('crypto'),
-    config = require(path.join(__dirname, '..', '..', 'etc', 'config.js')),
-    ObjectID = require('mongodb').ObjectID,
-    usersFields = require(path.join(__dirname, 'schemas', 'usersFields.js'));
+const path = require('path');
+const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js')))();
+const Router = require('co-router');
+const ObjectID = require('mongodb').ObjectID;
+const usersFields = require(path.join(__dirname, 'schemas', 'usersFields.js'));
+const crypto = require('crypto');
+const config = require(path.join(__dirname, '..', '..', 'etc', 'config.js'));
 
 module.exports = function(app) {
-
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app),
-        mailer = new(require(path.join(__dirname, '..', '..', 'core', 'mailer.js')))(app),
-        render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), undefined, app),
-        log = app.get('log'),
-        db = app.get('db');
+    const log = app.get('log');
+    const db = app.get('db');
 
     const sortFields = ['username', 'email', 'status'];
 
-    let list = async function(req, res, next) {
+    const list = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
             return res.send(JSON.stringify({
@@ -25,19 +21,19 @@ module.exports = function(app) {
             }));
         }
         const sortField = req.query.sortField || 'username';
-        const sortDirection = (req.query.sortDirection == 'asc') ? 1 : -1;
+        const sortDirection = (req.query.sortDirection === 'asc') ? 1 : -1;
         const sort = {};
         sort[sortField] = sortDirection;
         let skip = req.query.skip || 0;
         let limit = req.query.limit || 10;
         let search = req.query.search || '';
-        if (typeof sortField != 'string' || typeof skip != 'string' || typeof limit != 'string' || typeof search != 'string') {
+        if (typeof sortField !== 'string' || typeof skip !== 'string' || typeof limit !== 'string' || typeof search !== 'string') {
             return res.send(JSON.stringify({
                 status: 0
             }));
         }
-        skip = parseInt(skip) || 0;
-        limit = parseInt(limit) || 0;
+        skip = parseInt(skip, 10) || 0;
+        limit = parseInt(limit, 10) || 0;
         search = search.trim();
         if (search.length < 3) {
             search = undefined;
@@ -45,7 +41,7 @@ module.exports = function(app) {
         let result = {
             status: 0
         };
-        if (sortFields.indexOf(sortField) == -1) {
+        if (sortFields.indexOf(sortField) === -1) {
             result.failedField = 'sortField';
             return res.send(result);
         }
@@ -66,7 +62,7 @@ module.exports = function(app) {
                 count: items.length,
                 total: total,
                 items: items
-            }
+            };
             res.send(JSON.stringify(data));
         } catch (e) {
             res.send(JSON.stringify({
@@ -76,7 +72,7 @@ module.exports = function(app) {
         }
     };
 
-    let load = async function(req, res, next) {
+    const load = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
             return res.send(JSON.stringify({
@@ -84,7 +80,7 @@ module.exports = function(app) {
             }));
         }
         const id = req.query.id;
-        if (!id || typeof id != 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
             return res.send(JSON.stringify({
                 status: 0
             }));
@@ -113,7 +109,7 @@ module.exports = function(app) {
         }
     };
 
-    let save = async function(req, res, next) {
+    const save = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
             return res.send(JSON.stringify({
@@ -121,16 +117,12 @@ module.exports = function(app) {
             }));
         }
         const id = req.body.id;
-        if (id && (typeof id != 'string' || !id.match(/^[a-f0-9]{24}$/))) {
+        if (id && (typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/))) {
             return res.send(JSON.stringify({
                 status: 0
             }));
         }
         let output = {};
-        let locale = config.i18n.locales[0];
-        if (req.session && req.session.currentLocale) {
-            locale = req.session.currentLocale;
-        }
         const fieldList = usersFields.getUsersFields(id ? false : true);
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
@@ -142,12 +134,12 @@ module.exports = function(app) {
         try {
             if (id) {
                 const user = await db.collection('users').findOne({ _id: new ObjectID(id) });
-                if (user == null) {
+                if (user === null) {
                     output.status = -1;
                     output.fields = ['username'];
                     return res.send(JSON.stringify(output));
                 }
-                if (fields.username.value != user.username) {
+                if (fields.username.value !== user.username) {
                     const userDuplicate = await db.collection('users').findOne({ username: fields.username.value });
                     if (userDuplicate) {
                         output.status = -2;
@@ -169,7 +161,7 @@ module.exports = function(app) {
                 status: fields.status.value
             };
             if (fields.password.value) {
-                update.password = fields.password.value;
+                update.password = crypto.createHash('md5').update(config.salt + fields.password.value).digest('hex');
             }
             let what = id ? { _id: new ObjectID(id) } : { username: fields.username.value };
             let updResult = await db.collection('users').update(what, { $set: update }, { upsert: true });
@@ -186,7 +178,7 @@ module.exports = function(app) {
         }
     };
 
-    let del = async function(req, res, next) {
+    const del = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
             return res.send(JSON.stringify({
@@ -195,11 +187,11 @@ module.exports = function(app) {
         }
         let output = {};
         let ids = req.body['id[]'];
-        if (!ids || (typeof ids != 'object' && typeof ids != 'string') || !ids.length) {
+        if (!ids || (typeof ids !== 'object' && typeof ids !== 'string') || !ids.length) {
             output.status = -1;
             return res.send(JSON.stringify(output));
         }
-        if (typeof ids == 'string') {
+        if (typeof ids === 'string') {
             const id = ids;
             ids = [];
             ids.push(id);
@@ -214,10 +206,10 @@ module.exports = function(app) {
             did.push({ _id: new ObjectID(id) });
         }
         try {
-            var delResult = await db.collection('users').deleteMany({
+            const delResult = await db.collection('users').deleteMany({
                 $or: did
             });
-            if (!delResult || !delResult.result || !delResult.result.ok || delResult.result.n != ids.length) {
+            if (!delResult || !delResult.result || !delResult.result.ok || delResult.result.n !== ids.length) {
                 output.status = -3;
                 return res.send(JSON.stringify(output));
             }
@@ -238,6 +230,5 @@ module.exports = function(app) {
 
     return {
         routes: router
-    }
-
-}
+    };
+};

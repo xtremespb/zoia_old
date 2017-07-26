@@ -1,8 +1,10 @@
-(function(vars, global) {
-    for (var i in vars) global[i] = vars[i];
+((function(vars, global) {
+    for (let i in vars) {
+        global[i] = vars[i];
+    }
 })({
     getUsersFields: function(_passwordMandatory) {
-        if (_passwordMandatory == undefined) {
+        if (_passwordMandatory === undefined) {
             _passwordMandatory = true;
         }
         return {
@@ -52,4 +54,4 @@
             }
         };
     }
-}, typeof exports === 'undefined' ? this : exports);
+}, typeof exports === 'undefined' ? this : exports));

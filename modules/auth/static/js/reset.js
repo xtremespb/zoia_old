@@ -1,3 +1,4 @@
+/* eslint no-undef: 0 */
 $(document).ready(() => {
     $('#zoiaReset').zoiaFormBuilder({
         save: {
@@ -67,7 +68,7 @@ $(document).ready(() => {
             },
             captcha: {
                 type: 'captcha',
-                label: lang['Code'],
+                label: lang.Code,
                 helpText: lang['Digits you see on the picture'],
                 validation: {
                     mandatoryCreate: true,
@@ -86,7 +87,7 @@ $(document).ready(() => {
                 css: 'za-margin-top',
                 buttons: [{
                     name: 'btnSave',
-                    label: '<div za-spinner class="za-margin-right" id="zoiaResetSpinner" style="display:none"></div>' + lang['Reset'],
+                    label: '<div za-spinner class="za-margin-right" id="zoiaResetSpinner" style="display:none"></div>' + lang.Reset,
                     css: 'za-button-primary',
                     type: 'submit'
                 }]

@@ -1,3 +1,4 @@
+/* eslint no-undef: 0 */
 $(document).ready(() => {
     $('#zoiaAuth').zoiaFormBuilder({
         save: {
@@ -20,18 +21,19 @@ $(document).ready(() => {
             onSaveSubmit: () => {},
             onSaveValidate: () => {
                 $('#zoiaAuthSpinner').show();
+                $('#zoiaAuth').hide();
                 $('#zoiaAuth_btnSave').toggleClass('za-button-primary').toggleClass('za-button-default');
             },
             onSaveSuccess: () => {
                 $('html, body').animate({
                     scrollTop: $('#zoiaAuth').offset().top - 20
                 }, 'fast');
-                $('#zoiaAuth').hide();
                 $('#zoiaAuthSpinner').show();
                 location.href = redirectURL;
             },
             onSaveError: (res) => {
                 $('#zoiaAuthSpinner').hide();
+                $('#zoiaAuth').show();
                 $('#zoiaAuth_btnSave').toggleClass('za-button-primary').toggleClass('za-button-default');
                 res = res ? res : {};
                 switch (res.status) {
@@ -56,7 +58,7 @@ $(document).ready(() => {
         items: {
             username: {
                 type: 'text',
-                label: lang['Username'],
+                label: lang.Username,
                 css: 'za-width-1-1',
                 autofocus: true,
                 validation: {
@@ -74,7 +76,7 @@ $(document).ready(() => {
             password: {
                 type: 'password',
                 css: 'za-width-1-1',
-                label: lang['Password'],
+                label: lang.Password,
                 validation: {
                     mandatoryCreate: true,
                     length: {
@@ -88,7 +90,7 @@ $(document).ready(() => {
             },
             captcha: {
                 type: 'captcha',
-                label: lang['Code'],
+                label: lang.Code,
                 validation: {
                     mandatoryCreate: true,
                     length: {

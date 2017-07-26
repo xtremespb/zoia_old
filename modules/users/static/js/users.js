@@ -1,13 +1,14 @@
-let editDialog,
-    deleteDialog,
-    currentEditID,
-    currentDeleteID;
+/* eslint no-undef: 0 */
+let editDialog;
+let deleteDialog;
+let currentEditID;
+let currentDeleteID;
 
 const getUrlParam = (sParam) => {
-    let sPageURL = decodeURIComponent(window.location.search.substring(1)),
-        sURLVariables = sPageURL.split('&'),
-        sParameterName,
-        i;
+    let sPageURL = decodeURIComponent(window.location.search.substring(1));
+    let sURLVariables = sPageURL.split('&');
+    let sParameterName;
+    let i;
     for (i = 0; i < sURLVariables.length; i++) {
         sParameterName = sURLVariables[i].split('=');
         if (sParameterName[0] === sParam) {
@@ -16,41 +17,42 @@ const getUrlParam = (sParam) => {
     }
 };
 
-const processState = (eventState) => {
-    const state = eventState || {
-        action: getUrlParam('action'),
-        id: getUrlParam('id')
-    };
-    switch (state.action) {
-        case 'edit':
-            editItem(state.id);
-            break;
-        case 'create':
-            createItem();
-            break;
-        default:
-            showTable();
-            break;
+const setZoiaEditHeader = (edit) => {
+    if (edit) {
+        $('#editDialogHeader').html(lang.editItem);
+    } else {
+        $('#editDialogHeader').html(lang.addItem);
     }
 };
 
-const setZoiaEditHeader = (edit) => {
-    edit ? $('#editDialogHeader').html(lang.editItem) : $('#editDialogHeader').html(lang.addItem);
-};
-
 const editFormSpinner = (show) => {
-    show ? $('.editForm-form-button').hide() : $('.editForm-form-button').show();
-    show ? $('#zoiaEditDialogSpinner').show() : $('#zoiaEditDialogSpinner').hide();
+    if (show) {
+        $('.editForm-form-button').hide();
+        $('#zoiaEditDialogSpinner').show();
+    } else {
+        $('.editForm-form-button').show();
+        $('#zoiaEditDialogSpinner').hide();
+    }
 };
 
 const editDialogSpinner = (show) => {
-    show ? $('#zoiaEditDialogLoading').show() : $('#zoiaEditDialogLoading').hide();
-    show ? $('#zoiaEditDialogForm').hide() : $('#zoiaEditDialogForm').show();
+    if (show) {
+        $('#zoiaEditDialogLoading').show();
+        $('#zoiaEditDialogForm').hide();
+    } else {
+        $('#zoiaEditDialogLoading').hide();
+        $('#zoiaEditDialogForm').show();
+    }
 };
 
 const deleteDialogSpinner = (show) => {
-    show ? $('.zoia-delete-dialog-button').hide() : $('.zoia-delete-dialog-button').show();
-    show ? $('#zoiaDeleteDialogSpinner').show() : $('#zoiaDeleteDialogSpinner').hide();
+    if (show) {
+        $('.zoia-delete-dialog-button').hide();
+        $('#zoiaDeleteDialogSpinner').show();
+    } else {
+        $('.zoia-delete-dialog-button').show();
+        $('#zoiaDeleteDialogSpinner').hide();
+    }
 };
 
 const createItem = () => {
@@ -64,8 +66,13 @@ const createItem = () => {
     $('#editUser_username').focus();
 };
 
+const showTable = () => {
+    editDialog.hide();
+    $('#users').zoiaTable().load();
+};
+
 const editItem = (id) => {
-    if (!id || typeof id != 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+    if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
         return showTable();
     }
     currentEditID = id;
@@ -82,10 +89,10 @@ const deleteItem = (id) => {
     if (!id) {
         return showTable();
     }
-    let items = [],
-        names = [];
+    let items = [];
+    let names = [];
     currentDeleteID = [];
-    if (typeof id == 'object') {
+    if (typeof id === 'object') {
         items = id;
         currentDeleteID = id;
         for (let i in id) {
@@ -115,7 +122,7 @@ const ajaxDeleteItem = () => {
         cache: false
     }).done((res) => {
         $('#users').zoiaTable().load();
-        if (res && res.status == 1) {
+        if (res && res.status === 1) {
             deleteDialog.hide();
             $zUI.notification(lang['Operation was successful'], {
                 status: 'success',
@@ -128,7 +135,7 @@ const ajaxDeleteItem = () => {
             });
             deleteDialogSpinner(false);
         }
-    }).fail((jqXHR, exception) => {
+    }).fail(() => {
         $('#users').zoiaTable().load();
         $zUI.notification(lang['Cannot delete one or more items'], {
             status: 'danger',
@@ -138,9 +145,22 @@ const ajaxDeleteItem = () => {
     });
 };
 
-const showTable = (id) => {
-    editDialog.hide();
-    $('#users').zoiaTable().load();
+const processState = (eventState) => {
+    const state = eventState || {
+        action: getUrlParam('action'),
+        id: getUrlParam('id')
+    };
+    switch (state.action) {
+        case 'edit':
+            editItem(state.id);
+            break;
+        case 'create':
+            createItem();
+            break;
+        default:
+            showTable();
+            break;
+    }
 };
 
 $(document).ready(() => {
@@ -152,7 +172,7 @@ $(document).ready(() => {
         bgClose: false,
         escClose: false
     });
-    $('.zoiaDeleteButton').click(function(e) {
+    $('.zoiaDeleteButton').click(function() {
         const checked = $('.usersCheckbox:checkbox:checked').map(function() {
             return this.id;
         }).get();
@@ -160,7 +180,7 @@ $(document).ready(() => {
             deleteItem(checked);
         }
     });
-    $('#zoiaDeleteDialogButton').click((e) => {
+    $('#zoiaDeleteDialogButton').click(() => {
         ajaxDeleteItem();
     });
     $('#editForm').zoiaFormBuilder({
@@ -287,9 +307,9 @@ $(document).ready(() => {
                 label: lang['Status'],
                 css: 'za-form-width-small',
                 values: {
-                    '0': lang.statuses[0],
-                    '1': lang.statuses[1],
-                    '2': lang.statuses[2]
+                    0: lang.statuses[0],
+                    1: lang.statuses[1],
+                    2: lang.statuses[2]
                 },
                 default: '1',
                 validation: {
@@ -346,8 +366,10 @@ $(document).ready(() => {
             },
             actions: {
                 sortable: false,
-                process: (id, item, value) => {
-                    return '<button class="za-icon-button zoia-users-action-edit-btn" za-icon="icon: pencil" data="' + item._id + '" style="margin-right:5px"></button><button class="za-icon-button zoia-users-action-del-btn" za-icon="icon: trash" data="' + item._id + '"></button><div style="margin-bottom:17px" class="za-hidden@s">&nbsp;</div>';
+                process: (id, item) => {
+                    return '<button class="za-icon-button zoia-users-action-edit-btn" za-icon="icon: pencil" data="' + item._id +
+                        '" style="margin-right:5px"></button><button class="za-icon-button zoia-users-action-del-btn" za-icon="icon: trash" data="' + item._id +
+                        '"></button><div style="margin-bottom:17px" class="za-hidden@s">&nbsp;</div>';
                 }
             }
         },

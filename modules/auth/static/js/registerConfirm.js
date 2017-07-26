@@ -1,3 +1,4 @@
+/* eslint no-undef: 0 */
 $(document).ready(() => {
     if (!usernameConfirm || !codeConfirm) {
         $('#confirmLoading').hide();
@@ -12,16 +13,16 @@ $(document).ready(() => {
             code: codeConfirm
         },
         cache: false
-    }).done((res) => {        
+    }).done((res) => {
         setTimeout(() => {
-        	$('#confirmLoading').hide();
-            if (res && res.status == 1) {
+            $('#confirmLoading').hide();
+            if (res && res.status === 1) {
                 $('#confirmSuccess').show();
             } else {
                 $('#confirmFail').show();
             }
         }, 1000);
-    }).fail((jqXHR, exception) => {
+    }).fail(() => {
         // Fail
         setTimeout(() => {
             $('#confirmLoading').hide();

@@ -1,6 +1,9 @@
+/* eslint no-extra-semi: 0 */
+/* eslint max-len: 0 */
+/* eslint default-case: 0 */
+/* eslint no-undef: 0 */
 ;
-(($, window, document, undefined) => {
-
+(($) => {
     'use strict';
 
     const pluginName = 'zoiaFormBuilder';
@@ -58,12 +61,12 @@
         this._formTypes = ['text', 'email', 'password', 'select', 'passwordConfirm', 'captcha'];
         this._saving = false;
         this.init();
-    }
+    };
 
     $.extend(Plugin.prototype, {
         init: function() {
-            let fieldsHTML = '',
-                buttonsHTML = '';
+            let fieldsHTML = '';
+            let buttonsHTML = '';
             for (let n in this.settings.items) {
                 let item = this.settings.items[n];
                 switch (item.type) {
@@ -151,11 +154,13 @@
                 }
             }
             $(this.element).html(this._template(this.settings.template.fields, { fields: fieldsHTML }) + this._template(this.settings.template.buttons, { buttons: buttonsHTML }));
-            this.settings.events.onInit ? this.settings.events.onInit() : false;;
+            if (this.settings.events.onInit) {
+                this.settings.events.onInit();
+            }
             const that = this;
             $(this.element).submit((e) => {
                 e.preventDefault();
-                that._submit()
+                that._submit();
             });
             this._captchaInit();
         },
@@ -178,7 +183,9 @@
             }
         },
         loadData(data) {
-            this.settings.events.onLoadStart ? this.settings.events.onLoadStart() : false;
+            if (this.settings.events.onLoadStart) {
+                this.settings.events.onLoadStart();
+            }
             this.resetForm();
             const that = this;
             $.ajax({
@@ -187,16 +194,20 @@
                 data: data,
                 cache: false
             }).done((res) => {
-                if (res && res.status == 1) {
+                if (res && res.status === 1) {
                     jQuery.each(res.item, (key, value) => {
                         $('#' + that._prefix + '_' + key).val(value);
                     });
-                    that.settings.events.onLoadSuccess ? that.settings.events.onLoadSuccess(res) : false;
-                } else {
-                    that.settings.events.onLoadError ? that.settings.events.onLoadError(res) : false;
+                    if (that.settings.events.onLoadSuccess) {
+                        that.settings.events.onLoadSuccess(res);
+                    }
+                } else if (that.settings.events.onLoadError) {
+                    that.settings.events.onLoadError(res);
                 }
             }).fail((jqXHR, exception) => {
-                that.settings.events.onLoadError ? that.settings.events.onLoadError() : false;
+                if (that.settings.events.onLoadError) {
+                    that.settings.events.onLoadError(jqXHR, exception);
+                }
             });
         },
         captchaRefresh() {
@@ -221,14 +232,16 @@
             if (this._saving) {
                 return;
             }
-            this.settings.events.onSaveSubmit ? this.settings.events.onSaveSubmit() : false;
+            if (this.settings.events.onSaveSubmit) {
+                this.settings.events.onSaveSubmit();
+            }
             this.clearErrors();
-            let errors = {},
-                data = {},
-                that = this;
+            let errors = {};
+            let data = {};
+            const that = this;
             for (let n in this.settings.items) {
                 let field = this.settings.items[n];
-                if (this._formTypes.indexOf(field.type) == -1) {
+                if (this._formTypes.indexOf(field.type) === -1) {
                     continue;
                 }
                 let fieldValue = $('#' + this._prefix + '_' + n).val();
@@ -244,12 +257,12 @@
                         errors[n] = this.settings.lang.mandatoryMissing;
                         continue;
                     }
-                    if (field.validation.process && typeof field.validation.process == 'function') {
+                    if (field.validation.process && typeof field.validation.process === 'function') {
                         fieldValue = field.validation.process(fieldValue);
                     }
-                    if (field.type == 'passwordConfirm') {
+                    if (field.type === 'passwordConfirm') {
                         let fieldConfirmValue = $('#' + this._prefix + '_' + n + 'Confirm').val();
-                        if (fieldConfirmValue != fieldValue) {
+                        if (fieldConfirmValue !== fieldValue) {
                             errors[n] = this.settings.lang.passwordsNotMatch;
                             continue;
                         }
@@ -283,7 +296,7 @@
                         $('#' + this._prefix + '_' + k).focus();
                         focusSet = true;
                     }
-                    if (this.settings.items[k].type == 'passwordConfirm') {
+                    if (this.settings.items[k].type === 'passwordConfirm') {
                         $('#' + this._prefix + '_' + k + 'Confirm').addClass(this.settings.formDangerClass);
                     }
                 }
@@ -300,8 +313,10 @@
                 cache: false
             }).done((res) => {
                 that._saving = false;
-                if (res && res.status == 1) {
-                    that.settings.events.onSaveSuccess ? that.settings.events.onSaveSuccess(res) : false;
+                if (res && res.status === 1) {
+                    if (that.settings.events.onSaveSuccess) {
+                        that.settings.events.onSaveSuccess(res);
+                    }
                 } else {
                     if (res.fields) {
                         for (let i in res.fields) {
@@ -314,12 +329,16 @@
                         }
                     }
                     that.captchaRefresh();
-                    that.settings.events.onSaveError ? that.settings.events.onSaveError(res) : false;
+                    if (that.settings.events.onSaveError) {
+                        that.settings.events.onSaveError(res);
+                    }
                 }
             }).fail((jqXHR, exception) => {
                 that._saving = false;
                 that.captchaRefresh();
-                that.settings.events.onSaveError ? that.settings.events.onSaveError() : fals;
+                if (that.settings.events.onSaveError) {
+                    that.settings.events.onSaveError(jqXHR, exception);
+                }
             });
         }
     });
@@ -335,5 +354,4 @@
         });
         return plugin;
     };
-
 })(jQuery, window, document);

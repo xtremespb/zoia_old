@@ -1,7 +1,6 @@
 module.exports = function(app) {
-    const path = require('path'),
-        backend = require(path.join(__dirname, 'backend.js'))(app);
-
+    const path = require('path');
+    const backend = require(path.join(__dirname, 'backend.js'))(app);
     return {
         backend: {
             prefix: '/',
