@@ -336,6 +336,13 @@ $(document).ready(() => {
                 }],
                 html: '<div za-spinner style="float:right;display:none" id="zoiaEditDialogSpinner"></div>'
             }
+        },
+        lang: {
+            mandatoryMissing: lang['Should not be empty'],
+            tooShort: lang['Too short'],
+            tooLong: lang['Too long'],
+            invalidFormat: lang['Doesn\'t match required format'],
+            passwordsNotMatch: lang['Passwords do not match']
         }
     });
     $('#users').zoiaTable({
