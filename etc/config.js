@@ -32,6 +32,7 @@ module.exports = {
     },
     i18n: {
         locales: ['en', 'ru'],
+        localeNames: {'en': 'English', 'ru': 'Русский'},
         detect: {
             subdomain: true,
             query: true,

@@ -1,10 +1,13 @@
 {
-  "name": "Zoia",
+  "name": "zoia",
   "version": "0.0.1",
-  "private": false,
-  "scripts": {
-    "start": "node ./bin/webserver.js",
-    "lint": "eslint src"
+  "description": "Zoia.js Framework",
+  "main": "bin/webserver.js",
+  "bin": {
+    "install": "install.js"
+  },
+  "directories": {
+    "doc": "docs"
   },
   "dependencies": {
     "body-parser": "~1.17.1",
@@ -22,7 +25,7 @@
     "mz": "^2.6.0",
     "nodemailer": "^4.0.1",
     "nunjucks": "^3.0.1",
-    "sprintf": "^0.1.5"
+    "sprintf": "^0.1.5" 
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
@@ -33,6 +36,27 @@
     "gulp-babel": "^6.1.2",
     "gulp-concat": "^2.6.1",
     "gulp-minify-css": "^1.2.4",
-    "gulp-uglify": "^3.0.0"
-  }
+    "gulp-uglify": "^3.0.0",
+    "mocha": "^3.4.2",
+    "supertest": "^3.0.0" 
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xtremespb/zoia.git"
+  },
+  "keywords": [
+    "nodejs",
+    "mongodb",
+    "framework",
+    "express"
+  ],
+  "author": "Michael Matveev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xtremespb/zoia/issues"
+  },
+  "homepage": "https://github.com/xtremespb/zoia#readme"
 }

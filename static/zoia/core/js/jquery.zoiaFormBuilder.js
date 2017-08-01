@@ -26,7 +26,8 @@
             passwordConfirm: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-flex"><div class="{prefix}-field-wrap"><input class="za-input {prefix}-form-field" id="{prefix}_{name}" type="password" placeholder=""{autofocus}></div><div><input class="za-input {prefix}-form-field" id="{prefix}_{name}Confirm" type="password" placeholder=""></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
             captcha: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-grid za-grid-small"><div><input class="za-input {prefix}-form-field {prefix}-captcha-field{css}" type="text" placeholder="" id="{prefix}_{name}"{autofocus}></div><div><div class="za-form-controls"><img class="{prefix}-captcha-img"></div></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}',
             buttonsWrap: '<div class="{css}">{buttons}{html}</div>',
-            button: '<button class="za-button {prefix}-form-button{css}" id="{prefix}_{name}" type="{type}">{label}</button>'
+            button: '<button class="za-button {prefix}-form-button{css}" id="{prefix}_{name}" type="{type}">{label}</button>',
+            launcher: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}_btn">{label}:</label><div class="za-flex"><div id="{prefix}_{name}_val" style="padding-top:6px;margin-right: 20px">{value}</div><div><button class="za-button za-button-default" id="{prefix}_{name}_btn" type="button">{labelBtn}</button></div></div>{helpText}</div>'
         },
         template: {
             fields: '{fields}',
@@ -84,6 +85,20 @@
                                 prefix: this._prefix
                             }) : ''),
                             type: item.type
+                        });
+                        break;
+                    case 'launcher':
+                        fieldsHTML += this._template(this.settings.html.launcher, {
+                            prefix: this._prefix,
+                            name: n,
+                            label: item.label,
+                            labelBtn: item.labelBtn,
+                            value: item.value,
+                            css: (item.css ? ' ' + item.css : ''),
+                            helpText: (item.helpText ? this._template(this.settings.html.helpText, {
+                                text: item.helpText,
+                                prefix: this._prefix
+                            }) : '')
                         });
                         break;
                     case 'select':
@@ -304,6 +319,9 @@
             }
             if (this.settings.events.onSaveValidate) {
                 data = this.settings.events.onSaveValidate(data) || data;
+                if (data === '__stop') {
+                    return;
+                }
             }
             that._saving = true;
             $.ajax({
