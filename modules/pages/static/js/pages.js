@@ -363,7 +363,8 @@ $(document).ready(() => {
                 css: 'za-edit-buttons-wrap',
                 buttons: [{
                     label: lang['Cancel'],
-                    css: 'za-button-default'
+                    css: 'za-button-default',
+                    name: 'btnCancel'
                 }, {
                     name: 'btnSave',
                     label: lang['Save'],
@@ -583,6 +584,10 @@ $(document).ready(() => {
         $('#editForm_folder_val').attr('data', foldersTree.jstree(true).get_node(sel).id);
         $('#editForm_folder_val').html(path);
         foldersTree.jstree(true).get_node(sel).id;
+    });
+    $('#editForm_btnCancel').click(() => {
+        $('#zoiaEdit').hide();
+        $('#wrapTable').show();
     });
     $('#editForm_folder_val').attr('data', 'j1_1');
     $(window).bind('popstate',
