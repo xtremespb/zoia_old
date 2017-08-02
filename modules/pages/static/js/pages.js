@@ -5,7 +5,10 @@ let folderEditDialog;
 let currentEditID;
 let currentDeleteID;
 let foldersTree;
+let foldersModified = false;
 let foldersEditMode = false;
+let editShadow = {};
+let editLanguage;
 
 const getUrlParam = (sParam) => {
     let sPageURL = decodeURIComponent(window.location.search.substring(1));
@@ -40,11 +43,22 @@ const deleteDialogSpinner = (show) => {
     }
 };
 
+const foldersDialogSpinner = (show) => {
+    if (show) {
+        $('.zoia-folders-dialog-button').hide();
+        $('#zoiaFoldersDialogSpinner').show();
+    } else {
+        $('.zoia-folders-dialog-button').show();
+        $('#zoiaFoldersDialogSpinner').hide();
+    }
+};
+
 const createItem = () => {
     $('#wrapTable').hide();
     $('#editForm').zoiaFormBuilder().resetForm(false);
     $('#zoiaEdit').show();
     $('#zoiaEditHeader').html(lang.addItem);
+    $('#zoiaEditLanguages > li[data="' + Object.keys(langs)[0] + '"] > a').click();
 };
 
 const showTable = () => {
@@ -200,6 +214,29 @@ const foldersChangedHandler = (e, data) => {
     }
 };
 
+const serializeFolders = () => {
+    let result = foldersTree.jstree(true).get_json(foldersTree, {
+        flat: true,
+        no_state: true,
+        no_id: false,
+        no_data: false
+    });
+    for (let i in result) {
+        delete result[i].li_attr;
+        delete result[i].a_attr;
+        delete result[i].icon;
+        delete result[i].state;
+    }
+    return result;
+};
+
+const onSelectedFolder = (sel, path) => {
+    foldersDialog.hide();
+    $('#editForm_folder_val').attr('data', foldersTree.jstree(true).get_node(sel).id);
+    $('#editForm_folder_val').html(path);
+    foldersTree.jstree(true).get_node(sel).id;
+};
+
 $(document).ready(() => {
     deleteDialog = $zUI.modal('#zoiaDeleteDialog', {
         bgClose: false,
@@ -242,6 +279,22 @@ $(document).ready(() => {
         },
         events: {
             onSaveValidate: (data) => {
+                editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
+                for (let n in editShadow) {
+                    if (!editShadow[n].enabled) {
+                        continue;
+                    }
+                    let lngdata = editShadow[n].data;
+                    let vr = $('#editForm').zoiaFormBuilder().validate(lngdata);
+                    if (Object.keys(vr.errors).length > 0) {
+                        $('#zoiaEditLanguages > li[data="' + n + '"] > a').click();
+                        vr = $('#editForm').zoiaFormBuilder().validate($('#editForm').zoiaFormBuilder().serialize());
+                        if ($('#editForm').zoiaFormBuilder().errors(vr.errors)) {
+                            return '__stop';
+                        }
+                    }
+                    data[n] = vr.data;
+                }
                 data.id = currentEditID;
                 return data;
             },
@@ -285,12 +338,14 @@ $(document).ready(() => {
                 });
             }
         },
+        validation: false,
         items: {
             folder: {
                 type: 'launcher',
                 label: lang['Folder'],
                 labelBtn: lang['Select'],
                 value: '/',
+                data: 'j1_1',
                 validation: {
                     mandatoryCreate: true,
                     mandatoryEdit: true,
@@ -327,8 +382,8 @@ $(document).ready(() => {
                 label: lang['Title'],
                 css: 'za-width-large',
                 validation: {
-                    mandatoryCreate: false,
-                    mandatoryEdit: false,
+                    mandatoryCreate: true,
+                    mandatoryEdit: true,
                     length: {
                         min: 1,
                         max: 64
@@ -419,6 +474,14 @@ $(document).ready(() => {
                 }
             }
         };
+        $('#zoiaEditLanguages').append('<li data="' + lng + '"><a href="#">' + langs[lng] + '</a></li>');
+        editShadow[lng] = {
+            enabled: true,
+            data: {}
+        };
+        if (!editLanguage) {
+            editLanguage = lng;
+        }
     }
     editFolderFormItems.buttons = {
         type: 'buttons',
@@ -451,6 +514,7 @@ $(document).ready(() => {
                     }
                     foldersTree.jstree(true).open_node(sel);
                     folderEditDialog.hide();
+                    foldersModified = true;
                 } else {
                     let cn = foldersTree.jstree(true).create_node(sel, {
                         text: $('#editFolderForm_id').val(),
@@ -470,7 +534,8 @@ $(document).ready(() => {
                         foldersTree.jstree(true).get_node(cn).data.lang[lng] = $('#editFolderForm_' + lng).val();
                     }
                     foldersTree.jstree(true).open_node(sel);
-                    folderEditDialog.hide();
+                    folderEditDialog.hide();     
+                    foldersModified = true;               
                 }
                 return '__stop';
             }
@@ -545,6 +610,7 @@ $(document).ready(() => {
     });
     $('#editForm_folder_btn').click(() => {
         foldersDialog.show();
+        foldersModified = false;
         foldersTreeFindRoot();
     });
     $('#zoiaFoldersAdd').click(() => {
@@ -573,23 +639,68 @@ $(document).ready(() => {
         };
         foldersTree.jstree(true).delete_node(sel);
         foldersTreeFindRoot();
+        foldersModified = true;
     });
     $('#zoiaFoldersDialogButton').click(() => {
         let sel = foldersTree.jstree(true).get_selected();
         if (!sel || !sel.length) {
             return;
         };
-        foldersDialog.hide();
         let path = foldersTree.jstree(true).get_path(sel).join('/').replace(/\//, '') || '/';
-        $('#editForm_folder_val').attr('data', foldersTree.jstree(true).get_node(sel).id);
-        $('#editForm_folder_val').html(path);
-        foldersTree.jstree(true).get_node(sel).id;
+        const currentFoldersJSON = serializeFolders();
+        if (foldersModified) {
+            foldersDialogSpinner(true);
+            $.ajax({
+                type: 'POST',
+                url: '/api/pages/folders',
+                data: { folders: currentFoldersJSON },
+                cache: false
+            }).done((res) => {
+                foldersDialogSpinner(false);
+                if (res && res.status === 1) {
+                    onSelectedFolder(sel, path);
+                } else {
+                    $zUI.notification(lang.fieldErrors['Could not save to the database'], {
+                        status: 'danger',
+                        timeout: 1500
+                    });
+                }
+            }).fail((jqXHR, exception) => {
+                foldersDialogSpinner(false);
+                $zUI.notification(lang.fieldErrors['Could not save to the database'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            });
+        } else {
+            onSelectedFolder(sel, path);
+        }
     });
     $('#editForm_btnCancel').click(() => {
         $('#zoiaEdit').hide();
         $('#wrapTable').show();
     });
-    $('#editForm_folder_val').attr('data', 'j1_1');
+    $('#zoiaEditLanguages > li').click(function() {
+        editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
+        $('#editForm').zoiaFormBuilder().resetForm(false);
+        editLanguage = $(this).attr('data');
+        $('#zoiaEditLanguageCheckbox').prop('checked', editShadow[editLanguage].enabled);
+        if (editShadow[editLanguage].enabled) {
+            $('#editForm').show();
+            $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);
+        } else {
+            $('#editForm').hide();
+        }
+    });
+    $('#zoiaEditLanguageCheckbox').click(function() {
+        if ($(this).prop('checked')) {
+            editShadow[editLanguage].enabled = true;
+            $('#editForm').show();
+        } else {
+            editShadow[editLanguage].enabled = false;
+            $('#editForm').hide();
+        }
+    });
     $(window).bind('popstate',
         (event) => {
             processState(event.originalEvent.state);

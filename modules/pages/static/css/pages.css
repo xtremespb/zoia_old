@@ -82,3 +82,15 @@
 #zoia_folders_tree {
 	margin-top: 20px;
 }
+
+.editForm-folder-selector {
+	padding: 6px 30px 0 30px;
+	background: #efefef;
+}
+
+.zoia-edit-languages-area {
+	margin-top: -20px;
+	padding: 20px;	
+	border: 1px solid #e5e5e5;
+	border-top-style: hidden;
+}

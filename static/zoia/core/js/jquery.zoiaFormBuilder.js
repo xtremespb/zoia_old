@@ -19,6 +19,7 @@
         captcha: '/api/captcha',
         items: [],
         edit: false,
+        validation: true,
         html: {
             helpText: '<div class="za-text-meta">{text}</div>',
             text: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><div class="za-form-controls"><input class="za-input {prefix}-form-field{css}" id="{prefix}_{name}" type="{type}" placeholder=""{autofocus}><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>',
@@ -27,7 +28,7 @@
             captcha: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-grid za-grid-small"><div><input class="za-input {prefix}-form-field {prefix}-captcha-field{css}" type="text" placeholder="" id="{prefix}_{name}"{autofocus}></div><div><div class="za-form-controls"><img class="{prefix}-captcha-img"></div></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}',
             buttonsWrap: '<div class="{css}">{buttons}{html}</div>',
             button: '<button class="za-button {prefix}-form-button{css}" id="{prefix}_{name}" type="{type}">{label}</button>',
-            launcher: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}_btn">{label}:</label><div class="za-flex"><div id="{prefix}_{name}_val" style="padding-top:6px;margin-right: 20px">{value}</div><div><button class="za-button za-button-default" id="{prefix}_{name}_btn" type="button">{labelBtn}</button></div></div>{helpText}</div>'
+            launcher: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}_btn">{label}:</label><div class="za-flex"><div id="{prefix}_{name}_val" class="{prefix}-{name}-selector" data="{data}">{value}</div><div><button class="za-button za-button-default" id="{prefix}_{name}_btn" type="button">{labelBtn}</button></div></div>{helpText}</div>'
         },
         template: {
             fields: '{fields}',
@@ -59,7 +60,7 @@
         this._defaults = defaults;
         this._name = pluginName;
         this._prefix = this.element.id;
-        this._formTypes = ['text', 'email', 'password', 'select', 'passwordConfirm', 'captcha'];
+        this._formTypes = ['text', 'email', 'password', 'select', 'passwordConfirm', 'captcha', 'launcher'];
         this._saving = false;
         this.init();
     };
@@ -93,6 +94,7 @@
                             name: n,
                             label: item.label,
                             labelBtn: item.labelBtn,
+                            data: item.data,
                             value: item.value,
                             css: (item.css ? ' ' + item.css : ''),
                             helpText: (item.helpText ? this._template(this.settings.html.helpText, {
@@ -179,6 +181,9 @@
             });
             this._captchaInit();
         },
+        setValidation(flag) {
+            this.validation = flag;
+        },
         setEditMode(m) {
             this.settings.edit = m;
         },
@@ -195,6 +200,50 @@
                 if (item.default) {
                     $('#' + this._prefix + '_' + n).val(item.default);
                 }
+                if (item.type === 'launcher') {
+                    $('#' + this._prefix + '_' + n + '_val').html(item.value);
+                    $('#' + this._prefix + '_' + n + '_val').attr('data', item.data);
+                }
+            }
+        },
+        serialize() {
+            let json = {};
+            for (let n in this.settings.items) {
+                let field = this.settings.items[n];
+                if (this._formTypes.indexOf(field.type) === -1) {
+                    continue;
+                }
+                switch (field.type) {
+                    case 'launcher':
+                        json[n] = {
+                            type: field.type,
+                            value: $('#' + this._prefix + '_' + n + '_val').html(),
+                            id: $('#' + this._prefix + '_' + n + '_val').attr('data')
+                        };
+                        break;
+                    default:
+                        json[n] = {
+                            type: field.type,
+                            value: $('#' + this._prefix + '_' + n).val()
+                        };
+                }
+            }
+            return json;
+        },
+        deserialize(json) {
+            if (!json || typeof json !== 'object') {
+                return;
+            }
+            for (let n in json) {
+                switch (json[n].type) {
+                    case 'launcher':
+                        $('#' + this._prefix + '_' + n + '_val').html(json[n].value);
+                        $('#' + this._prefix + '_' + n + '_val').attr('data', json[n].id);
+                        break;
+                    default:
+                        $('#' + this._prefix + '_' + n).val(json[n].value);
+                }
+
             }
         },
         loadData(data) {
@@ -243,23 +292,15 @@
             }
             return s;
         },
-        _submit() {
-            if (this._saving) {
-                return;
-            }
-            if (this.settings.events.onSaveSubmit) {
-                this.settings.events.onSaveSubmit();
-            }
-            this.clearErrors();
+        validate(items) {
             let errors = {};
             let data = {};
-            const that = this;
             for (let n in this.settings.items) {
                 let field = this.settings.items[n];
-                if (this._formTypes.indexOf(field.type) === -1) {
+                if (this._formTypes.indexOf(field.type) === -1 || field.type === 'launcher') {
                     continue;
                 }
-                let fieldValue = $('#' + this._prefix + '_' + n).val();
+                let fieldValue = items ? (items[n] ? items[n].value : undefined) : $('#' + this._prefix + '_' + n).val();
                 if (field.validation) {
                     if ((!field.validation.mandatoryEdit && !fieldValue && this.settings.edit) || (!field.validation.mandatoryCreate && !fieldValue && !this.settings.edit)) {
                         continue;
@@ -301,6 +342,9 @@
                     data[n] = fieldValue;
                 }
             }
+            return { data: data, errors: errors };
+        },
+        errors(errors) {
             if (Object.keys(errors).length > 0) {
                 let focusSet = false;
                 for (let k in errors) {
@@ -315,12 +359,40 @@
                         $('#' + this._prefix + '_' + k + 'Confirm').addClass(this.settings.formDangerClass);
                     }
                 }
+                return true;
+            }
+            return false;
+        },
+        _submit() {
+            if (this._saving) {
                 return;
             }
-            if (this.settings.events.onSaveValidate) {
-                data = this.settings.events.onSaveValidate(data) || data;
-                if (data === '__stop') {
+            if (this.settings.events.onSaveSubmit) {
+                this.settings.events.onSaveSubmit();
+            }
+            this.clearErrors();
+            const that = this;
+            let data = {};
+            let errors = {};
+            if (this.settings.validation) {
+                let _de = this.validate();
+                data = _de.data || {};
+                errors = _de.errors || {};
+                if (this.errors(errors)) {
                     return;
+                }
+                if (this.settings.events.onSaveValidate) {
+                    data = this.settings.events.onSaveValidate(data) || data;
+                    if (data === '__stop') {
+                        return;
+                    }
+                }
+            } else {
+                if (this.settings.events.onSaveValidate) {
+                    data = this.settings.events.onSaveValidate(data);
+                    if (data === '__stop') {
+                        return;
+                    }
                 }
             }
             that._saving = true;

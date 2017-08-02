@@ -109,6 +109,39 @@ module.exports = function(app) {
         }
     };
 
+    const folders = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const data = req.body.folders;
+        if (data && typeof data !== 'object') {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const json = JSON.stringify(data);
+            const updResult = await db.collection('registry').update({ name: 'pagesFolders' }, { name: 'pagesFolders', data: json }, { upsert: true });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            setTimeout(function() {
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+            }, 1000);
+        } catch (e) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
     const save = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
@@ -227,6 +260,7 @@ module.exports = function(app) {
     router.get('/load', load);
     router.post('/save', save);
     router.post('/delete', del);
+    router.post('/folders', folders);
 
     return {
         routes: router

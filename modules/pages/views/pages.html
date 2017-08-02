@@ -51,6 +51,12 @@
 </div>
 <div id="zoiaEdit" style="display:none">
     <h1 id="zoiaEditHeader"></h1>
+    <ul za-tab id="zoiaEditLanguages"></ul>
+    <div class="za-fieldset za-margin-bottom zoia-edit-languages-area">
+        <label>
+            <input class="za-checkbox" type="checkbox" checked id="zoiaEditLanguageCheckbox">&nbsp;{{ i18n.__(locale, 'Enable language')}}
+        </label>
+    </div>
     <form id="editForm">
     </form>
 </div>
@@ -68,8 +74,8 @@
             <div id="zoia_folders_tree"></div>
         </div>
         <div class="za-modal-footer za-text-right">
-            <button class="za-button za-button-default za-modal-close zoia-delete-dialog-button" type="button">{{ i18n.__(locale, 'Cancel')}}</button>
-            <button class="za-button za-button-primary zoia-delete-dialog-button" id="zoiaFoldersDialogButton" type="button">{{ i18n.__(locale, 'Select')}}</button>
+            <button class="za-button za-button-default za-modal-close zoia-folders-dialog-button" type="button">{{ i18n.__(locale, 'Cancel')}}</button>
+            <button class="za-button za-button-primary zoia-folders-dialog-button" id="zoiaFoldersDialogButton" type="button">{{ i18n.__(locale, 'Select')}}</button>
             <div za-spinner style="float:right;display:none" id="zoiaFoldersDialogSpinner"></div>
         </div>
     </div>
