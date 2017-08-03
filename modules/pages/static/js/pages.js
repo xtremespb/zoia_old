@@ -475,7 +475,7 @@ $(document).ready(() => {
             title: {
                 type: 'text',
                 label: lang['Title'],
-                css: 'za-width-large',
+                css: 'za-width-large@m',
                 validation: {
                     mandatoryCreate: true,
                     mandatoryEdit: true,
