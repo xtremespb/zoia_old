@@ -14,16 +14,20 @@ module.exports = function(app) {
     const sortFields = ['name', 'folder', 'title', 'status'];
 
     const list = async(req, res) => {
+        const locale = req.session.currentLocale;
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
             return res.send(JSON.stringify({
                 status: 0
             }));
         }
-        const sortField = req.query.sortField || 'pagename';
+        const sortField = req.query.sortField || 'name';
         const sortDirection = (req.query.sortDirection === 'asc') ? 1 : -1;
         const sort = {};
         sort[sortField] = sortDirection;
+        if (sortField === 'title') {
+            sort[locale + '.title'] = sortDirection;
+        }
         let skip = req.query.skip || 0;
         let limit = req.query.limit || 10;
         let search = req.query.search || '';
@@ -50,13 +54,25 @@ module.exports = function(app) {
             if (search) {
                 fquery = {
                     $or: [
-                        { pagename: { $regex: search, $options: 'i' } },
-                        { email: { $regex: search, $options: 'i' } }
+                        { name: { $regex: search, $options: 'i' } }
                     ]
                 };
+                let tfq = {};
+                tfq[locale + '.title'] = { $regex: search, $options: 'i' };
+                fquery.$or.push(tfq);
+                console.log(fquery);
             }
-            const total = await db.collection('pages').find(fquery, { skip: skip, limit: limit }).count();
-            const items = await db.collection('pages').find(fquery, { skip: skip, limit: limit }).sort(sort).toArray();
+            let ffields = { _id: 1, folder: 1, name: 1, status: 1 };
+            ffields[locale + '.title'] = 1;
+            const total = await db.collection('pages').find(fquery, ffields, { skip: skip, limit: limit }).count();
+            const items = await db.collection('pages').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
+            for (let i in items) {
+                if (items[i][locale]) {
+                    items[i].title = items[i][locale].title;
+                    delete items[i][locale].title;
+                    delete items[i][locale];
+                }
+            }
             let data = {
                 status: 1,
                 count: items.length,
@@ -94,12 +110,7 @@ module.exports = function(app) {
             }
             return res.send(JSON.stringify({
                 status: 1,
-                item: {
-                    _id: item._id,
-                    pagename: item.pagename,
-                    email: item.email,
-                    status: item.status
-                }
+                item: item
             }));
         } catch (e) {
             res.send(JSON.stringify({
@@ -131,9 +142,9 @@ module.exports = function(app) {
                 }));
             }
             setTimeout(function() {
-            return res.send(JSON.stringify({
-                status: 1
-            }));
+                return res.send(JSON.stringify({
+                    status: 1
+                }));
             }, 1000);
         } catch (e) {
             return res.send(JSON.stringify({
@@ -155,49 +166,52 @@ module.exports = function(app) {
                 status: 0
             }));
         }
+        const fieldList = pagesFields.getPagesFields();
         let output = {};
-        const fieldList = pagesFields.getUsersFields(id ? false : true);
-        let fields = validation.checkRequest(req, fieldList);
-        let fieldsFailed = validation.getCheckRequestFailedFields(fields);
-        if (fieldsFailed.length > 0) {
-            output.status = 0;
-            output.fields = fieldsFailed;
-            return res.send(JSON.stringify(output));
-        }
+        let data = {};
         try {
-            if (id) {
-                const page = await db.collection('pages').findOne({ _id: new ObjectID(id) });
-                if (page === null) {
-                    output.status = -1;
-                    output.fields = ['pagename'];
-                    return res.send(JSON.stringify(output));
-                }
-                if (fields.pagename.value !== page.pagename) {
-                    const pageDuplicate = await db.collection('pages').findOne({ pagename: fields.pagename.value });
-                    if (pageDuplicate) {
-                        output.status = -2;
-                        output.fields = ['pagename'];
+            for (let i in config.i18n.locales) {
+                let lng = config.i18n.locales[i];
+                data[lng] = {};
+                if (req.body[lng]) {
+                    let fields = validation.checkRequest(req.body[lng], fieldList);
+                    let fieldsFailed = validation.getCheckRequestFailedFields(fields);
+                    if (fieldsFailed.length > 0) {
+                        output.status = 0;
+                        output.fields = fieldsFailed;
                         return res.send(JSON.stringify(output));
                     }
+                    data[lng] = {
+                        title: fields.title.value
+                    }
+                    data.folder = fields.folder.value;
+                    data.name = fields.name.value;
+                    data.status = fields.status.value;
+                }
+            }
+            if (id) {
+                let page = await db.collection('pages').findOne({ _id: new ObjectID(id) });
+                if (!page) {
+                    output.status = -1;
+                    output.fields = ['name', 'folder'];
+                    return res.send(JSON.stringify(output));
+                }
+                let duplicate = await db.collection('pages').findOne({ folder: data.folder, name: data.name });
+                if (duplicate && JSON.stringify(duplicate._id) !== JSON.stringify(page._id)) {
+                    output.status = -2;
+                    output.fields = ['name', 'folder'];
+                    return res.send(JSON.stringify(output));
                 }
             } else {
-                const pageDuplicate = await db.collection('pages').findOne({ pagename: fields.pagename.value });
-                if (pageDuplicate) {
+                let duplicate = await db.collection('pages').findOne({ folder: data.folder, name: data.name });
+                if (duplicate) {
                     output.status = -2;
-                    output.fields = ['pagename'];
+                    output.fields = ['name', 'folder'];
                     return res.send(JSON.stringify(output));
                 }
             }
-            let update = {
-                pagename: fields.pagename.value,
-                email: fields.email.value,
-                status: fields.status.value
-            };
-            if (fields.password.value) {
-                update.password = crypto.createHash('md5').update(config.salt + fields.password.value).digest('hex');
-            }
-            let what = id ? { _id: new ObjectID(id) } : { pagename: fields.pagename.value };
-            let updResult = await db.collection('pages').update(what, { $set: update }, { upsert: true });
+            let what = id ? { _id: new ObjectID(id) } : { name: data.name, folder: data.folder };
+            let updResult = await db.collection('pages').update(what, { $set: data }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 output.status = 0;
                 return res.send(JSON.stringify(output));
@@ -219,7 +233,7 @@ module.exports = function(app) {
             }));
         }
         let output = {};
-        let ids = req.body['id[]'];
+        let ids = req.body['id'];
         if (!ids || (typeof ids !== 'object' && typeof ids !== 'string') || !ids.length) {
             output.status = -1;
             return res.send(JSON.stringify(output));

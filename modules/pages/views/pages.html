@@ -69,7 +69,10 @@
             <div class="za-button-group">
                 <button class="za-button za-button-default zoia-folders-btn" id="zoiaFoldersAdd"><span za-icon="icon:plus"></span></button>
                 <button class="za-button za-button-default zoia-folders-btn" id="zoiaFoldersEdit"><span za-icon="icon:pencil"></span></button>
-                <button class="za-button za-button-danger zoia-folders-btn" id="zoiaFoldersDelete"><span za-icon="icon:trash"></span></button>
+                <button class="za-button za-button-danger zoia-folders-btn" id="zoiaFoldersDelete"><span za-icon="icon:trash"></span></button>                
+            </div>
+            <div class="za-button-group">
+                <button class="za-button za-button-secondary zoia-folders-btn-revert" id="zoiaFoldersRevert"><span za-icon="icon:reply"></span></button>
             </div>
             <div id="zoia_folders_tree"></div>
         </div>
@@ -103,6 +106,12 @@
             <button class="za-button za-button-primary zoia-delete-dialog-button" id="zoiaDeleteDialogButton" type="button">{{ i18n.__(locale, 'Delete')}}</button>
             <div za-spinner style="float:right;display:none" id="zoiaDeleteDialogSpinner"></div>
         </div>
+    </div>
+</div>
+
+<div id="zoiaSpinnerDialog" class="za-flex-top" style="display:none">
+    <div class="za-margin-auto-vertical zoia-spinner-dialog">
+        <span za-spinner style="color:#fff"></span>
     </div>
 </div>
 <script type="text/javascript">

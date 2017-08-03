@@ -297,7 +297,11 @@
             let data = {};
             for (let n in this.settings.items) {
                 let field = this.settings.items[n];
-                if (this._formTypes.indexOf(field.type) === -1 || field.type === 'launcher') {
+                if (this._formTypes.indexOf(field.type) === -1) {
+                    continue;
+                }
+                if (field.type === 'launcher') {
+                    data[n] = items ? (items[n] ? items[n].id : undefined) : $('#' + this._prefix + '_' + n + '_val').attr('data');;
                     continue;
                 }
                 let fieldValue = items ? (items[n] ? items[n].value : undefined) : $('#' + this._prefix + '_' + n).val();

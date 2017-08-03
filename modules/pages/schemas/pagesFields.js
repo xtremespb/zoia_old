@@ -17,7 +17,7 @@
                 }
             },
             name: {
-                mandatoryCreate: true,
+                mandatoryCreate: false,
                 length: {
                     min: 1,
                     max: 64
@@ -35,7 +35,7 @@
                     max: 64
                 },
                 type: 'string',
-                regexp: /^[A-Za-z0-9_\-]+$/,
+                regexp: /^j[0-9]+_[0-9]$/,
                 process: function(item) {
                     return item.trim();
                 }

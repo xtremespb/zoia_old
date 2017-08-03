@@ -186,7 +186,7 @@ module.exports = function(app) {
             }));
         }
         let output = {};
-        let ids = req.body['id[]'];
+        let ids = req.body['id'];
         if (!ids || (typeof ids !== 'object' && typeof ids !== 'string') || !ids.length) {
             output.status = -1;
             return res.send(JSON.stringify(output));

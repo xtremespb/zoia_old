@@ -209,6 +209,7 @@ $(document).ready(() => {
                     timeout: 1500
                 });
                 $('#users').zoiaTable().load();
+                window.history.pushState({ action: '' }, document.title, '/admin/users');
             },
             onSaveError: (res) => {
                 editFormSpinner(false);
@@ -326,6 +327,7 @@ $(document).ready(() => {
                 type: 'buttons',
                 css: 'za-modal-footer za-text-right',
                 buttons: [{
+                	name: 'btnCancel',
                     label: lang['Cancel'],
                     css: 'za-button-default za-modal-close'
                 }, {
@@ -393,6 +395,9 @@ $(document).ready(() => {
             error: lang['Could not load data from server. Please try to refresh page in a few moments.'],
             noitems: lang['No items to display']
         }
+    });
+    $('#editForm_btnCancel').click(() => {
+    	window.history.pushState({ action: '' }, document.title, '/admin/users');
     });
     $('.zoiaAdd').click(() => {
         window.history.pushState({ action: 'create' }, document.title, '/admin/users?action=create');

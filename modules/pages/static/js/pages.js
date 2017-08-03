@@ -2,6 +2,7 @@
 let deleteDialog;
 let foldersDialog;
 let folderEditDialog;
+let spinnerDialog;
 let currentEditID;
 let currentDeleteID;
 let foldersTree;
@@ -23,13 +24,13 @@ const getUrlParam = (sParam) => {
     }
 };
 
-const editFormSpinner = (show) => {
+const editSpinner = (show) => {
     if (show) {
         $('.editForm-form-button').hide();
-        $('#zoiaEditDialogSpinner').show();
+        $('#zoiaEditSpinner').show();
     } else {
         $('.editForm-form-button').show();
-        $('#zoiaEditDialogSpinner').hide();
+        $('#zoiaEditSpinner').hide();
     }
 };
 
@@ -55,10 +56,16 @@ const foldersDialogSpinner = (show) => {
 
 const createItem = () => {
     $('#wrapTable').hide();
-    $('#editForm').zoiaFormBuilder().resetForm(false);
     $('#zoiaEdit').show();
     $('#zoiaEditHeader').html(lang.addItem);
     $('#zoiaEditLanguages > li[data="' + Object.keys(langs)[0] + '"] > a').click();
+    $('#editForm').zoiaFormBuilder().resetForm(false);
+    for (let lng in langs) {
+        editShadow[lng] = {
+            enabled: true,
+            data: {}
+        };
+    }
 };
 
 const showTable = () => {
@@ -69,10 +76,19 @@ const editItem = (id) => {
     if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
         return showTable();
     }
+    currentEditID = id;
+    for (let lng in langs) {
+        editShadow[lng] = {
+            enabled: true,
+            data: {}
+        };
+    }
+    $('#zoiaEditLanguages > li[data="' + Object.keys(langs)[0] + '"] > a').click();
     $('#wrapTable').hide();
     $('#editForm').zoiaFormBuilder().resetForm(false);
-    $('#zoiaEdit').show();
     $('#zoiaEditHeader').html(lang.editItem);
+    $('#editForm').zoiaFormBuilder().loadData({ id: id });
+    spinnerDialog.show();
 };
 
 const deleteItem = (id) => {
@@ -86,12 +102,12 @@ const deleteItem = (id) => {
         items = id;
         currentDeleteID = id;
         for (let i in id) {
-            names.push($('#pages').zoiaTable().getCurrentData()[id[i]].pagename);
+            names.push($('#pages').zoiaTable().getCurrentData()[id[i]].title);
         }
     } else {
         items.push(id);
         currentDeleteID.push(id);
-        names.push($('#pages').zoiaTable().getCurrentData()[id].pagename);
+        names.push($('#pages').zoiaTable().getCurrentData()[id].title);
     }
     $('#zoiaDeleteDialogList').html('');
     for (let n in names) {
@@ -237,6 +253,29 @@ const onSelectedFolder = (sel, path) => {
     foldersTree.jstree(true).get_node(sel).id;
 };
 
+const treePath = (tree, id, _path) => {
+    let node = tree.find(x => x.id === id);
+    if (!node) {
+        return '';
+    }
+    let path = _path || [];
+    path.push(node.text);
+    if (node.parent !== '#') {
+        path = treePath(tree, node.parent, path);
+    }
+    return path;
+};
+
+const onEditLanguageCheckboxClickEvent = () => {
+    if ($('#zoiaEditLanguageCheckbox').prop('checked')) {
+        editShadow[editLanguage].enabled = true;
+        $('#editForm').show();
+    } else {
+        editShadow[editLanguage].enabled = false;
+        $('#editForm').hide();
+    }
+};
+
 $(document).ready(() => {
     deleteDialog = $zUI.modal('#zoiaDeleteDialog', {
         bgClose: false,
@@ -248,6 +287,11 @@ $(document).ready(() => {
         stack: true
     });
     folderEditDialog = $zUI.modal('#zoiaFolderEditDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    spinnerDialog = $zUI.modal('#zoiaSpinnerDialog', {
         bgClose: false,
         escClose: false,
         stack: true
@@ -280,6 +324,9 @@ $(document).ready(() => {
         events: {
             onSaveValidate: (data) => {
                 editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
+                let saveFolder = editShadow[editLanguage].data.folder.id;
+                let saveName = editShadow[editLanguage].data.name.value;
+                let saveStatus = editShadow[editLanguage].data.status.value;
                 for (let n in editShadow) {
                     if (!editShadow[n].enabled) {
                         continue;
@@ -293,20 +340,28 @@ $(document).ready(() => {
                             return '__stop';
                         }
                     }
+                    vr.data.folder = saveFolder;
+                    vr.data.name = saveName;
+                    vr.data.status = saveStatus;
                     data[n] = vr.data;
                 }
                 data.id = currentEditID;
+                editSpinner(true);
                 return data;
             },
             onSaveSuccess: () => {
+                editSpinner(false);
                 $zUI.notification(lang.fieldErrors['Saved successfully'], {
                     status: 'success',
                     timeout: 1500
                 });
                 $('#pages').zoiaTable().load();
+                $('#zoiaEdit').hide();
+                $('#wrapTable').show();
+                window.history.pushState({ action: '' }, document.title, '/admin/pages');
             },
             onSaveError: (res) => {
-                editFormSpinner(false);
+                editSpinner(false);
                 if (res && res.status) {
                     switch (res.status) {
                         case -1:
@@ -330,8 +385,60 @@ $(document).ready(() => {
                     }
                 }
             },
-            onLoadSuccess: () => {},
+            onLoadSuccess: (data) => {
+                for (let n in langs) {
+                    if (Object.keys(data.item[n]).length === 0) {
+                        editShadow[n] = {
+                            enabled: false
+                        };
+                        continue;
+                    }
+                    editShadow[n] = {
+                        enabled: true,
+                        data: {}
+                    };
+                    let path = treePath(foldersData, data.item.folder);
+                    if (path) {
+                        path = path.reverse().join('/').replace('//', '/');
+                        editShadow[n].data.folder = {
+                            type: 'launcher',
+                            id: data.item.folder,
+                            value: path
+                        };
+                    } else {
+                        editShadow[n].data.folder = {
+                            type: 'launcher',
+                            id: 'j1_1',
+                            value: '<div za-icon="icon:ban" style="padding-top:4px"></div>'
+                        };
+                    }
+                    editShadow[n].data.name = {
+                        type: 'text',
+                        value: data.item.name
+                    };
+                    editShadow[n].data.title = {
+                        type: 'text',
+                        value: data.item[n].title
+                    };
+                    editShadow[n].data.status = {
+                        type: 'select',
+                        value: data.item.status
+                    };
+                }
+                $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);
+                $('#zoiaEditLanguageCheckbox').prop('checked', editShadow[editLanguage].enabled);
+                onEditLanguageCheckboxClickEvent();
+                for (let n in langs) {
+                    if (editShadow[n].enabled) {
+                        $('#zoiaEditLanguages > li[data="' + n + '"] > a').click();
+                        break;
+                    }
+                }
+                $('#zoiaEdit').show();
+                spinnerDialog.hide();
+            },
             onLoadError: () => {
+                spinnerDialog.hide();
                 $zUI.notification(lang['Could not load information from database'], {
                     status: 'danger',
                     timeout: 1500
@@ -345,19 +452,7 @@ $(document).ready(() => {
                 label: lang['Folder'],
                 labelBtn: lang['Select'],
                 value: '/',
-                data: 'j1_1',
-                validation: {
-                    mandatoryCreate: true,
-                    mandatoryEdit: true,
-                    length: {
-                        min: 3,
-                        max: 20
-                    },
-                    regexp: /^[A-Za-z0-9_\-]+$/,
-                    process: (item) => {
-                        return item.trim().toLowerCase();
-                    }
-                }
+                data: 'j1_1'
             },
             name: {
                 type: 'text',
@@ -386,9 +481,8 @@ $(document).ready(() => {
                     mandatoryEdit: true,
                     length: {
                         min: 1,
-                        max: 64
+                        max: 128
                     },
-                    regexp: /^[A-Za-z0-9_\-]+$/,
                     process: (item) => {
                         return item.trim();
                     }
@@ -426,7 +520,7 @@ $(document).ready(() => {
                     css: 'za-button-primary',
                     type: 'submit'
                 }],
-                html: '<div za-spinner style="float:right;display:none" id="zoiaEditSpinner"></div>'
+                html: '<div za-spinner style="display:none" id="zoiaEditSpinner"></div>'
             }
         },
         lang: {
@@ -534,8 +628,8 @@ $(document).ready(() => {
                         foldersTree.jstree(true).get_node(cn).data.lang[lng] = $('#editFolderForm_' + lng).val();
                     }
                     foldersTree.jstree(true).open_node(sel);
-                    folderEditDialog.hide();     
-                    foldersModified = true;               
+                    folderEditDialog.hide();
+                    foldersModified = true;
                 }
                 return '__stop';
             }
@@ -566,13 +660,20 @@ $(document).ready(() => {
             folder: {
                 sortable: true,
                 process: (id, item, value) => {
-                    return value;
+                    let path = treePath(foldersData, value);
+                    let result = '';
+                    if (path) {
+                        result = '<div class="zoia-folder-column" title="' + path.reverse().join('/').replace('//', '/') + '">' + path.reverse().join('/').replace('//', '/') + '</div>';
+                    } else {
+                        result = '<span za-icon="icon:ban"></span>';
+                    }
+                    return result;
                 }
             },
             title: {
                 sortable: true,
                 process: (id, item, value) => {
-                    return value;
+                    return value || '&ndash;'
                 }
             },
             status: {
@@ -641,19 +742,24 @@ $(document).ready(() => {
         foldersTreeFindRoot();
         foldersModified = true;
     });
+    $('#zoiaFoldersRevert').click(() => {
+        foldersData = { 'id': 'j1_1', 'text': '/', 'data': null, 'parent': '#', 'type': 'root' };
+        foldersModified = true;
+        initFoldersTree();
+    });
     $('#zoiaFoldersDialogButton').click(() => {
         let sel = foldersTree.jstree(true).get_selected();
         if (!sel || !sel.length) {
             return;
         };
         let path = foldersTree.jstree(true).get_path(sel).join('/').replace(/\//, '') || '/';
-        const currentFoldersJSON = serializeFolders();
+        foldersData = serializeFolders();
         if (foldersModified) {
             foldersDialogSpinner(true);
             $.ajax({
                 type: 'POST',
                 url: '/api/pages/folders',
-                data: { folders: currentFoldersJSON },
+                data: { folders: foldersData },
                 cache: false
             }).done((res) => {
                 foldersDialogSpinner(false);
@@ -677,29 +783,30 @@ $(document).ready(() => {
         }
     });
     $('#editForm_btnCancel').click(() => {
+        window.history.pushState({ action: '' }, document.title, '/admin/pages');
         $('#zoiaEdit').hide();
         $('#wrapTable').show();
     });
     $('#zoiaEditLanguages > li').click(function() {
         editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
+        let saveFolder = editShadow[editLanguage].data.folder;
+        let saveName = editShadow[editLanguage].data.name;
+        let saveStatus = editShadow[editLanguage].data.status;
         $('#editForm').zoiaFormBuilder().resetForm(false);
         editLanguage = $(this).attr('data');
         $('#zoiaEditLanguageCheckbox').prop('checked', editShadow[editLanguage].enabled);
         if (editShadow[editLanguage].enabled) {
             $('#editForm').show();
+            editShadow[editLanguage].data.folder = saveFolder;
+            editShadow[editLanguage].data.name = saveName;
+            editShadow[editLanguage].data.status = saveStatus;
             $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);
         } else {
             $('#editForm').hide();
         }
     });
     $('#zoiaEditLanguageCheckbox').click(function() {
-        if ($(this).prop('checked')) {
-            editShadow[editLanguage].enabled = true;
-            $('#editForm').show();
-        } else {
-            editShadow[editLanguage].enabled = false;
-            $('#editForm').hide();
-        }
+        onEditLanguageCheckboxClickEvent();
     });
     $(window).bind('popstate',
         (event) => {

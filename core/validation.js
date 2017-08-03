@@ -8,7 +8,9 @@ module.exports = class Validation {
             if (req[key] !== undefined) {
                 field = req[key];
             } else {
-                field = req.body[key] || req.query[key];
+                if (req.body || req.query) {
+                    field = req.body[key] || req.query[key];
+                }
             }
             result[key].success = false;
             // Check if field exists
