@@ -48,6 +48,35 @@
                 },
                 type: 'string',
                 regexp: /^(0|1|2)$/
+            },
+            keywords: {
+                mandatoryCreate: false,
+                length: {
+                    min: 1,
+                    max: 128
+                },
+                type: 'string',                
+                process: function(item) {
+                    return item.trim();
+                }
+            },
+            description: {
+                mandatoryCreate: false,
+                length: {
+                    min: 1,
+                    max: 128
+                },
+                type: 'string',                
+                process: function(item) {
+                    return item.trim();
+                }
+            },
+            content: {
+                mandatoryCreate: false,
+                type: 'string',                
+                process: function(item) {
+                    return item.trim();
+                }
             }
         };
     }

@@ -182,7 +182,10 @@ module.exports = function(app) {
                         return res.send(JSON.stringify(output));
                     }
                     data[lng] = {
-                        title: fields.title.value
+                        title: fields.title.value,
+                        keywords: (fields.keywords ? fields.keywords.value : ''),
+                        description: (fields.description ? fields.description.value : ''),
+                        content: (fields.content ? fields.content.value : '')
                     }
                     data.folder = fields.folder.value;
                     data.name = fields.name.value;

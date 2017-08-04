@@ -12,10 +12,6 @@
 		"Active"
 	],
 	"fieldErrors": {
-		"name": "Invalid name",
-		"title": "Invalid title",
-		"folder": "Invalid folder",
-		"status": "Invalid status",
 		"Saved successfully": "Saved successfully",
 		"Page already exists in database": "Page already exists in database",
 		"Could not save to the database": "Could not save to the database",
@@ -32,7 +28,6 @@
 	"Cancel": "Cancel",
 	"Save": "Save",
 	"Search": "Search",
-	"Latin characters and numbers, length: 1-80": "Latin characters and numbers, length: 1-80",
 	"The following page(s) will be removed from the database": "The following page(s) will be removed from the database",
 	"Could not load data from server. Please try to refresh page in a few moments.": "Could not load data from server. Please try to refresh page in a few moments.",
 	"No items to display": "No items to display",
@@ -48,5 +43,11 @@
 	"Edit Folder": "Edit Folder",
 	"Duplicate folder": "Duplicate folder",
 	"Languages": "Languages",
-	"Enable language": "Enable language"
+	"Enable language": "Enable language",
+    "Keywords": "Keywords",
+    "Description": "Description",
+    "Latin characters and numbers only (1-64 chars), leave blank for root page": "Latin characters and numbers only (1-64 chars), leave blank for root page",
+    "Requried, max. 128 characters": "Requried, max. 128 characters",
+    "Optional, max. 128 characters": "Optional, max. 128 characters",
+    "Content": "Content"
 }

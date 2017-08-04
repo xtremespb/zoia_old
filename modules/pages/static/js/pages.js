@@ -58,14 +58,16 @@ const createItem = () => {
     $('#wrapTable').hide();
     $('#zoiaEdit').show();
     $('#zoiaEditHeader').html(lang.addItem);
-    $('#zoiaEditLanguages > li[data="' + Object.keys(langs)[0] + '"] > a').click();
-    $('#editForm').zoiaFormBuilder().resetForm(false);
     for (let lng in langs) {
         editShadow[lng] = {
             enabled: true,
             data: {}
         };
     }
+    $('#editForm').zoiaFormBuilder().resetForm(false);
+    editLanguage = Object.keys(langs)[0];
+    $('#zoiaEditLanguages > li[data=' + editLanguage + ']').click();
+    $('#editForm_content').val('');
 };
 
 const showTable = () => {
@@ -83,7 +85,6 @@ const editItem = (id) => {
             data: {}
         };
     }
-    $('#zoiaEditLanguages > li[data="' + Object.keys(langs)[0] + '"] > a').click();
     $('#wrapTable').hide();
     $('#editForm').zoiaFormBuilder().resetForm(false);
     $('#zoiaEditHeader').html(lang.editItem);
@@ -276,6 +277,40 @@ const onEditLanguageCheckboxClickEvent = () => {
     }
 };
 
+const initCKEditor = () => {
+    window.setTimeout(function() {
+        ckeditor = $('#editForm_content').ckeditor({
+            filebrowserBrowseUrl: '/cp/browse',
+            filebrowserImageBrowseUrl: '/cp/browse?io=1',
+            filebrowserWindowWidth: 800,
+            filebrowserWindowHeight: 500,
+            allowedContent: true
+        }).editor;
+    }, 0);
+};
+
+const onZoiaEditLanguagesClick = (lng) => {
+    if (lng === editLanguage) {
+        return $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);
+    }
+    editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
+    let saveFolder = editShadow[editLanguage].data.folder;
+    let saveName = editShadow[editLanguage].data.name;
+    let saveStatus = editShadow[editLanguage].data.status;
+    $('#editForm').zoiaFormBuilder().resetForm(false);
+    editLanguage = lng || editLanguage;
+    $('#zoiaEditLanguageCheckbox').prop('checked', editShadow[editLanguage].enabled);
+    if (editShadow[editLanguage].enabled) {
+        editShadow[editLanguage].data.folder = saveFolder;
+        editShadow[editLanguage].data.name = saveName;
+        editShadow[editLanguage].data.status = saveStatus;
+        $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data)
+        $('#editForm').show();
+    } else {
+        $('#editForm').hide();
+    }
+};
+
 $(document).ready(() => {
     deleteDialog = $zUI.modal('#zoiaDeleteDialog', {
         bgClose: false,
@@ -334,7 +369,7 @@ $(document).ready(() => {
                     let lngdata = editShadow[n].data;
                     let vr = $('#editForm').zoiaFormBuilder().validate(lngdata);
                     if (Object.keys(vr.errors).length > 0) {
-                        $('#zoiaEditLanguages > li[data="' + n + '"] > a').click();
+                        onZoiaEditLanguagesClick(n);
                         vr = $('#editForm').zoiaFormBuilder().validate($('#editForm').zoiaFormBuilder().serialize());
                         if ($('#editForm').zoiaFormBuilder().errors(vr.errors)) {
                             return '__stop';
@@ -424,13 +459,23 @@ $(document).ready(() => {
                         type: 'select',
                         value: data.item.status
                     };
+                    editShadow[n].data.keywords = {
+                        type: 'text',
+                        value: data.item[n].keywords
+                    };
+                    editShadow[n].data.description = {
+                        type: 'text',
+                        value: data.item[n].description
+                    };
+                    editShadow[n].data.content = {
+                        type: 'textarea',
+                        value: data.item[n].content
+                    };
                 }
-                $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);
                 $('#zoiaEditLanguageCheckbox').prop('checked', editShadow[editLanguage].enabled);
-                onEditLanguageCheckboxClickEvent();
                 for (let n in langs) {
                     if (editShadow[n].enabled) {
-                        $('#zoiaEditLanguages > li[data="' + n + '"] > a').click();
+                        $('#zoiaEditLanguages > li[data=' + n + ']').click();
                         break;
                     }
                 }
@@ -470,7 +515,8 @@ $(document).ready(() => {
                     process: (item) => {
                         return item.trim();
                     }
-                }
+                },
+                helpText: lang['Latin characters and numbers only (1-64 chars), leave blank for root page']
             },
             title: {
                 type: 'text',
@@ -486,7 +532,8 @@ $(document).ready(() => {
                     process: (item) => {
                         return item.trim();
                     }
-                }
+                },
+                helpText: lang['Requried, max. 128 characters']
             },
             status: {
                 type: 'select',
@@ -506,6 +553,49 @@ $(document).ready(() => {
                     },
                     regexp: /^(0|1|2)$/
                 }
+            },
+            keywords: {
+                type: 'text',
+                label: lang['Keywords'],
+                css: 'za-width-large@m',
+                validation: {
+                    mandatoryCreate: false,
+                    mandatoryEdit: false,
+                    length: {
+                        min: 1,
+                        max: 128
+                    },
+                    process: (item) => {
+                        return item.trim();
+                    }
+                },
+                helpText: lang['Optional, max. 128 characters']
+            },
+            description: {
+                type: 'text',
+                label: lang['Description'],
+                css: 'za-width-large@m',
+                validation: {
+                    mandatoryCreate: false,
+                    mandatoryEdit: false,
+                    length: {
+                        min: 1,
+                        max: 128
+                    },
+                    process: (item) => {
+                        return item.trim();
+                    }
+                },
+                helpText: lang['Optional, max. 128 characters']
+            },
+            content: {
+                type: 'textarea',
+                label: lang['Content'],
+                validation: {
+                    mandatoryCreate: false,
+                    mandatoryEdit: false
+                },
+                css: 'zoiaFormBuilder-no-reset'
             },
             buttons: {
                 type: 'buttons',
@@ -788,26 +878,12 @@ $(document).ready(() => {
         $('#wrapTable').show();
     });
     $('#zoiaEditLanguages > li').click(function() {
-        editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
-        let saveFolder = editShadow[editLanguage].data.folder;
-        let saveName = editShadow[editLanguage].data.name;
-        let saveStatus = editShadow[editLanguage].data.status;
-        $('#editForm').zoiaFormBuilder().resetForm(false);
-        editLanguage = $(this).attr('data');
-        $('#zoiaEditLanguageCheckbox').prop('checked', editShadow[editLanguage].enabled);
-        if (editShadow[editLanguage].enabled) {
-            $('#editForm').show();
-            editShadow[editLanguage].data.folder = saveFolder;
-            editShadow[editLanguage].data.name = saveName;
-            editShadow[editLanguage].data.status = saveStatus;
-            $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);
-        } else {
-            $('#editForm').hide();
-        }
+        onZoiaEditLanguagesClick($(this).attr('data'));
     });
     $('#zoiaEditLanguageCheckbox').click(function() {
         onEditLanguageCheckboxClickEvent();
     });
+    initCKEditor();
     $(window).bind('popstate',
         (event) => {
             processState(event.originalEvent.state);
