@@ -103,6 +103,10 @@
     text-align: left;
 }
 
+.editForm-folder-selector:after {
+    content: '/';
+}
+
 .zoia-edit-languages-area {
     margin-top: -20px;
     padding: 20px;
@@ -126,7 +130,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 120px;
+    max-width: 120px;
     direction: rtl;
     text-align: left;
 }

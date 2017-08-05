@@ -64,7 +64,7 @@ const createItem = () => {
             data: {}
         };
     }
-    $('#editForm').zoiaFormBuilder().resetForm(false);
+    $('#editForm').zoiaFormBuilder().resetForm();
     editLanguage = Object.keys(langs)[0];
     $('#zoiaEditLanguages > li[data=' + editLanguage + ']').click();
     $('#editForm_content').val('');
@@ -86,7 +86,7 @@ const editItem = (id) => {
         };
     }
     $('#wrapTable').hide();
-    $('#editForm').zoiaFormBuilder().resetForm(false);
+    $('#editForm').zoiaFormBuilder().resetForm();
     $('#zoiaEditHeader').html(lang.editItem);
     $('#editForm').zoiaFormBuilder().loadData({ id: id });
     spinnerDialog.show();
@@ -269,7 +269,24 @@ const treePath = (tree, id, _path) => {
 
 const onEditLanguageCheckboxClickEvent = () => {
     if ($('#zoiaEditLanguageCheckbox').prop('checked')) {
+        $('#editForm').zoiaFormBuilder().resetForm();
         editShadow[editLanguage].enabled = true;
+        editShadow[editLanguage].data = {};
+        for (let lng in langs) {
+            if (editShadow[lng].data) {
+                if (editShadow[lng].data.folder) {
+                    $('#editForm_folder_val').html(editShadow[lng].data.folder.value);
+                    $('#editForm_folder_val').attr('data', editShadow[lng].data.folder.id);
+                }
+                if (editShadow[lng].data.name) {
+                    $('#editForm_name').val(editShadow[lng].data.name.value);
+                }
+                if (editShadow[lng].data.status) {
+                    $('#editForm_status').val(editShadow[lng].data.status.value);
+                }
+            }
+        }
+        $('#editForm_content').val('');
         $('#editForm').show();
     } else {
         editShadow[editLanguage].enabled = false;
@@ -290,14 +307,48 @@ const initCKEditor = () => {
 };
 
 const onZoiaEditLanguagesClick = (lng) => {
+    if (!editShadow[lng].enabled) {
+        editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
+        editLanguage = lng;        
+        $('#zoiaEditLanguageCheckbox').prop('checked', false);
+        $('#editForm').hide();
+        return;
+    } else {
+        $('#zoiaEditLanguageCheckbox').prop('checked', true);
+    }
     if (lng === editLanguage) {
+        return $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);
+    }
+    editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
+    if (editShadow[editLanguage].enabled && editShadow[editLanguage].data && 
+        editShadow[editLanguage].data.folder && editShadow[editLanguage].data.name &&
+        editShadow[editLanguage].data.status) {
+        let saveFolder = editShadow[editLanguage].data.folder;
+        let saveName = editShadow[editLanguage].data.name;
+        let saveStatus = editShadow[editLanguage].data.status;
+        let saveEditLanguage = editLanguage;
+        editShadow[lng].data.folder = saveFolder;
+        editShadow[lng].data.name = saveName;
+        editShadow[lng].data.status = saveStatus;
+    }    
+    editLanguage = lng;
+    $('#editForm').zoiaFormBuilder().resetForm();
+    $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);
+    $('#editForm').show();
+
+    /*$('#editForm_folder_val').html(saveFolder.value);
+    $('#editForm_folder_val').attr('data', saveFolder.id);
+    $('#editForm_name').val(saveName.value);
+    $('#editForm_status').val(saveStatus.value);*/
+
+    /*if (lng === editLanguage) {
         return $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);
     }
     editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
     let saveFolder = editShadow[editLanguage].data.folder;
     let saveName = editShadow[editLanguage].data.name;
     let saveStatus = editShadow[editLanguage].data.status;
-    $('#editForm').zoiaFormBuilder().resetForm(false);
+    $('#editForm').zoiaFormBuilder().resetForm();
     editLanguage = lng || editLanguage;
     $('#zoiaEditLanguageCheckbox').prop('checked', editShadow[editLanguage].enabled);
     if (editShadow[editLanguage].enabled) {
@@ -308,7 +359,7 @@ const onZoiaEditLanguagesClick = (lng) => {
         $('#editForm').show();
     } else {
         $('#editForm').hide();
-    }
+    }*/
 };
 
 $(document).ready(() => {
@@ -421,6 +472,7 @@ $(document).ready(() => {
                 }
             },
             onLoadSuccess: (data) => {
+                console.log(data);
                 for (let n in langs) {
                     if (Object.keys(data.item[n]).length === 0) {
                         editShadow[n] = {
@@ -434,7 +486,10 @@ $(document).ready(() => {
                     };
                     let path = treePath(foldersData, data.item.folder);
                     if (path) {
-                        path = path.reverse().join('/').replace('//', '/');
+                        path = path.reverse().join('/').replace('//', '');
+                        if (path === '/') {
+                            path = '';
+                        }
                         editShadow[n].data.folder = {
                             type: 'launcher',
                             id: data.item.folder,
@@ -463,6 +518,7 @@ $(document).ready(() => {
                         type: 'text',
                         value: data.item[n].keywords
                     };
+                    console.log('Keywords for ' + n + ': ' + editShadow[n].data.keywords.value);
                     editShadow[n].data.description = {
                         type: 'text',
                         value: data.item[n].description
@@ -496,7 +552,7 @@ $(document).ready(() => {
                 type: 'launcher',
                 label: lang['Folder'],
                 labelBtn: lang['Select'],
-                value: '/',
+                value: '',
                 data: 'j1_1'
             },
             name: {
@@ -750,10 +806,13 @@ $(document).ready(() => {
             folder: {
                 sortable: true,
                 process: (id, item, value) => {
-                    let path = treePath(foldersData, value);
+                    let path = treePath(foldersData, value).reverse().join('/').replace('//', '');
+                    if (path.length > 1) {
+                        path += '/';
+                    }
                     let result = '';
                     if (path) {
-                        result = '<div class="zoia-folder-column" title="' + path.reverse().join('/').replace('//', '/') + '">' + path.reverse().join('/').replace('//', '/') + '</div>';
+                        result = '<div class="zoia-folder-column" title="' + path + '">' + path + '</div>';
                     } else {
                         result = '<span za-icon="icon:ban"></span>';
                     }
@@ -805,7 +864,7 @@ $(document).ready(() => {
         foldersTreeFindRoot();
     });
     $('#zoiaFoldersAdd').click(() => {
-        $('#editFolderForm').zoiaFormBuilder().resetForm(false);
+        $('#editFolderForm').zoiaFormBuilder().resetForm();
         folderEditDialog.show();
         foldersEditMode = false;
     });
@@ -814,7 +873,7 @@ $(document).ready(() => {
         if (!sel || !sel.length || foldersTree.jstree(true).get_parent(sel) === '#') {
             return
         };
-        $('#editFolderForm').zoiaFormBuilder().resetForm(false);
+        $('#editFolderForm').zoiaFormBuilder().resetForm();
         $('#editFolderForm_id').val(foldersTree.jstree(true).get_node(sel).text);
         for (let lng in langs) {
             $('#editFolderForm_' + lng).val(foldersTree.jstree(true).get_node(sel).data.lang[lng] || '');
@@ -842,8 +901,11 @@ $(document).ready(() => {
         if (!sel || !sel.length) {
             return;
         };
-        let path = foldersTree.jstree(true).get_path(sel).join('/').replace(/\//, '') || '/';
         foldersData = serializeFolders();
+        let path = treePath(foldersData, sel[0]).reverse().join('/').replace('//', '') || '';
+        if (path === '/') {
+            path = '';
+        }
         if (foldersModified) {
             foldersDialogSpinner(true);
             $.ajax({
