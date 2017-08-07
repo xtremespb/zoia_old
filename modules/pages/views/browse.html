@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="{{ locale }}">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{{ i18n.__(locale, 'browse')}}</title>
+    {% if config.production %}
+    <link rel="stylesheet" href="/pages/static/css/browse.min.css">{% else %}
+    <link rel="stylesheet" href="/zoia/3rdparty/uikit/css/uikit.min.css">
+    <link rel="stylesheet" href="/pages/static/css/browse.css">{% endif %}
+</head>
+
+<body>
+    <div>
+        <div class="zoia-browse-control">1</div>
+        <div class="zoia-browse-content za-flex">
+            <div class="za-browse-item">
+                <div class="zoia-browse-item-img za-flex za-flex-center za-flex-middle"><span za-icon="icon:folder;ratio:3"></span></div>
+                <div class="zoia-browse-item-text">test2</div>
+            </div>
+            <div class="za-browse-item">
+                <div class="zoia-browse-item-img za-flex za-flex-center za-flex-middle"><span za-icon="icon:folder;ratio:3"></span></div>
+                <div class="zoia-browse-item-text">test3</div>
+            </div>
+        </div>
+        <div class="zoia-browse-footer">3</div>
+    </div>
+    {% if config.production %}
+    <script src="/pages/static/js/browse.min.js" type="text/javascript"></script>{% else %}
+    <script src="/zoia/3rdparty/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="/zoia/3rdparty/uikit/js/uikit.min.js" type="text/javascript"></script>
+    <script src="/zoia/3rdparty/uikit/js/uikit-icons.min.js" type="text/javascript"></script>
+    <script src="/pages/static/js/browse.js" type="text/javascript"></script>{% endif %}
+    <script type="text/javascript">
+    var browseContentSize = function() {
+        $('.zoia-browse-content').height($(window).height() - $('.zoia-browse-control').height() - $('.zoia-browse-footer').height() - 16);
+    };
+    $(window).resize(function() {
+        browseContentSize();
+    });
+    browseContentSize();
+    </script>
+</body>
+
+</html>

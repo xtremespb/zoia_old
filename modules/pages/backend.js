@@ -35,10 +35,30 @@ module.exports = function(app) {
         }
     };
 
+    const browse = async(req, res, next) => {
+        try {
+            if (!Module.isAuthorizedAdmin(req)) {
+                Module.logout(req);
+                return res.redirect(303, '/auth?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
+            }
+            const locale = req.session.currentLocale;
+            let html = await render.file('browse.html', {
+                i18n: i18n.get(),
+                config: config,
+                locale: locale,
+                lang: JSON.stringify(i18n.get().locales[locale])
+            });
+            res.send(html);
+        } catch (e) {
+            next(new Error(e.message));
+        }
+    };
+
     app.use('/pages/static', app.get('express').static(path.join(__dirname, 'static')));
 
     let router = Router();
     router.get('/', list);
+    router.get('/browse', browse);
     return {
         routes: router,
         info: {

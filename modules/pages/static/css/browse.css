@@ -1,0 +1,40 @@
+html,
+body {
+    margin: 0;
+}
+
+.zoia-browse-content {
+    overflow: auto;
+}
+
+.za-browse-item {
+    width: 100px;
+    height: 125px;
+    margin: 10px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.zoia-browse-item-img {
+    -webkit-box-shadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.65);
+    -moz-box-shadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.65);
+    box-shadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.65);
+    width: 100px;
+    height: 100px;
+    border-radius: 7px;
+}
+
+.zoia-browse-item-text {
+    height: 25px;
+    width: 100px;
+    font-size: 12px;
+    text-align: center;
+    padding-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

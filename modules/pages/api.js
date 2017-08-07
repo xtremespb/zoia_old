@@ -6,6 +6,7 @@ const ObjectID = require('mongodb').ObjectID;
 const pagesFields = require(path.join(__dirname, 'schemas', 'pagesFields.js'));
 const crypto = require('crypto');
 const config = require(path.join(__dirname, '..', '..', 'etc', 'config.js'));
+const fs = require('fs-extra');
 
 module.exports = function(app) {
     const log = app.get('log');
@@ -272,12 +273,76 @@ module.exports = function(app) {
         }
     };
 
+    const checkDirectory = (_fn) => {
+        if (!_fn) return true;
+        var fn = String(_fn).trim();
+        if (fn.length > 40) return false;
+        if (fn.match(/^\./)) return false;
+        if (fn.match(/^\\/)) return false;
+        if (fn.match(/^[\^<>\:\"\\\|\?\*\x00-\x1f]+$/)) return false;
+        return true;
+    };
+
+    const browseList = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            let dir = req.query.path || req.body.path;
+            if (!dir || typeof dir !== 'string' || !checkDirectory(dir)) {
+                dir = '/';
+            } else {
+                dir = dir.trim();
+            }
+            let dirArr = [__dirname, 'static', 'storage'].concat(dir.split('/'));
+            let pth = path.join(...dirArr);
+            let filesData = await fs.readdir(path.join(...dirArr));
+            let files = [];
+            for (let f in filesData) {
+                let item = {};
+                let file = filesData[f];
+                let stat = await fs.lstat(path.join(...dirArr, file));
+                item.filename = file;
+                if (stat.isFile()) {
+                    item.type = 'f';
+                }
+                if (stat.isDirectory()) {
+                    item.type = 'd';
+                }
+                files.push(item);
+            }
+            files.sort(function(a, b) {
+                if (a.type === b.type) {
+                    return 0;
+                }
+                if (a.type === 'd' && b.type === 'f') {
+                    return -1;
+                }
+                return 1;
+            });
+            return res.send(JSON.stringify({
+                status: 0,
+                path: pth,
+                files: files
+            }));
+        } catch (e) {
+            console.log(e);
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
     let router = Router();
     router.get('/list', list);
     router.get('/load', load);
     router.post('/save', save);
     router.post('/delete', del);
     router.post('/folders', folders);
+    router.all('/browse/list', browseList);
 
     return {
         routes: router
