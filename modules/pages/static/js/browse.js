@@ -1,7 +1,404 @@
-const load = () => {
+let currentDir = '';
+let historyDir = [];
+let spinnerDialog;
+let fileDialog;
+let uploadDialog;
+let fileDialogAction;
+let fileDialogValue;
+let clipboardDir;
+let clipboardData;
+let clipboardOperation;
+let uploader;
 
+const templates = {
+    'd': '<div class="zoia-browse-item zoia-browse-item-d" data="{filename}"><div class="zoia-browse-item-img za-flex za-flex-center za-flex-middle"><span za-icon="icon:folder;ratio:2"></span></div><div class="zoia-browse-item-text"{tooltip}>{filename}</div></div>',
+    'f': '<div class="zoia-browse-item zoia-browse-item-f" data="{filename}"><div class="zoia-browse-item-img za-flex za-flex-center za-flex-middle">{innerContent}</div><div class="zoia-browse-item-text"{tooltip}>{filename}</div></div>',
+    'o': ''
+};
+
+const template = (s, d) => {
+    for (let p in d) {
+        s = s.replace(new RegExp('{' + p + '}', 'g'), d[p]);
+    }
+    return s;
+};
+
+const shiftySelectHandler = () => {
+    const selection = $('#zoia-browse-content').getSelected('zoia-browse-item-selected');
+};
+
+var shiftyUnselectHandler = function() {
+    const selection = $('#zoia-browse-content').getSelected('zoia-browse-item-selected');
+};
+
+const shiftyHandler = () => {
+    shiftySelectHandler();
+    shiftyUnselectHandler();
+};
+
+const dblClickHandler = function() {
+    if (!$(this).hasClass('zoia-browse-item-d')) {
+        return;
+    }
+    if (currentDir) {
+        historyDir.push(currentDir);
+    }
+    currentDir = $(this).attr('data');
+    load();
+};
+
+const btnUpHandler = (e) => {
+    e.preventDefault();
+    $('.zoia-browse-item').removeClass('zoia-browse-item-selected');
+    if (historyDir.length === 0) {
+        currentDir = '';
+    } else {
+        currentDir = historyDir.pop();
+    }
+    load();
+};
+
+const btnNewDirHandler = () => {
+    fileDialog.show();
+    $('.zoiaFileDialogTitle').html(lang['New folder']);
+    $('#zoiaFileDialogInput').focus();
+    $('#zoiaFileDialogInput').val('');
+    fileDialogAction = 'folder';
+};
+
+const btnRenameHandler = (name) => {
+    fileDialog.show();
+    $('.zoiaFileDialogTitle').html(lang['Rename']);
+    $('#zoiaFileDialogInput').focus();
+    $('#zoiaFileDialogInput').val(name);
+    fileDialogAction = 'rename';
+    fileDialogValue = name;
+};
+
+const btnCutCopyHandler = () => {
+    const selection = $('#zoia-browse-content').getSelected('zoia-browse-item-selected');
+    if (!selection) {
+        return false;
+    }
+    $('.zoia-browse-ctl-clipboard').removeClass('za-button-secondary');
+    clipboardData = selection;
+    clipboardDir = (historyDir.join('/') + '/' + currentDir).replace(/^\//, '');
+    return true;
+};
+
+const btnPasteHandler = () => {
+    if (clipboardDir === (historyDir.join('/') + '/' + currentDir).replace(/^\//, '')) {
+        $zUI.modal.alert(lang['Cannot paste files to the same directory'], { labels: { ok: lang['OK'] } });
+        return;
+    }
+    if (!clipboardOperation) {
+        return;
+    }
+    spinnerDialog.show();
+    $.ajax({
+        type: 'POST',
+        url: '/api/pages/browse/paste',
+        data: {
+            pathSource: clipboardDir,
+            pathDestination: (historyDir.join('/') + '/' + currentDir).replace(/^\//, ''),
+            files: clipboardData,
+            operation: clipboardOperation
+        },
+        cache: false
+    }).done((res) => {
+        $('.zoia-browse-ctl-clipboard').removeClass('za-button-secondary');
+        clipboardData = undefined;
+        clipboardOperation = undefined;
+        clipboardDir = undefined;
+        if (res.status === 1) {
+            $zUI.notification(lang['Operation was successful'], {
+                status: 'success',
+                timeout: 1500
+            });
+            load();
+        } else {
+            spinnerDialog.hide();
+            $zUI.notification(lang['Cannot paste one or more files'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        }
+    }).fail((jqXHR, exception) => {
+        spinnerDialog.hide();
+        $('.zoia-browse-ctl-clipboard').removeClass('za-button-secondary');
+        clipboardData = undefined;
+        clipboardOperation = undefined;
+        clipboardDir = undefined;
+        $zUI.notification(lang['Cannot paste one or more files'], {
+            status: 'danger',
+            timeout: 1500
+        });
+    });
+};
+
+const btnDeleteHandler = (name) => {
+    const selection = $('#zoia-browse-content').getSelected('zoia-browse-item-selected');
+    if (!selection) {
+        return;
+    }
+    $zUI.modal.confirm(lang['You are going to delete the following file(s)'] + ':<br><br>' + selection.join(', '), { labels: { ok: lang['OK'], cancel: lang['Cancel'] } }).then(function() {
+        $.ajax({
+            type: 'POST',
+            url: '/api/pages/browse/delete',
+            data: {
+                path: (historyDir.join('/') + '/' + currentDir).replace(/^\//, ''),
+                files: selection
+            },
+            cache: false
+        }).done((res) => {
+            if (res.status === 1) {
+                $zUI.notification(lang['Operation was successful'], {
+                    status: 'success',
+                    timeout: 1500
+                });
+                load();
+            } else {
+                spinnerDialog.hide();
+                $zUI.notification(lang['Error while deleting one or more files'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            }
+        }).fail((jqXHR, exception) => {
+            spinnerDialog.hide();
+            $zUI.notification(lang['Error while deleting one or more files'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        });
+    });
+};
+
+const formSubmitHandler = () => {
+    let name = $('#zoiaFileDialogInput').val();
+    if (!name || typeof name !== 'string' || name.length > 40 || !name.match(/^[a-zA-Z0-9_\-\.;\s]+$/)) {
+        $zUI.notification(lang['Invalid name, please use latin characters and numbers only'], {
+            status: 'danger',
+            timeout: 1500
+        });
+        return;
+    }
+    switch (fileDialogAction) {
+        case 'folder':
+            fileDialog.hide();
+            spinnerDialog.show();
+            $.ajax({
+                type: 'POST',
+                url: '/api/pages/browse/folder/create',
+                data: {
+                    path: (historyDir.join('/') + '/' + currentDir).replace(/^\//, ''),
+                    name: name
+                },
+                cache: false
+            }).done((res) => {
+                if (res.status === 1) {
+                    $zUI.notification(lang['Operation was successful'], {
+                        status: 'success',
+                        timeout: 1500
+                    });
+                    load();
+                } else {
+                    spinnerDialog.hide();
+                    $zUI.notification(lang['Error while creating new folder'], {
+                        status: 'danger',
+                        timeout: 1500
+                    });
+                }
+            }).fail((jqXHR, exception) => {
+                spinnerDialog.hide();
+                $zUI.notification(lang['Error while creating new folder'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            });
+            break;
+        case 'rename':
+            fileDialog.hide();
+            spinnerDialog.show();
+            $.ajax({
+                type: 'POST',
+                url: '/api/pages/browse/rename',
+                data: {
+                    path: (historyDir.join('/') + '/' + currentDir).replace(/^\//, ''),
+                    nameOld: fileDialogValue,
+                    nameNew: name
+                },
+                cache: false
+            }).done((res) => {
+                if (res.status === 1) {
+                    $zUI.notification(lang['Operation was successful'], {
+                        status: 'success',
+                        timeout: 1500
+                    });
+                    load();
+                } else {
+                    spinnerDialog.hide();
+                    $zUI.notification(lang['Could not rename selected file'], {
+                        status: 'danger',
+                        timeout: 1500
+                    });
+                }
+            }).fail((jqXHR, exception) => {
+                spinnerDialog.hide();
+                $zUI.notification(lang['Could not rename selected file'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            });
+            break;
+    }
+};
+
+const load = () => {
+    spinnerDialog.show();
+    $('#zoia-browse-content').html('');
+    $.ajax({
+        type: 'POST',
+        url: '/api/pages/browse/list',
+        data: {
+            path: (historyDir.join('/') + '/' + currentDir).replace(/^\//, '')
+        },
+        cache: false
+    }).done((res) => {
+        spinnerDialog.hide();
+        if (res.status === 1) {
+            let html = '';
+            for (let i in res.files) {
+                let item = res.files[i];
+                let tooltip = '';
+                if (item.filename.length > 14) {
+                    tooltip = ' title="' + item.filename + '" za-tooltip="delay:300"';
+                }
+                let innerContent = '';
+                if (item.ext && !item.thumb) {
+                    switch (item.ext) {
+                        case 'jpg':
+                        case 'jpeg':
+                        case 'gif':
+                        case 'png':
+                            innerContent = '<span za-icon="icon:image;ratio:2">';
+                            break;
+                        default:
+                            innerContent = '<span za-icon="icon:file;ratio:2">';
+                    }
+                }
+                if (item.thumb) {
+                    innerContent = '<img src="/pages/static/storage/' + (historyDir.join('/') + '/' + currentDir).replace(/^\//, '') + '/___tn_' + item.filename + '" class="zoia-browse-item-thumb">';
+                }
+                html += template(templates[item.type], {
+                    filename: item.filename,
+                    type: item.type,
+                    tooltip: tooltip,
+                    innerContent: innerContent
+                });
+            }
+            $('#zoia-browse-content').html(html);
+            $('.zoia-browse-item').dblclick(dblClickHandler);
+            $('.zoia-browse-item').shifty({
+                className: 'zoia-browse-item-selected',
+                select: function(el) {
+                    shiftySelectHandler();
+                },
+                unselect: function(el) {
+                    shiftyUnselectHandler();
+                }
+            });
+        } else {
+            spinnerDialog.hide();
+            switch (res.status) {
+                case -1:
+                    $zUI.notification(lang['Directory doesn\'t exists'], {
+                        status: 'danger',
+                        timeout: 1500
+                    });
+                    break;
+                default:
+                    $zUI.notification(lang['Could not get directory content'], {
+                        status: 'danger',
+                        timeout: 1500
+                    });
+            }
+        }
+    }).fail((jqXHR, exception) => {
+        $zUI.notification(lang['Could not get directory content'], {
+            status: 'danger',
+            timeout: 1500
+        });
+    });
 };
 
 $(document).ready(() => {
-	load();
+    spinnerDialog = $zUI.modal('#zoiaSpinnerDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    fileDialog = $zUI.modal('#zoiaFileDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    uploadDialog = $zUI.modal('#zoiaUploadDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    $('#zoia-browse-content').click(function(e) {
+        if (e.target.id === "zoia-browse-content") {
+            $('.zoia-browse-item').removeClass('zoia-browse-item-selected');
+        }
+    });
+    $('.zoia-browse-ctl-up').click(btnUpHandler);
+    $('.zoia-browse-ctl-newdir').click(btnNewDirHandler);
+    $('.zoia-browse-ctl-delete').click(btnDeleteHandler);
+    $('.zoia-browse-ctl-upload').click(() => {
+        uploadDialog.show();
+    });
+    $('.zoia-browse-ctl-refresh').click(load);
+    $('.zoia-browse-ctl-copy').click(() => {
+        if (!btnCutCopyHandler()) {
+            return;
+        }
+        clipboardOperation = 'copy';
+        $('.zoia-browse-ctl-copy').addClass('za-button-secondary');
+    });
+    $('.zoia-browse-ctl-cut').click(() => {
+        if (!btnCutCopyHandler()) {
+            return;
+        }
+        clipboardOperation = 'cut';
+        $('.zoia-browse-ctl-cut').addClass('za-button-secondary');
+    });
+    $('.zoia-browse-ctl-paste').click(btnPasteHandler);
+    $('.zoia-browse-ctl-rename').click(() => {
+        const selection = $('#zoia-browse-content').getSelected('zoia-browse-item-selected');
+        if (!selection.length || selection.length > 1) {
+            return;
+        }
+        btnRenameHandler(selection[0]);
+    });
+    $('#zoiaFileDialogForm').submit((e) => {
+        e.preventDefault();
+        formSubmitHandler();
+    });
+    uploader = new plupload.Uploader({
+        browse_button: 'zoia-upload-area',
+        url: 'upload.php'
+    });
+    uploader.init();
+    uploader.bind('FilesAdded', function(up, files) {
+        var html = '';
+        plupload.each(files, function(file) {
+            html += '<div><div class="zoia-upload-files-label">' + file.name + '&nbsp;(' + plupload.formatSize(file.size) + ')</div><progress id="' + file.id + '" class="za-progress" value="0" max="100"></progress></div>';
+        });
+        $('#zoia-upload-files').html(html);
+        $('#zoia-upload-files').show();
+    });
+    console.log(uploader);
+    load();
 });

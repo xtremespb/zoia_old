@@ -61,7 +61,6 @@ module.exports = function(app) {
                 let tfq = {};
                 tfq[locale + '.title'] = { $regex: search, $options: 'i' };
                 fquery.$or.push(tfq);
-                console.log(fquery);
             }
             let ffields = { _id: 1, folder: 1, name: 1, status: 1 };
             ffields[locale + '.title'] = 1;
@@ -274,12 +273,9 @@ module.exports = function(app) {
     };
 
     const checkDirectory = (_fn) => {
-        if (!_fn) return true;
-        var fn = String(_fn).trim();
-        if (fn.length > 40) return false;
-        if (fn.match(/^\./)) return false;
-        if (fn.match(/^\\/)) return false;
-        if (fn.match(/^[\^<>\:\"\\\|\?\*\x00-\x1f]+$/)) return false;
+        if (!_fn || typeof _fn !== 'string') return true;
+        const fn = _fn.trim();
+        if (fn.length > 40 || fn.match(/^\./) || fn.match(/^\\/) || fn.match(/^[\^<>\:\"\\\|\?\*\x00-\x1f]+$/)) return false;
         return true;
     };
 
@@ -298,20 +294,40 @@ module.exports = function(app) {
                 dir = dir.trim();
             }
             let dirArr = [__dirname, 'static', 'storage'].concat(dir.split('/'));
-            let pth = path.join(...dirArr);
-            let filesData = await fs.readdir(path.join(...dirArr));
+            let browsePath = path.join(...dirArr);
+            try {
+                await fs.access(browsePath, fs.constants.F_OK);
+            } catch (e) {
+                return res.send(JSON.stringify({
+                    status: -1
+                }));
+            }
+            let filesData = await fs.readdir(browsePath);
             let files = [];
             for (let f in filesData) {
+                if (filesData[f].match(/^\./) || filesData[f].match(/^___tn/)) {
+                    continue;
+                }
                 let item = {};
-                let file = filesData[f];
-                let stat = await fs.lstat(path.join(...dirArr, file));
-                item.filename = file;
+                let stat = await fs.lstat(path.join(...dirArr, filesData[f]));
+                item.filename = filesData[f];
                 if (stat.isFile()) {
                     item.type = 'f';
                 }
                 if (stat.isDirectory()) {
                     item.type = 'd';
                 }
+                if (!item.type) {
+                    item.type = 'o';
+                }
+                item.ext = path.extname(filesData[f]);
+                if (item.ext && typeof item.ext === 'string') {
+                    item.ext = item.ext.replace(/^\./, '').toLowerCase();
+                }
+                try {
+                    await fs.access(path.join(...dirArr, '___tn_' + filesData[f]), fs.constants.F_OK);
+                    item.thumb = true;
+                } catch (e) {}
                 files.push(item);
             }
             files.sort(function(a, b) {
@@ -324,12 +340,221 @@ module.exports = function(app) {
                 return 1;
             });
             return res.send(JSON.stringify({
-                status: 0,
-                path: pth,
+                status: 1,
                 files: files
             }));
         } catch (e) {
-            console.log(e);
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
+    const browseFolderCreate = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            let dir = req.query.path || req.body.path;
+            let name = req.query.name || req.body.name;
+            if (!name || typeof name !== 'string' || name.length > 40 || !name.match(/^[a-zA-Z0-9_\-\.;\s]+$/)) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            if (!dir || typeof dir !== 'string' || !checkDirectory(dir)) {
+                dir = '/';
+            } else {
+                dir = dir.trim();
+            }
+            let dirArr = [__dirname, 'static', 'storage'].concat(dir.split('/'));
+            let browsePath = path.join(...dirArr);
+            try {
+                await fs.access(browsePath, fs.constants.F_OK);
+            } catch (e) {
+                return res.send(JSON.stringify({
+                    status: -1
+                }));
+            }
+            await fs.mkdir(path.join(browsePath, name));
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
+    const browseRename = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            let dir = req.query.path || req.body.path;
+            let nameOld = req.query.nameOld || req.body.nameOld;
+            let nameNew = req.query.nameNew || req.body.nameNew;
+            if (!nameOld || typeof nameOld !== 'string' || nameOld.length > 40 || !nameOld.match(/^[a-zA-Z0-9_\-\.;\s]+$/) ||
+                !nameNew || typeof nameNew !== 'string' || nameNew.length > 40 || !nameNew.match(/^[a-zA-Z0-9_\-\.;\s]+$/)) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            if (!dir || typeof dir !== 'string' || !checkDirectory(dir)) {
+                dir = '/';
+            } else {
+                dir = dir.trim();
+            }
+            let dirArr = [__dirname, 'static', 'storage'].concat(dir.split('/'));
+            let browsePath = path.join(...dirArr);
+            try {
+                await fs.access(browsePath, fs.constants.F_OK);
+            } catch (e) {
+                return res.send(JSON.stringify({
+                    status: -1
+                }));
+            }
+            await fs.rename(path.join(browsePath, nameOld), path.join(browsePath, nameNew));
+            try {
+                await fs.rename(path.join(browsePath, '___tn_' + nameOld), path.join(browsePath, '___tn_' + nameNew));
+            } catch (e) {}
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
+    const browseDelete = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            let dir = req.query.path || req.body.path;
+            let files = req.query.files || req.body.files;
+            if (!files || typeof files != 'object') {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            for (let i in files) {
+                let file = files[i];
+                if (!file || typeof file !== 'string' || file.length > 40 || !file.match(/^[a-zA-Z0-9_\-\.;\s]+$/)) {
+                    return res.send(JSON.stringify({
+                        status: 0
+                    }));
+                }
+            }
+            if (!dir || typeof dir !== 'string' || !checkDirectory(dir)) {
+                dir = '/';
+            } else {
+                dir = dir.trim();
+            }
+            let dirArr = [__dirname, 'static', 'storage'].concat(dir.split('/'));
+            let browsePath = path.join(...dirArr);
+            try {
+                await fs.access(browsePath, fs.constants.F_OK);
+            } catch (e) {
+                return res.send(JSON.stringify({
+                    status: -1
+                }));
+            }
+            for (let i in files) {
+                let file = files[i];
+                await fs.remove(path.join(browsePath, file));
+            }
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
+    const browsePaste = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            let dirSrc = req.query.pathSource || req.body.pathSource;
+            let dirDest = req.query.pathDestination || req.body.pathDestination;
+            let files = req.query.files || req.body.files;
+            let operation = req.query.operation || req.body.operation;
+            if (operation !== 'cut') {
+                operation = 'copy';
+            }
+            if (!files || typeof files != 'object') {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            for (let i in files) {
+                let file = files[i];
+                if (!file || typeof file !== 'string' || file.length > 40 || !file.match(/^[a-zA-Z0-9_\-\.;х]+$/)) {
+                    return res.send(JSON.stringify({
+                        status: 0,
+                        file: file,
+                        match: file.match(/^[a-zA-Z0-9_\-\.;\s]+$/)
+                    }));
+                }
+            }
+            if (!dirSrc || typeof dirSrc !== 'string' || !checkDirectory(dirSrc)) {
+                dirSrc = '';
+            }
+            if (!dirDest || typeof dirDest !== 'string' || !checkDirectory(dirDest)) {
+                dirDest = '';
+            } else {
+                dirSrc = dirSrc.trim();
+                dirDest = dirDest.trim();
+            }
+            let dirSrcArr = [__dirname, 'static', 'storage'].concat(dirSrc.split('/'));
+            let dirDestArr = [__dirname, 'static', 'storage'].concat(dirDest.split('/'));
+            let browseSrcPath = path.join(...dirSrcArr);
+            let browseDestPath = path.join(...dirDestArr);
+            try {
+                await fs.access(browseSrcPath, fs.constants.F_OK);
+                await fs.access(browseDestPath, fs.constants.F_OK);
+            } catch (e) {
+                return res.send(JSON.stringify({
+                    status: -1
+                }));
+            }
+            for (let i in files) {
+                let file = files[i];
+                if (operation === 'copy') {
+                    await fs.copy(path.join(browseSrcPath, file), path.join(browseDestPath, file));
+                    try {
+                        await fs.copy(path.join(browseSrcPath, '___tn_' + file), path.join(browseDestPath, '___tn_' + file));
+                    } catch (e) {}
+                } else {
+                    await fs.move(path.join(browseSrcPath, file), path.join(browseDestPath, file), { overwrite: true });
+                    try {
+                        await fs.move(path.join(browseSrcPath, '___tn_' + file), path.join(browseDestPath, '___tn_' + file), { overwrite: true });
+                    } catch (e) {}
+                }
+            }
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
             return res.send(JSON.stringify({
                 status: 0
             }));
@@ -343,6 +568,10 @@ module.exports = function(app) {
     router.post('/delete', del);
     router.post('/folders', folders);
     router.all('/browse/list', browseList);
+    router.all('/browse/folder/create', browseFolderCreate);
+    router.all('/browse/rename', browseRename);
+    router.all('/browse/delete', browseDelete);
+    router.all('/browse/paste', browsePaste);
 
     return {
         routes: router

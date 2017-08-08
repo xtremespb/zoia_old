@@ -52,5 +52,20 @@
 	"Optional, max. 128 characters": "Optional, max. 128 characters",
 	"Content": "Content",
 	"Zoia": "Zoia",
-	"Log out": "Log out"
+	"Log out": "Log out",
+	"Could not get directory content": "Could not get directory content",
+	"Directory doesn't exists": "Directory doesn't exists",
+	"OK": "OK",
+	"New folder": "New folder",
+	"Error while creating new folder": "Error while creating new folder",
+	"Invalid name, please use latin characters and numbers only": "Invalid name, please use latin characters and numbers only",
+	"Rename": "Rename",
+	"Could not rename selected file": "Could not rename selected file",
+	"You are going to delete the following file(s)": "You are going to delete the following file(s)",
+	"Error while deleting one or more files": "Error while deleting one or more files",
+	"Cannot paste files to the same directory": "Cannot paste files to the same directory",
+	"Cannot paste one or more files": "Cannot paste one or more files",
+	"Upload file(s)": "Upload file(s)",
+	"Upload": "Upload",
+	"Drag files or click here to upload": "Drag files or click here to upload"
 }
