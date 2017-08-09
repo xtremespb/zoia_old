@@ -9,6 +9,7 @@ let clipboardDir;
 let clipboardData;
 let clipboardOperation;
 let uploader;
+let uploadFailed;
 
 const templates = {
     'd': '<div class="zoia-browse-item zoia-browse-item-d" data="{filename}"><div class="zoia-browse-item-img za-flex za-flex-center za-flex-middle"><span za-icon="icon:folder;ratio:2"></span></div><div class="zoia-browse-item-text"{tooltip}>{filename}</div></div>',
@@ -77,7 +78,7 @@ const btnRenameHandler = (name) => {
 
 const btnCutCopyHandler = () => {
     const selection = $('#zoia-browse-content').getSelected('zoia-browse-item-selected');
-    if (!selection) {
+    if (!selection  || selection.length === 0) {
         return false;
     }
     $('.zoia-browse-ctl-clipboard').removeClass('za-button-secondary');
@@ -138,7 +139,7 @@ const btnPasteHandler = () => {
 
 const btnDeleteHandler = (name) => {
     const selection = $('#zoia-browse-content').getSelected('zoia-browse-item-selected');
-    if (!selection) {
+    if (!selection || selection.length === 0) {
         return;
     }
     $zUI.modal.confirm(lang['You are going to delete the following file(s)'] + ':<br><br>' + selection.join(', '), { labels: { ok: lang['OK'], cancel: lang['Cancel'] } }).then(function() {
@@ -254,6 +255,69 @@ const formSubmitHandler = () => {
     }
 };
 
+const uploadClearBtnHandler = () => {
+    uploader.splice(0);
+    $('#zoia-upload-files').html('').hide();
+};
+
+const uploadStartHandler = () => {
+    uploader.settings.multipart_params = {
+        dir: (historyDir.join('/') + '/' + currentDir).replace(/^\//, '')
+    };
+    uploadFailed = false;
+    uploader.start();
+};
+
+const initUploader = () => {
+    uploader = new plupload.Uploader({
+        browse_button: 'zoia-upload-area',
+        runtimes: 'html5,html4',
+        url: '/api/pages/browse/upload',
+        drop_element: 'zoia-upload-area',
+        filters: {
+            max_file_size: '100mb',
+        }
+    });
+    uploader.init();
+    uploader.bind('FilesAdded', function(up, files) {
+        var html = '';
+        plupload.each(files, function(file) {
+            html += '<div><div class="zoia-upload-files-label">' + file.name + '&nbsp;(' + plupload.formatSize(file.size) + ')</div><progress id="' + file.id + '" class="za-progress" value="0" max="100"></progress></div>';
+        });
+        $('#zoia-upload-files').html(html);
+        $('#zoia-upload-files').show();
+    });
+    uploader.bind('Error', function(up, err) {
+        $zUI.notification(lang['Cannot upload'] + ': ' + file.name, {
+            status: 'danger',
+            timeout: 1500
+        });
+    });
+    uploader.bind('UploadProgress', function(up, file) {
+        $('#' + file.id).attr('value', file.percent);
+    });
+    uploader.bind('FileUploaded', function(upldr, file, object) {
+        try {
+            let res = JSON.parse(object.response);
+            if (res.status !== 1) {
+                uploadFailed = true;
+                $zUI.notification(lang['Cannot upload'] + ': ' + file.name, {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            } else {
+                $('#' + file.id).parent().remove();
+            }
+        } catch (e) {}
+    });
+    uploader.bind('UploadComplete', function() {
+        if (!uploadFailed) {
+            uploadDialog.hide();
+        }
+        load();
+    });
+};
+
 const load = () => {
     spinnerDialog.show();
     $('#zoia-browse-content').html('');
@@ -296,6 +360,9 @@ const load = () => {
                     tooltip: tooltip,
                     innerContent: innerContent
                 });
+            }
+            if (!res.files || !res.files.length) {
+                html = '<div style="padding: 20px 0 0 25px">' + lang['No files to display'] + '</div>';
             }
             $('#zoia-browse-content').html(html);
             $('.zoia-browse-item').dblclick(dblClickHandler);
@@ -357,6 +424,9 @@ $(document).ready(() => {
     $('.zoia-browse-ctl-newdir').click(btnNewDirHandler);
     $('.zoia-browse-ctl-delete').click(btnDeleteHandler);
     $('.zoia-browse-ctl-upload').click(() => {
+        uploadFailed = false;
+        uploader.splice(0);
+        $('#zoia-upload-files').html('').hide();
         uploadDialog.show();
     });
     $('.zoia-browse-ctl-refresh').click(load);
@@ -386,19 +456,8 @@ $(document).ready(() => {
         e.preventDefault();
         formSubmitHandler();
     });
-    uploader = new plupload.Uploader({
-        browse_button: 'zoia-upload-area',
-        url: 'upload.php'
-    });
-    uploader.init();
-    uploader.bind('FilesAdded', function(up, files) {
-        var html = '';
-        plupload.each(files, function(file) {
-            html += '<div><div class="zoia-upload-files-label">' + file.name + '&nbsp;(' + plupload.formatSize(file.size) + ')</div><progress id="' + file.id + '" class="za-progress" value="0" max="100"></progress></div>';
-        });
-        $('#zoia-upload-files').html(html);
-        $('#zoia-upload-files').show();
-    });
-    console.log(uploader);
+    $('#btnUploadClear').click(uploadClearBtnHandler);
+    $('#btnUpload').click(uploadStartHandler);
+    initUploader();
     load();
 });

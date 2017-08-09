@@ -4,7 +4,7 @@ const log = require('loglevel');
 const logprefix = require('loglevel-prefix');
 const path = require('path');
 const config = require(path.join(__dirname, '..', 'etc', 'config.js'));
-
+const fileUpload = require('express-fileupload');
 
 // Log settings
 logprefix(log, config.logOptions);
@@ -28,7 +28,7 @@ const fs = require('fs');
         await db.connect();
         app.set('db', db.get());
         // Init parsers and other stuff
-        app.use(bodyParser.json(), bodyParser.urlencoded({ extended: true }), cookieParser(), express.static(path.join(__dirname, '..', 'static')));
+        app.use(bodyParser.json(), bodyParser.urlencoded({ extended: true }), cookieParser(), fileUpload(), express.static(path.join(__dirname, '..', 'static')));
         // Load preroutes
         const preroutes = new(require(path.join(__dirname, 'preroutes.js')))(app);
         for (let key of Object.keys(preroutes)) {

@@ -12,7 +12,8 @@ body {
     text-align: center;
 }
 
-.za-button-group {
+.za-button-group,
+.za-modal-close {
     margin-right: 5px;
 }
 

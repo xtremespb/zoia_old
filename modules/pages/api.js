@@ -7,6 +7,8 @@ const pagesFields = require(path.join(__dirname, 'schemas', 'pagesFields.js'));
 const crypto = require('crypto');
 const config = require(path.join(__dirname, '..', '..', 'etc', 'config.js'));
 const fs = require('fs-extra');
+const Jimp = require('jimp');
+const imageType = require('image-type');
 
 module.exports = function(app) {
     const log = app.get('log');
@@ -272,10 +274,20 @@ module.exports = function(app) {
         }
     };
 
-    const checkDirectory = (_fn) => {
-        if (!_fn || typeof _fn !== 'string') return true;
-        const fn = _fn.trim();
-        if (fn.length > 40 || fn.match(/^\./) || fn.match(/^\\/) || fn.match(/^[\^<>\:\"\\\|\?\*\x00-\x1f]+$/)) return false;
+    const checkDirectory = (fn) => {
+        if (!fn || typeof fn !== 'string') {
+            return true;
+        }
+        if (fn.length > 40 || fn.match(/^\./) || fn.match(/^\\/) || fn.match(/^[\^<>\:\"\\\|\?\*\x00-\x1f]+$/)) {
+            return false;
+        }
+        return true;
+    };
+
+    const checkFilename = function(fn) {
+        if (!fn || typeof fn !== 'string' || fn.length > 80 || fn.match(/^\./) || fn.match(/^[\^<>\:\"\/\\\|\?\*\x00-\x1f\~]+$/)) {
+            return false;
+        }
         return true;
     };
 
@@ -401,8 +413,8 @@ module.exports = function(app) {
             let dir = req.query.path || req.body.path;
             let nameOld = req.query.nameOld || req.body.nameOld;
             let nameNew = req.query.nameNew || req.body.nameNew;
-            if (!nameOld || typeof nameOld !== 'string' || nameOld.length > 40 || !nameOld.match(/^[a-zA-Z0-9_\-\.;\s]+$/) ||
-                !nameNew || typeof nameNew !== 'string' || nameNew.length > 40 || !nameNew.match(/^[a-zA-Z0-9_\-\.;\s]+$/)) {
+            if (!checkFilename(nameOld) ||
+                !checkFilename(nameNew)) {
                 return res.send(JSON.stringify({
                     status: 0
                 }));
@@ -452,7 +464,7 @@ module.exports = function(app) {
             }
             for (let i in files) {
                 let file = files[i];
-                if (!file || typeof file !== 'string' || file.length > 40 || !file.match(/^[a-zA-Z0-9_\-\.;\s]+$/)) {
+                if (!checkFilename(file)) {
                     return res.send(JSON.stringify({
                         status: 0
                     }));
@@ -561,6 +573,63 @@ module.exports = function(app) {
         }
     };
 
+    const _buf = (image) => {
+        return new Promise(function(resolve) {
+            image.getBuffer(Jimp.MIME_PNG, function(err, buf) {
+                resolve(buf);
+            });
+        });
+    };
+
+    const browseUpload = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        if (!req.files || !req.files.file || req.files.file.data.length > config.maxUploadSizeMB * 1048576 || !checkFilename(req.files.file.name)) {
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+        let file = req.files.file;
+        let dir = req.body.dir;
+        if (!checkDirectory(dir)) {
+            return res.send(JSON.stringify({
+                status: -2
+            }));
+        }
+        let dirArr = [__dirname, 'static', 'storage'].concat(dir.split('/'));
+        let browsePath = path.join(...dirArr);
+        try {
+            await fs.access(browsePath, fs.constants.F_OK);
+            let imgType = imageType(req.files.file.data);
+            if (imgType && (imgType.ext === 'png' || imgType.ext === 'jpg' || imgType.ext === 'jpeg' || imgType.ext === 'bmp')) {
+                try {
+                    let img = await Jimp.read(req.files.file.data);
+                    if (img) {
+                        img.cover(80, 80, Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE);
+                        img.quality(60);
+                        let buf = await _buf(img);
+                        if (buf) {
+                            await fs.writeFile(path.join(browsePath, '___tn_' + req.files.file.name), buf);
+                        }
+                    }
+                } catch (e) {
+                }
+            }
+            await fs.writeFile(path.join(browsePath, req.files.file.name), req.files.file.data);
+        } catch (e) {
+            return res.send(JSON.stringify({
+                status: -3
+            }));
+        }
+        return res.send(JSON.stringify({
+            status: 1
+        }));
+    }
+
     let router = Router();
     router.get('/list', list);
     router.get('/load', load);
@@ -572,6 +641,7 @@ module.exports = function(app) {
     router.all('/browse/rename', browseRename);
     router.all('/browse/delete', browseDelete);
     router.all('/browse/paste', browsePaste);
+    router.all('/browse/upload', browseUpload);
 
     return {
         routes: router

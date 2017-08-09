@@ -9,6 +9,7 @@ module.exports = {
     trustProxy: true,
     stackTrace: false,
     logLevel: 'info',
+    maxUploadSizeMB: 100,
     logOptions: {
         template: '%t [%l]',
         timestampFormatter: date => date.toLocaleDateString() + ' ' + date.toLocaleTimeString(),

@@ -70,7 +70,7 @@
         </div>
     </div>
     <div id="zoiaUploadDialog" style="display:none">
-        <div class="za-modal-dialog">
+        <div class="za-modal-dialog" za-overflow-auto>
             <div class="za-modal-header">
                 <h2 class="za-modal-title">{{ i18n.__(locale, 'Upload file(s)')}}</h2>
             </div>
@@ -80,6 +80,7 @@
             </div>
             <div class="za-modal-footer za-text-right">
                 <button class="za-button za-button-default za-modal-close" type="button">{{ i18n.__(locale, 'Cancel')}}</button>
+                <button class="za-button za-button-default" id="btnUploadClear" type="button">{{ i18n.__(locale, 'Clear')}}</button>
                 <button class="za-button za-button-primary" type="button" id="btnUpload">{{ i18n.__(locale, 'Upload')}}</button>
             </div>
         </div>

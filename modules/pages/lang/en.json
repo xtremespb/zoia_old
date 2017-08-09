@@ -67,5 +67,8 @@
 	"Cannot paste one or more files": "Cannot paste one or more files",
 	"Upload file(s)": "Upload file(s)",
 	"Upload": "Upload",
-	"Drag files or click here to upload": "Drag files or click here to upload"
+	"Drag files or click here to upload": "Drag files or click here to upload",
+	"Clear": "Clear",
+    "Cannot upload": "Cannot upload",
+    "No files to display": "No files to display"
 }
