@@ -17,7 +17,7 @@ body {
     margin-right: 5px;
 }
 
-.zoia-browse-content {
+#zoia-browse-content {
     overflow: auto;
 }
 
