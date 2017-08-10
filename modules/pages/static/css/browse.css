@@ -19,6 +19,7 @@ body {
 
 #zoia-browse-content {
     overflow: auto;
+    padding: 7px;
 }
 
 .zoia-browse-item {
@@ -119,4 +120,17 @@ body {
     margin-bottom: -15px;
     font-size: 11px;
     color: #222;
+}
+
+.zoia-browse-footer {
+    padding: 20px;
+    text-align: right;
+}
+
+#zoiaBrowseCancelBtn {
+    margin-right: 5px;
+}
+
+#zoiaSpinnerDialog.za-modal {
+    background: rgba(255, 255, 255, .6);
 }

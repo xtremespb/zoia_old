@@ -28,17 +28,21 @@
             </div>
         </div>
         <div id="zoia-browse-content" class="za-flex za-flex-wrap za-flex-wrap-top"></div>
-        <div class="zoia-browse-footer">3</div>
+        <div class="zoia-browse-footer">
+            <button class="za-button za-button-default" id="zoiaBrowseCancelBtn">{{ i18n.__(locale, 'Cancel')}}</button>
+            <button class="za-button za-button-primary zoia-browse-ctl-button" id="zoiaBrowseSelectBtn">{{ i18n.__(locale, 'Select')}}</button>
+        </div>
     </div>
     <script src="/zoia/3rdparty/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="/zoia/3rdparty/jquery/jquery.shifty.js" type="text/javascript"></script>
+    <script src="/zoia/3rdparty/jquery/jquery.finger.min.js" type="text/javascript"></script>
     <script src="/zoia/3rdparty/uikit/js/uikit.min.js" type="text/javascript"></script>
     <script src="/zoia/3rdparty/uikit/js/uikit-icons.min.js" type="text/javascript"></script>
     <script src="/zoia/3rdparty/plupload/plupload.min.js" type="text/javascript"></script>
     <script type="text/javascript">
     var lang = {{ lang }};
     var browseContentSize = function() {
-        $('#zoia-browse-content').height($(window).height() - $('.zoia-browse-control').height() - $('.zoia-browse-footer').height() - 31);
+        $('#zoia-browse-content').height($(window).height() - $('.zoia-browse-control').height() - $('.zoia-browse-footer').innerHeight() - 44);
     };
     $(window).resize(function() {
         browseContentSize();
@@ -47,7 +51,7 @@
     </script>
     <div id="zoiaSpinnerDialog" class="za-flex-top" style="display:none">
         <div class="za-margin-auto-vertical zoia-spinner-dialog">
-            <span za-spinner style="color:#fff"></span>
+            <span za-spinner></span>
         </div>
     </div>
     <div id="zoiaFileDialog" style="display:none">

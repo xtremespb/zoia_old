@@ -26,15 +26,11 @@ const template = (s, d) => {
 
 const shiftySelectHandler = () => {
     const selection = $('#zoia-browse-content').getSelected('zoia-browse-item-selected');
+    setButtonsState();
 };
 
 var shiftyUnselectHandler = function() {
     const selection = $('#zoia-browse-content').getSelected('zoia-browse-item-selected');
-};
-
-const shiftyHandler = () => {
-    shiftySelectHandler();
-    shiftyUnselectHandler();
 };
 
 const dblClickHandler = function() {
@@ -46,6 +42,7 @@ const dblClickHandler = function() {
     }
     currentDir = $(this).attr('data');
     load();
+    setButtonsState();
 };
 
 const btnUpHandler = (e) => {
@@ -57,6 +54,7 @@ const btnUpHandler = (e) => {
         currentDir = historyDir.pop();
     }
     load();
+    setButtonsState();
 };
 
 const btnNewDirHandler = () => {
@@ -78,7 +76,7 @@ const btnRenameHandler = (name) => {
 
 const btnCutCopyHandler = () => {
     const selection = $('#zoia-browse-content').getSelected('zoia-browse-item-selected');
-    if (!selection  || selection.length === 0) {
+    if (!selection || selection.length === 0) {
         return false;
     }
     $('.zoia-browse-ctl-clipboard').removeClass('za-button-secondary');
@@ -318,6 +316,27 @@ const initUploader = () => {
     });
 };
 
+const setButtonsState = () => {
+    $('.zoia-browse-ctl-button').attr('disabled', true);
+    $('.zoia-browse-ctl-refresh, .zoia-browse-ctl-upload, .zoia-browse-ctl-newdir').attr('disabled', false);
+    const selection = $('#zoia-browse-content').getSelected('zoia-browse-item-selected');
+    if (selection.length) {
+        if (selection.length === 1) {
+            $('.zoia-browse-ctl-rename').attr('disabled', false);
+            if ($('.zoia-browse-item[data="' + selection[0] + '"]').hasClass('zoia-browse-item-f')) {
+                $('#zoiaBrowseSelectBtn').attr('disabled', false);
+            }
+        }
+        $('.zoia-browse-ctl-delete, .zoia-browse-ctl-cut, .zoia-browse-ctl-copy').attr('disabled', false);
+    }
+    if (clipboardOperation) {
+        $('.zoia-browse-ctl-paste').attr('disabled', false);
+    }
+    if (currentDir) {
+        $('.zoia-browse-ctl-up').attr('disabled', false);
+    }
+};
+
 const load = () => {
     spinnerDialog.show();
     $('#zoia-browse-content').html('');
@@ -362,10 +381,11 @@ const load = () => {
                 });
             }
             if (!res.files || !res.files.length) {
-                html = '<div style="padding: 20px 0 0 25px">' + lang['No files to display'] + '</div>';
+                html = '<div style="padding-left:15px">' + lang['No files to display'] + '</div>';
             }
             $('#zoia-browse-content').html(html);
             $('.zoia-browse-item').dblclick(dblClickHandler);
+            $('.zoia-browse-item').on('doubletap', dblClickHandler);
             $('.zoia-browse-item').shifty({
                 className: 'zoia-browse-item-selected',
                 select: function(el) {
@@ -418,6 +438,7 @@ $(document).ready(() => {
     $('#zoia-browse-content').click(function(e) {
         if (e.target.id === "zoia-browse-content") {
             $('.zoia-browse-item').removeClass('zoia-browse-item-selected');
+            setButtonsState();
         }
     });
     $('.zoia-browse-ctl-up').click(btnUpHandler);
@@ -435,6 +456,7 @@ $(document).ready(() => {
             return;
         }
         clipboardOperation = 'copy';
+        setButtonsState();
         $('.zoia-browse-ctl-copy').addClass('za-button-secondary');
     });
     $('.zoia-browse-ctl-cut').click(() => {
@@ -442,6 +464,7 @@ $(document).ready(() => {
             return;
         }
         clipboardOperation = 'cut';
+        setButtonsState();
         $('.zoia-browse-ctl-cut').addClass('za-button-secondary');
     });
     $('.zoia-browse-ctl-paste').click(btnPasteHandler);
@@ -460,4 +483,5 @@ $(document).ready(() => {
     $('#btnUpload').click(uploadStartHandler);
     initUploader();
     load();
+    setButtonsState();
 });
