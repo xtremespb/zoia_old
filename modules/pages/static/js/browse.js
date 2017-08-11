@@ -1,3 +1,5 @@
+/* eslint no-undef: 0 */
+/* eslint no-use-before-define: 0 */
 let currentDir = '';
 let historyDir = [];
 let spinnerDialog;
@@ -12,9 +14,9 @@ let uploader;
 let uploadFailed;
 
 const templates = {
-    'd': '<div class="zoia-browse-item zoia-browse-item-d" data="{filename}"><div class="zoia-browse-item-img za-flex za-flex-center za-flex-middle"><span za-icon="icon:folder;ratio:2"></span></div><div class="zoia-browse-item-text"{tooltip}>{filename}</div></div>',
-    'f': '<div class="zoia-browse-item zoia-browse-item-f" data="{filename}"><div class="zoia-browse-item-img za-flex za-flex-center za-flex-middle">{innerContent}</div><div class="zoia-browse-item-text"{tooltip}>{filename}</div></div>',
-    'o': ''
+    d: '<div class="zoia-browse-item zoia-browse-item-d" data="{filename}"><div class="zoia-browse-item-img za-flex za-flex-center za-flex-middle"><span za-icon="icon:folder;ratio:2"></span></div><div class="zoia-browse-item-text"{tooltip}>{filename}</div></div>',
+    f: '<div class="zoia-browse-item zoia-browse-item-f" data="{filename}"><div class="zoia-browse-item-img za-flex za-flex-center za-flex-middle">{innerContent}</div><div class="zoia-browse-item-text"{tooltip}>{filename}</div></div>',
+    o: ''
 };
 
 const template = (s, d) => {
@@ -24,13 +26,113 @@ const template = (s, d) => {
     return s;
 };
 
-const shiftySelectHandler = () => {
+const setButtonsState = () => {
+    $('.zoia-browse-ctl-button').attr('disabled', true);
+    $('.zoia-browse-ctl-refresh, .zoia-browse-ctl-upload, .zoia-browse-ctl-newdir').attr('disabled', false);
     const selection = $('#zoia-browse-content').getSelected('zoia-browse-item-selected');
+    if (selection.length) {
+        if (selection.length === 1) {
+            $('.zoia-browse-ctl-rename').attr('disabled', false);
+            if ($('.zoia-browse-item[data="' + selection[0] + '"]').hasClass('zoia-browse-item-f')) {
+                $('#zoiaBrowseSelectBtn').attr('disabled', false);
+            }
+        }
+        $('.zoia-browse-ctl-delete, .zoia-browse-ctl-cut, .zoia-browse-ctl-copy').attr('disabled', false);
+    }
+    if (clipboardOperation) {
+        $('.zoia-browse-ctl-paste').attr('disabled', false);
+    }
+    if (currentDir) {
+        $('.zoia-browse-ctl-up').attr('disabled', false);
+    }
+};
+
+const shiftySelectHandler = () => {
     setButtonsState();
 };
 
-var shiftyUnselectHandler = function() {
-    const selection = $('#zoia-browse-content').getSelected('zoia-browse-item-selected');
+const shiftyUnselectHandler = function() {};
+
+const load = () => {
+    spinnerDialog.show();
+    $('#zoia-browse-content').html('');
+    $.ajax({
+        type: 'POST',
+        url: '/api/pages/browse/list',
+        data: {
+            path: (historyDir.join('/') + '/' + currentDir).replace(/^\//, '')
+        },
+        cache: false
+    }).done((res) => {
+        spinnerDialog.hide();
+        if (res.status === 1) {
+            let html = '';
+            for (let i in res.files) {
+                let item = res.files[i];
+                let tooltip = '';
+                if (item.filename.length > 14) {
+                    tooltip = ' title="' + item.filename + '" za-tooltip="delay:300"';
+                }
+                let innerContent = '';
+                if (item.ext && !item.thumb) {
+                    switch (item.ext) {
+                        case 'jpg':
+                        case 'jpeg':
+                        case 'gif':
+                        case 'png':
+                            innerContent = '<span za-icon="icon:image;ratio:2">';
+                            break;
+                        default:
+                            innerContent = '<span za-icon="icon:file;ratio:2">';
+                    }
+                }
+                if (item.thumb) {
+                    innerContent = '<img src="/pages/static/storage/' + (historyDir.join('/') + '/' + currentDir).replace(/^\//, '') + '/___tn_' + item.filename + '" class="zoia-browse-item-thumb">';
+                }
+                html += template(templates[item.type], {
+                    filename: item.filename,
+                    type: item.type,
+                    tooltip: tooltip,
+                    innerContent: innerContent
+                });
+            }
+            if (!res.files || !res.files.length) {
+                html = '<div style="padding-left:15px">' + lang['No files to display'] + '</div>';
+            }
+            $('#zoia-browse-content').html(html);
+            $('.zoia-browse-item').dblclick(dblClickHandler);
+            $('.zoia-browse-item').on('doubletap', dblClickHandler);
+            $('.zoia-browse-item').shifty({
+                className: 'zoia-browse-item-selected',
+                select: function() {
+                    shiftySelectHandler();
+                },
+                unselect: function() {
+                    shiftyUnselectHandler();
+                }
+            });
+        } else {
+            spinnerDialog.hide();
+            switch (res.status) {
+                case -1:
+                    $zUI.notification(lang['Directory doesn\'t exists'], {
+                        status: 'danger',
+                        timeout: 1500
+                    });
+                    break;
+                default:
+                    $zUI.notification(lang['Could not get directory content'], {
+                        status: 'danger',
+                        timeout: 1500
+                    });
+            }
+        }
+    }).fail(() => {
+        $zUI.notification(lang['Could not get directory content'], {
+            status: 'danger',
+            timeout: 1500
+        });
+    });
 };
 
 const dblClickHandler = function() {
@@ -122,7 +224,7 @@ const btnPasteHandler = () => {
                 timeout: 1500
             });
         }
-    }).fail((jqXHR, exception) => {
+    }).fail(() => {
         spinnerDialog.hide();
         $('.zoia-browse-ctl-clipboard').removeClass('za-button-secondary');
         clipboardData = undefined;
@@ -135,7 +237,7 @@ const btnPasteHandler = () => {
     });
 };
 
-const btnDeleteHandler = (name) => {
+const btnDeleteHandler = () => {
     const selection = $('#zoia-browse-content').getSelected('zoia-browse-item-selected');
     if (!selection || selection.length === 0) {
         return;
@@ -163,7 +265,7 @@ const btnDeleteHandler = (name) => {
                     timeout: 1500
                 });
             }
-        }).fail((jqXHR, exception) => {
+        }).fail(() => {
             spinnerDialog.hide();
             $zUI.notification(lang['Error while deleting one or more files'], {
                 status: 'danger',
@@ -208,7 +310,7 @@ const formSubmitHandler = () => {
                         timeout: 1500
                     });
                 }
-            }).fail((jqXHR, exception) => {
+            }).fail(() => {
                 spinnerDialog.hide();
                 $zUI.notification(lang['Error while creating new folder'], {
                     status: 'danger',
@@ -242,7 +344,7 @@ const formSubmitHandler = () => {
                         timeout: 1500
                     });
                 }
-            }).fail((jqXHR, exception) => {
+            }).fail(() => {
                 spinnerDialog.hide();
                 $zUI.notification(lang['Could not rename selected file'], {
                     status: 'danger',
@@ -250,6 +352,8 @@ const formSubmitHandler = () => {
                 });
             });
             break;
+        default:
+            // Do nothing
     }
 };
 
@@ -273,19 +377,19 @@ const initUploader = () => {
         url: '/api/pages/browse/upload',
         drop_element: 'zoia-upload-area',
         filters: {
-            max_file_size: '100mb',
+            max_file_size: '100mb'
         }
     });
     uploader.init();
     uploader.bind('FilesAdded', function(up, files) {
-        var html = '';
+        let html = '';
         plupload.each(files, function(file) {
             html += '<div><div class="zoia-upload-files-label">' + file.name + '&nbsp;(' + plupload.formatSize(file.size) + ')</div><progress id="' + file.id + '" class="za-progress" value="0" max="100"></progress></div>';
         });
         $('#zoia-upload-files').html(html);
         $('#zoia-upload-files').show();
     });
-    uploader.bind('Error', function(up, err) {
+    uploader.bind('Error', function() {
         $zUI.notification(lang['Cannot upload'] + ': ' + file.name, {
             status: 'danger',
             timeout: 1500
@@ -306,7 +410,9 @@ const initUploader = () => {
             } else {
                 $('#' + file.id).parent().remove();
             }
-        } catch (e) {}
+        } catch (e) {
+            // Ignore
+        }
     });
     uploader.bind('UploadComplete', function() {
         if (!uploadFailed) {
@@ -316,107 +422,10 @@ const initUploader = () => {
     });
 };
 
-const setButtonsState = () => {
-    $('.zoia-browse-ctl-button').attr('disabled', true);
-    $('.zoia-browse-ctl-refresh, .zoia-browse-ctl-upload, .zoia-browse-ctl-newdir').attr('disabled', false);
-    const selection = $('#zoia-browse-content').getSelected('zoia-browse-item-selected');
-    if (selection.length) {
-        if (selection.length === 1) {
-            $('.zoia-browse-ctl-rename').attr('disabled', false);
-            if ($('.zoia-browse-item[data="' + selection[0] + '"]').hasClass('zoia-browse-item-f')) {
-                $('#zoiaBrowseSelectBtn').attr('disabled', false);
-            }
-        }
-        $('.zoia-browse-ctl-delete, .zoia-browse-ctl-cut, .zoia-browse-ctl-copy').attr('disabled', false);
-    }
-    if (clipboardOperation) {
-        $('.zoia-browse-ctl-paste').attr('disabled', false);
-    }
-    if (currentDir) {
-        $('.zoia-browse-ctl-up').attr('disabled', false);
-    }
-};
-
-const load = () => {
-    spinnerDialog.show();
-    $('#zoia-browse-content').html('');
-    $.ajax({
-        type: 'POST',
-        url: '/api/pages/browse/list',
-        data: {
-            path: (historyDir.join('/') + '/' + currentDir).replace(/^\//, '')
-        },
-        cache: false
-    }).done((res) => {
-        spinnerDialog.hide();
-        if (res.status === 1) {
-            let html = '';
-            for (let i in res.files) {
-                let item = res.files[i];
-                let tooltip = '';
-                if (item.filename.length > 14) {
-                    tooltip = ' title="' + item.filename + '" za-tooltip="delay:300"';
-                }
-                let innerContent = '';
-                if (item.ext && !item.thumb) {
-                    switch (item.ext) {
-                        case 'jpg':
-                        case 'jpeg':
-                        case 'gif':
-                        case 'png':
-                            innerContent = '<span za-icon="icon:image;ratio:2">';
-                            break;
-                        default:
-                            innerContent = '<span za-icon="icon:file;ratio:2">';
-                    }
-                }
-                if (item.thumb) {
-                    innerContent = '<img src="/pages/static/storage/' + (historyDir.join('/') + '/' + currentDir).replace(/^\//, '') + '/___tn_' + item.filename + '" class="zoia-browse-item-thumb">';
-                }
-                html += template(templates[item.type], {
-                    filename: item.filename,
-                    type: item.type,
-                    tooltip: tooltip,
-                    innerContent: innerContent
-                });
-            }
-            if (!res.files || !res.files.length) {
-                html = '<div style="padding-left:15px">' + lang['No files to display'] + '</div>';
-            }
-            $('#zoia-browse-content').html(html);
-            $('.zoia-browse-item').dblclick(dblClickHandler);
-            $('.zoia-browse-item').on('doubletap', dblClickHandler);
-            $('.zoia-browse-item').shifty({
-                className: 'zoia-browse-item-selected',
-                select: function(el) {
-                    shiftySelectHandler();
-                },
-                unselect: function(el) {
-                    shiftyUnselectHandler();
-                }
-            });
-        } else {
-            spinnerDialog.hide();
-            switch (res.status) {
-                case -1:
-                    $zUI.notification(lang['Directory doesn\'t exists'], {
-                        status: 'danger',
-                        timeout: 1500
-                    });
-                    break;
-                default:
-                    $zUI.notification(lang['Could not get directory content'], {
-                        status: 'danger',
-                        timeout: 1500
-                    });
-            }
-        }
-    }).fail((jqXHR, exception) => {
-        $zUI.notification(lang['Could not get directory content'], {
-            status: 'danger',
-            timeout: 1500
-        });
-    });
+const getUrlParam = (paramName) => {
+    let reParam = new RegExp('(?:[\?&]|&amp;)' + paramName + '=([^&]+)', 'i');
+    let match = window.location.search.match(reParam);
+    return (match && match.length > 1) ? match[1] : '';
 };
 
 $(document).ready(() => {
@@ -436,7 +445,7 @@ $(document).ready(() => {
         stack: true
     });
     $('#zoia-browse-content').click(function(e) {
-        if (e.target.id === "zoia-browse-content") {
+        if (e.target.id === 'zoia-browse-content') {
             $('.zoia-browse-item').removeClass('zoia-browse-item-selected');
             setButtonsState();
         }
@@ -481,6 +490,22 @@ $(document).ready(() => {
     });
     $('#btnUploadClear').click(uploadClearBtnHandler);
     $('#btnUpload').click(uploadStartHandler);
+    $('#zoiaBrowseCancelBtn').click(() => {
+        window.close();
+    });
+    $('#zoiaBrowseSelectBtn').click(() => {
+        const selection = $('#zoia-browse-content').getSelected('zoia-browse-item-selected');
+        if (selection.length && selection.length === 1 && $('.zoia-browse-item[data="' + selection[0] + '"]').hasClass('zoia-browse-item-f')) {
+            let url = (historyDir.join('/') + '/' + currentDir + '/' + selection[0]).replace(/\/\//gm, '');
+            if (url.charAt(0) !== '/') {
+                url = '/' + url;
+            }
+            url = '/pages/static/storage' + url;
+            let funcNum = getUrlParam('CKEditorFuncNum');
+            window.opener.CKEDITOR.tools.callFunction(funcNum, url);
+            window.close();
+        }
+    });
     initUploader();
     load();
     setButtonsState();

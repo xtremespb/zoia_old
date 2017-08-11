@@ -40,6 +40,18 @@
                     return item.trim();
                 }
             },
+            url: {
+                mandatoryCreate: false,
+                length: {
+                    min: 1,
+                    max: 64
+                },
+                type: 'string',
+                regexp: /^[A-Za-z0-9_\-\/]+/,
+                process: function(item) {
+                    return item.trim();
+                }
+            },
             status: {
                 mandatoryCreate: true,
                 length: {

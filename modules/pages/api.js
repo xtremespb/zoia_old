@@ -4,7 +4,6 @@ const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validat
 const Router = require('co-router');
 const ObjectID = require('mongodb').ObjectID;
 const pagesFields = require(path.join(__dirname, 'schemas', 'pagesFields.js'));
-const crypto = require('crypto');
 const config = require(path.join(__dirname, '..', '..', 'etc', 'config.js'));
 const fs = require('fs-extra');
 const Jimp = require('jimp');
@@ -13,7 +12,6 @@ const imageType = require('image-type');
 module.exports = function(app) {
     const log = app.get('log');
     const db = app.get('db');
-
     const sortFields = ['name', 'folder', 'title', 'status'];
 
     const list = async(req, res) => {
@@ -143,11 +141,9 @@ module.exports = function(app) {
                     status: 0
                 }));
             }
-            setTimeout(function() {
-                return res.send(JSON.stringify({
-                    status: 1
-                }));
-            }, 1000);
+            return res.send(JSON.stringify({
+                status: 1
+            }));
         } catch (e) {
             return res.send(JSON.stringify({
                 status: 0
@@ -188,8 +184,9 @@ module.exports = function(app) {
                         keywords: (fields.keywords ? fields.keywords.value : ''),
                         description: (fields.description ? fields.description.value : ''),
                         content: (fields.content ? fields.content.value : '')
-                    }
+                    };
                     data.folder = fields.folder.value;
+                    data.url = fields.url.value;
                     data.name = fields.name.value;
                     data.status = fields.status.value;
                 }
@@ -339,7 +336,9 @@ module.exports = function(app) {
                 try {
                     await fs.access(path.join(...dirArr, '___tn_' + filesData[f]), fs.constants.F_OK);
                     item.thumb = true;
-                } catch (e) {}
+                } catch (e) {
+                    // Ignore
+                }
                 files.push(item);
             }
             files.sort(function(a, b) {
@@ -436,7 +435,9 @@ module.exports = function(app) {
             await fs.rename(path.join(browsePath, nameOld), path.join(browsePath, nameNew));
             try {
                 await fs.rename(path.join(browsePath, '___tn_' + nameOld), path.join(browsePath, '___tn_' + nameNew));
-            } catch (e) {}
+            } catch (e) {
+                // Ignore
+            }
             return res.send(JSON.stringify({
                 status: 1
             }));
@@ -457,7 +458,7 @@ module.exports = function(app) {
         try {
             let dir = req.query.path || req.body.path;
             let files = req.query.files || req.body.files;
-            if (!files || typeof files != 'object') {
+            if (!files || typeof files !== 'object') {
                 return res.send(JSON.stringify({
                     status: 0
                 }));
@@ -513,7 +514,7 @@ module.exports = function(app) {
             if (operation !== 'cut') {
                 operation = 'copy';
             }
-            if (!files || typeof files != 'object') {
+            if (!files || typeof files !== 'object') {
                 return res.send(JSON.stringify({
                     status: 0
                 }));
@@ -555,12 +556,16 @@ module.exports = function(app) {
                     await fs.copy(path.join(browseSrcPath, file), path.join(browseDestPath, file));
                     try {
                         await fs.copy(path.join(browseSrcPath, '___tn_' + file), path.join(browseDestPath, '___tn_' + file));
-                    } catch (e) {}
+                    } catch (e) {
+                        // Ignore
+                    }
                 } else {
                     await fs.move(path.join(browseSrcPath, file), path.join(browseDestPath, file), { overwrite: true });
                     try {
                         await fs.move(path.join(browseSrcPath, '___tn_' + file), path.join(browseDestPath, '___tn_' + file), { overwrite: true });
-                    } catch (e) {}
+                    } catch (e) {
+                        // Ignore
+                    }
                 }
             }
             return res.send(JSON.stringify({
@@ -593,7 +598,6 @@ module.exports = function(app) {
                 status: -1
             }));
         }
-        let file = req.files.file;
         let dir = req.body.dir;
         if (!checkDirectory(dir)) {
             return res.send(JSON.stringify({
@@ -617,6 +621,7 @@ module.exports = function(app) {
                         }
                     }
                 } catch (e) {
+                    // Ignore
                 }
             }
             await fs.writeFile(path.join(browsePath, req.files.file.name), req.files.file.data);
@@ -628,7 +633,7 @@ module.exports = function(app) {
         return res.send(JSON.stringify({
             status: 1
         }));
-    }
+    };
 
     let router = Router();
     router.get('/list', list);
