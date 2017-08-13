@@ -7,6 +7,11 @@
     <title>{{ pageTitle }} | {{ config.website.title[locale] }}</title>
     <meta name="keywords" content="{{ keywords }}">
     <meta name="description" content="{{ description }}">
+    <style>
+    .za-navbar-dropdown {
+        border: 1px solid red;
+    }
+    </style>
     <link rel="stylesheet" href="/zoia/3rdparty/uikit/css/uikit.min.css" />{% if extraCSS %}{% for item in extraCSS %}
     <link rel="stylesheet" href="{{ item }}">{% endfor %}{% endif %}
 </head>
@@ -15,20 +20,7 @@
     <div class="za-container">
         <nav class="za-navbar-container" za-navbar="mode:click">
             <div class="za-navbar-left">
-                <ul class="za-navbar-nav">
-                    <li class="za-active"><a href="#">Active</a></li>
-                    <li>
-                        <a href="#">Parent</a>
-                        <div class="za-navbar-dropdown">
-                            <ul class="za-nav za-navbar-dropdown-nav">
-                                <li class="za-active"><a href="#">Active</a></li>
-                                <li><a href="#">Item</a></li>
-                                <li><a href="#">Item</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li><a href="#">Item</a></li>
-                </ul>
+                {{ 'en' | navigation }}
             </div>
         </nav>
         {{ content }}

@@ -2,6 +2,7 @@ const path = require('path');
 const config = require(path.join(__dirname, '..', 'etc', 'config.js'));
 const nunjucks = require('nunjucks');
 const fs = require('mz/fs');
+let filtersSet;
 
 module.exports = class Render {
     constructor(dir, filters, app) {
@@ -10,13 +11,21 @@ module.exports = class Render {
             this.env.opts.autoescape = false;
         }
         if (filters && this.env) {
-            Object.keys(filters).forEach(key => {
-                this.env.addFilter(key, filters[key], true);
-            });
+            for (let n in filters) {
+                this.env.addFilter(n, filters[n], true);
+            }
         }
         if (app) {
             this.app = app;
             this.log = app.get('log');
+        }
+    }
+    setFilters(filters) {
+        if (!filtersSet && filters && this.env) {
+            for (let n in filters) {
+                this.env.addFilter(n, filters[n], true);
+            }
+            filtersSet = true;
         }
     }
     _render(file, data) {

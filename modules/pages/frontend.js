@@ -4,11 +4,12 @@ const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
 
 module.exports = function(app) {
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
-    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), undefined, app);
+    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);    
     const db = app.get('db');
+    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), undefined, app);
 
-    const content = async(req, res, next) => {
+    const content = async(req, res, next) => {        
+        render.setFilters(app.get('templateFilters'));
         let locale = config.i18n.locales[0];
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;

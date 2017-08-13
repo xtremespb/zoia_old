@@ -25,6 +25,7 @@
     "loglevel": "^1.4.1",
     "loglevel-prefix": "^0.3.1",
     "mongodb": "^2.2.27",
+    "mz": "^2.6.0",
     "nodemailer": "^4.0.1",
     "nunjucks": "^3.0.1",
     "sprintf": "^0.1.5"

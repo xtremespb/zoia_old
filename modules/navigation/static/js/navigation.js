@@ -1,3 +1,4 @@
+/* eslint no-undef: 0 */
 let navigationDialog;
 let navigationEditDialog;
 let currentLanguage;
@@ -46,14 +47,13 @@ const navigationChangedHandler = (e, data) => {
 };
 
 const initNavigationTree = (data) => {
-    console.log('Init!');
     if (navigationTree) {
         navigationTree.jstree(true).destroy();
     }
     navigationTree = $('#zoia_navigation_tree').jstree({
         core: {
             check_callback: true,
-            data: { data: data }
+            data: data
         },
         plugins: ['dnd', 'unique', 'types'],
         types: {
@@ -62,10 +62,10 @@ const initNavigationTree = (data) => {
                 valid_children: ['root']
             },
             'root': {
-                valid_children: ['navigation']
+                valid_children: ['folder']
             },
-            'navigation': {
-                valid_children: ['navigation']
+            'folder': {
+                valid_children: ['folder']
             }
         }
     });
@@ -91,16 +91,14 @@ const serializeNavigation = () => {
         delete result[i].icon;
         delete result[i].state;
     }
+    if (result[0] && result[0].data) {
+        delete result[0].data;
+    }
     return result;
 };
 
 const saveNavigation = () => {
-    let sel = navigationTree.jstree(true).get_selected();
-    if (!sel || !sel.length) {
-        return;
-    }
     navigationData[currentLanguage] = serializeNavigation();
-    console.log(navigationData);
     navigationDialogSpinner(true);
     $.ajax({
         type: 'POST',
@@ -176,7 +174,6 @@ $(document).ready(() => {
                     navigationTree.jstree(true).get_node(cn).data.url = $('#editNavigationForm_url').val();
                     navigationTree.jstree(true).open_node(sel);
                     navigationEditDialog.hide();
-                    navigationModified = true;
                 }
                 return '__stop';
             }
@@ -244,6 +241,7 @@ $(document).ready(() => {
     $('.zoia-action-edit-btn').click(function() {
         currentLanguage = $(this).attr('data');
         initNavigationTree(navigationData[currentLanguage]);
+        $('#zoiaNavigationDialogTitle').html(langs[currentLanguage]);
         navigationDialog.show();
     });
     $('#zoiaNavigationAdd').click(() => {
@@ -274,7 +272,7 @@ $(document).ready(() => {
         navigationModified = true;
     });
     $('#zoiaNavigationRevert').click(() => {
-        initNavigationTree([{ id: 'j1_1', text: '/', data: null, parent: '#', type: 'root' }]);
+        initNavigationTree([{ id: 'j1_1', text: '/', data: { url: '/' }, parent: '#', type: 'root' }]);
     });
     $('#zoiaNavigationDialogButton').click(saveNavigation);
 });
