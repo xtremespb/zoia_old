@@ -4,16 +4,28 @@
         <div>
             <ul class="za-iconnav za-hidden@m">
                 <li>
-                    <button za-icon="icon: plus" class="za-icon-button zoiaAdd" title="{{ i18n.__(locale, 'Add')}}" za-tooltip="pos: bottom-right"></button>
+                    <button za-icon="icon:plus" class="za-icon-button zoiaAdd" title="{{ i18n.__(locale, 'Add')}}" za-tooltip="pos: bottom-right"></button>
                 </li>
                 <li>
-                    <button za-icon="icon: trash" class="za-icon-button zoiaDeleteButton" title="{{ i18n.__(locale, 'Delete')}}" za-tooltip="pos: bottom-right"></button>
+                    <button za-icon="icon:trash" class="za-icon-button zoiaDeleteButton" title="{{ i18n.__(locale, 'Delete')}}" za-tooltip="pos:bottom-right"></button>
                 </li>
                 <li>
-                    <button za-icon="icon: check" class="za-icon-button pagesBtnSelectAll" title="{{ i18n.__(locale, 'Select all')}}" za-tooltip="pos: bottom-right"></button>
+                    <button za-icon="icon:check" class="za-icon-button pagesBtnSelectAll" title="{{ i18n.__(locale, 'Select all')}}" za-tooltip="pos:bottom-right"></button>
                 </li>
                 <li>
-                    <button za-icon="icon: close" class="za-icon-button pagesBtnSelectNone" title="{{ i18n.__(locale, 'Select none')}}" za-tooltip="pos: bottom-right"></button>
+                    <button za-icon="icon:close" class="za-icon-button pagesBtnSelectNone" title="{{ i18n.__(locale, 'Select none')}}" za-tooltip="pos:bottom-right"></button>
+                </li>
+                <li>
+                    <div class="za-inline">
+                        <button za-icon="icon:cog" class="za-icon-button pagesBtnSettings" title="{{ i18n.__(locale, 'Settings')}}" za-tooltip="pos:bottom-right"></button>
+                        <div za-dropdown="mode:click">
+                            <div class="za-width-1-1">
+                                <ul class="za-nav za-nav-default zoia-nav-default">
+                                    <li><a href="#" class="pagesBtnRepair">{{ i18n.__(locale, 'Repair database')}}</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </li>
             </ul>
             <div class="za-button-group za-margin-right za-visible@m">
@@ -24,12 +36,30 @@
                 <button class="za-button za-button-default pagesBtnSelectAll">{{ i18n.__(locale, 'Select all')}}</button>
                 <button class="za-button za-button-default pagesBtnSelectNone">{{ i18n.__(locale, 'Select none')}}</button>
             </div>
+            <div class="za-button-group za-visible@m">
+                <div class="za-inline">
+                    <button class="za-button za-button-default pagesBtnSettings"><span za-icon="icon:cog"></span></button>
+                    <div za-dropdown="mode:click">
+                        <div class="za-width-1-1">
+                            <ul class="za-nav za-nav-default zoia-nav-default">
+                                <li><a href="#" class="pagesBtnRepair">{{ i18n.__(locale, 'Repair database')}}</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="za-width-expand">
+        <div class="za-width-expand za-visible@m">
             <div class="za-inline za-float-right">
                 <a class="za-form-icon za-form-icon-flip pagesSearchInputClear" za-icon="icon: close"></a>
                 <input type="text" class="pagesSearchInput za-input za-width-medium" placeholder="{{ i18n.__(locale, 'Search')}}">
             </div>
+        </div>
+    </div>
+    <div>
+        <div class="za-inline za-margin-top za-hidden@m">
+            <a class="za-form-icon za-form-icon-flip pagesSearchInputClear" za-icon="icon: close"></a>
+            <input type="text" class="pagesSearchInput za-input" placeholder="{{ i18n.__(locale, 'Search')}}">
         </div>
     </div>
     <div class="pagesPagination za-margin-top noselect"></div>
@@ -69,7 +99,7 @@
             <div class="za-button-group">
                 <button class="za-button za-button-default zoia-folders-btn" id="zoiaFoldersAdd"><span za-icon="icon:plus"></span></button>
                 <button class="za-button za-button-default zoia-folders-btn" id="zoiaFoldersEdit"><span za-icon="icon:pencil"></span></button>
-                <button class="za-button za-button-danger zoia-folders-btn" id="zoiaFoldersDelete"><span za-icon="icon:trash"></span></button>                
+                <button class="za-button za-button-danger zoia-folders-btn" id="zoiaFoldersDelete"><span za-icon="icon:trash"></span></button>
             </div>
             <div class="za-button-group">
                 <button class="za-button za-button-secondary zoia-folders-btn-revert" id="zoiaFoldersRevert"><span za-icon="icon:reply"></span></button>
@@ -80,6 +110,22 @@
             <button class="za-button za-button-default za-modal-close zoia-folders-dialog-button" type="button">{{ i18n.__(locale, 'Cancel')}}</button>
             <button class="za-button za-button-primary zoia-folders-dialog-button" id="zoiaFoldersDialogButton" type="button">{{ i18n.__(locale, 'Select')}}</button>
             <div za-spinner style="float:right;display:none" id="zoiaFoldersDialogSpinner"></div>
+        </div>
+    </div>
+</div>
+<div id="zoiaRepairDialog" style="display:none">
+    <div class="za-modal-dialog">
+        <div class="za-modal-header">
+            <h2>{{ i18n.__(locale, 'Repair database')}}</h2>
+        </div>
+        <div class="za-modal-body">
+            <p>{{ i18n.__(locale, 'Repair database and move missing items to the following folders')}}:</p>
+            <div id="zoia_repair_tree"></div>
+        </div>
+        <div class="za-modal-footer za-text-right">
+            <button class="za-button za-button-default za-modal-close zoia-repair-dialog-button" type="button">{{ i18n.__(locale, 'Cancel')}}</button>
+            <button class="za-button za-button-primary zoia-repair-dialog-button" id="zoiaRepairDialogButton" type="button">{{ i18n.__(locale, 'Select')}}</button>
+            <div za-spinner style="float:right;display:none" id="zoiaRepairDialogSpinner"></div>
         </div>
     </div>
 </div>

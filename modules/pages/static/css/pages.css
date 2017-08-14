@@ -56,14 +56,6 @@
     margin-right: 5px;
 }
 
-
-
-
-
-
-
-/* Module-specific styles */
-
 #pages_actions {
     width: 90px;
 }
@@ -133,4 +125,18 @@
     max-width: 120px;
     direction: rtl;
     text-align: left;
+}
+
+.pagesBtnSettings {
+	padding: 9px;
+}
+
+.zoia-nav-default > li {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.zoia-nav-default > li > a {
+	padding-left: 10px;
+	padding-right: 10px;
 }

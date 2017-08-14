@@ -4,9 +4,11 @@ let deleteDialog;
 let foldersDialog;
 let folderEditDialog;
 let spinnerDialog;
+let repairDialog;
 let currentEditID;
 let currentDeleteID;
 let foldersTree;
+let repairTree;
 let foldersModified = false;
 let foldersEditMode = false;
 let editShadow = {};
@@ -52,6 +54,16 @@ const foldersDialogSpinner = (show) => {
     } else {
         $('.zoia-folders-dialog-button').show();
         $('#zoiaFoldersDialogSpinner').hide();
+    }
+};
+
+const repairDialogSpinner = (show) => {
+    if (show) {
+        $('.zoia-repair-dialog-button').hide();
+        $('#zoiaRepairDialogSpinner').show();
+    } else {
+        $('.zoia-repair-dialog-button').show();
+        $('#zoiaRepairDialogSpinner').hide();
     }
 };
 
@@ -156,6 +168,40 @@ const ajaxDeleteItem = () => {
     });
 };
 
+const ajaxRepairDatabase = () => {
+    repairDialogSpinner(true);
+    $.ajax({
+        type: 'POST',
+        url: '/api/pages/repair',
+        data: {
+            folder: repairTree.jstree(true).get_selected()
+        },
+        cache: false
+    }).done((res) => {
+        repairDialogSpinner(false);
+        $('#pages').zoiaTable().load();
+        if (res && res.status === 1) {
+            repairDialog.hide();
+            $zUI.notification(lang['Operation was successful'], {
+                status: 'success',
+                timeout: 1500
+            });
+        } else {
+            $zUI.notification(lang['Cannot repair one or more items'], {
+                status: 'danger',
+                timeout: 1500
+            });            
+        }
+    }).fail(() => {
+        $('#pages').zoiaTable().load();
+        $zUI.notification(lang['Cannot repair one or more items'], {
+            status: 'danger',
+            timeout: 1500
+        });
+        repairDialogSpinner(false);
+    });
+};
+
 const processState = (eventState) => {
     const state = eventState || {
         action: getUrlParam('action'),
@@ -190,6 +236,11 @@ const foldersChangedHandler = (e, data) => {
     }
 };
 
+const repairChangedHandler = (e, data) => {
+    console.log(data);
+    $('#zoiaRepairDialogButton').attr('disabled', !(data.selected.length && data.selected.length === 1));
+};
+
 const initFoldersTree = (data) => {
     if (foldersTree) {
         foldersTree.jstree(true).destroy();
@@ -215,24 +266,56 @@ const initFoldersTree = (data) => {
     });
     foldersTree.on('loaded.jstree', () => {
         foldersTree.jstree(true).open_all('#');
-        foldersTreeFindRoot();
+        treeFindRoot(foldersTree);
     });
     foldersTree.on('changed.jstree', (e, _data) => {
         foldersChangedHandler(e, _data);
     });
 };
 
-const foldersTreeFindRoot = () => {
-    const fldrs = foldersTree.jstree(true).get_json(foldersTree, {
+const initRepairTree = () => {
+    if (repairTree) {
+        repairTree.jstree(true).destroy();
+    }
+    repairTree = $('#zoia_repair_tree').jstree({
+        core: {
+            check_callback: true,
+            data: foldersData
+        },
+        plugins: ['dnd', 'unique', 'types'],
+        types: {
+            '#': {
+                max_children: 1,
+                valid_children: ['root']
+            },
+            'root': {
+                valid_children: ['folder']
+            },
+            'folder': {
+                valid_children: ['folder']
+            }
+        }
+    });
+    repairTree.on('loaded.jstree', () => {
+        repairTree.jstree(true).open_all('#');
+        treeFindRoot(repairTree);
+    });
+    repairTree.on('changed.jstree', (e, _data) => {
+        repairChangedHandler(e, _data);
+    });
+};
+
+const treeFindRoot = (tree) => {
+    const fldrs = foldersTree.jstree(true).get_json(tree, {
         flat: true,
         no_state: true,
         no_id: false,
         no_data: false
     });
-    foldersTree.jstree(true).deselect_all();
+    tree.jstree(true).deselect_all();
     for (let i = 0; i < fldrs.length; i++) {
         if (fldrs[i].parent === '#') {
-            foldersTree.jstree(true).select_node(fldrs[i].id);
+            tree.jstree(true).select_node(fldrs[i].id);
         }
     }
 };
@@ -366,6 +449,11 @@ $(document).ready(() => {
         escClose: false,
         stack: true
     });
+    repairDialog = $zUI.modal('#zoiaRepairDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
     initFoldersTree();
     $('.zoiaDeleteButton').click(function() {
         const checked = $('.pagesCheckbox:checkbox:checked').map(function() {
@@ -377,6 +465,9 @@ $(document).ready(() => {
     });
     $('#zoiaDeleteDialogButton').click(() => {
         ajaxDeleteItem();
+    });
+    $('#zoiaRepairDialogButton').click(() => {
+        ajaxRepairDatabase();
     });
     $('#editForm').zoiaFormBuilder({
         save: {
@@ -392,7 +483,7 @@ $(document).ready(() => {
             buttons: '{buttons}'
         },
         events: {
-            onSaveValidate: (data) => {                
+            onSaveValidate: (data) => {
                 editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
                 let saveFolder = editShadow[editLanguage].data.folder.id;
                 let saveURL = editShadow[editLanguage].data.folder.value;
@@ -820,7 +911,7 @@ $(document).ready(() => {
                 process: (id, item) => {
                     return '<button class="za-icon-button zoia-pages-action-edit-btn" za-icon="icon: pencil" data="' + item._id +
                         '" style="margin-right:5px"></button><button class="za-icon-button zoia-pages-action-del-btn" za-icon="icon: trash" data="' + item._id +
-                        '"></button><div style="margin-bottom:17px" class="za-hidden@s">&nbsp;</div>';
+                        '"></button><div style="margin-bottom:17px" class="za-hidden@m">&nbsp;</div>';
                 }
             }
         },
@@ -845,7 +936,7 @@ $(document).ready(() => {
     $('#editForm_folder_btn').click(() => {
         foldersDialog.show();
         foldersModified = false;
-        foldersTreeFindRoot();
+        treeFindRoot(foldersTree);
     });
     $('#zoiaFoldersAdd').click(() => {
         $('#editFolderForm').zoiaFormBuilder().resetForm();
@@ -872,7 +963,7 @@ $(document).ready(() => {
             return;
         }
         foldersTree.jstree(true).delete_node(sel);
-        foldersTreeFindRoot();
+        treeFindRoot(foldersTree);
         foldersModified = true;
     });
     $('#zoiaFoldersRevert').click(() => {
@@ -928,6 +1019,10 @@ $(document).ready(() => {
     });
     $('#zoiaEditLanguageCheckbox').click(function() {
         onEditLanguageCheckboxClickEvent();
+    });
+    $('.pagesBtnRepair').click(() => {
+        initRepairTree();
+        repairDialog.show();
     });
     initCKEditor();
     $(window).bind('popstate',

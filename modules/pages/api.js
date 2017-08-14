@@ -586,6 +586,19 @@ module.exports = function(app) {
         });
     };
 
+    const _treePath = (tree, id, _path) => {
+        let node = tree.find(x => x.id === id);
+        if (!node) {
+            return '';
+        }
+        let path = _path || [];
+        path.push(node.text);
+        if (node.parent !== '#') {
+            path = _treePath(tree, node.parent, path);
+        }
+        return path;
+    };
+
     const browseUpload = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
@@ -635,12 +648,59 @@ module.exports = function(app) {
         }));
     };
 
+    const repair = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let folder = req.body.folder;
+        if (folder) {
+            folder = String(folder);
+        }
+        if (!folder || !folder.match(/^j[0-9]+_[0-9]$/)) {
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+        try {
+            const foldersString = await db.collection('registry').findOne({ name: 'pagesFolders' });
+            if (!foldersString || !foldersString.data) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            const folders = JSON.parse(foldersString.data);
+            let path = _treePath(folders, folder);
+            path = path.reverse();
+            path.shift();
+            path = path.join('/');
+            let farr = [];
+            const updResult = await db.collection('registry').update({ folder: folder, folderVal: path }, { $set: {  } }, { upsert: true });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            return res.send(JSON.stringify({
+                status: 1
+            }));            
+        } catch (e) {
+            console.log(e);
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
     let router = Router();
     router.get('/list', list);
     router.get('/load', load);
     router.post('/save', save);
     router.post('/delete', del);
     router.post('/folders', folders);
+    router.post('/repair', repair);
     router.all('/browse/list', browseList);
     router.all('/browse/folder/create', browseFolderCreate);
     router.all('/browse/rename', browseRename);

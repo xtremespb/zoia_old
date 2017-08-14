@@ -69,6 +69,11 @@
 	"Upload": "Upload",
 	"Drag files or click here to upload": "Drag files or click here to upload",
 	"Clear": "Clear",
-    "Cannot upload": "Cannot upload",
-    "No files to display": "No files to display"
+	"Cannot upload": "Cannot upload",
+	"No files to display": "No files to display",
+	"Repair database": "Repair database",
+	"Settings": "Settings",
+	"Repair all folders and move missing items to the following folders": "Repair all folders and move missing items to the following folders",
+	"Repair database and move missing items to the following folders": "Repair database and move missing items to the following folders",
+	"Cannot repair one or more items": "Cannot repair one or more items"
 }
