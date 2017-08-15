@@ -78,6 +78,7 @@ const createItem = () => {
         };
     }
     $('#editForm').zoiaFormBuilder().resetForm();
+    currentEditID = null;
     editLanguage = Object.keys(langs)[0];
     // $('#zoiaEditLanguages > li[data=' + editLanguage + ']').click();
     markZoiaLanguagesTab(editLanguage);
@@ -190,7 +191,7 @@ const ajaxRepairDatabase = () => {
             $zUI.notification(lang['Cannot repair one or more items'], {
                 status: 'danger',
                 timeout: 1500
-            });            
+            });
         }
     }).fail(() => {
         $('#pages').zoiaTable().load();
@@ -199,6 +200,36 @@ const ajaxRepairDatabase = () => {
             timeout: 1500
         });
         repairDialogSpinner(false);
+    });
+};
+
+const ajaxRebuildDatabase = () => {
+    spinnerDialog.show();
+    $.ajax({
+        type: 'POST',
+        url: '/api/pages/rebuild',
+        cache: false
+    }).done((res) => {
+        spinnerDialog.hide();
+        $('#pages').zoiaTable().load();
+        if (res && res.status === 1) {
+            $zUI.notification(lang['Operation was successful'], {
+                status: 'success',
+                timeout: 1500
+            });
+        } else {
+            $zUI.notification(lang['Cannot rebuild one or more items'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        }
+    }).fail(() => {
+        $('#pages').zoiaTable().load();
+        $zUI.notification(lang['Cannot rebuild one or more items'], {
+            status: 'danger',
+            timeout: 1500
+        });
+        spinnerDialog.hide();
     });
 };
 
@@ -496,6 +527,7 @@ $(document).ready(() => {
                     let lngdata = editShadow[n].data;
                     let vr = $('#editForm').zoiaFormBuilder().validate(lngdata);
                     if (Object.keys(vr.errors).length > 0) {
+                        markZoiaLanguagesTab(n);
                         onZoiaEditLanguagesClick(n);
                         vr = $('#editForm').zoiaFormBuilder().validate($('#editForm').zoiaFormBuilder().serialize());
                         if ($('#editForm').zoiaFormBuilder().errors(vr.errors)) {
@@ -574,7 +606,7 @@ $(document).ready(() => {
                     } else {
                         editShadow[n].data.folder = {
                             type: 'launcher',
-                            id: 'j1_1',
+                            id: 1,
                             value: '<div za-icon="icon:ban" style="padding-top:4px"></div>'
                         };
                     }
@@ -628,7 +660,7 @@ $(document).ready(() => {
                 label: lang['Folder'],
                 labelBtn: lang['Select'],
                 value: '',
-                data: 'j1_1'
+                data: 1
             },
             name: {
                 type: 'text',
@@ -832,6 +864,7 @@ $(document).ready(() => {
                     foldersModified = true;
                 } else {
                     let cn = foldersTree.jstree(true).create_node(sel, {
+                        id: Date.now() / 1000 | 0,
                         text: $('#editFolderForm_id').val(),
                         type: 'folder'
                     });
@@ -881,17 +914,22 @@ $(document).ready(() => {
             folder: {
                 sortable: true,
                 process: (id, item, value) => {
-                    let path = treePath(foldersData, value).reverse().join('/').replace('//', '');
-                    if (path.length > 1) {
-                        path += '/';
-                    }
-                    let result = '';
+                    let path = treePath(foldersData, value);
                     if (path) {
-                        result = '<div class="zoia-folder-column" title="' + path + '">' + path + '</div>';
+                        path = path.reverse().join('/').replace('//', '');
+                        if (path.length > 1) {
+                            path += '/';
+                        }
+                        let result = '';
+                        if (path) {
+                            result = '<div class="zoia-folder-column" title="' + path + '">' + path + '</div>';
+                        } else {
+                            result = '<span za-icon="icon:ban"></span>';
+                        }
+                        return result;
                     } else {
-                        result = '<span za-icon="icon:ban"></span>';
+                        return '<span za-icon="icon:ban"></span>';
                     }
-                    return result;
                 }
             },
             title: {
@@ -967,7 +1005,7 @@ $(document).ready(() => {
         foldersModified = true;
     });
     $('#zoiaFoldersRevert').click(() => {
-        foldersData = { id: 'j1_1', text: '/', data: null, parent: '#', type: 'root' };
+        foldersData = { id: 1, text: '/', data: null, parent: '#', type: 'root' };
         foldersModified = true;
         initFoldersTree();
     });
@@ -1023,6 +1061,9 @@ $(document).ready(() => {
     $('.pagesBtnRepair').click(() => {
         initRepairTree();
         repairDialog.show();
+    });
+    $('.pagesBtnRebuild').click(() => {
+        ajaxRebuildDatabase();
     });
     initCKEditor();
     $(window).bind('popstate',

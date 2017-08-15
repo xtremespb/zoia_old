@@ -208,9 +208,9 @@ const btnPasteHandler = () => {
         cache: false
     }).done((res) => {
         $('.zoia-browse-ctl-clipboard').removeClass('za-button-secondary');
-        clipboardData = undefined;
-        clipboardOperation = undefined;
-        clipboardDir = undefined;
+        clipboardData = null;
+        clipboardOperation = null;
+        clipboardDir = null;
         if (res.status === 1) {
             $zUI.notification(lang['Operation was successful'], {
                 status: 'success',
@@ -227,9 +227,9 @@ const btnPasteHandler = () => {
     }).fail(() => {
         spinnerDialog.hide();
         $('.zoia-browse-ctl-clipboard').removeClass('za-button-secondary');
-        clipboardData = undefined;
-        clipboardOperation = undefined;
-        clipboardDir = undefined;
+        clipboardData = null;
+        clipboardOperation = null;
+        clipboardDir = null;
         $zUI.notification(lang['Cannot paste one or more files'], {
             status: 'danger',
             timeout: 1500

@@ -41,7 +41,7 @@ module.exports = function(app) {
         limit = parseInt(limit, 10) || 0;
         search = search.trim();
         if (search.length < 3) {
-            search = undefined;
+            search = null;
         }
         let result = {
             status: 0
@@ -659,7 +659,7 @@ module.exports = function(app) {
         if (folder) {
             folder = String(folder);
         }
-        if (!folder || !folder.match(/^j[0-9]+_[0-9]$/)) {
+        if (!folder || !folder.match(/^[0-9]$/)) {
             return res.send(JSON.stringify({
                 status: -1
             }));
@@ -677,17 +677,69 @@ module.exports = function(app) {
             path.shift();
             path = path.join('/');
             let farr = [];
-            const updResult = await db.collection('registry').update({ folder: folder, folderVal: path }, { $set: {  } }, { upsert: true });
-            if (!updResult || !updResult.result || !updResult.result.ok) {
+            for (let i in folders) {
+                farr.push({
+                    folder: {
+                        $ne: folders[i].id
+                    }
+                })
+            }
+            const count = await db.collection('pages').find({ $and: farr }, { _id: 1 }).count();
+            if (count) {
+                const updResult = await db.collection('pages').update({ $and: farr }, { $set: { folder: folder, folderVal: path } }, { upsert: true });
+                if (!updResult || !updResult.result || !updResult.result.ok) {
+                    return res.send(JSON.stringify({
+                        status: 0
+                    }));
+                }
+            }
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
+    const rebuild = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const foldersString = await db.collection('registry').findOne({ name: 'pagesFolders' });
+            if (!foldersString || !foldersString.data) {
                 return res.send(JSON.stringify({
                     status: 0
                 }));
             }
+            const folders = JSON.parse(foldersString.data);
+            const items = await db.collection('pages').find({}, { folder: 1, url: 1 }).toArray();
+            if (items && items.length) {
+                for (let i in items) {
+                    let item = items[i];
+                    let path = _treePath(folders, item.folder);
+                    path = path.reverse();
+                    path.shift();
+                    path = path.join('/');
+                    if (item.url !== path) {
+                        const updResult = await db.collection('pages').update({ _id: item._id }, { $set: { url: path } }, { upsert: true });
+                        if (!updResult || !updResult.result || !updResult.result.ok) {
+                            return res.send(JSON.stringify({
+                                status: 0
+                            }));
+                        }
+                    }
+                }
+            }
             return res.send(JSON.stringify({
                 status: 1
-            }));            
+            }));
         } catch (e) {
-            console.log(e);
             return res.send(JSON.stringify({
                 status: 0
             }));
@@ -701,6 +753,7 @@ module.exports = function(app) {
     router.post('/delete', del);
     router.post('/folders', folders);
     router.post('/repair', repair);
+    router.post('/rebuild', rebuild);
     router.all('/browse/list', browseList);
     router.all('/browse/folder/create', browseFolderCreate);
     router.all('/browse/rename', browseRename);

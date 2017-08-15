@@ -22,6 +22,12 @@ gulp.task('cleanup', async() => {
     fs.unlinkSync(path.join(__dirname, 'modules', 'auth', 'static', 'js', 'registerConfirm.min.js'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'auth', 'static', 'js', 'reset.min.js'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'auth', 'static', 'js', 'resetConfirm.min.js'));
+    fs.unlinkSync(path.join(__dirname, 'modules', 'pages', 'static', 'css', 'pages.min.css'));
+    fs.unlinkSync(path.join(__dirname, 'modules', 'pages', 'static', 'css', 'browse.min.css'));
+    fs.unlinkSync(path.join(__dirname, 'modules', 'pages', 'static', 'js', 'pages.min.js'));
+    fs.unlinkSync(path.join(__dirname, 'modules', 'pages', 'static', 'js', 'browse.min.js'));
+    fs.unlinkSync(path.join(__dirname, 'modules', 'navigation', 'static', 'css', 'navigation.min.css'));
+    fs.unlinkSync(path.join(__dirname, 'modules', 'navigation', 'static', 'js', 'navigation.min.js'));
 });
 
 gulp.task('panel', async() => {
@@ -172,4 +178,102 @@ gulp.task('auth', async() => {
             .pipe(gulp.dest(path.join('modules', 'auth', 'static', 'js')))
             .on('end', resolve);
     });
+});
+
+gulp.task('pages', async() => {
+    // Generate CSS
+    await new Promise((resolve) => {
+        gulp.src(['static/zoia/3rdparty/jstree/themes/default/style.min.css', 'modules/pages/static/css/pages.css'], { base: __dirname })
+            .pipe(minifyCSS())
+            .pipe(concat('pages.min.css'))
+            .pipe(gulp.dest(path.join('modules', 'pages', 'static', 'css')))
+            .on('end', resolve);
+    });
+    await new Promise((resolve) => {
+        gulp.src(['static/zoia/3rdparty/uikit/css/uikit.min.css', 'modules/pages/static/css/browse.css'], { base: __dirname })
+            .pipe(minifyCSS())
+            .pipe(concat('browse.min.css'))
+            .pipe(gulp.dest(path.join('modules', 'pages', 'static', 'css')))
+            .on('end', resolve);
+    });
+    // Generate pages.min.js
+    await new Promise((resolve) => {
+        gulp.src(['static/zoia/core/js/jquery.zoiaFormBuilder.js', 'static/zoia/core/js/jquery.zoiaTable.js', 'modules/pages/static/js/pages.js'], { base: __dirname })
+            .pipe(babel({
+                presets: ['es2015']
+            }))
+            .pipe(concat('pages'))
+            .pipe(uglify())
+            .pipe(gulp.dest(path.join('modules', 'pages', 'static', 'js')))
+            .on('end', resolve);
+    });
+    await new Promise((resolve) => {
+        gulp.src(['static/zoia/3rdparty/jstree/jstree.min.js', 'modules/pages/static/js/pages'], { base: __dirname })
+            .pipe(concat('pages.min.js'))
+            .pipe(gulp.dest(path.join('modules', 'pages', 'static', 'js')))
+            .on('end', resolve);
+    });
+    fs.unlinkSync(path.join(__dirname, 'modules', 'pages', 'static', 'js', 'pages'));
+    // Generate browse.min.js
+    await new Promise((resolve) => {
+        gulp.src(['static/zoia/3rdparty/jquery/jquery.shifty.min.js', 'static/zoia/3rdparty/jquery/jquery.finger.min.js', 'static/zoia/3rdparty/plupload/plupload.min.js'], { base: __dirname })
+            .pipe(concat('plugins'))
+            .pipe(gulp.dest(path.join('modules', 'pages', 'static', 'js')))
+            .on('end', resolve);
+    });
+    await new Promise((resolve) => {
+        gulp.src(['modules/pages/static/js/browse.js'], { base: __dirname })
+            .pipe(babel({
+                presets: ['es2015']
+            }))
+            .pipe(concat('browse'))
+            .pipe(uglify())
+            .pipe(gulp.dest(path.join('modules', 'pages', 'static', 'js')))
+            .on('end', resolve);
+    });
+    await new Promise((resolve) => {
+        gulp.src(['static/zoia/3rdparty/uikit/js/bundle.min.js', 'modules/pages/static/js/plugins', 'modules/pages/static/js/browse'], { base: __dirname })
+            .pipe(concat('browse.min.js'))
+            .pipe(gulp.dest(path.join('modules', 'pages', 'static', 'js')))
+            .on('end', resolve);
+    });
+    fs.unlinkSync(path.join(__dirname, 'modules', 'pages', 'static', 'js', 'browse'));
+    fs.unlinkSync(path.join(__dirname, 'modules', 'pages', 'static', 'js', 'plugins'));
+});
+
+gulp.task('navigation', async() => {
+    // Generate CSS
+    await new Promise((resolve) => {
+        gulp.src(['static/zoia/3rdparty/jstree/themes/default/style.min.css', 'modules/navigation/static/css/navigation.css'], { base: __dirname })
+            .pipe(minifyCSS())
+            .pipe(concat('navigation.min.css'))
+            .pipe(gulp.dest(path.join('modules', 'navigation', 'static', 'css')))
+            .on('end', resolve);
+    });
+    // Generate navigation.min.js
+    await new Promise((resolve) => {
+        gulp.src(['static/zoia/core/js/jquery.zoiaFormBuilder.js', 'modules/navigation/static/js/navigation.js'], { base: __dirname })
+            .pipe(babel({
+                presets: ['es2015']
+            }))
+            .pipe(concat('navigation'))
+            .pipe(uglify())
+            .pipe(gulp.dest(path.join('modules', 'navigation', 'static', 'js')))
+            .on('end', resolve);
+    });
+    await new Promise((resolve) => {
+        gulp.src(['static/zoia/3rdparty/jstree/jstree.min.js', 'modules/navigation/static/js/navigation'], { base: __dirname })
+            .pipe(concat('navigation.min.js'))
+            .pipe(gulp.dest(path.join('modules', 'navigation', 'static', 'js')))
+            .on('end', resolve);
+    });
+    fs.unlinkSync(path.join(__dirname, 'modules', 'navigation', 'static', 'js', 'navigation'));
+});
+
+gulp.task('default', function() {
+    gulp.start('panel');
+    gulp.start('users');
+    gulp.start('auth');
+    gulp.start('pages');
+    gulp.start('navigation');
 });

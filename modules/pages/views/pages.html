@@ -22,6 +22,7 @@
                             <div class="za-width-1-1">
                                 <ul class="za-nav za-nav-default zoia-nav-default">
                                     <li><a href="#" class="pagesBtnRepair">{{ i18n.__(locale, 'Repair database')}}</a></li>
+                                    <li><a href="#" class="pagesBtnRebuild">{{ i18n.__(locale, 'Re-build URL cache')}}</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -43,6 +44,7 @@
                         <div class="za-width-1-1">
                             <ul class="za-nav za-nav-default zoia-nav-default">
                                 <li><a href="#" class="pagesBtnRepair">{{ i18n.__(locale, 'Repair database')}}</a></li>
+                                <li><a href="#" class="pagesBtnRebuild">{{ i18n.__(locale, 'Re-build URL cache')}}</a></li>
                             </ul>
                         </div>
                     </div>
@@ -159,8 +161,4 @@
         <span za-spinner style="color:#fff"></span>
     </div>
 </div>
-<script type="text/javascript">
-var lang = {{ lang }};
-var langs = {{ langs }};
-var foldersData = {{ folders }};
-</script>
+<script type="text/javascript">var lang={{ lang }};var langs={{ langs }};var foldersData={{ folders }};</script>

@@ -249,17 +249,33 @@
             if (!json || typeof json !== 'object') {
                 return;
             }
-            for (let n in json) {
+            for (let n in this.settings.items) {
+                if (!json[n]) {
+                    json[n] = {
+                        id: '',
+                        value: ''
+                    };
+                }
                 switch (json[n].type) {
                     case 'launcher':
                         $('#' + this._prefix + '_' + n + '_val').html(json[n].value);
                         $('#' + this._prefix + '_' + n + '_val').attr('data', json[n].id);
                         break;
                     default:
-                        $('#' + this._prefix + '_' + n).val(json[n].value);
+                        $('#' + this._prefix + '_' + n).val(json[n].value || '');
                 }
-
             }
+            /*for (let n in json) {
+                console.log('Setting value for ' + n);
+                switch (json[n].type) {
+                    case 'launcher':
+                        $('#' + this._prefix + '_' + n + '_val').html(json[n].value);
+                        $('#' + this._prefix + '_' + n + '_val').attr('data', json[n].id);
+                        break;
+                    default:
+                        $('#' + this._prefix + '_' + n).val(json[n].value || '');
+                }
+            }*/
         },
         loadData(data) {
             if (this.settings.events.onLoadStart) {

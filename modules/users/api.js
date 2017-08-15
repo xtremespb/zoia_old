@@ -36,7 +36,7 @@ module.exports = function(app) {
         limit = parseInt(limit, 10) || 0;
         search = search.trim();
         if (search.length < 3) {
-            search = undefined;
+            search = null;
         }
         let result = {
             status: 0

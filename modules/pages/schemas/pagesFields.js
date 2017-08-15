@@ -35,7 +35,7 @@
                     max: 64
                 },
                 type: 'string',
-                regexp: /^j[0-9]+_[0-9]$/,
+                regexp: /^[0-9]+$/,
                 process: function(item) {
                     return item.trim();
                 }

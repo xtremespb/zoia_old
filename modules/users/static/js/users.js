@@ -58,7 +58,7 @@ const deleteDialogSpinner = (show) => {
 const createItem = () => {
     $('#editForm').zoiaFormBuilder().setEditMode(false);
     $('#editForm').zoiaFormBuilder().resetForm(false);
-    currentEditID = undefined;
+    currentEditID = null;
     setZoiaEditHeader(false);
     editDialogSpinner(false);
     editFormSpinner(false);
