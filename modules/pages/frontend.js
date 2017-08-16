@@ -18,7 +18,7 @@ module.exports = function(app) {
         urlParts.shift();
         for (let i in urlParts) {
             let item = urlParts[i];
-            if (item.match(/ /) || item.match(/^[\^<>\/\:\"\\\|\?\*\x00-\x1f]+$/)) {
+            if (item.match(/ /) || item.match(/^[\^<>\/\:\"\\\|\?\*\x00-\x1f]+$/)) {                
                 return res.status(404);
             }
         }

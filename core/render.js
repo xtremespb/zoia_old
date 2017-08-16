@@ -49,6 +49,7 @@ module.exports = class Render {
         }
         let data1 = {
             i18n: i18n.get(),
+            req: req,
             locale: locale,
             lang: JSON.stringify(i18n.get().locales[locale]),
             config: config,

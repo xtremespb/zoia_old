@@ -24,9 +24,9 @@ module.exports = class Database {
         let that = this;
         this.db.on('close', function() {
             if (that.log) {
-                that.log.error('Database connection lost');
+                that.log.error('Database disconnected');
             } else {
-                console.log('Database connection lost');
+                console.log('Database disconnected');
             }
         });
         this.db.on('reconnect', function() {
