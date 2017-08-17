@@ -86,7 +86,8 @@ const createItem = () => {
 };
 
 const showTable = () => {
-    $('#pages').zoiaTable().load();
+    $('#wrapTable').show();
+    $('#zoiaEdit').hide();
 };
 
 const editItem = (id) => {
@@ -234,10 +235,13 @@ const ajaxRebuildDatabase = () => {
 };
 
 const processState = (eventState) => {
+    console.log('processState called');
+    console.log('eventState: ' + eventState);
     const state = eventState || {
         action: getUrlParam('action'),
         id: getUrlParam('id')
     };
+    console.log('state: ' + state.action);
     switch (state.action) {
         case 'edit':
             editItem(state.id);
@@ -1065,10 +1069,11 @@ $(document).ready(() => {
     $('.pagesBtnRebuild').click(() => {
         ajaxRebuildDatabase();
     });
-    initCKEditor();
+    initCKEditor();    
     $(window).bind('popstate',
         (event) => {
             processState(event.originalEvent.state);
         });
+    console.log('processState calling');
     processState();
 });

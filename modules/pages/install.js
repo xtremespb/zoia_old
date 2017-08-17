@@ -1,5 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
+const ObjectId = require('mongodb').ObjectID;
 module.exports = function(data) {
     return async() => {
         const db = data.db;
@@ -17,7 +18,7 @@ module.exports = function(data) {
             await db.collection('pages').createIndex(idx);
         }
         console.log('      Creating default pages...');
-        let upd = await db.collection('pages').update({ url: '', name: '', folder: '1' }, {
+        let upd = await db.collection('pages').update({ "_id" : new ObjectId("59953847ffa00062b54c92ae") }, {
             $set: {
                 "folder": "1",
                 "name": "",
@@ -40,7 +41,7 @@ module.exports = function(data) {
         if (!upd || !upd.result || !upd.result.ok) {
             throw new Error('Could not run db.collection(\'pages\').update');
         }
-        upd = await db.collection('pages').update({ url: 'manual', name: 'installation', folder: '1502816654' }, {
+        upd = await db.collection('pages').update({ "_id" : ObjectId("59953847ffa00062b54c92b0") }, {
             $set: {
                 "folder": "1502816654",
                 "name": "installation",
@@ -63,7 +64,7 @@ module.exports = function(data) {
         if (!upd || !upd.result || !upd.result.ok) {
             throw new Error('Could not run db.collection(\'pages\').update');
         }
-        upd = await db.collection('pages').update({ url: 'manual', name: 'configuration', folder: '1502816654' }, {
+        upd = await db.collection('pages').update({ "_id" : ObjectId("59953847ffa00062b54c92b2") }, {
             $set: {
                 "folder": "1502816654",
                 "name": "configuration",
@@ -86,7 +87,7 @@ module.exports = function(data) {
         if (!upd || !upd.result || !upd.result.ok) {
             throw new Error('Could not run db.collection(\'pages\').update');
         }
-        upd = await db.collection('pages').update({ url: '', name: 'support', folder: '1' }, {
+        upd = await db.collection('pages').update({ "_id" : ObjectId("59953847ffa00062b54c92b4") }, {
             $set: {
                 "folder": "1",
                 "name": "support",

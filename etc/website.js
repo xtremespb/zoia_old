@@ -21,6 +21,10 @@ module.exports = {
         }
     },
     title: {
+        en: 'Example Website powered by Zoia Web Framework',
+        ru: 'Тестовый сайт на основе Zoia Web Framework'
+    },
+    titleShort: {
         en: 'Example Website',
         ru: 'Тестовый сайт'
     },

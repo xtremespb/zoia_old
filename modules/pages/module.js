@@ -6,7 +6,8 @@ module.exports = function(app) {
     return {
         frontend: {
             prefix: '/',
-            routes: frontend.routes
+            routes: frontend.routes,
+            filters: frontend.filters
         },
         backend: {
             prefix: '/pages',

@@ -44,12 +44,15 @@ module.exports = class Render {
     }
     async template(req, i18n, locale, pageTitle, data2, tpl) {
         let template = (tpl || config.website.templates[0]) + '_' + locale + '.html';
-        if (config.i18n.fallback && locale !== config.i18n.locales[0] && !await fs.exists(path.join(__dirname, '..', '..', 'views', template))) {
+        try {
+            await fs.access(path.join(__dirname, '..', 'views', template), fs.constants.F_OK);
+        } catch (e) {
             template = (tpl || config.website.templates[0]) + '_' + config.i18n.locales[0] + '.html';
         }
         let data1 = {
             i18n: i18n.get(),
             req: req,
+            auth: (req && req.session && req.session.auth) ? req.session.auth : false,
             locale: locale,
             lang: JSON.stringify(i18n.get().locales[locale]),
             config: config,

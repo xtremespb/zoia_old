@@ -14,7 +14,7 @@ module.exports = function(app) {
         return s;
     };
 
-    const render = (data) => {
+    const render = (data, prefix) => {
         let html = '';
         try {
             for (let i in data) {
@@ -24,18 +24,18 @@ module.exports = function(app) {
                     for (let n in data) {
                         let sub = data[n];
                         if (sub.parent === item.id) {
-                            children += tpl(templates.item, { id: sub.id, url: sub.data.url, title: sub.text });
+                            children += tpl(templates['item_' + prefix], { id: sub.id, url: sub.data.url, title: sub.text });
                         }
                     }
                     if (children) {
-                        html += tpl(templates.parent, { id: item.id, title: item.text, data: children });
+                        html += tpl(templates['parent_' + prefix], { id: item.id, title: item.text, data: children });
                     } else {
-                        html += tpl(templates.item, { id: item.id, url: item.data.url, title: item.text });
+                        html += tpl(templates['item_' + prefix], { id: item.id, url: item.data.url, title: item.text });
                     }
                 }
             }
             if (html) {
-                html = tpl(templates.wrap, { data: html });
+                html = tpl(templates['wrap_' + prefix], { data: html });
             }
         } catch (e) {
             // Ignore
@@ -65,8 +65,15 @@ module.exports = function(app) {
                 }));
             }
             for (let n in config.i18n.localeNames) {
-                let data = render(navigation[n]);
-                updResult = await db.collection('registry').update({ name: 'navigation_html_' + n }, { name: 'navigation_html_' + n, data: data }, { upsert: true });
+                let data = render(navigation[n], 'd');
+                updResult = await db.collection('registry').update({ name: 'navigation_html_d_' + n }, { name: 'navigation_html_d_' + n, data: data }, { upsert: true });
+                if (!updResult || !updResult.result || !updResult.result.ok) {
+                    return res.send(JSON.stringify({
+                        status: 0
+                    }));
+                }
+                data = render(navigation[n], 'm');
+                updResult = await db.collection('registry').update({ name: 'navigation_html_m_' + n }, { name: 'navigation_html_m_' + n, data: data }, { upsert: true });
                 if (!updResult || !updResult.result || !updResult.result.ok) {
                     return res.send(JSON.stringify({
                         status: 0

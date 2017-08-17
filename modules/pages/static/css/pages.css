@@ -140,3 +140,7 @@
 	padding-left: 10px;
 	padding-right: 10px;
 }
+
+#zoiaSpinnerDialog.za-modal {
+    background: rgba(255, 255, 255, .6);
+}
