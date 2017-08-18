@@ -659,7 +659,7 @@ module.exports = function(app) {
         if (folder) {
             folder = String(folder);
         }
-        if (!folder || !folder.match(/^[0-9]$/)) {
+        if (!folder || !folder.match(/^[0-9]+$/g)) {
             return res.send(JSON.stringify({
                 status: -1
             }));

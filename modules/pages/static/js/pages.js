@@ -235,13 +235,10 @@ const ajaxRebuildDatabase = () => {
 };
 
 const processState = (eventState) => {
-    console.log('processState called');
-    console.log('eventState: ' + eventState);
     const state = eventState || {
         action: getUrlParam('action'),
         id: getUrlParam('id')
     };
-    console.log('state: ' + state.action);
     switch (state.action) {
         case 'edit':
             editItem(state.id);
@@ -272,7 +269,6 @@ const foldersChangedHandler = (e, data) => {
 };
 
 const repairChangedHandler = (e, data) => {
-    console.log(data);
     $('#zoiaRepairDialogButton').attr('disabled', !(data.selected.length && data.selected.length === 1));
 };
 
@@ -1074,6 +1070,5 @@ $(document).ready(() => {
         (event) => {
             processState(event.originalEvent.state);
         });
-    console.log('processState calling');
     processState();
 });

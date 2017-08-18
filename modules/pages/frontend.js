@@ -137,7 +137,6 @@ module.exports = function(app) {
             return html;
 
         } catch (e) {
-            console.log(e);
             return '';
         }
     };

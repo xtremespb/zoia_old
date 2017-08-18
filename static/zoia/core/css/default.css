@@ -30,6 +30,15 @@ a {
     width: 70px;
 }
 
+.zoia-footer-container {
+	margin-top: 20px;
+	margin-bottom: 20px;
+	border-top: 1px solid #f8f8f8;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	font-size: 10px;
+}
+
 @media (max-width: 640px) {
     .zoia-content-container {
         margin-top: -25px;

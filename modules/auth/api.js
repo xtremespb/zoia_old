@@ -31,12 +31,12 @@ module.exports = function(app) {
         const fieldList = loginFields.getLoginFields();
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
-        if (fieldsFailed.length > 0) {
+        if (fieldsFailed.length > 0 && !(fieldsFailed.indexOf('captcha') > -1 && fieldsFailed.length === 1 && app.get('zoiaTest'))) {
             output.status = 0;
             output.fields = fieldsFailed;
             return res.send(JSON.stringify(output));
         }
-        if (!req.session || fields.captcha.value !== req.session.captcha) {
+        if (!app.get('zoiaTest') && (!req.session || fields.captcha.value !== req.session.captcha)) {
             output.status = -2;
             output.fields = ['captcha'];
             return res.send(JSON.stringify(output));
@@ -44,7 +44,6 @@ module.exports = function(app) {
         req.session.captcha = Math.random().toString().substr(2, 4);
         try {
             const passwordHash = crypto.createHash('md5').update(config.salt + fields.password.value).digest('hex');
-            console.log(passwordHash);
             const user = await db.collection('users').findOne({ username: fields.username.value, password: passwordHash });
             if (user === null || !user.status) {
                 output.status = -1;

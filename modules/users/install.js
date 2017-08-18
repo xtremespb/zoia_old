@@ -4,8 +4,18 @@ module.exports = function(data) {
     return async() => {
         const db = data.db;
         const config = data.config;
-        console.log('  └── Dropping indexes...');
-        await db.collection('users').dropIndexes();
+        console.log('  └── Creating collection: users...');
+        try {
+            await db.createCollection('users');
+        } catch (e) {
+            console.log('      [ ] Collection is not created');
+        }
+        console.log('      Dropping indexes...');
+        try {
+            await db.collection('users').dropIndexes();
+        } catch (e) {
+            console.log('      [ ] Indexes are not dropped');
+        }
         console.log('      Creating indexes...');
         await db.collection('users').createIndex({ username: 1, email: 1, status: 1 });
         await db.collection('users').createIndex({ username: -1, email: -1, status: -1 });

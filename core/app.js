@@ -67,6 +67,7 @@ const fs = require('fs');
         app.set('log', log);
         const errors = new(require(path.join(__dirname, 'errors.js')))(app);
         app.use(errors.notFound, errors.errorHandler);
+        app.emit('zoiaStarted');
     } catch (e) {
         // That's error
         log.error(e.stack || e.message);
