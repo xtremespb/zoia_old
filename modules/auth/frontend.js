@@ -57,6 +57,9 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
+        let filters = app.get('templateFilters');
+        renderRoot.setFilters(filters);
+        console.log(filters);
         let registerHTML = await renderAuth.file('register.html', {
             i18n: i18n.get(),
             locale: locale,
@@ -79,6 +82,8 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
+        let filters = app.get('templateFilters');
+        renderRoot.setFilters(filters);
         const fieldList = registerConfirmFields.getConfirmFields();
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
@@ -108,6 +113,8 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
+        let filters = app.get('templateFilters');
+        renderRoot.setFilters(filters);
         let resetHTML = await renderAuth.file('reset.html', {
             i18n: i18n.get(),
             locale: locale,
@@ -130,6 +137,8 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
+        let filters = app.get('templateFilters');
+        renderRoot.setFilters(filters);
         const fieldList = resetConfirmFields.getResetConfirmFields();
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);

@@ -2,7 +2,6 @@ const path = require('path');
 const config = require(path.join(__dirname, '..', 'etc', 'config.js'));
 const nunjucks = require('nunjucks');
 const fs = require('mz/fs');
-let filtersSet;
 
 module.exports = class Render {
     constructor(dir, filters, app) {
@@ -21,19 +20,24 @@ module.exports = class Render {
         }
     }
     setFilters(filters) {
-        if (!filtersSet && filters && this.env) {
+        if (filters && this.env) {
+            console.log(filters);
             for (let n in filters) {
-                this.env.addFilter(n, filters[n], true);
+                try {
+                    this.env.getFilter(n);
+                } catch(e) {
+                    this.env.addFilter(n, filters[n], true);
+                }
             }
-            filtersSet = true;
         }
     }
     _render(file, data) {
         let that = this;
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             that.env.render(file, data, function(err, res) {
                 if (err && that.log) {
                     that.log.error(err);
+                    return reject(err);
                 }
                 resolve(res);
             });
