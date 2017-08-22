@@ -31,12 +31,12 @@ module.exports = function(app) {
         const fieldList = loginFields.getLoginFields();
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
-        if (fieldsFailed.length > 0 && !(fieldsFailed.indexOf('captcha') > -1 && fieldsFailed.length === 1 && app.get('zoiaTest'))) {
+        if (fieldsFailed.length > 0) {
             output.status = 0;
             output.fields = fieldsFailed;
             return res.send(JSON.stringify(output));
         }
-        if (!app.get('zoiaTest') && (!req.session || fields.captcha.value !== req.session.captcha)) {
+        if (!req.session || fields.captcha.value !== req.session.captcha) {
             output.status = -2;
             output.fields = ['captcha'];
             return res.send(JSON.stringify(output));

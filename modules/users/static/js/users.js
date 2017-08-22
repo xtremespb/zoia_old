@@ -378,7 +378,7 @@ $(document).ready(() => {
                 process: (id, item) => {
                     return '<button class="za-icon-button zoia-users-action-edit-btn" za-icon="icon: pencil" data="' + item._id +
                         '" style="margin-right:5px"></button><button class="za-icon-button zoia-users-action-del-btn" za-icon="icon: trash" data="' + item._id +
-                        '"></button><div style="margin-bottom:17px" class="za-hidden@s">&nbsp;</div>';
+                        '"></button><div style="margin-bottom:17px" class="za-hidden@m">&nbsp;</div>';
                 }
             }
         },

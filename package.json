@@ -42,6 +42,7 @@
     "gulp-uglify": "^3.0.0",
     "intelli-espower-loader": "^1.0.1",
     "mocha": "^3.5.0",
+    "selenium-webdriver": "^3.5.0",
     "supertest": "^3.0.0",
     "supertest-session": "^3.1.0"
   },

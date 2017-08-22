@@ -1,10 +1,14 @@
 const path = require('path');
 const Router = require('co-router');
 const captcha = new(require(path.join(__dirname, '..', '..', 'core', 'captcha.js')))();
+const config = require(path.join(__dirname, '..', '..', 'etc', 'config.js'));
 
-module.exports = function() {
+module.exports = function(app) {
     const getCaptcha = async(req, res) => {
-        const code = Math.random().toString().substr(2, 4);
+        let code = Math.random().toString().substr(2, 4);
+        if (config.testMode) {
+            code = '1111';
+        }
         if (req && req.session) {
             req.session.captcha = code;
         }

@@ -14,7 +14,7 @@ console.log('\n  Loading app...');
 before(function(done) {
     this.timeout(15000);
     app.on("zoiaStarted", function() {
-        log.setLevel('error');        
+        log.setLevel('error');
         server.listen(config.port, config.host);
         server.on('listening', done);
     });
@@ -25,7 +25,7 @@ beforeEach(function() {
 });
 
 describe("Server connectivity tests", function() {
-	let authenticatedSession;
+    let authenticatedSession;
     it('responds to /', function(done) {
         this.timeout(15000);
         testSession.get('/')
@@ -44,7 +44,7 @@ describe("Server connectivity tests", function() {
 });
 
 describe("Authorization", function() {
-	let authenticatedSession;
+    let authenticatedSession;
     it('responds to /auth', function(done) {
         this.timeout(15000);
         testSession.get('/auth')
@@ -57,19 +57,25 @@ describe("Authorization", function() {
     });
     it('authorization (admin/admin)', function(done) {
         this.timeout(15000);
-        app.set('zoiaTest', true);
-        testSession.post('/api/auth/login')
-            .send({ username: 'admin', password: 'admin' })
+        testSession.get('/api/captcha')
             .expect(200)
-            .end(function(err, result) {
+            .end(function(err) {
                 if (err) {
-                	return done(err);
+                    return done(err);
                 }
-                if (result.body.status !== 1) {
-                	return done('Could not authorize');	
-                }
-                authenticatedSession = testSession;
-                return done();
+                testSession.post('/api/auth/login')
+                    .send({ username: 'admin', password: 'admin', captcha: '1111' })
+                    .expect(200)
+                    .end(function(err, result) {
+                        if (err) {
+                            return done(err);
+                        }
+                        if (result.body.status !== 1) {
+                            return done('Could not authorize');
+                        }
+                        authenticatedSession = testSession;
+                        return done();
+                    });
             });
     });
     it('responds to /admin (authorized)', function(done) {
@@ -79,15 +85,14 @@ describe("Authorization", function() {
     });
     it('logout', function(done) {
         this.timeout(15000);
-        app.set('zoiaTest', true);
         authenticatedSession.post('/api/auth/logout')
             .expect(200)
             .end(function(err, result) {
                 if (err) {
-                	return done(err);
+                    return done(err);
                 }
                 if (result.body.status !== 1) {
-                	return done('Could not logout');	
+                    return done('Could not logout');
                 }
                 return done();
             });

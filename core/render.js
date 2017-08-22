@@ -21,7 +21,6 @@ module.exports = class Render {
     }
     setFilters(filters) {
         if (filters && this.env) {
-            console.log(filters);
             for (let n in filters) {
                 try {
                     this.env.getFilter(n);

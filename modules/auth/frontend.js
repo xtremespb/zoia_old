@@ -59,7 +59,6 @@ module.exports = function(app) {
         }
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
-        console.log(filters);
         let registerHTML = await renderAuth.file('register.html', {
             i18n: i18n.get(),
             locale: locale,
