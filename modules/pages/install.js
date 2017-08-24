@@ -87,7 +87,7 @@ module.exports = function(data) {
                     title: 'Configuration',
                     keywords: '',
                     description: '',
-                    content: '<h1>Configuration</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Configuration files are located in <strong>./etc</strong> folder. There are the following configuration files:</p>\n\n<ul>\n\t<li>config.js: main configuration file (database, host, port etc.)</li>\n\t<li>website.js: website configuration file (website title, templates, e-mail etc.)</li>\n</ul>\n\n<p>You will need to edit config.js in order to match your server/desktop configuration.</p>\n\n<div class=\'za-overflow-auto\'>\n<table class=\'za-table za-table-divider za-table-striped za-table-small\'>\n\t<thead>\n\t\t<tr>\n\t\t\t<th>Parameter</th>\n\t\t\t<th>Description</th>\n\t\t\t<th>Default</th>\n\t\t</tr>\n\t</thead>\n\t<tbody>\n\t\t<tr>\n\t\t\t<td>hostname</td>\n\t\t\t<td>Hostname or IP address to listen</td>\n\t\t\t<td>127.0.0.1</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td>port</td>\n\t\t\t<td>Port to listen</td>\n\t\t\t<td>3000</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td>protocol</td>\n\t\t\t<td>Protocol to use (either http or https)</td>\n\t\t\t<td>http</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td>production</td>\n\t\t\t<td>Run in production environment</td>\n\t\t\t<td>false</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td>salt</td>\n\t\t\t<td>Random string used to encrypt sensitive information like passwords</td>\n\t\t\t<td>random</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td>trustProxy</td>\n\t\t\t<td>System will have knowledge that it&#39;s sitting behind a proxy and that the X-Forwarded-* header fields may be trusted</td>\n\t\t\t<td>false</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td>stackTrace</td>\n\t\t\t<td>Display stack trace in console/logs output</td>\n\t\t\t<td>false</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td>logLevel</td>\n\t\t\t<td>Log level to use (trace/debug/info/warn/error)</td>\n\t\t\t<td>info</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td>maxUploadSizeMB</td>\n\t\t\t<td>Maximum file upload size, in Megabytes</td>\n\t\t\t<td>100</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td>logOptions</td>\n\t\t\t<td>Set different options for log output (see <a href=\'https://www.npmjs.com/package/loglevel\' target=\'_blank\'>loglevel</a> manual)</td>\n\t\t\t<td>&ndash;</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td>mongo</td>\n\t\t\t<td>Set MongoDB settings (URL, options and collection name for sessions)</td>\n\t\t\t<td>&ndash;</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td>session</td>\n\t\t\t<td>Set options for session and cookie. Set random string for <b>secret</b> parameter.</td>\n\t\t\t<td>&ndash;</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td>i18n</td>\n\t\t\t<td>Set internationalization options (list of languages, language detection method, cookie name etc.)</td>\n\t\t\t<td>&ndash;</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td>mailer</td>\n\t\t\t<td>Set mailer options, refer to the <a href=\'https://nodemailer.com/\' target=\'_blank\'>Nodemailer</a> manual for more info.</td>\n\t\t\t<td>&ndash;</td>\n\t\t</tr>\n\t</tbody>\n</table>\n</div>'
+                    content: '<h1>Configuration</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Configuration files are located in <strong>./etc</strong> folder. There are the following configuration files:</p>\n\n<ul>\n\t<li>config.js: main configuration file (database, host, port etc.)</li>\n\t<li>website.js: website configuration file (website title, templates, e-mail etc.)</li>\n</ul>\n\n<p>You will need to edit config.js in order to match your server/desktop configuration.</p>'
                 },
                 status: '1',
                 ru: {
@@ -111,14 +111,14 @@ module.exports = function(data) {
                     title: 'Support',
                     keywords: '',
                     description: '',
-                    content: '<h1>Support</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>You are welcome to create issues and pull requests on <a href=\'https://github.com/xtremespb/zoia/issues\'>Github</a> page.</p>'
+                    content: '<h1>Support</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>You are welcome to create issues and pull requests on <a href=\'https://github.com/xtremespb/zoia\'>Github</a> page.</p>'
                 },
                 status: '1',
                 ru: {
                     title: 'Поддержка',
                     keywords: '',
                     description: '',
-                    content: '<p>Вы можете создавать тикеты и pull request&#39;ы на странице в&nbsp;<a href=\'https://github.com/xtremespb/zoia/issues\'>Github</a>.</p>'
+                    content: '<p>Вы можете создавать тикеты и pull request&#39;ы на странице в&nbsp;<a href=\'https://github.com/xtremespb/zoia\'>Github</a>.</p>'
                 }
             }
         }, { upsert: true });
