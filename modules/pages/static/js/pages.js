@@ -1065,7 +1065,9 @@ $(document).ready(() => {
     $('.pagesBtnRebuild').click(() => {
         ajaxRebuildDatabase();
     });
-    initCKEditor();    
+    if (!testMode) {
+        initCKEditor();
+    }
     $(window).bind('popstate',
         (event) => {
             processState(event.originalEvent.state);

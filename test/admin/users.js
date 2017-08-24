@@ -4,18 +4,10 @@ const until = webdriver.until;
 const driver = new webdriver.Builder().forBrowser('chrome').build();
 const assert = require('assert');
 const timeout = 3000;
+const path = require('path');
+const helpers = require(path.join(__dirname, '..', 'helpers.js'));
 
 driver.manage().window().setSize(1280, 720);
-
-const _click = (el) => {
-    driver.actions().mouseDown(el).mouseMove(el).mouseUp(el).perform();
-};
-
-const _delay = (i) => {
-    return new Promise(function(resolve) {
-        setTimeout(resolve, i);
-    });
-}
 
 const test = async() => {
     try {
@@ -29,12 +21,12 @@ const test = async() => {
         let fieldAuthCaptcha = await driver.findElement(by.id('zoiaAuth_captcha'));
         await fieldAuthCaptcha.sendKeys('1111');
         let btnAuthSave = await driver.findElement(by.id('zoiaAuth_btnSave'));
-        _click(btnAuthSave);
-        driver.wait(until.elementLocated(by.id('wrapTable')), timeout);
+        await helpers.click(btnAuthSave, driver);
+        await driver.wait(until.elementLocated(by.id('wrapTable')), timeout);
         let btnZoiaAdd = await driver.findElement(by.className('zoiaAddD'));
-        _click(btnZoiaAdd);
-        driver.wait(until.elementLocated(by.id('editDialogHeader')), timeout);
-        driver.wait(until.elementLocated(by.id('editForm_username')), timeout);
+        await helpers.click(btnZoiaAdd, driver);
+        await driver.wait(until.elementLocated(by.id('editDialogHeader')), timeout);
+        await driver.wait(until.elementLocated(by.id('editForm_username')), timeout);
         let fieldEditUsername = await driver.findElement(by.id('editForm_username'));
         await fieldEditUsername.sendKeys('test1');
         let fieldEditEmail = await driver.findElement(by.id('editForm_email'));
@@ -46,8 +38,8 @@ const test = async() => {
         let fieldEditStatus = await driver.findElement(by.id('editForm_status'));
         await fieldEditStatus.sendKeys('Disabled');
         let btnEditSave = await driver.findElement(by.id('editForm_btnSave'));
-        _click(btnEditSave);
-        driver.wait(until.elementLocated(by.xpath('//*[@id="users"]/tbody/tr[2]/td[2]')), timeout);
+        await helpers.click(btnEditSave, driver);
+        await driver.wait(until.elementLocated(by.xpath('//*[@id="users"]/tbody/tr[2]/td[2]')), timeout);
         let usersTableCell22 = await driver.findElement(by.xpath('//*[@id="users"]/tbody/tr[2]/td[2]'));
         let addedUsername = await usersTableCell22.getText();
         assert.equal(addedUsername, 'test1', 'User not added');
@@ -57,13 +49,47 @@ const test = async() => {
         let usersTableCell24 = await driver.findElement(by.xpath('//*[@id="users"]/tbody/tr[2]/td[4]'));
         let addedStatus = await usersTableCell24.getText();
         assert.equal(addedStatus, 'Disabled', 'Status not added');
+        let btnZoiaEdit = await driver.findElement(by.xpath('//*[@id="users"]/tbody/tr[2]/td[5]/button[1]'));
+        await helpers.click(btnZoiaAdd, driver);
+        await driver.wait(until.elementLocated(by.id('editForm_username')), timeout);
+        await helpers.click(btnEditSave, driver);
+        await helpers.waitForItem(by.id('editForm_username_error_text'), driver);
+        let btnEditCancel = await driver.findElement(by.id('editForm_btnCancel'));
+        await helpers.click(btnEditCancel, driver);
+        await driver.wait(until.elementLocated(by.id('wrapTable')), timeout);
+        await helpers.click(btnZoiaEdit, driver);
+        await driver.wait(until.elementLocated(by.id('editForm_username')), timeout);
+        await fieldEditUsername.clear();
+        await fieldEditUsername.sendKeys('test2');
+        await fieldEditEmail.clear();
+        await fieldEditEmail.sendKeys('test2@domain.org');
+        await fieldEditPassword.clear();
+        await fieldEditPassword.sendKeys('45678');
+        await fieldEditPasswordConfirm.clear();
+        await fieldEditPasswordConfirm.sendKeys('45678');
+        await fieldEditStatus.sendKeys('Administrator');
+        await helpers.click(btnEditSave, driver);
+        await helpers.waitForValue(by.xpath('//*[@id="users"]/tbody/tr[2]/td[2]'), 'test2', driver);
+        usersTableCell22 = await driver.findElement(by.xpath('//*[@id="users"]/tbody/tr[2]/td[2]'));
+        addedUsername = await usersTableCell22.getText();
+        assert.equal(addedUsername, 'test2', 'Username not changed');
+        usersTableCell23 = await driver.findElement(by.xpath('//*[@id="users"]/tbody/tr[2]/td[3]'));
+        addedEmail = await usersTableCell23.getText();
+        assert.equal(addedEmail, 'test2@domain.org', 'E-mail not changed');
+        usersTableCell24 = await driver.findElement(by.xpath('//*[@id="users"]/tbody/tr[2]/td[4]'));
+        addedStatus = await usersTableCell24.getText();
+        assert.equal(addedStatus, 'Administrator', 'Status not changed');
         let btnZoiaDelete = await driver.findElement(by.xpath('//*[@id="users"]/tbody/tr[2]/td[5]/button[2]'));
-        _click(btnZoiaDelete);
-        driver.wait(until.elementLocated(by.id('zoiaDeleteDialogButton'), timeout));
+        await helpers.click(btnZoiaDelete, driver);
+        await driver.wait(until.elementLocated(by.id('zoiaDeleteDialogButton'), timeout));
         let zoiaDeleteDialogButton = await driver.findElement(by.id('zoiaDeleteDialogButton'));
-        _click(zoiaDeleteDialogButton);
-
+        await helpers.click(zoiaDeleteDialogButton, driver);
+        await driver.wait(until.elementLocated(by.id('editForm_username')), timeout);
+        helpers.waitForDisappear(by.xpath('//*[@id="users"]/tbody/tr[2]/td[2]'), driver);
+        driver.close();
+        console.log('OK');
     } catch (e) {
+        driver.close();
         console.log('Error: ' + e);
     }
 };
