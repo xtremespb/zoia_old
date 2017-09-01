@@ -13,7 +13,7 @@ const config = require(path.join(__dirname, '..', '..', 'etc', 'config.js'));
 module.exports = function(app) {
     const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
     const mailer = new(require(path.join(__dirname, '..', '..', 'core', 'mailer.js')))(app);
-    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), undefined, app);
+    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
     const log = app.get('log');
 
     /*

@@ -36,7 +36,7 @@ const _treePath = (tree, id, locale, text, _path) => {
 module.exports = function(app) {
     const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
     const db = app.get('db');
-    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), undefined, app);
+    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), app);
 
     const content = async(req, res, next) => {
         let filters = app.get('templateFilters');

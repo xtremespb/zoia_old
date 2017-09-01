@@ -2,7 +2,7 @@ const path = require('path');
 const config = require(path.join(__dirname, '..', 'etc', 'config.js'));
 
 module.exports = function(app) {
-    const render = new(require(path.join(__dirname, 'render.js')))(path.join(__dirname, 'views'), app.get('templateFilters'));
+    const render = new(require(path.join(__dirname, 'render.js')))(path.join(__dirname, 'views'));
     const i18n = new(require(path.join(__dirname, 'i18n.js')))(path.join(__dirname, 'lang'), app);
     let errors = {
         notFound: async(req, res, next) => {

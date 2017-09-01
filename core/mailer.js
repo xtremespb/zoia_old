@@ -7,7 +7,7 @@ module.exports = class Mailer {
     constructor(app) {
         this.transporter = nodemailer.createTransport(config.mailer);
         this.log = app.get('log');
-        this.render = new(require(path.join(__dirname, 'render.js')))(path.join(__dirname, '..', 'views'), app.get('templateFilters'));
+        this.render = new(require(path.join(__dirname, 'render.js')))(path.join(__dirname, '..', 'views'));
         this.i18n = new(require(path.join(__dirname, 'i18n.js')))(path.join(__dirname, 'lang'), app);
     }
     async _send(mailOptions) {

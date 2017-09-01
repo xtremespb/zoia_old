@@ -10,7 +10,7 @@ const os = require('os');
 module.exports = function(app) {
     const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
     const panel = new(require(path.join(__dirname, '..', '..', 'core', 'panel.js')))(app);
-    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), undefined, app);
+    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
     const dashboard = async(req, res, next) => {
         try {
             if (!Module.isAuthorizedAdmin(req)) {

@@ -4,15 +4,10 @@ const nunjucks = require('nunjucks');
 const fs = require('mz/fs');
 
 module.exports = class Render {
-    constructor(dir, filters, app) {
+    constructor(dir, app) {
         if (dir) {
             this.env = new nunjucks.Environment(new nunjucks.FileSystemLoader(dir, { watch: true, noCache: false }));
             this.env.opts.autoescape = false;
-        }
-        if (filters && this.env) {
-            for (let n in filters) {
-                this.env.addFilter(n, filters[n], true);
-            }
         }
         if (app) {
             this.app = app;
