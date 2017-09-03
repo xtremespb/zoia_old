@@ -52,7 +52,6 @@
 	"Optional, max. 128 characters": "Optional, max. 128 characters",
 	"Content": "Content",
 	"Zoia": "Zoia",
-	"Log out": "Log out",
 	"Could not get directory content": "Could not get directory content",
 	"Directory doesn't exists": "Directory doesn't exists",
 	"OK": "OK",
@@ -77,8 +76,5 @@
 	"Repair database and move missing items to the following folders": "Repair database and move missing items to the following folders",
 	"Cannot repair one or more items": "Cannot repair one or more items",
 	"Re-build URL cache": "Re-build URL cache",
-	"Cannot rebuild one or more items": "Cannot rebuild one or more items",
-	"Sign In": "Sign In",
-	"Register": "Register",
-	"Administration panel": "Administration panel"
+	"Cannot rebuild one or more items": "Cannot rebuild one or more items"
 }

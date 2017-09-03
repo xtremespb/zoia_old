@@ -4,6 +4,8 @@ module.exports = function(app) {
     const api = require(path.join(__dirname, 'api.js'))(app);
     // Load the Backend
     const backend = require(path.join(__dirname, 'backend.js'))(app);
+    // Load the Frontend
+    const frontend = require(path.join(__dirname, 'frontend.js'))(app);
     // Return the data
     return {
         // We've got some API
@@ -18,6 +20,12 @@ module.exports = function(app) {
             prefix: '/example',
             routes: backend.routes,
             info: backend.info
+        },
+        // We've got a Frontend
+        frontend: {
+            prefix: '/example',
+            routes: frontend.routes,
+            filters: frontend.filters
         }
     };
 };

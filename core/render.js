@@ -12,6 +12,7 @@ module.exports = class Render {
         if (app) {
             this.app = app;
             this.log = app.get('log');
+            this.i18n = new(require(path.join(__dirname, 'i18n.js')))(path.join(__dirname, 'lang'), app);
         }
     }
     setFilters(filters) {
@@ -49,6 +50,7 @@ module.exports = class Render {
         }
         let data1 = {
             i18n: i18n.get(),
+            i18nc: this.i18n.get(),
             req: req,
             auth: (req && req.session && req.session.auth) ? req.session.auth : false,
             locale: locale,
