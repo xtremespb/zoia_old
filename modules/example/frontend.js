@@ -42,9 +42,8 @@ module.exports = function(app) {
     };
     // Callback-style function to be used as Nunjucks filter.
     // You may simple make a wrap for an async function here.
-    // const navigationDesktop = (data, callback) => {
-    const filter2 = (par1, par2, callback) => {
-        callback(null, '');
+    const filter2 = (par, callback) => {
+        callback(null, 'par: ' + par);
     };
     let router = Router();
     // Let's use example route
@@ -53,7 +52,10 @@ module.exports = function(app) {
     return {
         // ...routes
         routes: router,
-        // ...no filters yet
-        filters: {}
+        // ...filters
+        filters: {
+            filter1Async: filter1Async,
+            filter2: filter2
+        }
     };
 };

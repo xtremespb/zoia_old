@@ -51,7 +51,7 @@ module.exports = function(app) {
             // 3. Module title
             title: Module.getTitles(i18n),
             // 4. Module icon (optional): https://getuikit.com/docs/icon
-            icon: 'cog'
+            icon: 'happy'
         }
     };
 };
