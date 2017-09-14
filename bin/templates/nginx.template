@@ -1,7 +1,7 @@
 server {
 
     listen {ip}:{port};
-    server_name {serverName};
+    server_name {serverName} www.{serverName};
     access_log {dir}/logs/nginx_access.log;
     error_log {dir}/logs/nginx_error.log;
     root {dir}/static/;

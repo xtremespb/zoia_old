@@ -1,0 +1,58 @@
+const path = require('path');
+
+module.exports = {
+    hostname: '{host}',
+    port: {port},
+    protocol: '{protocol}',
+    production: {production},
+    salt: '{salt}',
+    trustProxy: {trustProxy},
+    stackTrace: {stackTrace},
+    logLevel: '{logLevel}',
+    maxUploadSizeMB: 100,
+    testMode: false,
+    logOptions: {
+        template: '%t [%l]',
+        timestampFormatter: date => date.toLocaleDateString() + ' ' + date.toLocaleTimeString(),
+        levelFormatter: level => level.toUpperCase()
+    },
+    mongo: {
+        url: '{mongoURL}',
+        options: {},
+        sessionCollection: 'sessions'
+    },
+    session: {
+        secret: '{sessionSecret}',
+        name: 'zoia',
+        cookie: {
+            domain: '',
+            httpOnly: false,
+            secure: false,
+            maxAge: 604800000, // 7 days
+            path: '/'
+        }
+    },
+    i18n: {
+        locales: ['en', 'ru'],
+        localeNames: {'en': 'English', 'ru': 'Русский'},
+        detect: {
+            subdomain: true,
+            query: true,
+            cookie: true
+        },
+        dev: true,
+        cookieName: 'zoiaLang',
+        fallback: false
+    },
+    mailer: {
+        host: 'smtp.yandex.ru',
+        port: 465,
+        secure: true,
+        auth: {
+            user: '',
+            pass: ''
+        }
+    },
+    website: require(path.join(__dirname, 'website.js')),
+    version: require(path.join(__dirname, 'version.js'))
+};
