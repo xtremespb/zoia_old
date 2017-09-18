@@ -37,7 +37,7 @@
                         <li>
                             <a href="#">{{ auth.username }}&nbsp;<span za-icon="icon:chevron-down"></a>
                             <div class="za-navbar-dropdown">
-                                <ul class="za-nav za-navbar-dropdown-nav">{% if auth.status === 2 %}
+                                <ul class="za-nav za-navbar-dropdown-nav">{% if auth.status == 2 %}
                                     <li><a href="/admin">{{ i18nc.__(locale, 'Administration panel') }}</a></li>
                                     <li class="za-nav-divider"></li>{% endif %}
                                     <li><a href="/auth/logout">{{ i18nc.__(locale, 'Log out') }}</a></li>
