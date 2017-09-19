@@ -63,12 +63,12 @@ const createItem = () => {
     editDialogSpinner(false);
     editFormSpinner(false);
     editDialog.show();
-    $('#editUser_username').focus();
+    $('#editGroup_groupname').focus();
 };
 
 const showTable = () => {
     editDialog.hide();
-    $('#users').zoiaTable().load();
+    $('#groups').zoiaTable().load();
 };
 
 const editItem = (id) => {
@@ -96,12 +96,12 @@ const deleteItem = (id) => {
         items = id;
         currentDeleteID = id;
         for (let i in id) {
-            names.push($('#users').zoiaTable().getCurrentData()[id[i]].username);
+            names.push($('#groups').zoiaTable().getCurrentData()[id[i]].groupname);
         }
     } else {
         items.push(id);
         currentDeleteID.push(id);
-        names.push($('#users').zoiaTable().getCurrentData()[id].username);
+        names.push($('#groups').zoiaTable().getCurrentData()[id].groupname);
     }
     $('#zoiaDeleteDialogList').html('');
     for (let n in names) {
@@ -115,13 +115,13 @@ const ajaxDeleteItem = () => {
     deleteDialogSpinner(true);
     $.ajax({
         type: 'POST',
-        url: '/api/users/delete',
+        url: '/api/groups/delete',
         data: {
             id: currentDeleteID
         },
         cache: false
     }).done((res) => {
-        $('#users').zoiaTable().load();
+        $('#groups').zoiaTable().load();
         if (res && res.status === 1) {
             deleteDialog.hide();
             $zUI.notification(lang['Operation was successful'], {
@@ -136,7 +136,7 @@ const ajaxDeleteItem = () => {
             deleteDialogSpinner(false);
         }
     }).fail(() => {
-        $('#users').zoiaTable().load();
+        $('#groups').zoiaTable().load();
         $zUI.notification(lang['Cannot delete one or more items'], {
             status: 'danger',
             timeout: 1500
@@ -173,7 +173,7 @@ $(document).ready(() => {
         escClose: false
     });
     $('.zoiaDeleteButton').click(function() {
-        const checked = $('.usersCheckbox:checkbox:checked').map(function() {
+        const checked = $('.groupsCheckbox:checkbox:checked').map(function() {
             return this.id;
         }).get();
         if (checked && checked.length > 0) {
@@ -185,11 +185,11 @@ $(document).ready(() => {
     });
     $('#editForm').zoiaFormBuilder({
         save: {
-            url: '/api/users/save',
+            url: '/api/groups/save',
             method: 'POST'
         },
         load: {
-            url: '/api/users/load',
+            url: '/api/groups/load',
             method: 'GET'
         },
         template: {
@@ -220,21 +220,21 @@ $(document).ready(() => {
                     status: 'success',
                     timeout: 1500
                 });
-                $('#users').zoiaTable().load();
-                window.history.pushState({ action: '' }, document.title, '/admin/users');
+                $('#groups').zoiaTable().load();
+                window.history.pushState({ action: '' }, document.title, '/admin/groups');
             },
             onSaveError: (res) => {
                 editFormSpinner(false);
                 if (res && res.status) {
                     switch (res.status) {
                         case -1:
-                            $zUI.notification(lang.fieldErrors['User not found'], {
+                            $zUI.notification(lang.fieldErrors['Group not found'], {
                                 status: 'danger',
                                 timeout: 1500
                             });
                             break;
                         case -2:
-                            $zUI.notification(lang.fieldErrors['Username already exists in database'], {
+                            $zUI.notification(lang.fieldErrors['Group already exists in database'], {
                                 status: 'danger',
                                 timeout: 1500
                             });
@@ -250,7 +250,7 @@ $(document).ready(() => {
             },
             onLoadSuccess: () => {
                 editDialogSpinner(false);
-                $('#editForm_username').focus();
+                $('#editForm_groupname').focus();
             },
             onLoadError: () => {
                 editDialog.hide();
@@ -262,9 +262,9 @@ $(document).ready(() => {
             }
         },
         items: {
-            username: {
+            groupname: {
                 type: 'text',
-                label: lang['Username'],
+                label: lang['Name'],
                 css: 'za-form-width-medium',
                 autofocus: true,
                 helpText: lang['Latin characters and numbers, length: 3-20'],
@@ -278,40 +278,6 @@ $(document).ready(() => {
                     regexp: /^[A-Za-z0-9_\-]+$/,
                     process: (item) => {
                         return item.trim().toLowerCase();
-                    }
-                }
-            },
-            email: {
-                type: 'email',
-                label: lang['E-mail'],
-                css: 'za-width-medium',
-                helpText: lang['Example: user@domain.com'],
-                validation: {
-                    mandatoryCreate: true,
-                    mandatoryEdit: true,
-                    length: {
-                        min: 6,
-                        max: 129
-                    },
-                    regexp: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-                    process: (item) => {
-                        return item.trim().toLowerCase();
-                    }
-                }
-            },
-            password: {
-                type: 'passwordConfirm',
-                label: lang['Password'],
-                helpText: lang['Minimal length: 5 characters, type twice to verify'],
-                validation: {
-                    mandatoryCreate: true,
-                    mandatoryEdit: false,
-                    length: {
-                        min: 5,
-                        max: 50
-                    },
-                    process: (item) => {
-                        return item.trim();
                     }
                 }
             },
@@ -359,15 +325,15 @@ $(document).ready(() => {
             passwordsNotMatch: lang['Passwords do not match']
         }
     });
-    $('#users').zoiaTable({
-        url: 'http://127.0.0.1:3000/api/users/list',
+    $('#groups').zoiaTable({
+        url: 'http://127.0.0.1:3000/api/groups/list',
         limit: 20,
         sort: {
-            field: 'username',
+            field: 'groupname',
             direction: 'asc'
         },
         fields: {
-            username: {
+            groupname: {
                 sortable: true,
                 process: (id, item, value) => {
                     return value;
@@ -388,18 +354,18 @@ $(document).ready(() => {
             actions: {
                 sortable: false,
                 process: (id, item) => {
-                    return '<button class="za-icon-button zoia-users-action-edit-btn" za-icon="icon: pencil" data="' + item._id +
-                        '" style="margin-right:5px"></button><button class="za-icon-button zoia-users-action-del-btn" za-icon="icon: trash" data="' + item._id +
+                    return '<button class="za-icon-button zoia-groups-action-edit-btn" za-icon="icon: pencil" data="' + item._id +
+                        '" style="margin-right:5px"></button><button class="za-icon-button zoia-groups-action-del-btn" za-icon="icon: trash" data="' + item._id +
                         '"></button><div style="margin-bottom:17px" class="za-hidden@m">&nbsp;</div>';
                 }
             }
         },
         onLoad: () => {
-            $('.zoia-users-action-edit-btn').click(function() {
-                window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, '/admin/users?action=edit&id=' + $(this).attr('data'));
+            $('.zoia-groups-action-edit-btn').click(function() {
+                window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, '/admin/groups?action=edit&id=' + $(this).attr('data'));
                 editItem($(this).attr('data'));
             });
-            $('.zoia-users-action-del-btn').click(function() {
+            $('.zoia-groups-action-del-btn').click(function() {
                 deleteItem($(this).attr('data'));
             });
         },
@@ -409,10 +375,10 @@ $(document).ready(() => {
         }
     });
     $('#editForm_btnCancel').click(() => {
-    	window.history.pushState({ action: '' }, document.title, '/admin/users');
+    	window.history.pushState({ action: '' }, document.title, '/admin/groups');
     });
     $('.zoiaAdd').click(() => {
-        window.history.pushState({ action: 'create' }, document.title, '/admin/users?action=create');
+        window.history.pushState({ action: 'create' }, document.title, '/admin/groups?action=create');
         createItem();
     });
     $(window).bind('popstate',

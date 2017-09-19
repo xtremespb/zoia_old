@@ -123,7 +123,7 @@ module.exports = function(app) {
             }));
         }
         let output = {};
-        const fieldList = groupsFields.getUsersFields(id ? false : true);
+        const fieldList = groupsFields.getGroupsFields(id ? false : true);
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
@@ -157,12 +157,8 @@ module.exports = function(app) {
             }
             let update = {
                 groupname: fields.groupname.value,
-                email: fields.email.value,
                 status: fields.status.value
             };
-            if (fields.password.value) {
-                update.password = crypto.createHash('md5').update(config.salt + fields.password.value).digest('hex');
-            }
             let what = id ? { _id: new ObjectID(id) } : { groupname: fields.groupname.value };
             let updResult = await db.collection('groups').update(what, { $set: update }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {

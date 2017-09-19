@@ -3,7 +3,7 @@
         global[i] = vars[i];
     }
 })({
-    getUsersFields: function(_passwordMandatory) {
+    getGroupsFields: function(_passwordMandatory) {
         if (_passwordMandatory === undefined) {
             _passwordMandatory = true;
         }
