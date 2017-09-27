@@ -1,4 +1,5 @@
 /* eslint no-undef: 0 */
+/* eslint max-len: 0 */
 let editDialog;
 let deleteDialog;
 let currentEditID;
@@ -200,13 +201,15 @@ $(document).ready(() => {
         html: {
             helpText: '<div class="za-text-meta">{text}</div>',
             text: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><div class="za-form-controls"><input class="za-input {prefix}-form-field{css}" id="{prefix}_{name}" type="{type}" placeholder=""{autofocus}><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>',
-            select: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><select class="za-select {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}>{values}</select><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
+            select: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><select{multiple} class="za-select {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}>{values}</select><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
             passwordConfirm: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-flex"><div class="{prefix}-field-wrap"><input class="za-input {prefix}-form-field" id="{prefix}_{name}" type="password" placeholder=""{autofocus}></div><div><input class="za-input {prefix}-form-field" id="{prefix}_{name}Confirm" type="password" placeholder=""></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
             captcha: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-grid za-grid-small"><div><input class="za-input {prefix}-form-field {prefix}-captcha-field{css}" type="text" placeholder="" id="{prefix}_{name}"{autofocus}></div><div><div class="za-form-controls"><img class="{prefix}-captcha-img"></div></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}',
             buttonsWrap: '<div class="{css}">{buttons}{html}</div>',
             button: '<button class="za-button {prefix}-form-button{css}" id="{prefix}_{name}" type="{type}">{label}</button>',
             launcher: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}_btn">{label}:</label><div class="za-flex"><div id="{prefix}_{name}_val" class="{prefix}-{name}-selector" data="{data}">{value}</div><div><button class="za-button za-button-default" id="{prefix}_{name}_btn" type="button">{labelBtn}</button></div></div>{helpText}</div>',
             textarea: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><div class="za-form-controls"><textarea class="za-textarea {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}></textarea><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>',
+            checkboxlistItem: '<li><label><input class="za-checkbox {prefix}-{name}-cbx" type="checkbox" data="{title}">&nbsp;&nbsp;{title}</label></li>',
+            checkboxlist: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-panel za-panel-scrollable{css}" id="{prefix}_{name}_wrap"><ul class="za-list">{items}</ul></div>{helpText}</div>'
         },
         events: {
             onSaveValidate: (data) => {
@@ -215,6 +218,7 @@ $(document).ready(() => {
                 return data;
             },
             onSaveSuccess: () => {
+                $('#editForm_groups_wrap').scrollTop(0);
                 editDialog.hide();
                 $zUI.notification(lang.fieldErrors['Saved successfully'], {
                     status: 'success',
@@ -225,7 +229,7 @@ $(document).ready(() => {
             },
             onSaveError: (res) => {
                 editFormSpinner(false);
-                if (res && res.status) {
+                if (res) {
                     switch (res.status) {
                         case -1:
                             $zUI.notification(lang.fieldErrors['User not found'], {
@@ -240,7 +244,11 @@ $(document).ready(() => {
                             });
                             break;
                         default:
-                            $zUI.notification(lang.fieldErrors['Could not save to the database'], {
+                            let ff = '';
+                            if (res.fields) {
+                                ff = '. ' + lang.fieldErrors['Fields failed'] + ': ' + res.fields.join(', ');
+                            }
+                            $zUI.notification(lang.fieldErrors['Could not save to the database'] + ff, {
                                 status: 'danger',
                                 timeout: 1500
                             });
@@ -315,14 +323,19 @@ $(document).ready(() => {
                     }
                 }
             },
+            groups: {
+                type: 'checkboxlist',
+                label: lang['Groups'],
+                helpText: lang['A list of groups for user'],
+                values: zoiaGroups
+            },
             status: {
                 type: 'select',
                 label: lang['Status'],
                 css: 'za-form-width-small',
                 values: {
                     0: lang.statuses[0],
-                    1: lang.statuses[1],
-                    2: lang.statuses[2]
+                    1: lang.statuses[1]
                 },
                 default: '1',
                 validation: {
@@ -332,14 +345,14 @@ $(document).ready(() => {
                         min: 1,
                         max: 1
                     },
-                    regexp: /^(0|1|2)$/
+                    regexp: /^(0|1)$/
                 }
             },
             buttons: {
                 type: 'buttons',
                 css: 'za-modal-footer za-text-right',
                 buttons: [{
-                	name: 'btnCancel',
+                    name: 'btnCancel',
                     label: lang['Cancel'],
                     css: 'za-button-default za-modal-close'
                 }, {
@@ -385,6 +398,19 @@ $(document).ready(() => {
                     return lang.statuses[value] || '&ndash;';
                 }
             },
+            groups: {
+                sortable: true,
+                process: (id, item, value) => {
+                    if (!value) {
+                        return '&ndash;';
+                    }
+                    const groups = value.replace(/,/gm, ', ');
+                    if (groups.length <= 50) {
+                        return groups;
+                    }
+                    return groups.substr(0, groups.lastIndexOf(', ', 50)) + ' (' + lang['and some more'] + ')';
+                }
+            },
             actions: {
                 sortable: false,
                 process: (id, item) => {
@@ -409,7 +435,8 @@ $(document).ready(() => {
         }
     });
     $('#editForm_btnCancel').click(() => {
-    	window.history.pushState({ action: '' }, document.title, '/admin/users');
+        window.history.pushState({ action: '' }, document.title, '/admin/users');
+        $('#editForm_groups_wrap').scrollTop(0);
     });
     $('.zoiaAdd').click(() => {
         window.history.pushState({ action: 'create' }, document.title, '/admin/users?action=create');

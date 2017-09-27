@@ -10,7 +10,7 @@ module.exports = {
     stackTrace: false,
     logLevel: 'info',
     maxUploadSizeMB: 100,
-    testMode: true,
+    testMode: false,
     logOptions: {
         template: '%t [%l]',
         timestampFormatter: date => date.toLocaleDateString() + ' ' + date.toLocaleTimeString(),

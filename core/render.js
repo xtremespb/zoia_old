@@ -48,10 +48,15 @@ module.exports = class Render {
         } catch (e) {
             template = (tpl || config.website.templates[0]) + '_' + config.i18n.locales[0] + '.html';
         }
+        let admin = false;
+        if (req && req.session && req.session.auth && req.session.auth.groups) {
+            admin = req.session.auth.groups.split(',').indexOf('admin') > -1;
+        }
         let data1 = {
             i18n: i18n.get(),
             i18nc: this.i18n.get(),
             req: req,
+            admin: admin,
             auth: (req && req.session && req.session.auth) ? req.session.auth : false,
             locale: locale,
             lang: JSON.stringify(i18n.get().locales[locale]),

@@ -8,8 +8,7 @@
     "Actions": "Actions",
     "statuses": [
         "Disabled",
-        "Active",
-        "Administrator"
+        "Active"
     ],
     "fieldErrors":
     {
@@ -21,7 +20,8 @@
         "Could not save to the database": "Could not save to the database",
         "User not found": "User not found",
         "Username already exists in database": "Username already exists in database",
-        "Saved successfully": "Saved successfully"
+        "Saved successfully": "Saved successfully",
+        "Fields failed": "Fields failed"
     },
     "Operation was successful": "Operation was successful",
     "Cannot delete one or more items": "Cannot delete one or more items",
@@ -38,7 +38,6 @@
     "Example: user@domain.com": "Example: user@domain.com",
     "Password": "Password",
     "Minimal length: 5 characters, type twice to verify": "Minimal length: 5 characters, type twice to verify",
-    "s": "s",
     "The following user(s) will be removed from the database": "The following user(s) will be removed from the database",
     "Could not load data from server. Please try to refresh page in a few moments.": "Could not load data from server. Please try to refresh page in a few moments.",
     "No items to display": "No items to display",
@@ -46,5 +45,8 @@
     "Too short": "Too short",
     "Too long": "Too long",
     "Doesn't match required format": "Doesn't match required format",
-    "Passwords do not match": "Passwords do not match"
+    "Passwords do not match": "Passwords do not match",
+    "Groups": "Groups",
+    "A list of groups for user": "A list of groups for user",
+    "and some more": "and some more"
 }

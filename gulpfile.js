@@ -11,6 +11,8 @@ gulp.task('cleanup', async() => {
     fs.unlinkSync(path.join(__dirname, 'static', 'zoia', 'core', 'js', 'panel.min.js'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'users', 'static', 'css', 'users.min.css'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'users', 'static', 'js', 'users.min.js'));
+    fs.unlinkSync(path.join(__dirname, 'modules', 'groups', 'static', 'css', 'groups.min.css'));
+    fs.unlinkSync(path.join(__dirname, 'modules', 'groups', 'static', 'js', 'groups.min.js'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'auth', 'static', 'css', 'login.min.css'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'auth', 'static', 'css', 'register.min.css'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'auth', 'static', 'css', 'resetConfirm.min.css'));
@@ -51,11 +53,27 @@ gulp.task('users', async() => {
     // Generate users.min.js
     gulp.src(['static/zoia/core/js/jquery.zoiaFormBuilder.js', 'static/zoia/core/js/jquery.zoiaTable.js', 'modules/users/static/js/users.js'], { base: __dirname })
         .pipe(babel({
-            presets: ['es2015']
+            presets: ['env']
         }))
         .pipe(concat('users.min.js'))
         .pipe(uglify())
         .pipe(gulp.dest(path.join('modules', 'users', 'static', 'js')));
+});
+
+gulp.task('groups', async() => {
+    // Generate CSS
+    gulp.src(['modules/groups/static/css/groups.css'], { base: __dirname })
+        .pipe(minifyCSS())
+        .pipe(concat('groups.min.css'))
+        .pipe(gulp.dest(path.join('modules', 'groups', 'static', 'css')));
+    // Generate groups.min.js
+    gulp.src(['static/zoia/core/js/jquery.zoiaFormBuilder.js', 'static/zoia/core/js/jquery.zoiaTable.js', 'modules/groups/static/js/groups.js'], { base: __dirname })
+        .pipe(babel({
+            presets: ['env']
+        }))
+        .pipe(concat('groups.min.js'))
+        .pipe(uglify())
+        .pipe(gulp.dest(path.join('modules', 'groups', 'static', 'js')));
 });
 
 gulp.task('auth', async() => {
@@ -106,7 +124,7 @@ gulp.task('auth', async() => {
     await new Promise((resolve) => {
         gulp.src(['static/zoia/core/js/jquery.zoiaFormBuilder.js', 'modules/auth/static/js/login.js'], { base: __dirname })
             .pipe(babel({
-                presets: ['es2015']
+                presets: ['env']
             }))
             .pipe(concat('login'))
             .pipe(uglify())
@@ -124,7 +142,7 @@ gulp.task('auth', async() => {
     await new Promise((resolve) => {
         gulp.src(['static/zoia/core/js/jquery.zoiaFormBuilder.js', 'modules/auth/static/js/register.js'], { base: __dirname })
             .pipe(babel({
-                presets: ['es2015']
+                presets: ['env']
             }))
             .pipe(concat('register'))
             .pipe(uglify())
@@ -142,7 +160,7 @@ gulp.task('auth', async() => {
     await new Promise((resolve) => {
         gulp.src('modules/auth/static/js/registerConfirm.js')
             .pipe(babel({
-                presets: ['es2015']
+                presets: ['env']
             }))
             .pipe(concat('registerConfirm.min.js'))
             .pipe(uglify())
@@ -153,7 +171,7 @@ gulp.task('auth', async() => {
     await new Promise((resolve) => {
         gulp.src(['static/zoia/core/js/jquery.zoiaFormBuilder.js', 'modules/auth/static/js/reset.js'], { base: __dirname })
             .pipe(babel({
-                presets: ['es2015']
+                presets: ['env']
             }))
             .pipe(concat('reset'))
             .pipe(uglify())
@@ -171,7 +189,7 @@ gulp.task('auth', async() => {
     await new Promise((resolve) => {
         gulp.src(['static/zoia/core/js/jquery.zoiaFormBuilder.js', 'modules/auth/static/js/resetConfirm.js'], { base: __dirname })
             .pipe(babel({
-                presets: ['es2015']
+                presets: ['env']
             }))
             .pipe(concat('resetConfirm.min.js'))
             .pipe(uglify())
@@ -200,7 +218,7 @@ gulp.task('pages', async() => {
     await new Promise((resolve) => {
         gulp.src(['static/zoia/core/js/jquery.zoiaFormBuilder.js', 'static/zoia/core/js/jquery.zoiaTable.js', 'modules/pages/static/js/pages.js'], { base: __dirname })
             .pipe(babel({
-                presets: ['es2015']
+                presets: ['env']
             }))
             .pipe(concat('pages'))
             .pipe(uglify())
@@ -224,7 +242,7 @@ gulp.task('pages', async() => {
     await new Promise((resolve) => {
         gulp.src(['modules/pages/static/js/browse.js'], { base: __dirname })
             .pipe(babel({
-                presets: ['es2015']
+                presets: ['env']
             }))
             .pipe(concat('browse'))
             .pipe(uglify())
@@ -254,7 +272,7 @@ gulp.task('navigation', async() => {
     await new Promise((resolve) => {
         gulp.src(['static/zoia/core/js/jquery.zoiaFormBuilder.js', 'modules/navigation/static/js/navigation.js'], { base: __dirname })
             .pipe(babel({
-                presets: ['es2015']
+                presets: ['env']
             }))
             .pipe(concat('navigation'))
             .pipe(uglify())
@@ -273,6 +291,7 @@ gulp.task('navigation', async() => {
 gulp.task('default', function() {
     gulp.start('panel');
     gulp.start('users');
+    gulp.start('groups');
     gulp.start('auth');
     gulp.start('pages');
     gulp.start('navigation');

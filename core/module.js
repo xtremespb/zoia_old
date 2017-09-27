@@ -19,8 +19,11 @@ module.exports = class Module {
         return false;
     }
     static isAuthorizedAdmin(req) {
-        if (req && req.session && req.session.auth && req.session.auth._id && req.session.auth.status && String(req.session.auth.status) === '2') {
-            return true;
+        if (req && req.session && req.session.auth && req.session.auth._id && req.session.auth.groups) {
+            const groups = req.session.auth.groups.split(',');
+            if (groups.indexOf('admin') > -1) {
+                return true;
+            }
         }
         return false;
     }

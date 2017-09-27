@@ -1,3 +1,4 @@
+/* eslint max-len: 0 */
 /* eslint no-undef: 0 */
 let editDialog;
 let deleteDialog;
@@ -96,9 +97,16 @@ const deleteItem = (id) => {
         items = id;
         currentDeleteID = id;
         for (let i in id) {
+            if ($('#groups').zoiaTable().getCurrentData()[id[i]].groupname === 'admin') {
+                $zUI.modal.alert(lang['Could not delete admin group because it\'s a system one.'], { labels: { ok: lang['OK'] } });
+                return;
+            }
             names.push($('#groups').zoiaTable().getCurrentData()[id[i]].groupname);
         }
     } else {
+        if (id === 'admin') {            
+            return;
+        }
         items.push(id);
         currentDeleteID.push(id);
         names.push($('#groups').zoiaTable().getCurrentData()[id].groupname);
@@ -206,7 +214,7 @@ $(document).ready(() => {
             buttonsWrap: '<div class="{css}">{buttons}{html}</div>',
             button: '<button class="za-button {prefix}-form-button{css}" id="{prefix}_{name}" type="{type}">{label}</button>',
             launcher: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}_btn">{label}:</label><div class="za-flex"><div id="{prefix}_{name}_val" class="{prefix}-{name}-selector" data="{data}">{value}</div><div><button class="za-button za-button-default" id="{prefix}_{name}_btn" type="button">{labelBtn}</button></div></div>{helpText}</div>',
-            textarea: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><div class="za-form-controls"><textarea class="za-textarea {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}></textarea><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>',
+            textarea: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><div class="za-form-controls"><textarea class="za-textarea {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}></textarea><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>'
         },
         events: {
             onSaveValidate: (data) => {
@@ -287,8 +295,7 @@ $(document).ready(() => {
                 css: 'za-form-width-small',
                 values: {
                     0: lang.statuses[0],
-                    1: lang.statuses[1],
-                    2: lang.statuses[2]
+                    1: lang.statuses[1]
                 },
                 default: '1',
                 validation: {
@@ -298,14 +305,14 @@ $(document).ready(() => {
                         min: 1,
                         max: 1
                     },
-                    regexp: /^(0|1|2)$/
+                    regexp: /^(0|1)$/
                 }
             },
             buttons: {
                 type: 'buttons',
                 css: 'za-modal-footer za-text-right',
                 buttons: [{
-                	name: 'btnCancel',
+                    name: 'btnCancel',
                     label: lang['Cancel'],
                     css: 'za-button-default za-modal-close'
                 }, {
@@ -354,6 +361,9 @@ $(document).ready(() => {
             actions: {
                 sortable: false,
                 process: (id, item) => {
+                    if (item && item.groupname === 'admin') {
+                        return '&ndash;';
+                    }
                     return '<button class="za-icon-button zoia-groups-action-edit-btn" za-icon="icon: pencil" data="' + item._id +
                         '" style="margin-right:5px"></button><button class="za-icon-button zoia-groups-action-del-btn" za-icon="icon: trash" data="' + item._id +
                         '"></button><div style="margin-bottom:17px" class="za-hidden@m">&nbsp;</div>';
@@ -375,7 +385,7 @@ $(document).ready(() => {
         }
     });
     $('#editForm_btnCancel').click(() => {
-    	window.history.pushState({ action: '' }, document.title, '/admin/groups');
+        window.history.pushState({ action: '' }, document.title, '/admin/groups');
     });
     $('.zoiaAdd').click(() => {
         window.history.pushState({ action: 'create' }, document.title, '/admin/groups?action=create');

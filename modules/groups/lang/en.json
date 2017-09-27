@@ -37,5 +37,7 @@
     "Too short": "Too short",
     "Too long": "Too long",
     "Doesn't match required format": "Doesn't match required format",
-    "Passwords do not match": "Passwords do not match"
+    "Passwords do not match": "Passwords do not match",
+    "Could not delete admin group because it's a system one.": "Could not delete admin group because it's a system one.",
+    "OK": "OK"
 }

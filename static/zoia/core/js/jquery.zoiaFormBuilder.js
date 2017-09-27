@@ -2,8 +2,8 @@
 /* eslint max-len: 0 */
 /* eslint default-case: 0 */
 /* eslint no-undef: 0 */
-/*! zoiaFormBuilder v1.0.0 | (c) Michael A. Matveev | github.com/xtremespb/zoiaFormBuilder 
-*/ 
+/*! zoiaFormBuilder v1.0.1 | (c) Michael A. Matveev | github.com/xtremespb/zoiaFormBuilder 
+ */
 ;
 (($) => {
     'use strict';
@@ -25,13 +25,15 @@
         html: {
             helpText: '<div class="uk-text-meta">{text}</div>',
             text: '<div class="uk-margin-bottom"><label class="uk-form-label" for="{prefix}_{name}">{label}:</label><br><div class="uk-form-controls"><input class="uk-input {prefix}-form-field{css}" id="{prefix}_{name}" type="{type}" placeholder=""{autofocus}><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="uk-label-danger"></span></div>{helpText}</div></div>',
-            select: '<div class="uk-margin-bottom"><label class="uk-form-label" for="{prefix}_{name}">{label}:</label><br><select class="uk-select {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}>{values}</select><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="uk-label-danger"></span></div>{helpText}</div>',
+            select: '<div class="uk-margin-bottom"><label class="uk-form-label" for="{prefix}_{name}">{label}:</label><br><select{multiple} class="uk-select {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}>{values}</select><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="uk-label-danger"></span></div>{helpText}</div>',
             passwordConfirm: '<div class="uk-margin"><label class="uk-form-label" for="{prefix}_{name}">{label}:</label><div class="uk-flex"><div class="{prefix}-field-wrap"><input class="uk-input {prefix}-form-field" id="{prefix}_{name}" type="password" placeholder=""{autofocus}></div><div><input class="uk-input {prefix}-form-field" id="{prefix}_{name}Confirm" type="password" placeholder=""></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="uk-label-danger"></span></div>{helpText}</div>',
             captcha: '<div class="uk-margin"><label class="uk-form-label" for="{prefix}_{name}">{label}:</label><div class="uk-grid uk-grid-small"><div><input class="uk-input {prefix}-form-field {prefix}-captcha-field{css}" type="text" placeholder="" id="{prefix}_{name}"{autofocus}></div><div><div class="uk-form-controls"><img class="{prefix}-captcha-img"></div></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="uk-label-danger"></span></div>{helpText}',
             buttonsWrap: '<div class="{css}">{buttons}{html}</div>',
             button: '<button class="uk-button {prefix}-form-button{css}" id="{prefix}_{name}" type="{type}">{label}</button>',
             launcher: '<div class="uk-margin"><label class="uk-form-label" for="{prefix}_{name}_btn">{label}:</label><div class="uk-flex"><div id="{prefix}_{name}_val" class="{prefix}-{name}-selector" data="{data}">{value}</div><div><button class="uk-button uk-button-default" id="{prefix}_{name}_btn" type="button">{labelBtn}</button></div></div>{helpText}</div>',
             textarea: '<div class="uk-margin-bottom"><label class="uk-form-label" for="{prefix}_{name}">{label}:</label><br><div class="uk-form-controls"><textarea class="uk-textarea {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}></textarea><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="uk-label-danger"></span></div>{helpText}</div></div>',
+            checkboxlistItem: '<li><label><input class="uk-checkbox {prefix}-{name}-cbx" type="checkbox" data="{title}">&nbsp;&nbsp;{title}</label></li>',
+            checkboxlist: '<div class="uk-margin-bottom"><label class="uk-form-label" for="{prefix}_{name}">{label}:</label><div class="uk-panel uk-panel-scrollable{css}" id="{prefix}_{name}_wrap"><ul class="uk-list">{items}</ul></div>{helpText}</div>'
         },
         template: {
             fields: '{fields}',
@@ -63,7 +65,7 @@
         this._defaults = defaults;
         this._name = pluginName;
         this._prefix = this.element.id;
-        this._formTypes = ['text', 'email', 'password', 'select', 'passwordConfirm', 'captcha', 'launcher', 'textarea'];
+        this._formTypes = ['text', 'email', 'password', 'select', 'passwordConfirm', 'captcha', 'launcher', 'textarea', 'checkboxlist'];
         this._saving = false;
         this.init();
     };
@@ -116,6 +118,7 @@
                             name: n,
                             label: item.label,
                             css: (item.css ? ' ' + item.css : ''),
+                            multiple: (item.multiple ? ' multiple' : ''),
                             autofocus: (item.autofocus ? 'autofocus' : ''),
                             helpText: (item.helpText ? this._template(this.settings.html.helpText, {
                                 text: item.helpText,
@@ -123,6 +126,28 @@
                             }) : ''),
                             type: item.type,
                             values: valuesHTML
+                        });
+                        break;
+                    case 'checkboxlist':
+                        let itemsHTML = '';
+                        for (let v in item.values) {
+                            itemsHTML += this._template(this.settings.html.checkboxlistItem, {
+                                prefix: this._prefix,
+                                name: n,
+                                title: item.values[v]
+                            });
+                        }
+                        fieldsHTML += this._template(this.settings.html.checkboxlist, {
+                            prefix: this._prefix,
+                            name: n,
+                            label: item.label,
+                            css: (item.css ? ' ' + item.css : ''),
+                            multiple: (item.multiple ? ' multiple' : ''),
+                            helpText: (item.helpText ? this._template(this.settings.html.helpText, {
+                                text: item.helpText,
+                                prefix: this._prefix
+                            }) : ''),
+                            items: itemsHTML
                         });
                         break;
                     case 'passwordConfirm':
@@ -221,6 +246,9 @@
                     $('#' + this._prefix + '_' + n + '_val').html(item.value);
                     $('#' + this._prefix + '_' + n + '_val').attr('data', item.data);
                 }
+                if (item.type === 'checkboxlist') {
+                    $('.' + this._prefix + '-' + n + '-cbx').prop('checked', false);                    
+                }
             }
         },
         serialize() {
@@ -237,6 +265,15 @@
                             value: $('#' + this._prefix + '_' + n + '_val').html(),
                             id: $('#' + this._prefix + '_' + n + '_val').attr('data')
                         };
+                        break;
+                    case 'checkboxlist':
+                        const arrCbx = $('.' + this._prefix + '-' + n + '-cbx:checked').map(function() {
+                            return $(this).attr('data');
+                        }).get();
+                        json[n] = {
+                            type: field.type,
+                            value: arrCbx.join(',')
+                        }
                         break;
                     default:
                         json[n] = {
@@ -263,21 +300,16 @@
                         $('#' + this._prefix + '_' + n + '_val').html(json[n].value);
                         $('#' + this._prefix + '_' + n + '_val').attr('data', json[n].id);
                         break;
-                    default:
-                        $('#' + this._prefix + '_' + n).val(json[n].value || '');
-                }
-            }
-            /*for (let n in json) {
-                console.log('Setting value for ' + n);
-                switch (json[n].type) {
-                    case 'launcher':
-                        $('#' + this._prefix + '_' + n + '_val').html(json[n].value);
-                        $('#' + this._prefix + '_' + n + '_val').attr('data', json[n].id);
+                    case 'checkboxlist':
+                        const data = json[n].value.split(',');
+                        for (let i in data) {
+                            $('.editForm-groups-cbx[data="' + data[i] + '"]').prop('checked', true);
+                        }
                         break;
                     default:
                         $('#' + this._prefix + '_' + n).val(json[n].value || '');
                 }
-            }*/
+            }
         },
         loadData(data) {
             if (this.settings.events.onLoadStart) {
@@ -294,7 +326,13 @@
                 if (res && res.status === 1) {
                     jQuery.each(res.item, (key, value) => {
                         $('#' + that._prefix + '_' + key).val(value);
-                    });
+                        if (that.settings.items[key] && that.settings.items[key].type === 'checkboxlist' && value) {
+                            const data = value.split(',');
+                            for (let i in data) {
+                                $('.editForm-groups-cbx[data="' + data[i] + '"]').prop('checked', true);
+                            }                            
+                        }
+                    });                    
                     if (that.settings.events.onLoadSuccess) {
                         that.settings.events.onLoadSuccess(res);
                     }
@@ -335,6 +373,13 @@
                 }
                 if (field.type === 'launcher') {
                     data[n] = items ? (items[n] ? items[n].id : undefined) : $('#' + this._prefix + '_' + n + '_val').attr('data');;
+                    continue;
+                }
+                if (field.type === 'checkboxlist') {
+                    const arrCbx = $('.' + this._prefix + '-' + n + '-cbx:checked').map(function() {
+                        return $(this).attr('data');
+                    }).get();
+                    data[n] = items ? (items[n] ? items[n].value : undefined) : arrCbx.join(',');
                     continue;
                 }
                 let fieldValue = items ? (items[n] ? items[n].value : undefined) : $('#' + this._prefix + '_' + n).val();
@@ -394,7 +439,7 @@
                     }
                     if (this.settings.items[k].type === 'passwordConfirm') {
                         $('#' + this._prefix + '_' + k + 'Confirm').addClass(this.settings.formDangerClass);
-                    }
+                    }                    
                 }
                 return true;
             }

@@ -38,8 +38,9 @@
             <tr>
                 <th id="usersID" class="za-table-shrink"></th>
                 <th id="users_username" class="za-table-shrink">{{ i18n.__(locale, 'Username')}}</th>
-                <th id="users_email">{{ i18n.__(locale, 'E-mail')}}</th>
-                <th id="users_status">{{ i18n.__(locale, 'Status')}}</th>
+                <th id="users_email" class="za-table-shrink">{{ i18n.__(locale, 'E-mail')}}</th>
+                <th id="users_groups">{{ i18n.__(locale, 'Groups')}}</th>
+                <th id="users_status" class="za-table-shrink">{{ i18n.__(locale, 'Status')}}</th>
                 <th id="users_actions">{{ i18n.__(locale, 'Actions')}}</th>
             </tr>
         </thead>
@@ -82,4 +83,5 @@
 </div>
 <script type="text/javascript">
 var lang = {{ lang }};
+var zoiaGroups = {{ groups }};
 </script>

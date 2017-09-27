@@ -27,7 +27,7 @@
                     max: 1
                 },
                 type: 'string',
-                regexp: /^(0|1|2)$/
+                regexp: /^(0|1)$/
             }
         };
     }

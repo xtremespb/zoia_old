@@ -11,7 +11,7 @@ module.exports = function(app) {
     const log = app.get('log');
     const db = app.get('db');
 
-    const sortFields = ['username', 'email', 'status'];
+    const sortFields = ['username', 'email', 'status', 'groups'];
 
     const list = async(req, res) => {
         res.contentType('application/json');
@@ -51,7 +51,8 @@ module.exports = function(app) {
                 fquery = {
                     $or: [
                         { username: { $regex: search, $options: 'i' } },
-                        { email: { $regex: search, $options: 'i' } }
+                        { email: { $regex: search, $options: 'i' } },
+                        { groups: { $regex: search, $options: 'i' } }
                     ]
                 };
             }
@@ -98,7 +99,8 @@ module.exports = function(app) {
                     _id: item._id,
                     username: item.username,
                     email: item.email,
-                    status: item.status
+                    status: item.status,
+                    groups: item.groups
                 }
             }));
         } catch (e) {
@@ -158,7 +160,8 @@ module.exports = function(app) {
             let update = {
                 username: fields.username.value,
                 email: fields.email.value,
-                status: fields.status.value
+                status: fields.status.value,
+                groups: fields.groups.value
             };
             if (fields.password.value) {
                 update.password = crypto.createHash('md5').update(config.salt + fields.password.value).digest('hex');
