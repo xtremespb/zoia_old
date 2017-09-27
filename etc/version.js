@@ -1,4 +1,4 @@
 module.exports = {
-    code: '0.17.91401',
+    code: '0.17.92701',
     state: 'beta'
 };
