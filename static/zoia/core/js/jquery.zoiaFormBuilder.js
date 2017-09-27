@@ -2,7 +2,7 @@
 /* eslint max-len: 0 */
 /* eslint default-case: 0 */
 /* eslint no-undef: 0 */
-/*! zoiaFormBuilder v1.0.1 | (c) Michael A. Matveev | github.com/xtremespb/zoiaFormBuilder 
+/*! zoiaFormBuilder v1.0.2 | (c) Michael A. Matveev | github.com/xtremespb/zoiaFormBuilder 
  */
 ;
 (($) => {
