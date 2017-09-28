@@ -1,20 +1,27 @@
 const inquirer = require('inquirer');
 const path = require('path');
 const config = require(path.join(__dirname, '..', 'etc', 'config.js'));
+const commandLineArgs = require('command-line-args');
+const optionDefinitions = [
+    { name: 'force', alias: 'f', type: Boolean }
+];
+const options = commandLineArgs(optionDefinitions);
 const install = async() => {
     try {
         console.log('\nThis script will drop all collections from Zoia database.\n');
-        let res = await inquirer.prompt([{
-            type: 'list',
-            name: 'continue',
-            message: 'Please make a choice:\n',
-            choices: [
-                'Cancel',
-                'Continue'
-            ]
-        }]);
-        if (res.continue == 'Cancel') {
-            process.exit(0);
+        if (!options.force) {
+            let res = await inquirer.prompt([{
+                type: 'list',
+                name: 'continue',
+                message: 'Please make a choice:\n',
+                choices: [
+                    'Cancel',
+                    'Continue'
+                ]
+            }]);
+            if (res.continue == 'Cancel') {
+                process.exit(0);
+            }
         }
         console.log('\n- Connecting to the Mongo DB...');
         const database = new(require(path.join(__dirname, '..', 'core', 'database.js')))(false, config.mongo, false);
