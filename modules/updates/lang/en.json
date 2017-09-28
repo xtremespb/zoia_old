@@ -1,0 +1,18 @@
+{
+	"title": "Updates",
+	"Current version installed": "Current version installed",
+	"Your configuration files won't be updated. Please read the changelog to make sure if there are any changes required.": "Your configuration files won't be updated. Please read the changelog to make sure if there are any changes required.",
+	"Important": "Important",
+	"after the application update the Zoia process will terminate. If you are running with default recommended tools like <i>forever</i>, the process will be restarted automatically. The process needs to have permissions to write to the following directory": "after the application update the Zoia process will terminate. If you are running with default recommended tools like <i>forever</i>, the process will be restarted automatically. The process needs to have permissions to write to the following directory",
+	"Check for updates": "Check for updates",
+	"Could not get version information from remote server": "Could not get version information from remote server",
+	"Your system is up to date": "Your system is up to date",
+	"New version available": "New version available",
+	"There is a newer version of Zoia availble": "There is a newer version of Zoia availble",
+	"Cancel": "Cancel",
+	"Update": "Update",
+	"Changelog": "Changelog",
+	"Updating": "Updating",
+	"Update is in progress, please wait...": "Update is in progress, please wait...",
+	"Error while updating your system": "Error while updating your system"
+}
