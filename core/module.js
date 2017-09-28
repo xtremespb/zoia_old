@@ -13,7 +13,7 @@ module.exports = class Module {
         return titles;
     }
     static isAuthorized(req) {
-        if (req && req.session && req.session.auth && req.session.auth._id) {
+        if (req && req.session && req.session.auth && req.session.auth._id && req.session.auth.status && String(req.session.auth.status) === '1') {
             return true;
         }
         return false;
@@ -21,7 +21,7 @@ module.exports = class Module {
     static isAuthorizedAdmin(req) {
         if (req && req.session && req.session.auth && req.session.auth._id && req.session.auth.groups) {
             const groups = req.session.auth.groups.split(',');
-            if (groups.indexOf('admin') > -1) {
+            if (groups.indexOf('admin') > -1 && req.session.auth.status && String(req.session.auth.status) === '1') {
                 return true;
             }
         }
