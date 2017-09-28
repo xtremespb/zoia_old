@@ -30,7 +30,7 @@ module.exports = {
     },
     templates: ['default'],
     email: {
-        noreply: 'Zoia Web Framework <xtremespb@yandex.ru>',
-        feedback: 'info@example.com'
+        noreply: 'Zoia Web Framework <info@zoiajs.org>',
+        feedback: 'info@zoiajs.org'
     }
 };
