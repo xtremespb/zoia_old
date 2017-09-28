@@ -7,7 +7,7 @@ module.exports = {
     production: false,
     salt: '58MpFjp6N3zPwL8evWnWDhBcR233Ah4b',
     trustProxy: true,
-    stackTrace: false,
+    stackTrace: true,
     logLevel: 'info',
     maxUploadSizeMB: 100,
     testMode: false,
