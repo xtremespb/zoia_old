@@ -61,8 +61,14 @@
         </div>
         <div id="zoia-offcanvas-nav" za-offcanvas="overlay:true">
             <div class="za-offcanvas-bar">
-                <ul class="za-nav za-nav-default">
+                <ul class="za-nav za-nav-default">                    
                     {{ req | navigationMobile }}
+                    <li class="za-nav-divider"></li>{% if auth %}
+                    <li class="za-nav-header">{{ auth.username }}</li>{% if admin %}
+                    <li><a href="/admin">{{ i18nc.__(locale, 'Administration panel') }}</a></li>{% endif %}
+                    <li><a href="/auth/logout">{{ i18nc.__(locale, 'Log out') }}</a></li>{% else %}
+                    <li><a href="/auth">{{ i18nc.__(locale, 'Sign In') }}</a></li>
+                    <li><a href="/auth/register">{{ i18nc.__(locale, 'Register') }}</a></li>{% endif %}
                 </ul>
             </div>
         </div>
