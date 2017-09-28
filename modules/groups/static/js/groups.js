@@ -333,7 +333,7 @@ $(document).ready(() => {
         }
     });
     $('#groups').zoiaTable({
-        url: 'http://127.0.0.1:3000/api/groups/list',
+        url: '/api/groups/list',
         limit: 20,
         sort: {
             field: 'groupname',

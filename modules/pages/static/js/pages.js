@@ -923,7 +923,7 @@ $(document).ready(() => {
         }
     });
     $('#pages').zoiaTable({
-        url: 'http://127.0.0.1:3000/api/pages/list',
+        url: '/api/pages/list',
         limit: 20,
         sort: {
             field: 'name',

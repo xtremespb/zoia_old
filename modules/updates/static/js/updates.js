@@ -48,28 +48,34 @@ const btnCheckUpdatesHandler = () => {
     });
 };
 
+const updateDownload = () => {
+    $.ajax({
+        type: 'GET',
+        url: '/api/updates/download',
+        cache: false
+    }).done((res) => {
+        if (res && res.status === 1) {
+        	window.progressbar && (progressbar.value = 40);
+        } else {
+            $zUI.notification(lang['Could not download new version from remote server'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        }
+        updateProgressDialog.hide();
+    }).fail(() => {
+        updateProgressDialog.hide();
+        $zUI.notification(lang['Error while updating your system'], {
+            status: 'danger',
+            timeout: 1500
+        });
+    });
+};
+
 const btnUpdateStartHandler = () => {
     updateDialog.hide();
     updateProgressDialog.show().then(() => {
-        $.ajax({
-            type: 'GET',
-            url: '/api/updates/download',
-            cache: false
-        }).done((res) => {
-            if (res && res.status === 1) {} else {
-                $zUI.notification(lang['Error while updating your system'], {
-                    status: 'danger',
-                    timeout: 1500
-                });
-            }
-            updateProgressDialog.hide();
-        }).fail(() => {
-        	updateProgressDialog.hide();
-            $zUI.notification(lang['Error while updating your system'], {
-                status: 'danger',
-                timeout: 1500
-            });            
-        });
+    	updateDownload();
     });
 };
 

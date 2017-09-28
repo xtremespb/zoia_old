@@ -8,8 +8,8 @@ zoia_minuptime=1000
 zoia_spinsleeptime=1000
 name="{serverName}"
 pid_file="{root}/run/{name}.pid"
-stdout_log="{root}/log/{name}_daemon.log"
-stderr_log="{root}/log/{name}_daemon.err"
+stdout_log="{root}/logs/{name}_daemon.log"
+stderr_log="{root}/logs/{name}_daemon.err"
 cmd_start="forever --pidFile $pid_file --sourceDir $zoia_dir/bin -l $zoia_dir/logs/{name}.log -a --minUptime $zoia_minuptime --spinSleepTime $zoia_spinsleeptime start webserver.js"
 cmd_stop="forever stop $zoia_dir/bin/webserver.js"
 

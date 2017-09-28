@@ -373,7 +373,7 @@ $(document).ready(() => {
         }
     });
     $('#users').zoiaTable({
-        url: 'http://127.0.0.1:3000/api/users/list',
+        url: '/api/users/list',
         limit: 20,
         sort: {
             field: 'username',
