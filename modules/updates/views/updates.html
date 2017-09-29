@@ -35,8 +35,18 @@
             <h2>{{ i18n.__(locale, 'Updating')}}</h2>
         </div>
         <div class="za-modal-body">
-            <p>{{ i18n.__(locale, 'Update is in progress, please wait...')}}</p>
+            <div class="za-margin-bottom"><div za-spinner style="margin:-2px 20px 0 0"></div>{{ i18n.__(locale, 'Update is in progress, please wait...')}}</div>
             <div class="za-margin-top"><progress id="progressbar" class="za-progress" value="10" max="100"></progress></div>
+        </div>
+    </div>
+</div>
+<div id="zoiaRestartProgressDialog" style="display:none">
+    <div class="za-modal-dialog">
+        <div class="za-modal-header">
+            <h2>{{ i18n.__(locale, 'Restarting')}}</h2>
+        </div>
+        <div class="za-modal-body">
+            <p><div za-spinner style="margin:-2px 20px 0 0"></div>{{ i18n.__(locale, 'Zoia has been updated sucessfully. The system is restaring now, please wait...')}}</p>
         </div>
     </div>
 </div>

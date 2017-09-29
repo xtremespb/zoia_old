@@ -20,7 +20,7 @@ module.exports = function(app) {
             let html = await render.file('updates.html', {
                 i18n: i18n.get(),
                 config: config,
-                dirname: __dirname,
+                dirname: path.join(__dirname, '..', '..'),
                 locale: locale,
                 lang: JSON.stringify(i18n.get().locales[locale])
             });

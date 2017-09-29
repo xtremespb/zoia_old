@@ -30,6 +30,8 @@ gulp.task('cleanup', async() => {
     fs.unlinkSync(path.join(__dirname, 'modules', 'pages', 'static', 'js', 'browse.min.js'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'navigation', 'static', 'css', 'navigation.min.css'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'navigation', 'static', 'js', 'navigation.min.js'));
+    fs.unlinkSync(path.join(__dirname, 'modules', 'updates', 'static', 'css', 'updates.min.css'));
+    fs.unlinkSync(path.join(__dirname, 'modules', 'updates', 'static', 'js', 'updates.min.js'));
 });
 
 gulp.task('panel', async() => {
@@ -288,6 +290,22 @@ gulp.task('navigation', async() => {
     fs.unlinkSync(path.join(__dirname, 'modules', 'navigation', 'static', 'js', 'navigation'));
 });
 
+gulp.task('updates', async() => {
+    // Generate CSS
+    gulp.src(['modules/updates/static/css/updates.css'], { base: __dirname })
+        .pipe(minifyCSS())
+        .pipe(concat('updates.min.css'))
+        .pipe(gulp.dest(path.join('modules', 'updates', 'static', 'css')));
+    // Generate updates.min.js
+    gulp.src(['modules/updates/static/js/updates.js'], { base: __dirname })
+        .pipe(babel({
+            presets: ['env']
+        }))
+        .pipe(concat('updates.min.js'))
+        .pipe(uglify())
+        .pipe(gulp.dest(path.join('modules', 'updates', 'static', 'js')));
+});
+
 gulp.task('default', function() {
     gulp.start('panel');
     gulp.start('users');
@@ -295,4 +313,5 @@ gulp.task('default', function() {
     gulp.start('auth');
     gulp.start('pages');
     gulp.start('navigation');
+    gulp.start('updates');
 });

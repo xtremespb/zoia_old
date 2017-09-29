@@ -15,5 +15,10 @@
 	"Updating": "Updating",
 	"Update is in progress, please wait...": "Update is in progress, please wait...",
 	"Error while updating your system": "Error while updating your system",
-	"Could not download new version from remote server": "Could not download new version from remote server"
+	"Could not download new version from remote server": "Could not download new version from remote server",
+	"checksum failed": "checksum failed",
+	"Could not extract the update archive": "Could not extract the update archive",
+	"could not extract update file": "could not extract update file",
+	"Restarting": "Restarting",
+	"Zoia has been updated sucessfully. The system is restaring now, please wait...": "Zoia has been updated sucessfully. The system is restaring now, please wait..."
 }

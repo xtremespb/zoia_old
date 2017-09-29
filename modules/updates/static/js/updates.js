@@ -1,6 +1,7 @@
 let flagCheckUpdates = false;
 let updateDialog;
 let updateProgressDialog;
+let restartProgressDialog;
 
 const btnCheckUpdatesHandler = () => {
     if (flagCheckUpdates) {
@@ -48,6 +49,45 @@ const btnCheckUpdatesHandler = () => {
     });
 };
 
+const updateRestart = () => {
+    $.ajax({
+        type: 'GET',
+        url: '/api/updates/restart',
+        cache: false
+    });
+};
+
+const updateExtract = () => {
+    $.ajax({
+        type: 'GET',
+        url: '/api/updates/extract',
+        cache: false
+    }).done((res) => {
+        if (res && res.status === 1) {
+            window.progressbar && (progressbar.value = 100);
+            setTimeout(() => {
+                restartProgressDialog.show();
+                updateRestart();
+                setTimeout(() => {                    
+                    restartProgressDialog.hide();
+                    location.href = '/admin?rnd=' + Date.now();
+                }, 30000)
+            }, 1000);
+        } else {
+            $zUI.notification(lang['Could not extract the update archive'] + (res.error ? ': ' + res.error : ''), {
+                status: 'danger',
+                timeout: 3000
+            });
+        }
+    }).fail(() => {
+        updateProgressDialog.hide();
+        $zUI.notification(lang['Error while updating your system'], {
+            status: 'danger',
+            timeout: 1500
+        });
+    });
+};
+
 const updateDownload = () => {
     $.ajax({
         type: 'GET',
@@ -55,14 +95,14 @@ const updateDownload = () => {
         cache: false
     }).done((res) => {
         if (res && res.status === 1) {
-        	window.progressbar && (progressbar.value = 40);
+            window.progressbar && (progressbar.value = 50);
         } else {
-            $zUI.notification(lang['Could not download new version from remote server'], {
+            $zUI.notification(lang['Could not download new version from remote server'] + (res.error ? ': ' + res.error : ''), {
                 status: 'danger',
-                timeout: 1500
+                timeout: 3000
             });
         }
-        updateProgressDialog.hide();
+        updateExtract();
     }).fail(() => {
         updateProgressDialog.hide();
         $zUI.notification(lang['Error while updating your system'], {
@@ -74,8 +114,9 @@ const updateDownload = () => {
 
 const btnUpdateStartHandler = () => {
     updateDialog.hide();
+    window.progressbar && (progressbar.value = 10);
     updateProgressDialog.show().then(() => {
-    	updateDownload();
+        updateDownload();
     });
 };
 
@@ -89,5 +130,9 @@ $(document).ready(() => {
     updateProgressDialog = $zUI.modal('#zoiaUpdateProgressDialog', {
         bgClose: false,
         escClose: false
-    })
+    });
+    restartProgressDialog = $zUI.modal('#zoiaRestartProgressDialog', {
+        bgClose: false,
+        escClose: false
+    });
 });
