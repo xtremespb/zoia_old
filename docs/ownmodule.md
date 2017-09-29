@@ -1,6 +1,6 @@
 To create your own module for Zoia, please follow the steps below.
 
-Example module is available [for download](https://github.com/xtremespb/zoia/releases/download/docs/example.zip).
+Example module is available [for download](https://github.com/xtremespb/zoia/releases/download/example/example.zip).
 
 ## Common steps
 

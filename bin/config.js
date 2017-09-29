@@ -45,15 +45,6 @@ const configs = async() => {
             default: 3000,
             message: 'Local port for Zoia:'
         }]);
-        let zoiaProtocol = await inquirer.prompt([{
-            type: 'list',
-            name: 'val',
-            message: 'Protocol to use:',
-            choices: [
-                'http',
-                'https'
-            ]
-        }]);
         let zoiaProduction = await inquirer.prompt([{
             type: 'list',
             name: 'val',
@@ -150,7 +141,6 @@ const configs = async() => {
         let zconfig = tpl(zConfig, {
             host: zoiaHost.val,
             port: zoiaPort.val,
-            protocol: zoiaProtocol.val,
             production: zoiaProduction.val,
             salt: salt,
             trustProxy: zoiaTrustProxy.val,

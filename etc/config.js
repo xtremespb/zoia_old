@@ -3,11 +3,10 @@ const path = require('path');
 module.exports = {
     hostname: '127.0.0.1',
     port: 3000,
-    protocol: 'http',
     production: false,
     salt: '58MpFjp6N3zPwL8evWnWDhBcR233Ah4b',
     trustProxy: true,
-    stackTrace: true,
+    stackTrace: false,
     logLevel: 'info',
     maxUploadSizeMB: 100,
     testMode: false,
