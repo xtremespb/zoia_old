@@ -20,7 +20,7 @@ module.exports = function(app) {
             const response = await rp('https://xtremespb.github.io/zoia/version.json');
             const data = JSON.parse(response);
             let update;
-            if (config.version.code !== data.code) {
+            if (parseInt(config.version.code.replace(/\./g, '') < parseInt(data.code.replace(/\./g, '')))) {
                 update = {
                     version: data.code,
                     changelog: data.changelog

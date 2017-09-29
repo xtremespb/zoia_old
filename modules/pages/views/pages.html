@@ -66,7 +66,7 @@
     </div>
     <div class="pagesPagination za-margin-top noselect"></div>
     <table class="za-table za-table-divider za-table-striped za-table-hover za-table-responsive za-table-middle" id="pages">
-        <thead class="noselect">
+        <thead class="noselect" style="display:none">
             <tr>
                 <th id="pagesID" class="za-table-shrink"></th>
                 <th id="pages_folder" class="za-table-shrink">{{ i18n.__(locale, 'Folder')}}</th>
@@ -77,6 +77,10 @@
             </tr>
         </thead>
         <tbody>
+            <tr>
+                <td colspan="100%">
+                    <div za-spinner style="margin:-2px 5px 0 0"></div>&nbsp;{{ i18n.__(locale, 'Loading data, please wait')}}</td>
+            </tr>
         </tbody>
     </table>
     <div class="pagesPagination za-margin noselect"></div>
@@ -161,4 +165,9 @@
         <span za-spinner></span>
     </div>
 </div>
-<script type="text/javascript">var lang={{ lang }};var langs={{ langs }};var foldersData={{ folders }};var testMode={{ config.testMode }};</script>
+<script type="text/javascript">
+var lang = {{ lang }};
+var langs = {{ langs }};
+var foldersData = {{ folders }};
+var testMode = {{ config.testMode }};
+</script>

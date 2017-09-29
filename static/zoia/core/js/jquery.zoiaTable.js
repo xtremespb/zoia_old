@@ -287,6 +287,7 @@
                     if (that.settings.sort.field) {
                         that._sortIndicator(that.settings.sort.field, that.settings.sort.direction);
                     }
+                    $(that.element).find('thead').show();
                     that.settings.onLoad();
                 } else {
                     that.loading = false;
