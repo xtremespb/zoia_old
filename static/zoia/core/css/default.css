@@ -52,6 +52,9 @@ a {
         margin-top: -25px;
         padding-top: 20px;
     }
+    .zoia-wrap-content {
+        min-height: calc(100vh - 167px);
+    }
 }
 
 @media (min-width: 640px) {
