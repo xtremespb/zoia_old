@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="/zoia/3rdparty/uikit/css/uikit.min.css" />
     <link rel="stylesheet" href="/zoia/core/css/default.css" />{% if extraCSS %}{% for item in extraCSS %}
     <link rel="stylesheet" href="{{ item }}">{% endfor %}{% endif %}
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 
 <body>
@@ -61,7 +63,7 @@
         </div>
         <div id="zoia-offcanvas-nav" za-offcanvas="overlay:true">
             <div class="za-offcanvas-bar">
-                <ul class="za-nav za-nav-default">                    
+                <ul class="za-nav za-nav-default">
                     {{ req | navigationMobile }}
                     <li class="za-nav-divider"></li>{% if auth %}
                     <li class="za-nav-header">{{ auth.username }}</li>{% if admin %}
