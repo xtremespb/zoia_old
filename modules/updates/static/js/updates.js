@@ -74,6 +74,7 @@ const updateExtract = () => {
                 }, 30000)
             }, 1000);
         } else {
+            updateProgressDialog.hide();
             $zUI.notification(lang['Could not extract the update archive'] + (res.error ? ': ' + res.error : ''), {
                 status: 'danger',
                 timeout: 3000
@@ -97,10 +98,12 @@ const updateDownload = () => {
         if (res && res.status === 1) {
             window.progressbar && (progressbar.value = 50);
         } else {
+            updateProgressDialog.hide();
             $zUI.notification(lang['Could not download new version from remote server'] + (res.error ? ': ' + res.error : ''), {
                 status: 'danger',
                 timeout: 3000
             });
+            return;
         }
         updateExtract();
     }).fail(() => {

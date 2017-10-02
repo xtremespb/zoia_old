@@ -96,7 +96,7 @@ module.exports = function(app) {
         try {
             const response = await rp('https://xtremespb.github.io/zoia/version.json');
             const data = JSON.parse(response);
-            await targz().extract(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'), path.join(__dirname, '..', '..', 'temp'));
+            await targz().extract(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'), path.join(__dirname, '..', '..'));
             await fs.access(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'), fs.constants.F_OK);
             await fs.remove(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'));
             res.send(JSON.stringify({
