@@ -11,13 +11,19 @@ module.exports = {
             url: '/zoia/core/images/zoia_logo.png',
             path: path.join(__dirname, '..', 'static', 'zoia', 'core', 'images', 'zoia_logo.png'),
             width: 168,
-            height: 52
+            height: 81
         },
         small: {
             url: '/zoia/core/images/zoia_logo_small.png',
             path: path.join(__dirname, '..', 'static', 'zoia', 'core', 'images', 'zoia_logo_small.png'),
             width: 120,
-            height: 37
+            height: 58
+        },
+        mobile: {
+            url: '/zoia/core/images/zoia_logo_mobile.png',
+            path: path.join(__dirname, '..', 'static', 'zoia', 'core', 'images', 'zoia_logo_mobile.png'),
+            width: 100,
+            height: 48
         }
     },
     title: {
