@@ -46,7 +46,7 @@ const install = async() => {
                 process.stdout.write('OK\n');
             }
         }
-        console.log('\nUse ' + config.protocol + '://' + config.hostname + ':' + config.port + '/admin (admin/admin) to access your Admin panel.');
+        console.log('\nUse http://' + config.hostname + ':' + config.port + '/admin (admin/admin) to access your Admin panel.');
         console.log('Installation finished. Have a nice day!');
         db.close();
     } catch (e) {
