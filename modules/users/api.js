@@ -141,6 +141,11 @@ module.exports = function(app) {
                     output.fields = ['username'];
                     return res.send(JSON.stringify(output));
                 }
+                if (config.demo && user.username === 'admin') {
+                    output.status = -3;
+                    output.fields = ['username'];
+                    return res.send(JSON.stringify(output));
+                }
                 if (fields.username.value !== user.username) {
                     const userDuplicate = await db.collection('users').findOne({ username: fields.username.value });
                     if (userDuplicate) {
@@ -206,7 +211,15 @@ module.exports = function(app) {
                 output.status = -2;
                 return res.send(JSON.stringify(output));
             }
-            did.push({ _id: new ObjectID(id) });
+            if (config.demo) {
+                did.push({
+                    $and: [
+                        { _id: new ObjectID(id) }, { username: { $ne: 'admin' } }
+                    ]
+                });
+            } else {
+                did.push({ _id: new ObjectID(id) });
+            }
         }
         try {
             const delResult = await db.collection('users').deleteMany({

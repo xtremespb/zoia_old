@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-    hostname: '127.0.0.1',
+    hostname: '0.0.0.0',
     port: 3000,
     production: false,
     salt: '58MpFjp6N3zPwL8evWnWDhBcR233Ah4b',

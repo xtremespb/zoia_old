@@ -1,5 +1,9 @@
 <div id="wrapTable">
-    <h1>{{ i18n.__(locale, 'title')}}</h1>
+    <h1>{{ i18n.__(locale, 'title')}}</h1>{% if config.demo %}
+    <div class="za-alert-primary" za-alert>
+        <a class="za-alert-close" za-close></a>
+        <p>{{ i18n.__(locale, 'In demo mode, you cannot edit or delete admin user. That\'s not an error.')}}</p>
+    </div>{% endif %}
     <div class="za-grid za-grid-small">
         <div>
             <ul class="za-iconnav za-hidden@m">
@@ -45,7 +49,10 @@
             </tr>
         </thead>
         <tbody>
-            <tr><td colspan="100%"><div za-spinner style="margin:-2px 5px 0 0"></div>&nbsp;{{ i18n.__(locale, 'Loading data, please wait')}}</td></tr>
+            <tr>
+                <td colspan="100%">
+                    <div za-spinner style="margin:-2px 5px 0 0"></div>&nbsp;{{ i18n.__(locale, 'Loading data, please wait')}}</td>
+            </tr>
         </tbody>
     </table>
     <div class="usersPagination za-margin noselect"></div>

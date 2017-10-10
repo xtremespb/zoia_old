@@ -31,6 +31,6 @@ const onError = (error) => {
     }
 };
 
-server.listen(config.port, config.host);
+server.listen(config.port, config.hostname);
 server.on('listening', onListening);
 server.on('error', onError);

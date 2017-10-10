@@ -1,5 +1,9 @@
 <div id="wrapTable">
-    <h1>{{ i18n.__(locale, 'title')}}</h1>
+    <h1>{{ i18n.__(locale, 'title')}}</h1>{% if config.demo %}
+    <div class="za-alert-primary" za-alert>
+        <a class="za-alert-close" za-close></a>
+        <p>{{ i18n.__(locale, 'In demo mode, you cannot edit or delete the index page. That\'s not an error.')}}</p>
+    </div>{% endif %}
     <div class="za-grid za-grid-small">
         <div>
             <ul class="za-iconnav za-hidden@m">

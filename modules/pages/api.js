@@ -192,6 +192,10 @@ module.exports = function(app) {
                 }
             }
             if (id) {
+                if (config.demo && data.folder === '1' && data.name === '') {
+                    output.status = -1;
+                    return res.send(JSON.stringify(output));
+                }
                 let page = await db.collection('pages').findOne({ _id: new ObjectID(id) });
                 if (!page) {
                     output.status = -1;
@@ -252,7 +256,11 @@ module.exports = function(app) {
                 output.status = -2;
                 return res.send(JSON.stringify(output));
             }
-            did.push({ _id: new ObjectID(id) });
+            if (config.demo) {
+                did.push({ _id: new ObjectID(id), url: { $ne: '' } });
+            } else {
+                did.push({ _id: new ObjectID(id) });
+            }
         }
         try {
             const delResult = await db.collection('pages').deleteMany({

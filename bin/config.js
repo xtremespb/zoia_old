@@ -36,7 +36,7 @@ const configs = async() => {
         let zoiaHost = await inquirer.prompt([{
             type: 'input',
             name: 'val',
-            default: '127.0.0.1',
+            default: '0.0.0.0',
             message: 'Local host for Zoia:'
         }]);
         let zoiaPort = await inquirer.prompt([{
