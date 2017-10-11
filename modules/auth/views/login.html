@@ -3,8 +3,8 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    {% if config.production %}<link rel="stylesheet" href="/auth/static/css/login.min.css">{% else %}
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> {% if config.production %}
+    <link rel="stylesheet" href="/auth/static/css/login.min.css">{% else %}
     <link rel="stylesheet" href="/zoia/3rdparty/uikit/css/uikit.min.css">
     <link rel="stylesheet" href="/auth/static/css/login.css">{% endif %}
     <title>{{ i18n.__(locale, 'Log in') }} | {{ config.website.title[locale] }}</title>
@@ -17,6 +17,9 @@
                 <div za-spinner></div>
             </div>
             <form id="zoiaAuth">
+                <div class="za-flex za-flex-center za-margin-bottom">
+                    <div za-spinner></div>
+                </div>
             </form>
             <div class="zoia-links">
                 <a href="/auth/register">{{ i18n.__(locale, 'Register') }}</a> | <a href="/auth/reset">{{ i18n.__(locale, 'Reset password') }}</a>
@@ -28,11 +31,12 @@
     const lang = {{ lang }};
     const redirectURL = "{{ redirect }}";
     </script>
-    {% if config.production %}<script src="/auth/static/js/login.min.js" type="text/javascript"></script>{% else %}
+    {% if config.production %}
+    <script src="/auth/static/js/login.min.js" type="text/javascript"></script>{% else %}
     <script src="/zoia/3rdparty/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="/zoia/3rdparty/uikit/js/uikit.min.js" type="text/javascript"></script>
     <script src="/zoia/3rdparty/uikit/js/uikit-icons.min.js" type="text/javascript"></script>
-    <script src="/zoia/core/js/jquery.zoiaFormBuilder.js" type="text/javascript"></script>    
+    <script src="/zoia/core/js/jquery.zoiaFormBuilder.js" type="text/javascript"></script>
     <script src="/auth/static/js/login.js" type="text/javascript"></script>{% endif %}
 </body>
 
