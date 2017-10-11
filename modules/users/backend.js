@@ -16,7 +16,7 @@ module.exports = function(app) {
         try {
             if (!Module.isAuthorizedAdmin(req)) {
                 Module.logout(req);
-                return res.redirect(303, '/auth?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
+                return res.redirect(303, (config.website.authPrefix || '/auth')  + '?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
             }
             let groups = [];
             try {

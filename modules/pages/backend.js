@@ -16,7 +16,7 @@ module.exports = function(app) {
         try {
             if (!Module.isAuthorizedAdmin(req)) {
                 Module.logout(req);
-                return res.redirect(303, '/auth?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
+                return res.redirect(303, (config.website.authPrefix || '/auth')  + '?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
             }
             const locale = req.session.currentLocale;
             let folders = await db.collection('registry').findOne({ name: 'pagesFolders' });
@@ -41,7 +41,7 @@ module.exports = function(app) {
         try {
             if (!Module.isAuthorizedAdmin(req)) {
                 Module.logout(req);
-                return res.redirect(303, '/auth?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
+                return res.redirect(303, (config.website.authPrefix || '/auth')  + '?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
             }
             const locale = req.session.currentLocale;
             let html = await render.file('browse.html', {

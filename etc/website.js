@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-    protocol: 'http',
+    protocol: 'http',    
     url: {
         en: '127.0.0.1:3000',
         ru: '127.0.0.1:3000'
@@ -38,5 +38,6 @@ module.exports = {
     email: {
         noreply: 'Zoia Web Framework <info@zoiajs.org>',
         feedback: 'info@zoiajs.org'
-    }
+    },
+    authPrefix: '/auth',
 };
