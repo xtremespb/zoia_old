@@ -214,10 +214,10 @@ router.get('/mystatus', mystatus);
 
 ```javascript
 {
-	"title": "Example module",
-	"Up and running.": "Up and running.",
-	"Example module": "Example module",
-	"It works!": "It works!"
+    "title": "Example module",
+    "Up and running.": "Up and running.",
+    "Example module": "Example module",
+    "It works!": "It works!"
 }
 ```
 
@@ -253,7 +253,7 @@ module.exports = function(app) {
             if (!Module.isAuthorizedAdmin(req)) {
                 // Logout (to avoid redirection loops)
                 Module.logout(req);
-                return res.redirect(303, '/auth?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
+                return res.redirect(303, (config.website.authPrefix || '/auth') + '?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
             }
             // Get current locale
             const locale = req.session.currentLocale;
