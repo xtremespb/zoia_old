@@ -5,7 +5,7 @@ const Router = require('co-router');
 const ObjectID = require('mongodb').ObjectID;
 const usersFields = require(path.join(__dirname, 'schemas', 'usersFields.js'));
 const crypto = require('crypto');
-const config = require(path.join(__dirname, '..', '..', 'etc', 'config.js'));
+const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 
 module.exports = function(app) {
     const log = app.get('log');

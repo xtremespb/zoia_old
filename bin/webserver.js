@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const path = require('path');
-const config = require(path.join(__dirname, '..', 'etc', 'config.js'));
+const config = require(path.join(__dirname, '..', 'core', 'config.js'));
 const app = require(path.join(__dirname, '..', 'core', 'app'));
 const log = app.get('log');
 const http = require('http');
@@ -31,6 +31,6 @@ const onError = (error) => {
     }
 };
 
-server.listen(config.port, config.hostname);
+server.listen(config.port, config.ip);
 server.on('listening', onListening);
 server.on('error', onError);

@@ -1,6 +1,5 @@
 const inquirer = require('inquirer');
 const path = require('path');
-const config = require(path.join(__dirname, '..', 'etc', 'config.js'));
 const fs = require('fs-extra');
 const os = require('os');
 const crypto = require('crypto');
@@ -32,11 +31,12 @@ const configs = async() => {
         let tplNginx = String(await fs.readFile(path.join(__dirname, 'templates', 'nginx.template')));
         let tplMonit = String(await fs.readFile(path.join(__dirname, 'templates', 'monit.template')));
         let tplZoia = String(await fs.readFile(path.join(__dirname, 'templates', 'zoia.template')));
-        let zConfig = String(await fs.readFile(path.join(__dirname, 'templates', 'config.template')));
-        let zoiaHost = await inquirer.prompt([{
+        let zConfig = await fs.readJSON(path.join(__dirname, 'templates', 'config.template'));
+        let zConfigWebsite = await fs.readJSON(path.join(__dirname, 'templates', 'website.template'));
+        let zoiaIP = await inquirer.prompt([{
             type: 'input',
             name: 'val',
-            default: '0.0.0.0',
+            default: '127.0.0.1',
             message: 'Local host for Zoia:'
         }]);
         let zoiaPort = await inquirer.prompt([{
@@ -80,8 +80,8 @@ const configs = async() => {
             name: 'val',
             message: 'Enable stack trace output?',
             choices: [
-                'true',
-                'false'
+                'false',
+                'true'
             ]
         }]);
         let zoiaLogLevel = await inquirer.prompt([{
@@ -124,12 +124,12 @@ const configs = async() => {
             port: nginxPort.val,
             serverName: serverName.val,
             dir: path.join(__dirname, '..').replace(/\\/gm, '/'),
-            zoiaHostname: config.hostname,
-            zoiaPort: config.port
+            zoiaIPname: zoiaIP.val,
+            zoiaPort: zoiaPort.val
         });
         let monit = tpl(tplMonit, {
-            port: config.port,
-            serverName: serverName.val,
+            port: zoiaPort.val,
+            serverName: zoiaIP.val,
             name: name,
             root: path.join(__dirname, '..').replace(/\\/gm, '/')
         });
@@ -138,27 +138,25 @@ const configs = async() => {
             name: name,
             root: path.join(__dirname, '..').replace(/\\/gm, '/')
         });
-        let zconfig = tpl(zConfig, {
-            host: zoiaHost.val,
-            port: zoiaPort.val,
-            production: zoiaProduction.val,
-            salt: salt,
-            trustProxy: zoiaTrustProxy.val,
-            stackTrace: zoiaStackTrace.val,
-            logLevel: zoiaLogLevel.val,
-            mongoURL: zoiaMongoURL.val,
-            sessionSecret: sessionSecret
-        });
+        zConfig.ip = zoiaIP.val;
+        zConfig.port = zoiaPort.val;
+        zConfig.production = zoiaProduction.val;
+        zConfig.salt = salt;
+        zConfig.trustProxy = zoiaTrustProxy.val;
+        zConfig.stackTrace = zoiaStackTrace.val;
+        zConfig.logLevel = zoiaLogLevel.val;
+        zConfig.mongo.url = zoiaMongoURL.val;
+        zConfig.session.secret = sessionSecret;
         await fs.ensureDir(path.join(__dirname, 'config'));
         await fs.writeFile(path.join(__dirname, 'config', name + '_nginx.conf'), nginx);
         await fs.writeFile(path.join(__dirname, 'config', name + '_monit.conf'), monit);
         await fs.writeFile(path.join(__dirname, 'zoia.sh'), zoia);
-        await fs.writeFile(path.join(__dirname, 'config', 'config.js'), zconfig);
-        console.log('\nServer configuration files are written to the "config" directory.');
-        console.log('Startup file written to the current directory.');
-        console.log('Please check your ./config/config.js file and move it to the ../etc directory when done.');
-        console.log('Please edit ../etc/website.js manually.');
-        console.log('Important: don\'t forget to "chmod +x zoia.sh" startup script.');
+        await fs.writeFile(path.join(__dirname, '..', 'etc', 'config.json'), JSON.stringify(zConfig, null, "\t"));
+        await fs.writeFile(path.join(__dirname, '..', 'etc', 'website.json'), JSON.stringify(zConfigWebsite, null, "\t"));
+        console.log('\nNGINX and Monit configuration files are written to the "./bin/config" directory.');
+        console.log('Startup file ("zoia.sh") written to the "./bin" directory.');
+        console.log('Configuration files ("config.json" and "website.json") are written to "./etc" directory.');
+        console.log('Please check configuration files in "./etc" manually before you start Zoia.');
     } catch (e) {
         console.log('\nError: ' + e);
     }

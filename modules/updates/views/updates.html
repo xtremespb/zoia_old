@@ -1,5 +1,5 @@
 <h1 id="zoiaUpdatesHeader">{{ i18n.__(locale, 'title') }}</h1>
-<p>{{ i18n.__(locale, 'Current version installed') }}: <b>{{ config.version.code }}</b></p>
+<p>{{ i18n.__(locale, 'Current version installed') }}: <b>{{ config.version }}</b></p>
 <div class="za-card za-card-default za-card-body">
     <p>{{ i18n.__(locale, 'Your configuration files won\'t be updated. Please read the changelog to make sure if there are any changes required.') }}</p>
     <b>{{ i18n.__(locale, 'Important') }}</b>:&nbsp;{{ i18n.__(locale, 'after the application update the Zoia process will terminate. If you are running with default recommended tools like <i>forever</i>, the process will be restarted automatically. The process needs to have permissions to write to the following directory') }}:&nbsp;<i>{{ dirname }}</i>.</p>

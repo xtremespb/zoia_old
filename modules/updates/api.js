@@ -2,11 +2,12 @@ const path = require('path');
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
 const ObjectID = require('mongodb').ObjectID;
-const config = require(path.join(__dirname, '..', '..', 'etc', 'config.js'));
+const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const rp = require('request-promise');
 const fs = require('fs-extra');
 const md5File = require('md5-file/promise');
 const targz = require('tar.gz');
+/*const npm = require('npm');*/
 
 module.exports = function(app) {
     const log = app.get('log');
@@ -24,9 +25,9 @@ module.exports = function(app) {
             const response = await rp('https://xtremespb.github.io/zoia/version.json');
             const data = JSON.parse(response);
             let update;
-            const versionLocal = parseInt(config.version.code.replace(/\./g, ''));
+            const versionLocal = parseInt(config.version.replace(/\./g, ''));
             const versionRemote = parseInt(data.code.replace(/\./g, ''));
-            if (versionRemote > versionLocal) { // TODO replace === by >
+            if (versionRemote > versionLocal) {
                 update = {
                     version: data.code,
                     changelog: data.changelog
@@ -85,6 +86,20 @@ module.exports = function(app) {
         }
     };
 
+    const _npmUpdate = () => {
+        return new Promise(function(resolve, reject) {
+            npm.load({ save: true }, () => {
+                npm.commands.install((err, d) => {
+                    if (err) {
+                        reject();
+                    } else {
+                        resolve();
+                    }
+                });
+            });
+        });
+    };
+
     const extract = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
@@ -99,6 +114,7 @@ module.exports = function(app) {
             await targz().extract(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'), path.join(__dirname, '..', '..'));
             await fs.access(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'), fs.constants.F_OK);
             await fs.remove(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'));
+            // await _npmUpdate();
             res.send(JSON.stringify({
                 status: 1
             }));

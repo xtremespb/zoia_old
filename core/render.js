@@ -1,5 +1,5 @@
 const path = require('path');
-const config = require(path.join(__dirname, '..', 'etc', 'config.js'));
+const config = require(path.join(__dirname, 'config.js'));
 const nunjucks = require('nunjucks');
 const fs = require('mz/fs');
 

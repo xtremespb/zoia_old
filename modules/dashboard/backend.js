@@ -2,7 +2,7 @@ const moduleId = 'dashboard';
 const moduleURL = '/admin';
 
 const path = require('path');
-const config = require(path.join(__dirname, '..', '..', 'etc', 'config.js'));
+const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
 const os = require('os');

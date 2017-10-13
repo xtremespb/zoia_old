@@ -1,19 +1,22 @@
 'use strict';
 
 const log = require('loglevel');
-const logprefix = require('loglevel-prefix');
+const prefix = require('loglevel-plugin-prefix');
 const path = require('path');
-const config = require(path.join(__dirname, '..', 'etc', 'config.js'));
+const config = require(path.join(__dirname, 'config.js'));
 const fileUpload = require('express-fileupload');
 
 // Log settings
-logprefix(log, config.logOptions);
+prefix.apply(log, {
+    template: '%t [%l]',
+    timestampFormatter: date => date.toLocaleDateString() + ' ' + date.toLocaleTimeString(),
+    levelFormatter: level => level.toUpperCase()
+});
 log.setLevel(config.logLevel);
 
 const express = require('express');
 const app = express().set('express', express);
 
-// Patch express to allow async functions and set app data
 app.set('log', log);
 app.set('trust proxy', config.trustProxy);
 
@@ -67,7 +70,7 @@ const fs = require('fs');
         app.set('log', log);
         const errors = new(require(path.join(__dirname, 'errors.js')))(app);
         app.use(errors.notFound, errors.errorHandler);
-        app.emit('zoiaStarted');        
+        app.emit('zoiaStarted');
     } catch (e) {
         // That's error
         log.error(e.stack || e.message);

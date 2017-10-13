@@ -3,11 +3,14 @@
   "version": "0.17.101201",
   "description": "Zoia.js Framework",
   "main": "bin/webserver.js",
-  "bin": {
-    "install": "install.js"
-  },
   "directories": {
     "doc": "docs"
+  },
+  "scripts": {
+    "test": "mocha ./test/core.js",
+    "config": "node ./bin/config.js",
+    "install": "node ./bin/install.js",
+    "webserver": "node ./bin/webserver.js"
   },
   "dependencies": {
     "body-parser": "^1.18.1",
@@ -23,8 +26,8 @@
     "image-type": "^3.0.0",
     "inquirer": "^3.3.0",
     "jimp": "^0.2.28",
-    "loglevel": "^1.5.0",
-    "loglevel-prefix": "^0.3.1",
+    "loglevel": "^1.5.1",
+    "loglevel-plugin-prefix": "^0.5.3",
     "md5-file": "^3.2.3",
     "mongodb": "^2.2.31",
     "mz": "^2.7.0",
@@ -45,14 +48,9 @@
     "gulp-clean-css": "^3.8.0",
     "gulp-concat": "^2.6.1",
     "gulp-uglify": "^3.0.0",
-    "intelli-espower-loader": "^1.0.1",
     "mocha": "^3.5.3",
-    "selenium-webdriver": "^3.5.0",
     "supertest": "^3.0.0",
     "supertest-session": "^3.1.0"
-  },
-  "scripts": {
-    "test": "mocha ./test/core.js"
   },
   "repository": {
     "type": "git",
@@ -62,7 +60,8 @@
     "nodejs",
     "mongodb",
     "framework",
-    "express"
+    "express",
+    "cms"
   ],
   "author": "Michael Matveev",
   "license": "MIT",

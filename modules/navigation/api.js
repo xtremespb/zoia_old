@@ -1,7 +1,7 @@
 const path = require('path');
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
-const config = require(path.join(__dirname, '..', '..', 'etc', 'config.js'));
+const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 
 module.exports = function(app) {
     const db = app.get('db');

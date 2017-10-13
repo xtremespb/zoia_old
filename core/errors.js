@@ -1,5 +1,5 @@
 const path = require('path');
-const config = require(path.join(__dirname, '..', 'etc', 'config.js'));
+const config = require(path.join(__dirname, 'config.js'));
 
 module.exports = function(app) {
     const render = new(require(path.join(__dirname, 'render.js')))(path.join(__dirname, 'views'));

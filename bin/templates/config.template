@@ -1,57 +1,51 @@
-const path = require('path');
-
-module.exports = {
-    hostname: '{host}',
-    port: {port},
-    production: {production},
-    salt: '{salt}',
-    trustProxy: {trustProxy},
-    stackTrace: {stackTrace},
-    logLevel: '{logLevel}',
-    maxUploadSizeMB: 100,
-    testMode: false,
-    logOptions: {
-        template: '%t [%l]',
-        timestampFormatter: date => date.toLocaleDateString() + ' ' + date.toLocaleTimeString(),
-        levelFormatter: level => level.toUpperCase()
+{
+    "ip": "127.0.0.1",
+    "port": 3000,
+    "production": false,
+    "salt": "58MpFjp6N3zPwL8evWnWDhBcR233Ah4b",
+    "trustProxy": true,
+    "stackTrace": false,
+    "logLevel": "info",
+    "maxUploadSizeMB": 100,
+    "testMode": false,
+    "mongo": {
+        "url": "mongodb://localhost:27017/zoia",
+        "options": {},
+        "sessionCollection": "sessions"
     },
-    mongo: {
-        url: '{mongoURL}',
-        options: {},
-        sessionCollection: 'sessions'
-    },
-    session: {
-        secret: '{sessionSecret}',
-        name: 'zoia',
-        cookie: {
-            domain: '',
-            httpOnly: false,
-            secure: false,
-            maxAge: 604800000, // 7 days
-            path: '/'
+    "session": {
+        "secret": "A5eaUNPw35BjUyQDUPt6DKZAEaswv6kR",
+        "name": "zoia",
+        "cookie": {
+            "domain": "",
+            "httpOnly": false,
+            "secure": false,
+            "maxAge": 604800000,
+            "path": "/"
         }
     },
-    i18n: {
-        locales: ['en', 'ru'],
-        localeNames: {'en': 'English', 'ru': 'Русский'},
-        detect: {
-            subdomain: true,
-            query: true,
-            cookie: true
+    "i18n": {
+        "locales": ["en", "ru"],
+        "localeNames": {
+            "en": "English",
+            "ru": "Русский"
         },
-        dev: true,
-        cookieName: 'zoiaLang',
-        fallback: false
+        "detect": {
+            "subdomain": true,
+            "query": true,
+            "cookie": true
+        },
+        "dev": true,
+        "cookieName": "zoiaLang",
+        "fallback": false
     },
-    mailer: {
-        host: 'smtp.yandex.ru',
-        port: 465,
-        secure: true,
-        auth: {
-            user: '',
-            pass: ''
+    "mailer": {
+        "host": "smtp.yandex.ru",
+        "port": 465,
+        "secure": true,
+        "auth": {
+            "user": "",
+            "pass": ""
         }
-    },
-    website: require(path.join(__dirname, 'website.js')),
-    version: require(path.join(__dirname, 'version.js'))
-};
+    }
+}

@@ -1,6 +1,6 @@
 const inquirer = require('inquirer');
 const path = require('path');
-const config = require(path.join(__dirname, '..', 'etc', 'config.js'));
+const config = require(path.join(__dirname, '..', 'core', 'config.js'));
 const commandLineArgs = require('command-line-args');
 const optionDefinitions = [
     { name: 'force', alias: 'f', type: Boolean }
