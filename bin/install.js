@@ -1,7 +1,17 @@
-const inquirer = require('inquirer');
 const path = require('path');
+const fs = require('fs-extra');
+
+try {
+    fs.accessSync(path.join(__dirname, '..', 'etc', 'config.json'), fs.constants.F_OK);
+    fs.accessSync(path.join(__dirname, '..', 'etc', 'website.json'), fs.constants.F_OK);
+} catch (e) {
+    console.log('Error: no configuration files found in ./etc folder.');
+    console.log('Please run "npm run config" before you install Zoia.');
+    process.exit();
+}
+
+const inquirer = require('inquirer');
 const config = require(path.join(__dirname, '..', 'core', 'config.js'));
-const fs = require('fs');
 const commandLineArgs = require('command-line-args');
 const optionDefinitions = [
     { name: 'force', alias: 'f', type: Boolean }

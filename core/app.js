@@ -3,29 +3,25 @@
 const log = require('loglevel');
 const prefix = require('loglevel-plugin-prefix');
 const path = require('path');
-const config = require(path.join(__dirname, 'config.js'));
 const fileUpload = require('express-fileupload');
+const express = require('express');
+const app = express().set('express', express);
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const fs = require('fs');
 
-// Log settings
 prefix.apply(log, {
     template: '%t [%l]',
     timestampFormatter: date => date.toLocaleDateString() + ' ' + date.toLocaleTimeString(),
     levelFormatter: level => level.toUpperCase()
 });
-log.setLevel(config.logLevel);
-
-const express = require('express');
-const app = express().set('express', express);
-
-app.set('log', log);
-app.set('trust proxy', config.trustProxy);
-
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const fs = require('fs');
 
 ((async function init() {
-    try {
+    try {    	
+        const config = require(path.join(__dirname, 'config.js'));
+        log.setLevel(config.logLevel);
+        app.set('log', log);
+        app.set('trust proxy', config.trustProxy);
         // Init database
         const db = new(require(path.join(__dirname, 'database.js')))(app, config.mongo, config.session);
         await db.connect();

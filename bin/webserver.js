@@ -1,6 +1,17 @@
 #!/usr/bin/env node
 
 const path = require('path');
+const fs = require('fs-extra');
+
+try {
+    fs.accessSync(path.join(__dirname, '..', 'etc', 'config.json'), fs.constants.F_OK);
+    fs.accessSync(path.join(__dirname, '..', 'etc', 'website.json'), fs.constants.F_OK);
+} catch (e) {
+    console.log('Error: no configuration files found in ./etc folder.');
+    console.log('Please run "npm run config" before starting the Zoia Webserver.');
+    process.exit();
+}
+
 const config = require(path.join(__dirname, '..', 'core', 'config.js'));
 const app = require(path.join(__dirname, '..', 'core', 'app'));
 const log = app.get('log');

@@ -113,9 +113,9 @@ const configs = async() => {
             default: 'domain.com',
             message: 'Server name:'
         }]);
-        console.log('  Generating random salt...');
+        console.log('\n* Generating random salt...');
         const salt = crypto.randomBytes(20).toString('hex');
-        console.log('  Generating random session secret...');
+        console.log('* Generating random session secret...');
         const sessionSecret = crypto.randomBytes(20).toString('hex');
         // Generate configs
         const name = serverName.val.replace(/[\.\-]/gm, '_');
@@ -156,7 +156,7 @@ const configs = async() => {
         console.log('\nNGINX and Monit configuration files are written to the "./bin/config" directory.');
         console.log('Startup file ("zoia.sh") written to the "./bin" directory.');
         console.log('Configuration files ("config.json" and "website.json") are written to "./etc" directory.');
-        console.log('Please check configuration files in "./etc" manually before you start Zoia.');
+        console.log('Please check configuration files in "./etc" manually and run "npm run install" before you start Zoia.');
     } catch (e) {
         console.log('\nError: ' + e);
     }
