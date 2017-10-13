@@ -1,1 +1,0 @@
-The `./etc/config.js` file contains the settings which are server-specific and **must** be changed according to your needs.
