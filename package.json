@@ -10,7 +10,8 @@
     "test": "mocha ./test/core.js",
     "config": "node ./bin/config.js",
     "install": "node ./bin/install.js",
-    "webserver": "node ./bin/webserver.js"
+    "webserver": "node ./bin/webserver.js",
+    "start": "node ./bin/webserver.js"
   },
   "dependencies": {
     "body-parser": "^1.18.1",

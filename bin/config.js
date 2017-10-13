@@ -151,7 +151,7 @@ const configs = async() => {
         await fs.writeFile(path.join(__dirname, 'config', name + '_nginx.conf'), nginx);
         await fs.writeFile(path.join(__dirname, 'config', name + '_monit.conf'), monit);
         await fs.writeFile(path.join(__dirname, 'zoia.sh'), zoia);
-        await fs.writeFile(path.join(__dirname, '..', 'etc', 'config.json'), JSON.stringify(zConfig, null, "\t"));
+        await fs.writeFile(path.join(__dirname, '..', 'etc', 'config.json'), JSON.stringify(zConfig, null, "\t").replace(/\"true\"/gm, 'true').replace(/\"false\"/gm, 'false'));
         await fs.writeFile(path.join(__dirname, '..', 'etc', 'website.json'), JSON.stringify(zConfigWebsite, null, "\t"));
         console.log('\nNGINX and Monit configuration files are written to the "./bin/config" directory.');
         console.log('Startup file ("zoia.sh") written to the "./bin" directory.');
