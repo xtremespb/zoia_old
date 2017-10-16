@@ -18,7 +18,7 @@ server {
     location @node {
         proxy_set_header Host $http_host;
         proxy_set_header X-Forwarded-For $remote_addr;
-        proxy_pass http://{zoiaHostname}:{zoiaPort};
+        proxy_pass http://{zoiaIP}:{zoiaPort};
     }
 
 }

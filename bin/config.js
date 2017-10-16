@@ -135,23 +135,27 @@ const configs = async() => {
         console.log('* Generating random session secret...');
         const sessionSecret = crypto.randomBytes(20).toString('hex');
         // Generate configs
+        let name;
+        let nginx;
+        let monit;
+        let zoia;
         if (!options.docker) {
-            const name = serverName.val.replace(/[\.\-]/gm, '_');
-            let nginx = tpl(tplNginx, {
+            name = serverName.val.replace(/[\.\-]/gm, '_');
+            nginx = tpl(tplNginx, {
                 ip: nginxIP.val,
                 port: nginxPort.val,
                 serverName: serverName.val,
                 dir: path.join(__dirname, '..').replace(/\\/gm, '/'),
-                zoiaIPname: zoiaIP.val,
+                zoiaIP: zoiaIP.val,
                 zoiaPort: zoiaPort.val
             });
-            let monit = tpl(tplMonit, {
+            monit = tpl(tplMonit, {
                 port: zoiaPort.val,
                 serverName: zoiaIP.val,
                 name: name,
                 root: path.join(__dirname, '..').replace(/\\/gm, '/')
             });
-            let zoia = tpl(tplZoia, {
+            zoia = tpl(tplZoia, {
                 serverName: serverName.val,
                 name: name,
                 root: path.join(__dirname, '..').replace(/\\/gm, '/')
