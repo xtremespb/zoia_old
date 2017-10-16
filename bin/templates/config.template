@@ -9,7 +9,7 @@
     "maxUploadSizeMB": 100,
     "testMode": false,
     "mongo": {
-        "url": "mongodb://localhost:27017/zoia",
+        "url": "mongodb://mongo:27017/zoia",
         "options": {},
         "sessionCollection": "sessions"
     },
