@@ -8,6 +8,11 @@ module.exports = class Database {
         this.mongo = mongo;
         this.session = _session;
         this.log = app ? app.get('log') : undefined;
+        if (process.env.MONGO_PORT_27017_TCP_ADDR && process.env.MONGO_PORT_27017_TCP_PORT) {
+            this.mongo.url = this.mongo.url.replace(/127\.0\.0\.1/, process.env.MONGO_PORT_27017_TCP_ADDR)
+                                            .replace(/27017/, process.env.MONGO_PORT_27017_TCP_PORT);
+        }
+        console.log(this.mongo.url);
     }
     async connect() {
         this.db = await MongoClient.connect(this.mongo.url, this.mongo.options);

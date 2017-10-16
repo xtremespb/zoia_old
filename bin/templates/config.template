@@ -1,5 +1,5 @@
 {
-    "ip": "0.0.0.0",
+    "ip": "127.0.0.1",
     "port": 3000,
     "production": false,
     "salt": "58MpFjp6N3zPwL8evWnWDhBcR233Ah4b",
@@ -9,7 +9,7 @@
     "maxUploadSizeMB": 100,
     "testMode": false,
     "mongo": {
-        "url": "mongodb://mongo:27017/zoia",
+        "url": "mongodb://127.0.0.1:27017/zoia",
         "options": {},
         "sessionCollection": "sessions"
     },
