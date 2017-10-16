@@ -17,7 +17,7 @@ prefix.apply(log, {
 });
 
 ((async function init() {
-    try {    	
+    try {
         const config = require(path.join(__dirname, 'config.js'));
         log.setLevel(config.logLevel);
         app.set('log', log);
