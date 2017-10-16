@@ -173,6 +173,7 @@ const configs = async() => {
             zConfig.mongo.url = zoiaMongoURL.val;
         } else {
             zConfig.ip = '0.0.0.0';
+            zConfig.mongo.url = zConfig.mongo.url.replace(/127\.0\.0\.1/, 'mongo');
         }
         if (!options.docker) {
             await fs.ensureDir(path.join(__dirname, 'config'));

@@ -12,7 +12,6 @@ module.exports = class Database {
             this.mongo.url = this.mongo.url.replace(/127\.0\.0\.1/, process.env.MONGO_PORT_27017_TCP_ADDR)
                                             .replace(/27017/, process.env.MONGO_PORT_27017_TCP_PORT);
         }
-        console.log(this.mongo.url);
     }
     async connect() {
         this.db = await MongoClient.connect(this.mongo.url, this.mongo.options);
