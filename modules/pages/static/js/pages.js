@@ -107,8 +107,8 @@ const editItem = (id) => {
     $('#zoiaEditHeader').html(lang.editItem);
     editLanguage = Object.keys(langs)[0];
     spinnerDialog.show().then(() => {
-    	$('#editForm').zoiaFormBuilder().loadData({ id: id });
-    });    
+        $('#editForm').zoiaFormBuilder().loadData({ id: id });
+    });
 };
 
 const deleteItem = (id) => {
@@ -212,7 +212,9 @@ const ajaxRebuildDatabase = () => {
         url: '/api/pages/rebuild',
         cache: false
     }).done((res) => {
-        spinnerDialog.hide();
+        setTimeout(() => {
+            spinnerDialog.hide();
+        }, 200);
         $('#pages').zoiaTable().load();
         if (res && res.status === 1) {
             $zUI.notification(lang['Operation was successful'], {
@@ -231,7 +233,9 @@ const ajaxRebuildDatabase = () => {
             status: 'danger',
             timeout: 1500
         });
-        spinnerDialog.hide();
+        setTimeout(() => {
+            spinnerDialog.hide();
+        }, 200);
     });
 };
 
@@ -424,6 +428,13 @@ const initCKEditor = () => {
             filebrowserWindowHeight: 500,
             allowedContent: true
         }).editor;
+        ckeditor.on('instanceReady', function() {
+            $(window).bind('popstate',
+                (event) => {
+                    processState(event.originalEvent.state);
+                });
+            processState();
+        });
     }, 0);
 };
 
@@ -593,7 +604,7 @@ $(document).ready(() => {
                     }
                 }
             },
-            onLoadSuccess: (data) => {            	
+            onLoadSuccess: (data) => {
                 for (let n in langs) {
                     if (Object.keys(data.item[n]).length === 0) {
                         editShadow[n] = {
@@ -647,19 +658,23 @@ $(document).ready(() => {
                         type: 'textarea',
                         value: data.item[n].content
                     };
-                }                
+                }
                 $('#zoiaEditLanguageCheckbox').prop('checked', editShadow[editLanguage].enabled);
                 for (let n in langs) {
                     if (editShadow[n].enabled) {
                         $('#zoiaEditLanguages > li[data=' + n + ']').click();
                         break;
                     }
-                }                
+                }
                 $('#zoiaEdit').show();
-                spinnerDialog.hide();
+                setTimeout(() => {
+                    spinnerDialog.hide();
+                }, 200);
             },
             onLoadError: () => {
-                spinnerDialog.hide();
+                setTimeout(() => {
+                    spinnerDialog.hide();
+                }, 200);
                 $zUI.notification(lang['Could not load information from database'], {
                     status: 'danger',
                     timeout: 1500
@@ -1089,12 +1104,5 @@ $(document).ready(() => {
     $('.pagesBtnRebuild').click(() => {
         ajaxRebuildDatabase();
     });
-    if (!testMode) {
-        initCKEditor();
-    }
-    $(window).bind('popstate',
-        (event) => {
-            processState(event.originalEvent.state);
-        });
-    processState();
+    initCKEditor();   
 });
