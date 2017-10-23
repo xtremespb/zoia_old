@@ -64,6 +64,7 @@ module.exports = function(app) {
             }
             let ffields = { _id: 1, folder: 1, sku: 1, status: 1, price: 1 };
             ffields[locale + '.title'] = 1;
+            fquery.status = { $ne: "temp" };
             const total = await db.collection('warehouse').find(fquery, ffields, { skip: skip, limit: limit }).count();
             const items = await db.collection('warehouse').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
             for (let i in items) {
@@ -173,7 +174,7 @@ module.exports = function(app) {
                 data[lng] = {};
                 if (req.body[lng]) {
                     let fields = validation.checkRequest(req.body[lng], fieldList);
-                    let fieldsFailed = validation.getCheckRequestFailedFields(fields);                    
+                    let fieldsFailed = validation.getCheckRequestFailedFields(fields);
                     if (fieldsFailed.length > 0) {
                         output.status = 0;
                         output.fields = fieldsFailed;
@@ -190,6 +191,7 @@ module.exports = function(app) {
                         properties: fields.properties.value
                     };
                     data.folder = fields.folder.value;
+                    data.images = JSON.parse(fields.images.value);
                     data.url = fields.url.value;
                     data.sku = fields.sku.value;
                     data.price = parseFloat(fields.price.value);
@@ -223,6 +225,33 @@ module.exports = function(app) {
                 output.status = 0;
                 return res.send(JSON.stringify(output));
             }
+            output.status = 1;
+            return res.send(JSON.stringify(output));
+        } catch (e) {
+            output.status = 0;
+            log.error(e);
+            res.send(JSON.stringify(output));
+        }
+    };
+
+    const create = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let output = {};
+        let data = {
+            "status": "temp"
+        };
+        try {
+            const insResult = await db.collection('warehouse').insertOne(data);
+            if (!insResult || !insResult.result || !insResult.result.ok) {
+                output.status = 0;
+                return res.send(JSON.stringify(output));
+            }
+            output.id = insResult.insertedId;
             output.status = 1;
             return res.send(JSON.stringify(output));
         } catch (e) {
@@ -271,8 +300,56 @@ module.exports = function(app) {
                 output.status = -3;
                 return res.send(JSON.stringify(output));
             }
+            for (let i in ids) {
+                const id = ids[i];
+                try {
+                    await fs.remove(path.join(__dirname, 'static', 'storage', id));
+                } catch (e) {
+                    // Ignore
+                }
+            }
             output.status = 1;
             res.send(JSON.stringify(output));
+        } catch (e) {
+            output.status = 0;
+            log.error(e);
+            res.send(JSON.stringify(output));
+        }
+    };
+
+    const delImages = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let output = {};
+        const items = req.body['items'];
+        const id = req.body['id'];
+        if (!items || typeof items !== 'object' || !id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+            output.status = -1;
+            return res.send(JSON.stringify(output));
+        }
+        for (let i in items) {
+            const item = items[i];
+            if (!item.id || typeof item.id !== 'string' || !item.id.match(/^[0-9]{13}$/) ||
+                !item.ext || typeof item.ext !== 'string' || !item.ext.match(/^[a-z]+$/)) {
+                output.status = -2;
+                return res.send(JSON.stringify(output));
+            }
+        }
+        try {
+            for (let i in items) {
+                try {
+                    fs.remove(path.join(__dirname, 'static', 'storage', id, 'tn_' + items[i].id + '.' + items[i].ext));
+                    fs.remove(path.join(__dirname, 'static', 'storage', id, items[i].id + '.' + items[i].ext));
+                } catch (e) {
+                    // Ignore
+                }
+            }
+            output.status = 1;
+            return res.send(JSON.stringify(output));
         } catch (e) {
             output.status = 0;
             log.error(e);
@@ -657,6 +734,59 @@ module.exports = function(app) {
         }));
     };
 
+    const upload = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        if (!req.files || !req.files.file || req.files.file.data.length > config.maxUploadSizeMB * 1048576) {
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+        let id = req.body.id;
+        if (!id.match(/^[a-f0-9]{24}$/)) {
+            return res.send(JSON.stringify({
+                status: -10
+            }));
+        }
+        const idImg = Date.now();
+        let imgType;
+        try {
+            const pathImg = path.join(__dirname, 'static', 'storage', id);
+            await fs.ensureDir(pathImg);
+            imgType = imageType(req.files.file.data);
+            if (imgType && (imgType.ext === 'png' || imgType.ext === 'jpg' || imgType.ext === 'jpeg' || imgType.ext === 'bmp')) {
+                let img = await Jimp.read(req.files.file.data);
+                if (!img) {
+                    throw new Error('Invalid file format');
+                }
+                img.cover(150, 150, Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE);
+                img.quality(60);
+                let buf = await _buf(img);
+                if (!buf) {
+                    throw new Error('Could not get image buffer');
+                }
+                await fs.writeFile(path.join(pathImg, 'tn_' + idImg + '.' + imgType.ext), buf);
+                await fs.writeFile(path.join(pathImg, idImg + '.' + imgType.ext), req.files.file.data);
+            } else {
+                throw new Error('Invalid file format');
+            }
+        } catch (e) {
+            log.error(e);
+            return res.send(JSON.stringify({
+                status: -3
+            }));
+        }
+        return res.send(JSON.stringify({
+            status: 1,
+            id: idImg,
+            ext: imgType.ext
+        }));
+    };
+
     const repair = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
@@ -759,10 +889,13 @@ module.exports = function(app) {
     router.get('/list', list);
     router.get('/load', load);
     router.post('/save', save);
+    router.get('/create', create);
     router.post('/delete', del);
     router.post('/folders', folders);
     router.post('/repair', repair);
     router.post('/rebuild', rebuild);
+    router.post('/upload', upload);
+    router.post('/images/delete', delImages);
     router.all('/browse/list', browseList);
     router.all('/browse/folder/create', browseFolderCreate);
     router.all('/browse/rename', browseRename);

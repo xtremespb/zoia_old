@@ -40,6 +40,13 @@
                     return item.trim();
                 }
             },
+            images: {
+                mandatoryCreate: false,
+                type: 'string',
+                process: function(item) {
+                    return item.trim();
+                }
+            },
             url: {
                 mandatoryCreate: false,
                 length: {

@@ -84,7 +84,8 @@
     margin-top: 20px;
 }
 
-.editForm-folder-selector {
+.editForm-folder-selector,
+.editForm-images-selector {
     padding: 6px 30px 0 30px;
     background: #efefef;
     max-width: 150px;
@@ -143,4 +144,46 @@
 
 #zoiaSpinnerDialog.za-modal {
     background: rgba(255, 255, 255, .6);
+}
+
+#zoia-upload-area {
+    border: 1px dashed #ccc;
+    min-height: 100px;
+    cursor: pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#zoia-upload-files {
+    padding-top: 25px;
+}
+
+.zoia-upload-files-label {
+    margin-bottom: -15px;
+    font-size: 11px;
+    color: #222;
+}
+
+#imagesList {
+    margin-left: 0px;
+}
+
+.warehouse-image-item {
+    width: 130px;
+    height: 130px;
+    margin-left: 5px;
+    margin-bottom: 5px;
+    padding: 0;
+}
+.warehouse-image-item>img {
+    margin: 5px;
+    width:120px;
+    height: 120px;
+}
+.warehouse-image-item-selected {
+    background: #F3B562;
 }

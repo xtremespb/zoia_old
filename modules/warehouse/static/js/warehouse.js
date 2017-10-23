@@ -6,6 +6,7 @@ let foldersDialog;
 let folderEditDialog;
 let spinnerDialog;
 let repairDialog;
+let imagesDialog;
 let currentEditID;
 let currentDeleteID;
 let foldersTree;
@@ -14,6 +15,7 @@ let foldersModified = false;
 let foldersEditMode = false;
 let editShadow = {};
 let editLanguage;
+let editMode;
 
 const getUrlParam = (sParam) => {
     let sPageURL = decodeURIComponent(window.location.search.substring(1));
@@ -69,21 +71,54 @@ const repairDialogSpinner = (show) => {
 };
 
 const createItem = () => {
-    $('#wrapTable').hide();
-    $('#zoiaEdit').show();
-    $('#zoiaEditHeader').html(lang.addItem);
-    for (let lng in langs) {
-        editShadow[lng] = {
-            enabled: true,
-            data: {}
-        };
-    }
-    $('#editForm').zoiaFormBuilder().resetForm();
-    currentEditID = null;
-    editLanguage = Object.keys(langs)[0];
-    // $('#zoiaEditLanguages > li[data=' + editLanguage + ']').click();
-    markZoiaLanguagesTab(editLanguage);
-    $('#editForm_content').val('');
+    editMode = false;
+    spinnerDialog.show().then(() => {
+        $.ajax({
+            type: 'GET',
+            url: '/api/warehouse/create',
+            cache: false
+        }).done((res) => {
+            setTimeout(() => {
+                spinnerDialog.hide();
+                if (res && res.status === 1 && res.id) {
+                    currentEditID = res.id;
+                    $('#wrapTable').hide();
+                    $('#zoiaEdit').show();
+                    $('#zoiaEditHeader').html(lang.addItem);
+                    for (let lng in langs) {
+                        editShadow[lng] = {
+                            enabled: true,
+                            data: {}
+                        };
+                    }
+                    $('#editForm').zoiaFormBuilder().resetForm();
+                    editLanguage = Object.keys(langs)[0];
+                    markZoiaLanguagesTab(editLanguage);
+                    $('#editForm_content').val('');
+                    $('#imagesList').html('');
+                    $('#editForm_images_val').html('0');
+                    $('#imagesListBtnDel').hide();
+                } else {
+                    $('#zoiaEdit').hide();
+                    $('#wrapTable').show();
+                    $zUI.notification(lang['Could not create new item'], {
+                        status: 'danger',
+                        timeout: 1500
+                    });
+                }
+            }, 100);
+        }).fail(() => {
+            setTimeout(() => {
+                spinnerDialog.hide();
+                $('#zoiaEdit').hide();
+                $('#wrapTable').show();
+                $zUI.notification(lang['Could not create new item'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            }, 100);
+        });
+    });
 };
 
 const showTable = () => {
@@ -92,6 +127,7 @@ const showTable = () => {
 };
 
 const editItem = (id) => {
+    editMode = true;
     if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
         return showTable();
     }
@@ -402,6 +438,10 @@ const onEditLanguageCheckboxClickEvent = () => {
                 if (editShadow[lng].data.sku) {
                     $('#editForm_sku').val(editShadow[lng].data.sku.value);
                 }
+                if (editShadow[lng].data.images) {
+                    $('#editForm_folder_val').html(editShadow[lng].data.images.value);
+                    $('#editForm_folder_val').attr('data', editShadow[lng].data.images.id);
+                }
                 if (editShadow[lng].data.price) {
                     $('#editForm_price').val(editShadow[lng].data.price.value);
                 }
@@ -437,6 +477,21 @@ const initCKEditor = () => {
     }, 0);
 };
 
+const initShifty = () => {
+    $('.warehouse-image-item').shifty({
+        className: 'warehouse-image-item-selected',
+        select: function() {
+            const selection = $('#imagesList').getSelected('warehouse-image-item-selected');
+            if (selection.length) {
+                $('#imagesListBtnDel').show();
+            } else {
+                $('#imagesListBtnDel').hide();
+            }
+        },
+        unselect: function() {}
+    });
+};
+
 const markZoiaLanguagesTab = (n) => {
     $('#zoiaEditLanguages > li').removeClass('za-active');
     $('#zoiaEditLanguages > li[data=' + n + ']').addClass('za-active');
@@ -456,13 +511,15 @@ const onZoiaEditLanguagesClick = (lng) => {
     }
     editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
     if (editShadow[editLanguage].enabled && editShadow[editLanguage].data &&
-        editShadow[editLanguage].data.folder && editShadow[editLanguage].data.sku &&
-        editShadow[editLanguage].data.status) {
+        editShadow[editLanguage].data.folder && editShadow[editLanguage].data.images &&
+        editShadow[editLanguage].data.sku && editShadow[editLanguage].data.status) {
         let saveFolder = editShadow[editLanguage].data.folder;
+        let saveImages = editShadow[editLanguage].data.images;
         let saveSKU = editShadow[editLanguage].data.sku;
         let savePrice = editShadow[editLanguage].data.price;
         let saveStatus = editShadow[editLanguage].data.status;
         editShadow[lng].data.folder = saveFolder;
+        editShadow[lng].data.images = saveImages;
         editShadow[lng].data.sku = saveSKU;
         editShadow[lng].data.price = savePrice;
         editShadow[lng].data.status = saveStatus;
@@ -471,6 +528,77 @@ const onZoiaEditLanguagesClick = (lng) => {
     $('#editForm').zoiaFormBuilder().resetForm();
     $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);
     $('#editForm').show();
+};
+
+const generateUploaderList = () => {
+    let items = [];
+    $('.warehouse-image-item').each(function() {
+        items.push({
+            id: $(this).attr('data-id'),
+            ext: $(this).attr('data-ext')
+        });
+    });
+    return items;
+};
+
+const initUploader = () => {
+    currentUploaderFiles = [];
+    uploader = new plupload.Uploader({
+        browse_button: 'zoia-upload-area',
+        runtimes: 'html5,html4',
+        url: '/api/warehouse/upload',
+        drop_element: 'zoia-upload-area',
+        filters: {
+            max_file_size: '100mb'
+        }
+    });
+    uploader.init();
+    uploader.bind('FilesAdded', function(up, files) {
+        let html = '';
+        plupload.each(files, function(file) {
+            html += '<div><div class="zoia-upload-files-label">' + file.name + '&nbsp;(' + plupload.formatSize(file.size) + ')</div><progress id="' + file.id + '" class="za-progress" value="0" max="100"></progress></div>';
+        });
+        $('#zoia-upload-files').html(html);
+        $('#zoia-upload-files').show();
+        uploader.settings.multipart_params = {
+            id: currentEditID
+        };
+        uploadFailed = false;
+        uploader.start();
+    });
+    uploader.bind('Error', function() {
+        $zUI.notification(lang['Cannot upload'] + ': ' + file.name, {
+            status: 'danger',
+            timeout: 1500
+        });
+    });
+    uploader.bind('UploadProgress', function(up, file) {
+        $('#' + file.id).attr('value', file.percent);
+    });
+    uploader.bind('FileUploaded', function(upldr, file, object) {
+        try {
+            let res = JSON.parse(object.response);
+            if (res.status !== 1) {
+                uploadFailed = true;
+                $zUI.notification(lang['Cannot upload'] + ': ' + file.name, {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            } else {
+                $('#' + file.id).parent().remove();
+                $('#imagesList').append('<div class="za-card za-card-default za-card-body warehouse-image-item" data-id="' + res.id + '" data-ext="' + res.ext + '"><img src="/warehouse/static/storage/' + currentEditID + '/tn_' + res.id + '.' + res.ext + '"></div>');
+                initShifty();
+            }
+        } catch (e) {
+            $zUI.notification(lang['Cannot upload'] + ': ' + file.name, {
+                status: 'danger',
+                timeout: 1500
+            });
+        }
+    });
+    uploader.bind('UploadComplete', function() {
+        $('#zoia-upload-files').hide();
+    });
 };
 
 $(document).ready(() => {
@@ -494,6 +622,11 @@ $(document).ready(() => {
         stack: true
     });
     repairDialog = $zUI.modal('#zoiaRepairDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    imagesDialog = $zUI.modal('#zoiaImagesDialog', {
         bgClose: false,
         escClose: false,
         stack: true
@@ -546,6 +679,7 @@ $(document).ready(() => {
             onSaveValidate: (data) => {
                 editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
                 let saveFolder = editShadow[editLanguage].data.folder.id;
+                let saveImages = editShadow[editLanguage].data.images.id;
                 let saveURL = editShadow[editLanguage].data.folder.value;
                 let saveSKU = editShadow[editLanguage].data.sku.value;
                 let savePrice = editShadow[editLanguage].data.price.value;
@@ -569,6 +703,7 @@ $(document).ready(() => {
                     vr.data.sku = saveSKU;
                     vr.data.price = savePrice;
                     vr.data.status = saveStatus;
+                    vr.data.images = saveImages;
                     data[n] = vr.data;
                 }
                 data.id = currentEditID;
@@ -642,6 +777,26 @@ $(document).ready(() => {
                                 value: '<div za-icon="icon:ban" style="padding-top:4px"></div>'
                             };
                         }
+                        if (data.item.images && data.item.images.length) {
+                            editShadow[n].data.images = {
+                                type: 'launcher',
+                                id: JSON.stringify(data.item.images),
+                                value: data.item.images.length
+                            };
+                        } else {
+                            editShadow[n].data.images = {
+                                type: 'launcher',
+                                id: JSON.stringify([]),
+                                value: '0'
+                            };
+                        }
+                        $('#imagesList').html('');
+                        for (let i in data.item.images) {
+                            const img = data.item.images[i];
+                            $('#imagesList').append('<div class="za-card za-card-default za-card-body warehouse-image-item" data-id="' + img.id + '" data-ext="' + img.ext + '"><img src="/warehouse/static/storage/' + currentEditID + '/tn_' + img.id + '.' + img.ext + '"></div>');
+                        }
+                        $('#imagesListBtnDel').hide();
+                        initShifty();
                         editShadow[n].data.sku = {
                             type: 'text',
                             value: data.item.sku
@@ -690,6 +845,8 @@ $(document).ready(() => {
             },
             onLoadError: () => {
                 spinnerDialog.hide();
+                $('#zoiaEdit').hide();
+                $('#wrapTable').show();
                 $zUI.notification(lang['Could not load information from database'], {
                     status: 'danger',
                     timeout: 1500
@@ -779,6 +936,13 @@ $(document).ready(() => {
                     },
                     regexp: /^(0|1|2)$/
                 }
+            },
+            images: {
+                type: 'launcher',
+                label: lang['Images'],
+                labelBtn: lang['Browse'],
+                value: '',
+                data: null
             },
             properties: {
                 type: 'valueslist',
@@ -1141,6 +1305,16 @@ $(document).ready(() => {
     });
     $('#editForm_btnCancel').click(() => {
         window.history.pushState({ action: '' }, document.title, '/admin/warehouse');
+        if (!editMode) {
+            $.ajax({
+                type: 'POST',
+                url: '/api/warehouse/delete',
+                data: {
+                    id: currentEditID
+                },
+                cache: false
+            });
+        }
         $('#zoiaEdit').hide();
         $('#wrapTable').show();
     });
@@ -1157,5 +1331,63 @@ $(document).ready(() => {
     $('.warehouseBtnRebuild').click(() => {
         ajaxRebuildDatabase();
     });
+    $('#editForm_images_btn').click(() => {
+        imagesDialog.show();
+    });
+    $('#zoiaImagesDialogBtnClose').click(() => {
+        const list = generateUploaderList();
+        $('#editForm_images_val').attr('data', JSON.stringify(list));
+        $('#editForm_images_val').html(list.length);
+    });
+    $('#imagesListBtnDel').click(() => {
+        const selection = $('#imagesList').find('.warehouse-image-item-selected');
+        let items = [];
+        selection.each(function() {
+            items.push({
+                id: $(this).attr('data-id'),
+                ext: $(this).attr('data-ext')
+            });
+        });
+        $('#zoiaImagesDialogSpinner').css('height', $('#zoiaImagesDialogBody').height());
+        $('#zoiaImagesDialogBody').hide();
+        $('#zoiaImagesDialogSpinner').show();
+        $.ajax({
+            type: 'POST',
+            url: '/api/warehouse/images/delete',
+            data: {
+                items: items,
+                id: currentEditID
+            },
+            cache: false
+        }).done((res) => {
+            $('#zoiaImagesDialogBody').show();
+            $('#zoiaImagesDialogSpinner').hide();
+            if (res && res.status === 1) {
+                selection.each(function() {
+                    $(this).remove();
+                });
+                if ($('#imagesList').find('.warehouse-image-item-selected').length === 0) {
+                	$('#imagesListBtnDel').hide();
+                }
+                $zUI.notification(lang['Operation was successful'], {
+                    status: 'success',
+                    timeout: 1500
+                });
+            } else {
+                $zUI.notification(lang['Cannot delete one or more items'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            }
+        }).fail(() => {
+            $('#zoiaImagesDialogBody').show();
+            $('#zoiaImagesDialogSpinner').hide();
+            $zUI.notification(lang['Cannot delete one or more items'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        });
+    });
     initCKEditor();
+    initUploader();
 });
