@@ -204,20 +204,20 @@ module.exports = function(app) {
                 let item = await db.collection('warehouse').findOne({ _id: new ObjectID(id) });
                 if (!item) {
                     output.status = -1;
-                    output.fields = ['sku', 'folder'];
+                    output.fields = ['sku'];
                     return res.send(JSON.stringify(output));
                 }
-                let duplicate = await db.collection('warehouse').findOne({ folder: data.folder, sku: data.sku });
+                let duplicate = await db.collection('warehouse').findOne({ sku: data.sku });
                 if (duplicate && JSON.stringify(duplicate._id) !== JSON.stringify(item._id)) {
                     output.status = -2;
-                    output.fields = ['sku', 'folder'];
+                    output.fields = ['sku'];
                     return res.send(JSON.stringify(output));
                 }
             } else {
-                let duplicate = await db.collection('warehouse').findOne({ folder: data.folder, sku: data.sku });
+                let duplicate = await db.collection('warehouse').findOne({ sku: data.sku });
                 if (duplicate) {
                     output.status = -2;
-                    output.fields = ['sku', 'folder'];
+                    output.fields = ['sku'];
                     return res.send(JSON.stringify(output));
                 }
             }
@@ -243,8 +243,9 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        const items = req.body['items'];
+        const items = req.body['items'] || [];
         const id = req.body['id'];
+        let output = {};
         if (!items || typeof items !== 'object' || !id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
             output.status = -1;
             return res.send(JSON.stringify(output));
@@ -256,8 +257,7 @@ module.exports = function(app) {
                 output.status = -2;
                 return res.send(JSON.stringify(output));
             }
-        }
-        let output = {};
+        }        
         try {
             let updResult = await db.collection('warehouse').update({ _id: new ObjectID(id) }, { $set: { images: items } }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
@@ -892,14 +892,18 @@ module.exports = function(app) {
             const foldersString = await db.collection('registry').findOne({ name: 'warehouseFolders' });
             if (!foldersString || !foldersString.data) {
                 return res.send(JSON.stringify({
-                    status: 0
+                    status: -1
                 }));
             }
             const folders = JSON.parse(foldersString.data);
             const items = await db.collection('warehouse').find({}, { folder: 1, url: 1 }).toArray();
+            console.log(items);
             if (items && items.length) {
                 for (let i in items) {
                     let item = items[i];
+                    if (!item.folder) {
+                        continue;
+                    }
                     let path = _treePath(folders, item.folder);
                     path = path.reverse();
                     path.shift();
@@ -908,7 +912,7 @@ module.exports = function(app) {
                         const updResult = await db.collection('warehouse').update({ _id: item._id }, { $set: { url: path } }, { upsert: true });
                         if (!updResult || !updResult.result || !updResult.result.ok) {
                             return res.send(JSON.stringify({
-                                status: 0
+                                status: -2
                             }));
                         }
                     }
@@ -918,6 +922,7 @@ module.exports = function(app) {
                 status: 1
             }));
         } catch (e) {
+            log.error(e);
             return res.send(JSON.stringify({
                 status: 0
             }));

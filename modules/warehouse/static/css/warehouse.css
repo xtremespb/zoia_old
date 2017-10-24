@@ -129,17 +129,17 @@
 }
 
 .warehouseBtnSettings {
-	padding: 9px;
+    padding: 9px;
 }
 
-.zoia-nav-default > li {
-	padding-left: 0;
-	padding-right: 0;
+.zoia-nav-default>li {
+    padding-left: 0;
+    padding-right: 0;
 }
 
-.zoia-nav-default > li > a {
-	padding-left: 10px;
-	padding-right: 10px;
+.zoia-nav-default>li>a {
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 #zoiaSpinnerDialog.za-modal {
@@ -179,11 +179,19 @@
     margin-bottom: 5px;
     padding: 0;
 }
+
 .warehouse-image-item>img {
     margin: 5px;
-    width:120px;
+    width: 120px;
     height: 120px;
 }
+
 .warehouse-image-item-selected {
     background: #F3B562;
+}
+
+.zoiaImagesDialogHint {
+    font-size: 90%;
+    text-align: center;
+    color: #666;
 }

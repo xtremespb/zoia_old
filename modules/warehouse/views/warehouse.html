@@ -21,6 +21,8 @@
                         <div za-dropdown="mode:click">
                             <div class="za-width-1-1">
                                 <ul class="za-nav za-nav-default zoia-nav-default">
+                                    <li><a href="#" class="warehouseBtnSettings">{{ i18n.__(locale, 'Warehouse Settings')}}</a></li>
+                                    <li class="za-nav-divider"></li>
                                     <li><a href="#" class="warehouseBtnRepair">{{ i18n.__(locale, 'Repair database')}}</a></li>
                                     <li><a href="#" class="warehouseBtnRebuild">{{ i18n.__(locale, 'Re-build URL cache')}}</a></li>
                                 </ul>
@@ -43,6 +45,8 @@
                     <div za-dropdown="mode:click">
                         <div class="za-width-1-1">
                             <ul class="za-nav za-nav-default zoia-nav-default">
+                                <li><a href="#" class="warehouseBtnSettings">{{ i18n.__(locale, 'Warehouse Settings')}}</a></li>
+                                <li class="za-nav-divider"></li>
                                 <li><a href="#" class="warehouseBtnRepair">{{ i18n.__(locale, 'Repair database')}}</a></li>
                                 <li><a href="#" class="warehouseBtnRebuild">{{ i18n.__(locale, 'Re-build URL cache')}}</a></li>
                             </ul>
@@ -179,13 +183,13 @@
             <div class="za-margin-top">
                 <button class="za-button za-button-danger za-button-small" type="button" id="imagesListBtnDel">{{ i18n.__(locale, 'Delete selected')}}</button>
             </div>
+            <div class="za-margin-top zoiaImagesDialogHint">{{ i18n.__(locale, 'The first image is a default one. Use drag and drop to manage images order.')}}</div>
         </div>
         <div class="za-modal-body za-flex za-flex-center za-flex-middle" id="zoiaImagesDialogSpinner" style="display:none">
             <div za-spinner></div>
         </div>
         <div class="za-modal-footer za-text-right">
             <button class="za-button za-button-default zoia-images-dialog-button" id="zoiaImagesDialogBtnClose" type="button">{{ i18n.__(locale, 'Done')}}</button>
-            <div za-spinner style="float:right;display:none" id="zoiaImagesDialogSpinner"></div>
         </div>
     </div>
 </div>

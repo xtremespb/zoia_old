@@ -81,7 +81,7 @@
 	"SKU": "SKU",
 	"Price": "Price",
 	"Example: 123.45": "Example: 123.45",
-    "Example: 123": "Example: 123",
+	"Example: 123": "Example: 123",
 	"Free": "Free",
 	"Properties": "Properties",
 	"Optional": "Optional",
@@ -90,8 +90,9 @@
 	"Could not create new item": "Could not create new item",
 	"Done": "Done",
 	"Delete selected": "Delete selected",
-    "Cannot save images data": "Cannot save images data",
-    "Weight": "Weight",
-    "Amount": "Amount",
-    "Weight": "Weight"
+	"Cannot save images data": "Cannot save images data",
+	"Weight": "Weight",
+	"Amount": "Amount",
+	"The first image is a default one. Use drag and drop to manage images order.": "The first image is a default one. Use drag and drop to manage images order.",
+	"Warehouse Settings": "Warehouse Settings"
 }

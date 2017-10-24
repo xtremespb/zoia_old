@@ -892,8 +892,8 @@ $(document).ready(() => {
                 css: 'za-width-medium',
                 autofocus: true,
                 validation: {
-                    mandatoryCreate: false,
-                    mandatoryEdit: false,
+                    mandatoryCreate: true,
+                    mandatoryEdit: true,
                     length: {
                         min: 1,
                         max: 64

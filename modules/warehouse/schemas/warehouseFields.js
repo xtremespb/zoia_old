@@ -17,7 +17,7 @@
                 }
             },
             sku: {
-                mandatoryCreate: false,
+                mandatoryCreate: true,
                 length: {
                     min: 1,
                     max: 64
