@@ -168,7 +168,7 @@ const configs = async() => {
             zConfig.port = zoiaPort.val;
             zConfig.production = zoiaProduction.val;
             zConfig.trustProxy = zoiaTrustProxy.val;
-            zConfig.stackTrace = zoiaStackTrace.val;
+            zConfig.log.stackTrace = zoiaStackTrace.val;
             zConfig.logLevel = zoiaLogLevel.val;
             zConfig.mongo.url = zoiaMongoURL.val;
         } else {

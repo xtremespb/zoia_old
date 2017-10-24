@@ -1,7 +1,5 @@
 'use strict';
 
-const log = require('loglevel');
-const prefix = require('loglevel-plugin-prefix');
 const path = require('path');
 const fileUpload = require('express-fileupload');
 const express = require('express');
@@ -9,18 +7,37 @@ const app = express().set('express', express);
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const fs = require('fs');
-
-prefix.apply(log, {
-    template: '%t [%l]',
-    timestampFormatter: date => date.toLocaleDateString() + ' ' + date.toLocaleTimeString(),
-    levelFormatter: level => level.toUpperCase()
-});
+const winston = require('winston');
 
 ((async function init() {
-    try {
-        const config = require(path.join(__dirname, 'config.js'));
-        log.setLevel(config.logLevel);
-        app.set('log', log);
+    const config = require(path.join(__dirname, 'config.js'));
+    if (!config.log) {
+        config.log = {};
+    }
+    const log = winston.createLogger({
+        level: config.logLevel,
+        format: winston.format.printf(info => {
+            return new Date().toISOString() + ` [${info.level}] ${info.message}`;
+        }),
+        transports: [
+            new winston.transports.File({
+                dirname: config.log.dirname || path.join(__dirname, '..', 'logs'),
+                filename: config.log.filename || 'main.log',
+                maxsize: config.log.maxsize || 1048576,
+                maxFiles: config.log.maxFiles || 10,
+                tailable: config.log.tailable || true,
+                timestamp: config.log.timestamp || false,
+                showLevel: config.log.showLevel || false,
+                meta: config.log.meta || false,
+                json: config.log.json || false
+            })
+        ]
+    });
+    if (!config.production) {
+        log.add(new winston.transports.Console({ colorize: true }));
+    }
+    app.set('log', log);
+    try {        
         app.set('trust proxy', config.trustProxy);
         // Init database
         const db = new(require(path.join(__dirname, 'database.js')))(app, config.mongo, config.session);
@@ -63,7 +80,6 @@ prefix.apply(log, {
         }
         app.set('backendModules', backendModules);
         app.set('templateFilters', templateFilters);
-        app.set('log', log);
         const errors = new(require(path.join(__dirname, 'errors.js')))(app);
         app.use(errors.notFound, errors.errorHandler);
         app.emit('zoiaStarted');

@@ -25,6 +25,10 @@ module.exports = function(app) {
                 err: err,
                 config: config
             });
+            app.get('log').error('[' + err.status + '] ' + req.ip + ' ' + req.method + ' ' + req.url + stack);
+            if (config.stackTrace && err.status !== 404) {
+                app.get('log').error(config.stackTrace);
+            }
             res.status(err.status).send(html);
             next();
         }
