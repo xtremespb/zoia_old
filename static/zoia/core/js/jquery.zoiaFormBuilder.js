@@ -24,18 +24,19 @@
         validation: true,
         html: {
             helpText: '<div class="uk-text-meta">{text}</div>',
-            text: '<div class="uk-margin-bottom"><label class="uk-form-label" for="{prefix}_{name}">{label}:</label><br><div class="uk-form-controls"><input class="uk-input {prefix}-form-field{css}" id="{prefix}_{name}" type="{type}" placeholder=""{autofocus}><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="uk-label-danger"></span></div>{helpText}</div></div>',
-            select: '<div class="uk-margin-bottom"><label class="uk-form-label" for="{prefix}_{name}">{label}:</label><br><select{multiple} class="uk-select {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}>{values}</select><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="uk-label-danger"></span></div>{helpText}</div>',
-            passwordConfirm: '<div class="uk-margin"><label class="uk-form-label" for="{prefix}_{name}">{label}:</label><div class="uk-flex"><div class="{prefix}-field-wrap"><input class="uk-input {prefix}-form-field" id="{prefix}_{name}" type="password" placeholder=""{autofocus}></div><div><input class="uk-input {prefix}-form-field" id="{prefix}_{name}Confirm" type="password" placeholder=""></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="uk-label-danger"></span></div>{helpText}</div>',
-            captcha: '<div class="uk-margin"><label class="uk-form-label" for="{prefix}_{name}">{label}:</label><div class="uk-grid uk-grid-small"><div><input class="uk-input {prefix}-form-field {prefix}-captcha-field{css}" type="text" placeholder="" id="{prefix}_{name}"{autofocus}></div><div><div class="uk-form-controls"><img class="{prefix}-captcha-img"></div></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="uk-label-danger"></span></div>{helpText}',
+            text: '<div class="uk-margin-bottom"><label class="uk-form-label" for="{prefix}_{name}">{label}:{bullet}</label><br><div class="uk-form-controls"><input class="uk-input {prefix}-form-field{css}" id="{prefix}_{name}" type="{type}" placeholder=""{autofocus}><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="uk-label-danger"></span></div>{helpText}</div></div>',
+            select: '<div class="uk-margin-bottom"><label class="uk-form-label" for="{prefix}_{name}">{label}:{bullet}</label><br><select{multiple} class="uk-select {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}>{values}</select><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="uk-label-danger"></span></div>{helpText}</div>',
+            passwordConfirm: '<div class="uk-margin"><label class="uk-form-label" for="{prefix}_{name}">{label}:{bullet}</label><div class="uk-flex"><div class="{prefix}-field-wrap"><input class="uk-input {prefix}-form-field" id="{prefix}_{name}" type="password" placeholder=""{autofocus}></div><div><input class="uk-input {prefix}-form-field" id="{prefix}_{name}Confirm" type="password" placeholder=""></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="uk-label-danger"></span></div>{helpText}</div>',
+            captcha: '<div class="uk-margin"><label class="uk-form-label" for="{prefix}_{name}">{label}:{bullet}</label><div class="uk-grid uk-grid-small"><div><input class="uk-input {prefix}-form-field {prefix}-captcha-field{css}" type="text" placeholder="" id="{prefix}_{name}"{autofocus}></div><div><div class="uk-form-controls"><img class="{prefix}-captcha-img"></div></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="uk-label-danger"></span></div>{helpText}',
             buttonsWrap: '<div class="{css}">{buttons}{html}</div>',
             button: '<button class="uk-button {prefix}-form-button{css}" id="{prefix}_{name}" type="{type}">{label}</button>',
-            launcher: '<div class="uk-margin"><label class="uk-form-label" for="{prefix}_{name}_btn">{label}:</label><div class="uk-flex"><div id="{prefix}_{name}_val" class="{prefix}-{name}-selector" data="{data}">{value}</div><div><button class="uk-button uk-button-default" id="{prefix}_{name}_btn" type="button">{labelBtn}</button></div></div>{helpText}</div>',
-            textarea: '<div class="uk-margin-bottom"><label class="uk-form-label" for="{prefix}_{name}">{label}:</label><br><div class="uk-form-controls"><textarea class="uk-textarea {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}></textarea><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="uk-label-danger"></span></div>{helpText}</div></div>',
+            launcher: '<div class="uk-margin"><label class="uk-form-label" for="{prefix}_{name}_btn">{label}:{bullet}</label><div class="uk-flex"><div id="{prefix}_{name}_val" class="{prefix}-{name}-selector" data="{data}">{value}</div><div><button class="uk-button uk-button-default" id="{prefix}_{name}_btn" type="button">{labelBtn}</button></div></div>{helpText}</div>',
+            textarea: '<div class="uk-margin-bottom"><label class="uk-form-label" for="{prefix}_{name}">{label}:{bullet}</label><br><div class="uk-form-controls"><textarea class="uk-textarea {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}></textarea><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="uk-label-danger"></span></div>{helpText}</div></div>',
             checkboxlistItem: '<li><label><input class="uk-checkbox {prefix}-{name}-cbx" type="checkbox" data="{title}">&nbsp;&nbsp;{title}</label></li>',
-            checkboxlist: '<div class="uk-margin-bottom"><label class="uk-form-label" for="{prefix}_{name}">{label}:</label><div class="uk-panel uk-panel-scrollable{css}" id="{prefix}_{name}_wrap"><ul class="uk-list">{items}</ul></div>{helpText}</div>',
+            checkboxlist: '<div class="uk-margin-bottom"><label class="uk-form-label" for="{prefix}_{name}">{label}:{bullet}</label><div class="uk-panel uk-panel-scrollable{css}" id="{prefix}_{name}_wrap"><ul class="uk-list">{items}</ul></div>{helpText}</div>',
             valueslistItem: '<div class="uk-flex uk-margin-top {prefix}-{name}-item"><div class="uk-margin-right"><input placeholder="{langParameter}" type="text" class="uk-input formBuilder-valueslist-par" value="{key}"></div><div class="uk-margin-right"><input placeholder="{langValue}" type="text" class="uk-input formBuilder-valueslist-val" value="{value}"></div><div style="padding-top:3px"><button class="uk-icon-button uk-button-danger formBuilder-valueslist-btnDel" uk-icon="icon:minus"></button></div></div>',
-            valueslist: '<div class="uk-flex uk-flex-column"><div class="uk-margin-bottom"><label class="uk-form-label">{label}:</label></div><div><button type="button" class="uk-icon-button uk-button-primary formBuilder-valueslist-btnAdd" id="{prefix}_{name}_btnAdd" uk-icon="icon:plus" data-prefix="{prefix}" data-name="{name}"></button></div><div id="{prefix}_{name}_wrap" class="uk-margin-bottom formBuilder-valueslist-wrap">{items}</div></div>'
+            valueslist: '<div class="uk-flex uk-flex-column"><div class="uk-margin-bottom"><label class="uk-form-label">{label}:{bullet}</label></div><div><button type="button" class="uk-icon-button uk-button-primary formBuilder-valueslist-btnAdd" id="{prefix}_{name}_btnAdd" uk-icon="icon:plus" data-prefix="{prefix}" data-name="{name}"></button></div><div id="{prefix}_{name}_wrap" class="uk-margin-bottom formBuilder-valueslist-wrap">{items}</div></div>',
+            bullet: '&nbsp;<span style="color:red;font-size:120%">&#8226;</span>'
         },
         template: {
             fields: '{fields}',
@@ -80,6 +81,11 @@
             let buttonsHTML = '';
             for (let n in this.settings.items) {
                 let item = this.settings.items[n];
+                let bullet = '';
+                if ((item.validation && !this.settings.edit && item.validation.mandatoryCreate) ||
+                    (item.validation && this.settings.edit && item.validation.mandatoryEdit)) {
+                    bullet = this.settings.html.bullet;
+                }
                 switch (item.type) {
                     case 'text':
                     case 'email':
@@ -88,6 +94,7 @@
                             prefix: this._prefix,
                             name: n,
                             label: item.label,
+                            bullet: bullet,
                             css: (item.css ? ' ' + item.css : ''),
                             autofocus: (item.autofocus ? 'autofocus' : ''),
                             helpText: (item.helpText ? this._template(this.settings.html.helpText, {
@@ -102,6 +109,7 @@
                             prefix: this._prefix,
                             name: n,
                             label: item.label,
+                            bullet: bullet,
                             labelBtn: item.labelBtn,
                             data: item.data,
                             value: item.value,
@@ -128,6 +136,7 @@
                             prefix: this._prefix,
                             name: n,
                             label: item.label,
+                            bullet: bullet,
                             items: valuesListItems
                         });
                         break;
@@ -140,6 +149,7 @@
                             prefix: this._prefix,
                             name: n,
                             label: item.label,
+                            bullet: bullet,
                             css: (item.css ? ' ' + item.css : ''),
                             multiple: (item.multiple ? ' multiple' : ''),
                             autofocus: (item.autofocus ? 'autofocus' : ''),
@@ -164,6 +174,7 @@
                             prefix: this._prefix,
                             name: n,
                             label: item.label,
+                            bullet: bullet,
                             css: (item.css ? ' ' + item.css : ''),
                             multiple: (item.multiple ? ' multiple' : ''),
                             helpText: (item.helpText ? this._template(this.settings.html.helpText, {
@@ -178,6 +189,7 @@
                             prefix: this._prefix,
                             name: n,
                             label: item.label,
+                            bullet: bullet,
                             css: (item.css ? ' ' + item.css : ''),
                             autofocus: (item.autofocus ? 'autofocus' : ''),
                             helpText: (item.helpText ? this._template(this.settings.html.helpText, {
@@ -193,6 +205,7 @@
                             name: n,
                             css: (item.css ? ' ' + item.css : ''),
                             label: item.label,
+                            bullet: bullet,
                             helpText: (item.helpText ? this._template(this.settings.html.helpText, {
                                 text: item.helpText,
                                 prefix: this._prefix
@@ -205,6 +218,7 @@
                             prefix: this._prefix,
                             name: n,
                             label: item.label,
+                            bullet: bullet,
                             css: (item.css ? ' ' + item.css : ''),
                             autofocus: (item.autofocus ? 'autofocus' : ''),
                             helpText: (item.helpText ? this._template(this.settings.html.helpText, {

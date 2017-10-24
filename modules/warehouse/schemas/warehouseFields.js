@@ -71,6 +71,30 @@
                     return item;
                 }
             },
+            weight: {
+                mandatoryCreate: false,
+                length: {
+                    min: 1,
+                    max: 32
+                },
+                type: 'string',
+                regexp: /^[0-9]+\.?[0-9]+$/,
+                process: function(item) {
+                    return item;
+                }
+            },
+            amount: {
+                mandatoryCreate: false,
+                length: {
+                    min: 1,
+                    max: 32
+                },
+                type: 'string',
+                regexp: /^[0-9]+$/,
+                process: function(item) {
+                    return item;
+                }
+            },
             properties: {
                 mandatoryCreate: false,
                 process: function(item) {

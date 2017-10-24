@@ -81,6 +81,7 @@
 	"SKU": "SKU",
 	"Price": "Price",
 	"Example: 123.45": "Example: 123.45",
+    "Example: 123": "Example: 123",
 	"Free": "Free",
 	"Properties": "Properties",
 	"Optional": "Optional",
@@ -88,5 +89,9 @@
 	"Browse": "Browse",
 	"Could not create new item": "Could not create new item",
 	"Done": "Done",
-	"Delete selected": "Delete selected"
+	"Delete selected": "Delete selected",
+    "Cannot save images data": "Cannot save images data",
+    "Weight": "Weight",
+    "Amount": "Amount",
+    "Weight": "Weight"
 }

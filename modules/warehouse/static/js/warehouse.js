@@ -438,6 +438,12 @@ const onEditLanguageCheckboxClickEvent = () => {
                 if (editShadow[lng].data.sku) {
                     $('#editForm_sku').val(editShadow[lng].data.sku.value);
                 }
+                if (editShadow[lng].data.weight) {
+                    $('#editForm_weight').val(editShadow[lng].data.weight.value);
+                }
+                if (editShadow[lng].data.amount) {
+                    $('#editForm_amount').val(editShadow[lng].data.amount.value);
+                }
                 if (editShadow[lng].data.images) {
                     $('#editForm_folder_val').html(editShadow[lng].data.images.value);
                     $('#editForm_folder_val').attr('data', editShadow[lng].data.images.id);
@@ -512,15 +518,20 @@ const onZoiaEditLanguagesClick = (lng) => {
     editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
     if (editShadow[editLanguage].enabled && editShadow[editLanguage].data &&
         editShadow[editLanguage].data.folder && editShadow[editLanguage].data.images &&
-        editShadow[editLanguage].data.sku && editShadow[editLanguage].data.status) {
+        editShadow[editLanguage].data.sku && editShadow[editLanguage].data.status &&
+        editShadow[editLanguage].data.weight && editShadow[editLanguage].data.amount) {
         let saveFolder = editShadow[editLanguage].data.folder;
         let saveImages = editShadow[editLanguage].data.images;
         let saveSKU = editShadow[editLanguage].data.sku;
+        let saveWeight = editShadow[editLanguage].data.weight;
+        let saveAmount = editShadow[editLanguage].data.amount;
         let savePrice = editShadow[editLanguage].data.price;
         let saveStatus = editShadow[editLanguage].data.status;
         editShadow[lng].data.folder = saveFolder;
         editShadow[lng].data.images = saveImages;
         editShadow[lng].data.sku = saveSKU;
+        editShadow[lng].data.weight = saveWeight;
+        editShadow[lng].data.amount = saveAmount;
         editShadow[lng].data.price = savePrice;
         editShadow[lng].data.status = saveStatus;
     }
@@ -586,7 +597,7 @@ const initUploader = () => {
                 });
             } else {
                 $('#' + file.id).parent().remove();
-                $('#imagesList').append('<div class="za-card za-card-default za-card-body warehouse-image-item" data-id="' + res.id + '" data-ext="' + res.ext + '"><img src="/warehouse/static/storage/' + currentEditID + '/tn_' + res.id + '.' + res.ext + '"></div>');
+                $('#imagesList').append('<div class="za-card za-card-default za-card-body warehouse-image-item" data-id="' + res.id + '" data-ext="' + res.ext + '"><img src="/warehouse/static/images/' + currentEditID + '/tn_' + res.id + '.' + res.ext + '"></div>');
                 initShifty();
             }
         } catch (e) {
@@ -662,18 +673,19 @@ $(document).ready(() => {
         },
         html: {
             helpText: '<div class="za-text-meta">{text}</div>',
-            text: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><div class="za-form-controls"><input class="za-input {prefix}-form-field{css}" id="{prefix}_{name}" type="{type}" placeholder=""{autofocus}><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>',
-            select: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><select{multiple} class="za-select {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}>{values}</select><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
-            passwordConfirm: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-flex"><div class="{prefix}-field-wrap"><input class="za-input {prefix}-form-field" id="{prefix}_{name}" type="password" placeholder=""{autofocus}></div><div><input class="za-input {prefix}-form-field" id="{prefix}_{name}Confirm" type="password" placeholder=""></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
-            captcha: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-grid za-grid-small"><div><input class="za-input {prefix}-form-field {prefix}-captcha-field{css}" type="text" placeholder="" id="{prefix}_{name}"{autofocus}></div><div><div class="za-form-controls"><img class="{prefix}-captcha-img"></div></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}',
+            text: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:{bullet}</label><br><div class="za-form-controls"><input class="za-input {prefix}-form-field{css}" id="{prefix}_{name}" type="{type}" placeholder=""{autofocus}><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>',
+            select: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:{bullet}</label><br><select{multiple} class="za-select {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}>{values}</select><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
+            passwordConfirm: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:{bullet}</label><div class="za-flex"><div class="{prefix}-field-wrap"><input class="za-input {prefix}-form-field" id="{prefix}_{name}" type="password" placeholder=""{autofocus}></div><div><input class="za-input {prefix}-form-field" id="{prefix}_{name}Confirm" type="password" placeholder=""></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
+            captcha: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:{bullet}</label><div class="za-grid za-grid-small"><div><input class="za-input {prefix}-form-field {prefix}-captcha-field{css}" type="text" placeholder="" id="{prefix}_{name}"{autofocus}></div><div><div class="za-form-controls"><img class="{prefix}-captcha-img"></div></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}',
             buttonsWrap: '<div class="{css}">{buttons}{html}</div>',
             button: '<button class="za-button {prefix}-form-button{css}" id="{prefix}_{name}" type="{type}">{label}</button>',
-            launcher: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}_btn">{label}:</label><div class="za-flex"><div id="{prefix}_{name}_val" class="{prefix}-{name}-selector" data="{data}">{value}</div><div><button class="za-button za-button-default" id="{prefix}_{name}_btn" type="button">{labelBtn}</button></div></div>{helpText}</div>',
-            textarea: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><div class="za-form-controls"><textarea class="za-textarea {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}></textarea><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>',
+            launcher: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}_btn">{label}:{bullet}</label><div class="za-flex"><div id="{prefix}_{name}_val" class="{prefix}-{name}-selector" data="{data}">{value}</div><div><button class="za-button za-button-default" id="{prefix}_{name}_btn" type="button">{labelBtn}</button></div></div>{helpText}</div>',
+            textarea: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:{bullet}</label><br><div class="za-form-controls"><textarea class="za-textarea {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}></textarea><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>',
             checkboxlistItem: '<li><label><input class="za-checkbox {prefix}-{name}-cbx" type="checkbox" data="{title}">&nbsp;&nbsp;{title}</label></li>',
-            checkboxlist: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-panel za-panel-scrollable{css}" id="{prefix}_{name}_wrap"><ul class="za-list">{items}</ul></div>{helpText}</div>',
+            checkboxlist: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:{bullet}</label><div class="za-panel za-panel-scrollable{css}" id="{prefix}_{name}_wrap"><ul class="za-list">{items}</ul></div>{helpText}</div>',
             valueslistItem: '<div class="za-flex za-margin-top {prefix}-{name}-item"><div class="za-margin-right"><input placeholder="{langParameter}" type="text" class="za-input formBuilder-valueslist-par" value="{key}"></div><div class="za-margin-right"><input placeholder="{langValue}" type="text" class="za-input formBuilder-valueslist-val" value="{value}"></div><div style="padding-top:3px"><button class="za-icon-button za-button-danger formBuilder-valueslist-btnDel" za-icon="icon:minus"></button></div></div>',
-            valueslist: '<div class="za-flex za-flex-column"><div class="za-margin-bottom"><label class="za-form-label">{label}:</label></div><div><button type="button" class="za-icon-button za-button-primary formBuilder-valueslist-btnAdd" id="{prefix}_{name}_btnAdd" za-icon="icon:plus" data-prefix="{prefix}" data-name="{name}"></button></div><div id="{prefix}_{name}_wrap" class="za-margin-bottom formBuilder-valueslist-wrap">{items}</div></div>'
+            valueslist: '<div class="za-flex za-flex-column"><div class="za-margin-bottom"><label class="za-form-label">{label}:{bullet}</label></div><div><button type="button" class="za-icon-button za-button-primary formBuilder-valueslist-btnAdd" id="{prefix}_{name}_btnAdd" za-icon="icon:plus" data-prefix="{prefix}" data-name="{name}"></button></div><div id="{prefix}_{name}_wrap" class="za-margin-bottom formBuilder-valueslist-wrap">{items}</div></div>',
+            bullet: '&nbsp;<span style="color:red;font-size:140%">&#8226;</span>'
         },
         events: {
             onSaveValidate: (data) => {
@@ -682,6 +694,8 @@ $(document).ready(() => {
                 let saveImages = editShadow[editLanguage].data.images.id;
                 let saveURL = editShadow[editLanguage].data.folder.value;
                 let saveSKU = editShadow[editLanguage].data.sku.value;
+                let saveWeight = editShadow[editLanguage].data.weight.value;
+                let saveAmount = editShadow[editLanguage].data.amount.value;
                 let savePrice = editShadow[editLanguage].data.price.value;
                 let saveStatus = editShadow[editLanguage].data.status.value;
                 for (let n in editShadow) {
@@ -701,6 +715,8 @@ $(document).ready(() => {
                     vr.data.folder = saveFolder;
                     vr.data.url = (saveURL + '/' + saveSKU).replace(/^\//, '').replace(/\/$/, '');
                     vr.data.sku = saveSKU;
+                    vr.data.weight = saveWeight;
+                    vr.data.amount = saveAmount;
                     vr.data.price = savePrice;
                     vr.data.status = saveStatus;
                     vr.data.images = saveImages;
@@ -793,13 +809,21 @@ $(document).ready(() => {
                         $('#imagesList').html('');
                         for (let i in data.item.images) {
                             const img = data.item.images[i];
-                            $('#imagesList').append('<div class="za-card za-card-default za-card-body warehouse-image-item" data-id="' + img.id + '" data-ext="' + img.ext + '"><img src="/warehouse/static/storage/' + currentEditID + '/tn_' + img.id + '.' + img.ext + '"></div>');
+                            $('#imagesList').append('<div class="za-card za-card-default za-card-body warehouse-image-item" data-id="' + img.id + '" data-ext="' + img.ext + '"><img src="/warehouse/static/images/' + currentEditID + '/tn_' + img.id + '.' + img.ext + '"></div>');
                         }
                         $('#imagesListBtnDel').hide();
                         initShifty();
                         editShadow[n].data.sku = {
                             type: 'text',
                             value: data.item.sku
+                        };
+                        editShadow[n].data.weight = {
+                            type: 'text',
+                            value: data.item.weight
+                        };
+                        editShadow[n].data.amount = {
+                            type: 'text',
+                            value: data.item.amount
                         };
                         editShadow[n].data.price = {
                             type: 'text',
@@ -917,6 +941,46 @@ $(document).ready(() => {
                     }
                 },
                 helpText: lang['Requried, max. 128 characters']
+            },
+            weight: {
+                type: 'text',
+                label: lang['Weight'],
+                css: 'za-width-small',
+                autofocus: false,
+                validation: {
+                    mandatoryEdit: false,
+                    mandatoryCreate: false,
+                    length: {
+                        min: 1,
+                        max: 32
+                    },
+                    type: 'string',
+                    regexp: /^[0-9]+\.?[0-9]+$/,
+                    process: function(item) {
+                        return item.trim();
+                    }
+                },
+                helpText: lang['Example: 123.45']
+            },
+            amount: {
+                type: 'text',
+                label: lang['Amount'],
+                css: 'za-width-small',
+                autofocus: false,
+                validation: {
+                    mandatoryEdit: false,
+                    mandatoryCreate: false,
+                    length: {
+                        min: 1,
+                        max: 32
+                    },
+                    type: 'string',
+                    regexp: /^[0-9]+$/,
+                    process: function(item) {
+                        return item.trim();
+                    }
+                },
+                helpText: lang['Example: 123']
             },
             status: {
                 type: 'select',
@@ -1096,7 +1160,8 @@ $(document).ready(() => {
             checkboxlistItem: '<li><label><input class="za-checkbox {prefix}-{name}-cbx" type="checkbox" data="{title}">&nbsp;&nbsp;{title}</label></li>',
             checkboxlist: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-panel za-panel-scrollable{css}" id="{prefix}_{name}_wrap"><ul class="za-list">{items}</ul></div>{helpText}</div>',
             valueslistItem: '<div class="za-flex za-margin-top {prefix}-{name}-item"><div class="za-margin-right"><input placeholder="{langParameter}" type="text" class="za-input formBuilder-valueslist-par" value="{key}"></div><div class="za-margin-right"><input placeholder="{langValue}" type="text" class="za-input formBuilder-valueslist-val" value="{value}"></div><div style="padding-top:3px"><button class="za-icon-button za-button-danger formBuilder-valueslist-btnDel" za-icon="icon:minus"></button></div></div>',
-            valueslist: '<div class="za-flex za-flex-column"><div class="za-margin-bottom"><label class="za-form-label">{label}:</label></div><div><button type="button" class="za-icon-button za-button-primary formBuilder-valueslist-btnAdd" id="{prefix}_{name}_btnAdd" za-icon="icon:plus" data-prefix="{prefix}" data-name="{name}"></button></div><div id="{prefix}_{name}_wrap" class="za-margin-bottom formBuilder-valueslist-wrap">{items}</div></div>'
+            valueslist: '<div class="za-flex za-flex-column"><div class="za-margin-bottom"><label class="za-form-label">{label}:</label></div><div><button type="button" class="za-icon-button za-button-primary formBuilder-valueslist-btnAdd" id="{prefix}_{name}_btnAdd" za-icon="icon:plus" data-prefix="{prefix}" data-name="{name}"></button></div><div id="{prefix}_{name}_wrap" class="za-margin-bottom formBuilder-valueslist-wrap">{items}</div></div>',
+            bullet: '&nbsp;<span style="color:red;font-size:140%">&#8226;</span>'
         },
         events: {
             onSaveValidate: () => {
@@ -1338,6 +1403,30 @@ $(document).ready(() => {
         const list = generateUploaderList();
         $('#editForm_images_val').attr('data', JSON.stringify(list));
         $('#editForm_images_val').html(list.length);
+        imagesDialog.hide();
+        spinnerDialog.show().then(() => {
+            $.ajax({
+                type: 'POST',
+                url: '/api/warehouse/images/save',
+                data: {
+                    items: list,
+                    id: currentEditID
+                },
+                cache: false
+            }).done((res) => {
+                setTimeout(() => {
+                    spinnerDialog.hide();
+                }, 150);
+            }).fail(() => {
+                setTimeout(() => {
+                    spinnerDialog.hide();
+                    $zUI.notification(lang['Cannot save images data'], {
+                        status: 'danger',
+                        timeout: 1500
+                    });
+                }, 150);
+            });
+        });
     });
     $('#imagesListBtnDel').click(() => {
         const selection = $('#imagesList').find('.warehouse-image-item-selected');
@@ -1367,7 +1456,7 @@ $(document).ready(() => {
                     $(this).remove();
                 });
                 if ($('#imagesList').find('.warehouse-image-item-selected').length === 0) {
-                	$('#imagesListBtnDel').hide();
+                    $('#imagesListBtnDel').hide();
                 }
                 $zUI.notification(lang['Operation was successful'], {
                     status: 'success',

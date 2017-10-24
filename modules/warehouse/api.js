@@ -194,6 +194,8 @@ module.exports = function(app) {
                     data.images = JSON.parse(fields.images.value);
                     data.url = fields.url.value;
                     data.sku = fields.sku.value;
+                    data.weight = fields.weight.value;
+                    data.amount = fields.amount.value;
                     data.price = parseFloat(fields.price.value);
                     data.status = fields.status.value;
                 }
@@ -221,6 +223,43 @@ module.exports = function(app) {
             }
             let what = id ? { _id: new ObjectID(id) } : { sku: data.sku, folder: data.folder };
             let updResult = await db.collection('warehouse').update(what, { $set: data }, { upsert: true });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                output.status = 0;
+                return res.send(JSON.stringify(output));
+            }
+            output.status = 1;
+            return res.send(JSON.stringify(output));
+        } catch (e) {
+            output.status = 0;
+            log.error(e);
+            res.send(JSON.stringify(output));
+        }
+    };
+
+    const saveImages = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const items = req.body['items'];
+        const id = req.body['id'];
+        if (!items || typeof items !== 'object' || !id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+            output.status = -1;
+            return res.send(JSON.stringify(output));
+        }
+        for (let i in items) {
+            const item = items[i];
+            if (!item.id || typeof item.id !== 'string' || !item.id.match(/^[0-9]{13}$/) ||
+                !item.ext || typeof item.ext !== 'string' || !item.ext.match(/^[a-z]+$/)) {
+                output.status = -2;
+                return res.send(JSON.stringify(output));
+            }
+        }
+        let output = {};
+        try {
+            let updResult = await db.collection('warehouse').update({ _id: new ObjectID(id) }, { $set: { images: items } }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 output.status = 0;
                 return res.send(JSON.stringify(output));
@@ -303,7 +342,7 @@ module.exports = function(app) {
             for (let i in ids) {
                 const id = ids[i];
                 try {
-                    await fs.remove(path.join(__dirname, 'static', 'storage', id));
+                    await fs.remove(path.join(__dirname, 'static', 'images', id));
                 } catch (e) {
                     // Ignore
                 }
@@ -342,8 +381,8 @@ module.exports = function(app) {
         try {
             for (let i in items) {
                 try {
-                    fs.remove(path.join(__dirname, 'static', 'storage', id, 'tn_' + items[i].id + '.' + items[i].ext));
-                    fs.remove(path.join(__dirname, 'static', 'storage', id, items[i].id + '.' + items[i].ext));
+                    fs.remove(path.join(__dirname, 'static', 'images', id, 'tn_' + items[i].id + '.' + items[i].ext));
+                    fs.remove(path.join(__dirname, 'static', 'images', id, items[i].id + '.' + items[i].ext));
                 } catch (e) {
                     // Ignore
                 }
@@ -755,7 +794,7 @@ module.exports = function(app) {
         const idImg = Date.now();
         let imgType;
         try {
-            const pathImg = path.join(__dirname, 'static', 'storage', id);
+            const pathImg = path.join(__dirname, 'static', 'images', id);
             await fs.ensureDir(pathImg);
             imgType = imageType(req.files.file.data);
             if (imgType && (imgType.ext === 'png' || imgType.ext === 'jpg' || imgType.ext === 'jpeg' || imgType.ext === 'bmp')) {
@@ -896,6 +935,7 @@ module.exports = function(app) {
     router.post('/rebuild', rebuild);
     router.post('/upload', upload);
     router.post('/images/delete', delImages);
+    router.post('/images/save', saveImages);
     router.all('/browse/list', browseList);
     router.all('/browse/folder/create', browseFolderCreate);
     router.all('/browse/rename', browseRename);
