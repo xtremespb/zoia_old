@@ -1,6 +1,8 @@
 /* eslint no-extra-semi: 0 */
 /* eslint max-len: 0 */
 /* eslint no-undef: 0 */
+/*! zoiaTable v1.0.1 | (c) Michael A. Matveev | github.com/xtremespb/zoiaFormBuilder 
+ */
 ;
 (($) => {
     'use strict';

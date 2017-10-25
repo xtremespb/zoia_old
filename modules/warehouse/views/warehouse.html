@@ -21,7 +21,7 @@
                         <div za-dropdown="mode:click">
                             <div class="za-width-1-1">
                                 <ul class="za-nav za-nav-default zoia-nav-default">
-                                    <li><a href="#" class="warehouseBtnSettings">{{ i18n.__(locale, 'Warehouse Settings')}}</a></li>
+                                    <li><a href="#" class="warehouseBtnSettingsDialog">{{ i18n.__(locale, 'Warehouse Settings')}}</a></li>
                                     <li class="za-nav-divider"></li>
                                     <li><a href="#" class="warehouseBtnRepair">{{ i18n.__(locale, 'Repair database')}}</a></li>
                                     <li><a href="#" class="warehouseBtnRebuild">{{ i18n.__(locale, 'Re-build URL cache')}}</a></li>
@@ -45,7 +45,7 @@
                     <div za-dropdown="mode:click">
                         <div class="za-width-1-1">
                             <ul class="za-nav za-nav-default zoia-nav-default">
-                                <li><a href="#" class="warehouseBtnSettings">{{ i18n.__(locale, 'Warehouse Settings')}}</a></li>
+                                <li><a href="#" class="warehouseBtnSettingsDialog">{{ i18n.__(locale, 'Warehouse Settings')}}</a></li>
                                 <li class="za-nav-divider"></li>
                                 <li><a href="#" class="warehouseBtnRepair">{{ i18n.__(locale, 'Repair database')}}</a></li>
                                 <li><a href="#" class="warehouseBtnRebuild">{{ i18n.__(locale, 'Re-build URL cache')}}</a></li>
@@ -198,9 +198,22 @@
         <span za-spinner></span>
     </div>
 </div>
+<div id="zoiaSettingsDialog" style="display:none">
+    <div class="za-modal-dialog">
+        <div class="za-modal-header">
+            <h2>{{ i18n.__(locale, 'Settings')}}</h2>
+        </div>
+        <form id="editSettingsForm">
+            <div class="za-flex za-flex-center za-margin-top">
+                <div za-spinner class="za-margin-bottom"></div>
+            </div>
+        </form>
+    </div>
+</div>
 <script type="text/javascript">
 var lang = {{ lang }};
 var langs = {{ langs }};
 var foldersData = {{ folders }};
 var testMode = {{ config.testMode }};
+var settings = {{ settings }};
 </script>
