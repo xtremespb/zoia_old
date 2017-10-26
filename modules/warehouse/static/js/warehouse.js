@@ -8,6 +8,7 @@ let spinnerDialog;
 let repairDialog;
 let imagesDialog;
 let settingsDialog;
+let propertiesListDialog;
 let currentEditID;
 let currentDeleteID;
 let foldersTree;
@@ -682,6 +683,11 @@ const formBuilderLang = {
 };
 
 const editFormData = {
+    formDangerClass: 'za-form-danger',
+    template: {
+        fields: '{fields}',
+        buttons: '{buttons}'
+    },
     save: {
         url: '/api/warehouse/save',
         method: 'POST'
@@ -689,11 +695,6 @@ const editFormData = {
     load: {
         url: '/api/warehouse/load',
         method: 'GET'
-    },
-    formDangerClass: 'za-form-danger',
-    template: {
-        fields: '{fields}',
-        buttons: '{buttons}'
     },
     html: formBuilderHTML,
     events: {
@@ -1213,6 +1214,10 @@ const editSettingsFormData = {
         fields: '<div class="za-modal-body">{fields}</div>',
         buttons: '{buttons}'
     },
+    save: {
+        url: '/api/warehouse/settings',
+        method: 'POST'
+    },
     formDangerClass: 'za-form-danger',
     html: formBuilderHTML,
     events: {
@@ -1220,9 +1225,26 @@ const editSettingsFormData = {
             if ($('#editSettingsForm').zoiaFormBuilder().errors(errors)) {
                 return '__stop';
             }
-            let formSettingsData = $('#editSettingsForm').zoiaFormBuilder().serialize();
-            console.log(formSettingsData);
-            return '__stop';
+            $('.editSettingsForm-form-button').hide();
+            $('#zoiaSettingsSpinner').show();
+            return data;
+        },
+        onSaveSuccess: () => {
+            $('.editSettingsForm-form-button').show();
+            $('#zoiaSettingsSpinner').hide();
+            settingsDialog.hide();
+            $zUI.notification(lang.fieldErrors['Saved successfully'], {
+                status: 'success',
+                timeout: 1500
+            });
+        },
+        onSaveError: () => {
+            $('.editSettingsForm-form-button').show();
+            $('#zoiaSettingsSpinner').hide();
+            $zUI.notification(lang.fieldErrors['Could not save to the database'], {
+                status: 'danger',
+                timeout: 1500
+            });
         }
     },
     lang: formBuilderLang,
@@ -1249,7 +1271,7 @@ const editSettingsFormData = {
                 css: 'za-button-primary',
                 type: 'submit'
             }],
-            html: '<div za-spinner style="display:none" id="zoiaSettingsSpinner"></div>'
+            html: '<div za-spinner style="display:none;float:right" id="zoiaSettingsSpinner"></div>'
         }
     }
 };
@@ -1330,6 +1352,49 @@ const warehouseTableData = {
     }
 };
 
+const propertiesTableData = {
+    url: '/api/warehouse/list/properties',
+    limit: 20,
+    sort: {
+        field: 'title',
+        direction: 'asc'
+    },
+    fields: {
+        id: {
+            sortable: true,
+            process: (id, item, value) => {
+                return value || '&ndash;';
+            }
+        },
+        title: {
+            sortable: true,
+            process: (id, item, value) => {
+                return value || '&ndash;';
+            }
+        },
+        actions: {
+            sortable: false,
+            process: (id, item) => {
+                return '<button class="za-icon-button zoia-properties-action-edit-btn" za-icon="icon: pencil" data="' + item._id +
+                    '" style="margin-right:5px"></button><button class="za-icon-button zoia-properties-action-del-btn" za-icon="icon: trash" data="' + item._id +
+                    '"></button><div style="margin-bottom:17px" class="za-hidden@m">&nbsp;</div>';
+            }
+        }
+    },
+    onLoad: () => {
+        $('.zoia-properties-action-edit-btn').click(function() {
+            editProperty($(this).attr('data'));
+        });
+        $('.zoia-properties-action-del-btn').click(function() {
+            deleteProperty($(this).attr('data'));
+        });
+    },
+    lang: {
+        error: lang['Could not load data from server. Please try to refresh page in a few moments.'],
+        noitems: lang['No items to display']
+    }
+};
+
 const initDialogs = () => {
     deleteDialog = $zUI.modal('#zoiaDeleteDialog', {
         bgClose: false,
@@ -1361,6 +1426,11 @@ const initDialogs = () => {
         stack: true
     });
     settingsDialog = $zUI.modal('#zoiaSettingsDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    propertiesListDialog = $zUI.modal('#zoiaPropertiesListDialog', {
         bgClose: false,
         escClose: false,
         stack: true
@@ -1538,20 +1608,28 @@ const initEditLanguages = () => {
 const warehouseBtnSettingsDialogHandler = () => {
     settingsDialog.show();
     $('#editSettingsForm').zoiaFormBuilder().resetForm();
-    $('#editSettingsForm').zoiaFormBuilder().deserialize(settings.data);
+    $('#editSettingsForm').zoiaFormBuilder().loadJSON(settings);
     $('#editSettingsForm_weight_wrap>div:first>div:last>input').focus();
 };
 
+const warehouseBtnPropertiesListDialogHandler = () => {
+    propertiesListDialog.show();
+};
+
 $(document).ready(() => {
+    // Init section
     initDialogs();
     initFoldersTree();
     initCKEditor();
     initUploader();
     initEditLanguages();
+    // Forms and tables
     $('#editForm').zoiaFormBuilder(editFormData);
     $('#editFolderForm').zoiaFormBuilder(editFolderFormData);
     $('#editSettingsForm').zoiaFormBuilder(editSettingsFormData);
     $('#warehouse').zoiaTable(warehouseTableData);
+    $('#properties').zoiaTable(propertiesTableData);
+    // Handlers    
     $('.zoiaDeleteButton').click(deleteButtonHanlder);
     $('#zoiaDeleteDialogButton').click(ajaxDeleteItem);
     $('#zoiaRepairDialogButton').click(ajaxRepairDatabase);
@@ -1567,6 +1645,7 @@ $(document).ready(() => {
     $('.warehouseBtnRepair').click(warehouseBtnRepairHandler);
     $('.warehouseBtnRebuild').click(ajaxRebuildDatabase);
     $('.warehouseBtnSettingsDialog').click(warehouseBtnSettingsDialogHandler);
+    $('.warehouseBtnPropertiesListDialog').click(warehouseBtnPropertiesListDialogHandler);
     $('#editForm_images_btn').click(editFormImagesBtnHandler);
     $('#zoiaImagesDialogBtnClose').click(imagesDialogCloseHandler);
     $('#imagesListBtnDel').click(imagesListBtnDelHandler);

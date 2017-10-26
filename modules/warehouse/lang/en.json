@@ -95,7 +95,8 @@
 	"Amount": "Amount",
 	"The first image is a default one. Use drag and drop to manage images order.": "The first image is a default one. Use drag and drop to manage images order.",
 	"Warehouse Settings": "Warehouse Settings",
-	"Settings": "Settings",
 	"Weight Description": "Weight Description",
-	"Currency Name": "Currency Name"
+	"Currency Name": "Currency Name",
+	"Properties List": "Properties List",
+	"Properties Collection": "Properties Collection"
 }

@@ -471,6 +471,35 @@
                 }
             }
         },
+        loadJSON(data) {
+            const that = this;
+            jQuery.each(data, (key, value) => {
+                $('#' + that._prefix + '_' + key).val(value);
+                if (that.settings.items[key] && that.settings.items[key].type === 'checkboxlist' && value) {
+                    const data = value.split(',');
+                    for (let i in data) {
+                        $('.editForm-groups-cbx[data="' + data[i] + '"]').prop('checked', true);
+                    }
+                }
+                if (that.settings.items[key] && that.settings.items[key].type === 'valueslist' && value) {
+                    let values = [];
+                    for (let v in value) {
+                        values.push(v);
+                        values.push(value[v]);
+                    }
+                    $('#' + that._prefix + '_' + key + '_wrap').html('');
+                    for (let i in value) {
+                        that._valueslistAddFunc(that._prefix, key, values.shift(), values.shift());
+                    }
+                }
+                if (that.settings.items[key] && that.settings.items[key].type === 'valueslistfixed' && value) {
+                    $('.' + this._prefix + '-' + key + '-item-val').val('');
+                    for (let v in value) {
+                        $('.' + this._prefix + '-' + key + '-item-val[data="' + value[v].p + '"]').val(value[v].v);
+                    }
+                }
+            });
+        },
         loadData(data) {
             if (this.settings.events.onLoadStart) {
                 this.settings.events.onLoadStart();
@@ -496,11 +525,17 @@
                             let values = [];
                             for (let v in value) {
                                 values.push(v);
-                                values.push(json[n].values[v]);
+                                values.push(value[v]);
                             }
                             $('#' + that._prefix + '_' + key + '_wrap').html('');
-                            for (let i in json[n].values) {
+                            for (let i in value) {
                                 that._valueslistAddFunc(that._prefix, key, values.shift(), values.shift());
+                            }
+                        }
+                        if (that.settings.items[key] && that.settings.items[key].type === 'valueslistfixed' && value) {
+                            $('.' + this._prefix + '-' + key + '-item-val').val('');
+                            for (let v in value) {
+                                $('.' + this._prefix + '-' + key + '-item-val[data="' + value[v].p + '"]').val(value[v].v);
                             }
                         }
                     });

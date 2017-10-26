@@ -4,6 +4,7 @@ const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validat
 const Router = require('co-router');
 const ObjectID = require('mongodb').ObjectID;
 const warehouseFields = require(path.join(__dirname, 'schemas', 'warehouseFields.js'));
+const settingsFields = require(path.join(__dirname, 'schemas', 'settingsFields.js'));
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const fs = require('fs-extra');
 const Jimp = require('jimp');
@@ -89,6 +90,77 @@ module.exports = function(app) {
         }
     };
 
+    const listProperties = async(req, res) => {
+        const locale = req.session.currentLocale;
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const sortField = req.query.sortField || 'title';
+        const sortDirection = (req.query.sortDirection === 'asc') ? 1 : -1;
+        const sort = {};
+        sort[sortField] = sortDirection;
+        let skip = req.query.skip || 0;
+        let limit = req.query.limit || 10;
+        let search = req.query.search || '';
+        if (typeof sortField !== 'string' || typeof skip !== 'string' || typeof limit !== 'string' || typeof search !== 'string') {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        skip = parseInt(skip, 10) || 0;
+        limit = parseInt(limit, 10) || 0;
+        search = search.trim();
+        if (search.length < 3) {
+            search = null;
+        }
+        let result = {
+            status: 0
+        };
+        if (sortFields.indexOf(sortField) === -1) {
+            result.failedField = 'sortField';
+            return res.send(result);
+        }
+        let fquery = {};
+        try {
+            if (search) {
+                fquery = {
+                    $or: [
+                        { id: { $regex: search, $options: 'i' } }
+                    ]
+                };
+                let tfq = {};
+                tfq['title.' + locale] = { $regex: search, $options: 'i' };
+                fquery.$or.push(tfq);
+            }
+
+            let ffields = { _id: 1, id: 1, title: 1 };
+            const total = await db.collection('warehouse_properties').find(fquery, ffields, { skip: skip, limit: limit }).count();
+            const items = await db.collection('warehouse_properties').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
+            for (let i in items) {
+                if (items[i].title[locale]) {
+                    items[i].title = items[i].title[locale];
+                } else {
+                    items[i].title = '';
+                }
+            }
+            let data = {
+                status: 1,
+                count: items.length,
+                total: total,
+                items: items
+            };
+            res.send(JSON.stringify(data));
+        } catch (e) {
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
     const load = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
@@ -137,6 +209,49 @@ module.exports = function(app) {
         try {
             const json = JSON.stringify(data);
             const updResult = await db.collection('registry').update({ name: 'warehouseFolders' }, { name: 'warehouseFolders', data: json }, { upsert: true });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
+    const settings = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }        
+        try {
+            const fieldList = settingsFields.getSettingsFields();
+            let fields = validation.checkRequest(req.body, fieldList);
+            let fieldsFailed = validation.getCheckRequestFailedFields(fields);
+            if (fieldsFailed.length > 0) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            if (fields.currency && fields.currency.value === '') {
+                fields.currency.value = [];
+            }
+            if (fields.weight && fields.weight.value === '') {
+                fields.weight.value = [];
+            }
+            const data = {
+                currency: fields.currency.value,
+                weight: fields.weight.value 
+            }
+            const json = JSON.stringify(data);
+            const updResult = await db.collection('registry').update({ name: 'warehouseSettings' }, { name: 'warehouseSettings', data: json }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -257,7 +372,7 @@ module.exports = function(app) {
                 output.status = -2;
                 return res.send(JSON.stringify(output));
             }
-        }        
+        }
         try {
             let updResult = await db.collection('warehouse').update({ _id: new ObjectID(id) }, { $set: { images: items } }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
@@ -931,11 +1046,13 @@ module.exports = function(app) {
 
     let router = Router();
     router.get('/list', list);
+    router.get('/list/properties', listProperties);
     router.get('/load', load);
     router.post('/save', save);
     router.get('/create', create);
     router.post('/delete', del);
     router.post('/folders', folders);
+    router.post('/settings', settings);
     router.post('/repair', repair);
     router.post('/rebuild', rebuild);
     router.post('/upload', upload);
