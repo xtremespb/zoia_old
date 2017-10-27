@@ -198,19 +198,19 @@
     </div>
 </div>
 <div id="zoiaPropertiesListDialog" style="display:none" class="za-modal-container">
-    <div class="za-modal-dialog" za-overflow-auto>
+    <div class="za-modal-dialog">
         <div class="za-modal-header">
             <h2>{{ i18n.__(locale, 'Properties List')}}</h2>
         </div>
-        <div class="za-modal-body" id="zoiaPropertiesListDialogBody">
+        <div class="za-modal-body" id="zoiaPropertiesListDialogBody" za-overflow-auto>
             <div class="za-grid za-grid-small">
                 <div>
                     <ul class="za-iconnav">
                         <li>
-                            <button za-icon="icon:plus" class="za-icon-button zoiaAdd" title="{{ i18n.__(locale, 'Add')}}" za-tooltip="pos: bottom-right"></button>
+                            <button za-icon="icon:plus" class="za-icon-button zoiaPropertyAdd" title="{{ i18n.__(locale, 'Add')}}" za-tooltip="pos: bottom-right"></button>
                         </li>
                         <li>
-                            <button za-icon="icon:trash" class="za-icon-button zoiaDeleteButton" title="{{ i18n.__(locale, 'Delete')}}" za-tooltip="pos:bottom-right"></button>
+                            <button za-icon="icon:trash" class="za-icon-button zoiaPropertyDeleteButton" title="{{ i18n.__(locale, 'Delete')}}" za-tooltip="pos:bottom-right"></button>
                         </li>
                         <li>
                             <button za-icon="icon:check" class="za-icon-button propertiesBtnSelectAll" title="{{ i18n.__(locale, 'Select all')}}" za-tooltip="pos:bottom-right"></button>
@@ -266,6 +266,18 @@
             <h2>{{ i18n.__(locale, 'Settings')}}</h2>
         </div>
         <form id="editSettingsForm">
+            <div class="za-flex za-flex-center za-margin-top">
+                <div za-spinner class="za-margin-bottom"></div>
+            </div>
+        </form>
+    </div>
+</div>
+<div id="zoiaPropertyEditDialog" style="display:none">
+    <div class="za-modal-dialog">
+        <div class="za-modal-header">
+            <h2 id="zoiaPropertyEditDialogHeader"></h2>
+        </div>
+        <form id="editPropertyForm">
             <div class="za-flex za-flex-center za-margin-top">
                 <div za-spinner class="za-margin-bottom"></div>
             </div>

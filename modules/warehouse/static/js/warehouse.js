@@ -9,6 +9,7 @@ let repairDialog;
 let imagesDialog;
 let settingsDialog;
 let propertiesListDialog;
+let propertyEditDialog;
 let currentEditID;
 let currentDeleteID;
 let foldersTree;
@@ -291,6 +292,13 @@ const editItem = (id) => {
     spinnerDialog.show().then(() => {
         $('#editForm').zoiaFormBuilder().loadData({ id: id });
     });
+};
+
+const createProperty = () => {
+    editMode = false;
+    propertyEditDialog.show();
+    $('#editPropertyForm').zoiaFormBuilder().resetForm();
+    $('#zoiaPropertyEditDialogHeader').html(lang.addItem);
 };
 
 const showTable = () => {
@@ -1197,7 +1205,7 @@ const editFolderFormData = {
     lang: formBuilderLang
 };
 
-const getEditSettingsFormLangData = () => {
+const getFormLangData = () => {
     let values = [];
     for (let lng in langs) {
         values.push({
@@ -1251,13 +1259,94 @@ const editSettingsFormData = {
     items: {
         weight: {
             type: 'valueslistfixed',
-            values: getEditSettingsFormLangData(),
+            values: getFormLangData(),
             label: lang['Weight Description']
         },
         currency: {
             type: 'valueslistfixed',
-            values: getEditSettingsFormLangData(),
+            values: getFormLangData(),
             label: lang['Currency Name']
+        },
+        buttons: {
+            type: 'buttons',
+            css: 'za-modal-footer za-text-right',
+            buttons: [{
+                label: lang['Cancel'],
+                css: 'za-button-default za-modal-close'
+            }, {
+                name: 'btnSave',
+                label: lang['Save'],
+                css: 'za-button-primary',
+                type: 'submit'
+            }],
+            html: '<div za-spinner style="display:none;float:right" id="zoiaSettingsSpinner"></div>'
+        }
+    }
+};
+
+const editPropertyFormData = {
+    template: {
+        fields: '<div class="za-modal-body">{fields}</div>',
+        buttons: '{buttons}'
+    },
+    save: {
+        url: '/api/warehouse/property/save',
+        method: 'POST'
+    },
+    formDangerClass: 'za-form-danger',
+    html: formBuilderHTML,
+    events: {
+        onSaveValidate: (data, errors) => {
+            if ($('#editSettingsForm').zoiaFormBuilder().errors(errors)) {
+                return '__stop';
+            }
+            $('.editSettingsForm-form-button').hide();
+            $('#zoiaSettingsSpinner').show();
+            return data;
+        },
+        onSaveSuccess: () => {
+            $('.editSettingsForm-form-button').show();
+            $('#zoiaSettingsSpinner').hide();
+            settingsDialog.hide();
+            $zUI.notification(lang.fieldErrors['Saved successfully'], {
+                status: 'success',
+                timeout: 1500
+            });
+        },
+        onSaveError: () => {
+            $('.editSettingsForm-form-button').show();
+            $('#zoiaSettingsSpinner').hide();
+            $zUI.notification(lang.fieldErrors['Could not save to the database'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        }
+    },
+    lang: formBuilderLang,
+    items: {
+        id: {
+            type: 'text',
+            label: lang['ID'],
+            css: 'za-width-medium',
+            autofocus: true,
+            validation: {
+                mandatoryCreate: true,
+                mandatoryEdit: true,
+                length: {
+                    min: 1,
+                    max: 64
+                },
+                regexp: /^[A-Za-z0-9_\-]+$/,
+                process: (item) => {
+                    return item.trim();
+                }
+            },
+            helpText: lang['Latin characters and numbers only (1-64 chars)']
+        },
+        title: {
+            type: 'valueslistfixed',
+            values: getFormLangData(),
+            label: lang['Title']
         },
         buttons: {
             type: 'buttons',
@@ -1354,7 +1443,7 @@ const warehouseTableData = {
 
 const propertiesTableData = {
     url: '/api/warehouse/list/properties',
-    limit: 20,
+    limit: 10,
     sort: {
         field: 'title',
         direction: 'asc'
@@ -1431,6 +1520,11 @@ const initDialogs = () => {
         stack: true
     });
     propertiesListDialog = $zUI.modal('#zoiaPropertiesListDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    propertyEditDialog = $zUI.modal('#zoiaPropertyEditDialog', {
         bgClose: false,
         escClose: false,
         stack: true
@@ -1595,6 +1689,10 @@ const addHandler = () => {
     createItem();
 };
 
+const addPropertyHandler = () => {
+    createProperty();
+};
+
 const editFormImagesBtnHandler = () => {
     imagesDialog.show();
 };
@@ -1627,6 +1725,7 @@ $(document).ready(() => {
     $('#editForm').zoiaFormBuilder(editFormData);
     $('#editFolderForm').zoiaFormBuilder(editFolderFormData);
     $('#editSettingsForm').zoiaFormBuilder(editSettingsFormData);
+    $('#editPropertyForm').zoiaFormBuilder(editPropertyFormData);
     $('#warehouse').zoiaTable(warehouseTableData);
     $('#properties').zoiaTable(propertiesTableData);
     // Handlers    
@@ -1634,6 +1733,7 @@ $(document).ready(() => {
     $('#zoiaDeleteDialogButton').click(ajaxDeleteItem);
     $('#zoiaRepairDialogButton').click(ajaxRepairDatabase);
     $('.zoiaAdd').click(addHandler);
+    $('.zoiaPropertyAdd').click(addPropertyHandler);
     $('#editForm_folder_btn').click(editFormFolderBtnHandler);
     $('#zoiaFoldersAdd').click(foldersAddHandler);
     $('#zoiaFoldersEdit').click(foldersEditHanlder);

@@ -5,6 +5,7 @@ const Router = require('co-router');
 const ObjectID = require('mongodb').ObjectID;
 const warehouseFields = require(path.join(__dirname, 'schemas', 'warehouseFields.js'));
 const settingsFields = require(path.join(__dirname, 'schemas', 'settingsFields.js'));
+const propertyFields = require(path.join(__dirname, 'schemas', 'propertyFields.js'));
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const fs = require('fs-extra');
 const Jimp = require('jimp');
@@ -230,7 +231,7 @@ module.exports = function(app) {
             return res.send(JSON.stringify({
                 status: 0
             }));
-        }        
+        }
         try {
             const fieldList = settingsFields.getSettingsFields();
             let fields = validation.checkRequest(req.body, fieldList);
@@ -248,7 +249,7 @@ module.exports = function(app) {
             }
             const data = {
                 currency: fields.currency.value,
-                weight: fields.weight.value 
+                weight: fields.weight.value
             }
             const json = JSON.stringify(data);
             const updResult = await db.collection('registry').update({ name: 'warehouseSettings' }, { name: 'warehouseSettings', data: json }, { upsert: true });
@@ -256,6 +257,68 @@ module.exports = function(app) {
                 return res.send(JSON.stringify({
                     status: 0
                 }));
+            }
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
+    const saveProperty = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const id = req.body.id;
+        if (id && (typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/))) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const fieldList = propertyFields.getPropertyFields();
+            let fields = validation.checkRequest(req.body, fieldList);
+            let fieldsFailed = validation.getCheckRequestFailedFields(fields);
+            if (fieldsFailed.length > 0) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            if (fields.title && fields.title.value === '') {
+                fields.title.value = [];
+            }
+            if (id) {
+                let item = await db.collection('warehouse_properties').findOne({ _id: new ObjectID(id) });
+                if (!item) {
+                    output.status = -1;
+                    output.fields = ['id'];
+                    return res.send(JSON.stringify(output));
+                }
+                let duplicate = await db.collection('warehouse_properties').findOne({ id: data.id });
+                if (duplicate && JSON.stringify(duplicate._id) !== JSON.stringify(item._id)) {
+                    output.status = -2;
+                    output.fields = ['id'];
+                    return res.send(JSON.stringify(output));
+                }
+            } else {
+                let duplicate = await db.collection('warehouse_properties').findOne({ id: data.id });
+                if (duplicate) {
+                    output.status = -2;
+                    output.fields = ['id'];
+                    return res.send(JSON.stringify(output));
+                }
+            }
+            let what = id ? { _id: new ObjectID(id) } : { id: data.id, folder: data.id };
+            let updResult = await db.collection('warehouse').update(what, { $set: data }, { upsert: true });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                output.status = 0;
+                return res.send(JSON.stringify(output));
             }
             return res.send(JSON.stringify({
                 status: 1
