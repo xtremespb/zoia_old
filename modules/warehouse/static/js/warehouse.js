@@ -2,6 +2,7 @@
 /* eslint no-use-before-define: 0 */
 /* eslint max-len: 0 */
 let deleteDialog;
+let deletePropertyDialog;
 let foldersDialog;
 let folderEditDialog;
 let spinnerDialog;
@@ -202,6 +203,16 @@ const deleteDialogSpinner = (show) => {
     }
 };
 
+const deletePropertyDialogSpinner = (show) => {
+    if (show) {
+        $('.zoia-deleteproperty-dialog-button').hide();
+        $('#zoiaDeletePropertyDialogSpinner').show();
+    } else {
+        $('.zoia-deleteproperty-dialog-button').show();
+        $('#zoiaDeletePropertyDialogSpinner').hide();
+    }
+};
+
 const foldersDialogSpinner = (show) => {
     if (show) {
         $('.zoia-folders-dialog-button').hide();
@@ -297,8 +308,23 @@ const editItem = (id) => {
 const createProperty = () => {
     editMode = false;
     propertyEditDialog.show();
+    currentEditID = null;
     $('#editPropertyForm').zoiaFormBuilder().resetForm();
     $('#zoiaPropertyEditDialogHeader').html(lang.addItem);
+};
+
+const editProperty = (id) => {
+    editMode = true;
+    if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+        return;
+    }
+    currentEditID = id;
+    $('.zoiaPropertyEditDialogSpinner').show();
+    $('.zoiaPropertyEditDialogWrap').hide();
+    propertyEditDialog.show();
+    $('#editPropertyForm').zoiaFormBuilder().resetForm();
+    $('#zoiaPropertyEditDialogHeader').html(lang.editItem);
+    $('#editPropertyForm').zoiaFormBuilder().loadData({ id: id });
 };
 
 const showTable = () => {
@@ -332,6 +358,32 @@ const deleteItem = (id) => {
     deleteDialog.show();
 };
 
+const deleteProperty = (id) => {
+    if (!id) {
+        return;
+    }
+    let items = [];
+    let ids = [];
+    currentDeleteID = [];
+    if (typeof id === 'object') {
+        items = id;
+        currentDeleteID = id;
+        for (let i in id) {
+            ids.push($('#properties').zoiaTable().getCurrentData()[id[i]].title);
+        }
+    } else {
+        items.push(id);
+        currentDeleteID.push(id);
+        ids.push($('#properties').zoiaTable().getCurrentData()[id].title);
+    }
+    $('#zoiaDeletePropertyDialogList').html('');
+    for (let n in ids) {
+        $('#zoiaDeletePropertyDialogList').append('<li>' + ids[n] + '</li>');
+    }
+    deletePropertyDialogSpinner(false);
+    deletePropertyDialog.show();
+};
+
 const ajaxDeleteItem = () => {
     deleteDialogSpinner(true);
     $.ajax({
@@ -363,6 +415,40 @@ const ajaxDeleteItem = () => {
             timeout: 1500
         });
         deleteDialogSpinner(false);
+    });
+};
+
+const ajaxDeleteProperty = () => {
+    deletePropertyDialogSpinner(true);
+    $.ajax({
+        type: 'POST',
+        url: '/api/warehouse/delete/property',
+        data: {
+            id: currentDeleteID
+        },
+        cache: false
+    }).done((res) => {
+        $('#properties').zoiaTable().load();
+        if (res && res.status === 1) {
+            deletePropertyDialog.hide();
+            $zUI.notification(lang['Operation was successful'], {
+                status: 'success',
+                timeout: 1500
+            });
+        } else {
+            $zUI.notification(lang['Cannot delete one or more items'], {
+                status: 'danger',
+                timeout: 1500
+            });
+            deletePropertyDialogSpinner(false);
+        }
+    }).fail(() => {
+        $('#properties').zoiaTable().load();
+        $zUI.notification(lang['Cannot delete one or more items'], {
+            status: 'danger',
+            timeout: 1500
+        });
+        deletePropertyDialogSpinner(false);
     });
 };
 
@@ -658,6 +744,15 @@ const deleteButtonHanlder = () => {
     }).get();
     if (checked && checked.length > 0) {
         deleteItem(checked);
+    }
+};
+
+const deletePropertyButtonHanlder = () => {
+    const checked = $('.propertiesCheckbox:checkbox:checked').map(function() {
+        return this.id;
+    }).get();
+    if (checked && checked.length > 0) {
+        deleteProperty(checked);
     }
 };
 
@@ -1290,8 +1385,12 @@ const editPropertyFormData = {
         buttons: '{buttons}'
     },
     save: {
-        url: '/api/warehouse/property/save',
+        url: '/api/warehouse/save/property',
         method: 'POST'
+    },
+    load: {
+        url: '/api/warehouse/load/property',
+        method: 'GET'
     },
     formDangerClass: 'za-form-danger',
     html: formBuilderHTML,
@@ -1300,23 +1399,57 @@ const editPropertyFormData = {
             if ($('#editSettingsForm').zoiaFormBuilder().errors(errors)) {
                 return '__stop';
             }
-            $('.editSettingsForm-form-button').hide();
-            $('#zoiaSettingsSpinner').show();
+            $('.editPropertyForm-form-button').hide();
+            $('#zoiaPropertyFormSpinner').show();
+            data.id = currentEditID;
             return data;
         },
         onSaveSuccess: () => {
-            $('.editSettingsForm-form-button').show();
-            $('#zoiaSettingsSpinner').hide();
-            settingsDialog.hide();
+            $('.editPropertyForm-form-button').show();
+            $('#zoiaPropertyFormSpinner').hide();
+            propertyEditDialog.hide();
+            $('#properties').zoiaTable().load();
             $zUI.notification(lang.fieldErrors['Saved successfully'], {
                 status: 'success',
                 timeout: 1500
             });
         },
-        onSaveError: () => {
-            $('.editSettingsForm-form-button').show();
-            $('#zoiaSettingsSpinner').hide();
-            $zUI.notification(lang.fieldErrors['Could not save to the database'], {
+        onSaveError: (res) => {
+            $('.editPropertyForm-form-button').show();
+            $('#zoiaPropertyFormSpinner').hide();
+            if (res && res.status !== undefined) {
+                switch (res.status) {
+                    case -1:
+                        $('#editPropertyForm_pid').addClass('za-form-danger');
+                        $zUI.notification(lang['Item not found'], {
+                            status: 'danger',
+                            timeout: 1500
+                        });
+                        break;
+                    case -2:
+                        $('#editPropertyForm_pid').addClass('za-form-danger');
+                        $zUI.notification(lang['Item already exists in database'], {
+                            status: 'danger',
+                            timeout: 1500
+                        });
+                        break;
+                    default:
+                        $zUI.notification(lang.fieldErrors['Could not save to the database'], {
+                            status: 'danger',
+                            timeout: 1500
+                        });
+                        break;
+                }
+            }
+        },
+        onLoadSuccess: (data) => {
+            $('.zoiaPropertyEditDialogSpinner').hide();
+            $('.zoiaPropertyEditDialogWrap').show();
+        },
+        onLoadError: () => {
+            $('.zoiaPropertyEditDialogSpinner').hide();
+            $('.zoiaPropertyEditDialogWrap').show();
+            $zUI.notification(lang['Could not load information from database'], {
                 status: 'danger',
                 timeout: 1500
             });
@@ -1324,7 +1457,7 @@ const editPropertyFormData = {
     },
     lang: formBuilderLang,
     items: {
-        id: {
+        pid: {
             type: 'text',
             label: lang['ID'],
             css: 'za-width-medium',
@@ -1360,7 +1493,7 @@ const editPropertyFormData = {
                 css: 'za-button-primary',
                 type: 'submit'
             }],
-            html: '<div za-spinner style="display:none;float:right" id="zoiaSettingsSpinner"></div>'
+            html: '<div za-spinner style="display:none;float:right" id="zoiaPropertyFormSpinner"></div>'
         }
     }
 };
@@ -1443,13 +1576,13 @@ const warehouseTableData = {
 
 const propertiesTableData = {
     url: '/api/warehouse/list/properties',
-    limit: 10,
+    limit: 7,
     sort: {
         field: 'title',
         direction: 'asc'
     },
     fields: {
-        id: {
+        pid: {
             sortable: true,
             process: (id, item, value) => {
                 return value || '&ndash;';
@@ -1488,6 +1621,11 @@ const initDialogs = () => {
     deleteDialog = $zUI.modal('#zoiaDeleteDialog', {
         bgClose: false,
         escClose: false
+    });
+    deletePropertyDialog = $zUI.modal('#zoiaDeletePropertyDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
     });
     foldersDialog = $zUI.modal('#zoiaFoldersDialog', {
         bgClose: false,
@@ -1730,7 +1868,9 @@ $(document).ready(() => {
     $('#properties').zoiaTable(propertiesTableData);
     // Handlers    
     $('.zoiaDeleteButton').click(deleteButtonHanlder);
+    $('.zoiaPropertyDeleteButton').click(deletePropertyButtonHanlder);
     $('#zoiaDeleteDialogButton').click(ajaxDeleteItem);
+    $('#zoiaDeletePropertyDialogButton').click(ajaxDeleteProperty);
     $('#zoiaRepairDialogButton').click(ajaxRepairDatabase);
     $('.zoiaAdd').click(addHandler);
     $('.zoiaPropertyAdd').click(addPropertyHandler);

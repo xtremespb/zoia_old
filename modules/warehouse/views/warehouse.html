@@ -175,6 +175,22 @@
         </div>
     </div>
 </div>
+<div id="zoiaDeletePropertyDialog" style="display:none">
+    <div class="za-modal-dialog" za-overflow-auto>
+        <div class="za-modal-header">
+            <h2>{{ i18n.__(locale, 'Delete')}}</h2>
+        </div>
+        <div class="za-modal-body">
+            <p>{{ i18n.__(locale, 'The following item(s) will be removed from the database')}}:</p>
+            <ul class="za-list za-list-striped" id="zoiaDeletePropertyDialogList"></ul>
+        </div>
+        <div class="za-modal-footer za-text-right">
+            <button class="za-button za-button-default za-modal-close zoia-deleteproperty-dialog-button" type="button">{{ i18n.__(locale, 'Cancel')}}</button>
+            <button class="za-button za-button-primary zoia-deleteproperty-dialog-button" id="zoiaDeletePropertyDialogButton" type="button">{{ i18n.__(locale, 'Delete')}}</button>
+            <div za-spinner style="float:right;display:none" id="zoiaDeletePropertyDialogSpinner"></div>
+        </div>
+    </div>
+</div>
 <div id="zoiaImagesDialog" style="display:none" class="za-modal-container">
     <div class="za-modal-dialog" za-overflow-auto>
         <div class="za-modal-header">
@@ -217,7 +233,7 @@
                         </li>
                         <li>
                             <button za-icon="icon:close" class="za-icon-button propertiesBtnSelectNone" title="{{ i18n.__(locale, 'Select none')}}" za-tooltip="pos:bottom-right"></button>
-                        </li>                        
+                        </li>
                     </ul>
                 </div>
                 <div class="za-width-expand">
@@ -232,7 +248,7 @@
                 <thead class="noselect" style="display:none">
                     <tr>
                         <th id="propertiesID" class="za-table-shrink"></th>
-                        <th id="properties_id" class="za-table-shrink">{{ i18n.__(locale, 'ID')}}</th>
+                        <th id="properties_pid" class="za-table-shrink">{{ i18n.__(locale, 'ID')}}</th>
                         <th id="properties_title">{{ i18n.__(locale, 'Title')}}</th>
                         <th id="properties_actions" class="za-table-shrink">{{ i18n.__(locale, 'Actions')}}</th>
                     </tr>
@@ -274,14 +290,19 @@
 </div>
 <div id="zoiaPropertyEditDialog" style="display:none">
     <div class="za-modal-dialog">
-        <div class="za-modal-header">
-            <h2 id="zoiaPropertyEditDialogHeader"></h2>
+        <div class="za-margin-top za-margin-bottom za-modal-header za-flex za-flex-center za-flex-middle zoiaPropertyEditDialogSpinner" style="display:none">
+            <span za-spinner></span>
         </div>
-        <form id="editPropertyForm">
-            <div class="za-flex za-flex-center za-margin-top">
-                <div za-spinner class="za-margin-bottom"></div>
+        <div class="zoiaPropertyEditDialogWrap">
+            <div class="za-modal-header">
+                <h2 id="zoiaPropertyEditDialogHeader"></h2>
             </div>
-        </form>
+            <form id="editPropertyForm">
+                <div class="za-flex za-flex-center za-margin-top">
+                    <div za-spinner class="za-margin-bottom"></div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 <script type="text/javascript">

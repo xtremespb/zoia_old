@@ -15,6 +15,7 @@ module.exports = function(app) {
     const log = app.get('log');
     const db = app.get('db');
     const sortFields = ['sku', 'folder', 'title', 'status', 'price'];
+    const sortPropertyFields = ['pid', 'title'];
 
     const list = async(req, res) => {
         const locale = req.session.currentLocale;
@@ -120,7 +121,7 @@ module.exports = function(app) {
         let result = {
             status: 0
         };
-        if (sortFields.indexOf(sortField) === -1) {
+        if (sortPropertyFields.indexOf(sortField) === -1) {
             result.failedField = 'sortField';
             return res.send(result);
         }
@@ -129,7 +130,7 @@ module.exports = function(app) {
             if (search) {
                 fquery = {
                     $or: [
-                        { id: { $regex: search, $options: 'i' } }
+                        { pid: { $regex: search, $options: 'i' } }
                     ]
                 };
                 let tfq = {};
@@ -137,7 +138,7 @@ module.exports = function(app) {
                 fquery.$or.push(tfq);
             }
 
-            let ffields = { _id: 1, id: 1, title: 1 };
+            let ffields = { _id: 1, pid: 1, title: 1 };
             const total = await db.collection('warehouse_properties').find(fquery, ffields, { skip: skip, limit: limit }).count();
             const items = await db.collection('warehouse_properties').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
             for (let i in items) {
@@ -182,6 +183,46 @@ module.exports = function(app) {
                     status: 0
                 }));
             }
+            return res.send(JSON.stringify({
+                status: 1,
+                item: item
+            }));
+        } catch (e) {
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
+    const loadProperty = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const id = req.query.id;
+        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const item = await db.collection('warehouse_properties').findOne({ _id: new ObjectID(id) });
+            if (!item) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            let title = [];
+            for (let i in item.title) {
+                title.push({
+                    p: i,
+                    v: item.title[i]
+                });
+            }
+            item.title = title;
             return res.send(JSON.stringify({
                 status: 1,
                 item: item
@@ -287,43 +328,58 @@ module.exports = function(app) {
             let fieldsFailed = validation.getCheckRequestFailedFields(fields);
             if (fieldsFailed.length > 0) {
                 return res.send(JSON.stringify({
-                    status: 0
+                    status: 0,
+                    fields: fieldsFailed
                 }));
             }
             if (fields.title && fields.title.value === '') {
                 fields.title.value = [];
             }
+            const data = {
+                pid: fields.pid.value,
+                title: {}
+            };
+            for (let i in fields.title.value) {
+                let item = fields.title.value[i];
+                data.title[item.p] = item.v;
+            }
             if (id) {
                 let item = await db.collection('warehouse_properties').findOne({ _id: new ObjectID(id) });
                 if (!item) {
-                    output.status = -1;
-                    output.fields = ['id'];
-                    return res.send(JSON.stringify(output));
+                    return res.send(JSON.stringify({
+                        status: -1,
+                        fields: fieldsFailed
+                    }));
                 }
-                let duplicate = await db.collection('warehouse_properties').findOne({ id: data.id });
+                let duplicate = await db.collection('warehouse_properties').findOne({ pid: data.pid });
                 if (duplicate && JSON.stringify(duplicate._id) !== JSON.stringify(item._id)) {
-                    output.status = -2;
-                    output.fields = ['id'];
-                    return res.send(JSON.stringify(output));
+                    return res.send(JSON.stringify({
+                        status: -2,
+                        fields: fieldsFailed
+                    }));
                 }
             } else {
-                let duplicate = await db.collection('warehouse_properties').findOne({ id: data.id });
+                let duplicate = await db.collection('warehouse_properties').findOne({ pid: data.pid });
                 if (duplicate) {
-                    output.status = -2;
-                    output.fields = ['id'];
-                    return res.send(JSON.stringify(output));
+                    return res.send(JSON.stringify({
+                        status: -2,
+                        fields: fieldsFailed
+                    }));
                 }
             }
-            let what = id ? { _id: new ObjectID(id) } : { id: data.id, folder: data.id };
-            let updResult = await db.collection('warehouse').update(what, { $set: data }, { upsert: true });
+            let what = id ? { _id: new ObjectID(id) } : { pid: data.pid };
+            let updResult = await db.collection('warehouse_properties').update(what, { $set: data }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
-                output.status = 0;
-                return res.send(JSON.stringify(output));
+                return res.send(JSON.stringify({
+                    status: 0,
+                    fields: fieldsFailed
+                }));
             }
             return res.send(JSON.stringify({
                 status: 1
             }));
         } catch (e) {
+            console.log(e);
             return res.send(JSON.stringify({
                 status: 0
             }));
@@ -524,6 +580,54 @@ module.exports = function(app) {
                 } catch (e) {
                     // Ignore
                 }
+            }
+            output.status = 1;
+            res.send(JSON.stringify(output));
+        } catch (e) {
+            output.status = 0;
+            log.error(e);
+            res.send(JSON.stringify(output));
+        }
+    };
+
+    const delProperty = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let output = {};
+        let ids = req.body['id'];
+        if (!ids || (typeof ids !== 'object' && typeof ids !== 'string') || !ids.length) {
+            output.status = -1;
+            return res.send(JSON.stringify(output));
+        }
+        if (typeof ids === 'string') {
+            const id = ids;
+            ids = [];
+            ids.push(id);
+        }
+        let did = [];
+        for (let i in ids) {
+            const id = ids[i];
+            if (!id.match(/^[a-f0-9]{24}$/)) {
+                output.status = -2;
+                return res.send(JSON.stringify(output));
+            }
+            if (config.demo) {
+                did.push({ _id: new ObjectID(id), url: { $ne: '' } });
+            } else {
+                did.push({ _id: new ObjectID(id) });
+            }
+        }
+        try {
+            const delResult = await db.collection('warehouse_properties').deleteMany({
+                $or: did
+            });
+            if (!delResult || !delResult.result || !delResult.result.ok || delResult.result.n !== ids.length) {
+                output.status = -3;
+                return res.send(JSON.stringify(output));
             }
             output.status = 1;
             res.send(JSON.stringify(output));
@@ -1111,9 +1215,12 @@ module.exports = function(app) {
     router.get('/list', list);
     router.get('/list/properties', listProperties);
     router.get('/load', load);
+    router.get('/load/property', loadProperty);
     router.post('/save', save);
+    router.post('/save/property', saveProperty);
     router.get('/create', create);
     router.post('/delete', del);
+    router.post('/delete/property', delProperty);
     router.post('/folders', folders);
     router.post('/settings', settings);
     router.post('/repair', repair);

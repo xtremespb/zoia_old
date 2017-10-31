@@ -5,7 +5,7 @@
 })({
     getPropertyFields: function() {
         return {
-            id: {
+            pid: {
                 mandatoryCreate: true,
                 length: {
                     min: 1,
