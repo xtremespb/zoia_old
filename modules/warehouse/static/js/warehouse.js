@@ -10,7 +10,9 @@ let repairDialog;
 let imagesDialog;
 let settingsDialog;
 let propertiesListDialog;
+let collectionsListDialog;
 let propertyEditDialog;
+let collectionEditDialog;
 let currentEditID;
 let currentDeleteID;
 let foldersTree;
@@ -325,6 +327,28 @@ const editProperty = (id) => {
     $('#editPropertyForm').zoiaFormBuilder().resetForm();
     $('#zoiaPropertyEditDialogHeader').html(lang.editItem);
     $('#editPropertyForm').zoiaFormBuilder().loadData({ id: id });
+};
+
+const createCollection = () => {
+    editMode = false;
+    collectionEditDialog.show();
+    currentEditID = null;
+    $('#editCollectionForm').zoiaFormBuilder().resetForm();
+    $('#zoiaCollectionEditDialogHeader').html(lang.addItem);
+};
+
+const editCollection = (id) => {
+    editMode = true;
+    if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+        return;
+    }
+    currentEditID = id;
+    $('.zoiaCollectionEditDialogSpinner').show();
+    $('.zoiaCollectionEditDialogWrap').hide();
+    collectionEditDialog.show();
+    $('#editCollectionForm').zoiaFormBuilder().resetForm();
+    $('#zoiaCollectionEditDialogHeader').html(lang.editItem);
+    $('#editCollectionForm').zoiaFormBuilder().loadData({ id: id });
 };
 
 const showTable = () => {
@@ -1396,7 +1420,7 @@ const editPropertyFormData = {
     html: formBuilderHTML,
     events: {
         onSaveValidate: (data, errors) => {
-            if ($('#editSettingsForm').zoiaFormBuilder().errors(errors)) {
+            if ($('#editPropertyForm').zoiaFormBuilder().errors(errors)) {
                 return '__stop';
             }
             $('.editPropertyForm-form-button').hide();
@@ -1447,11 +1471,13 @@ const editPropertyFormData = {
             $('.zoiaPropertyEditDialogWrap').show();
         },
         onLoadError: () => {
-            $('.zoiaPropertyEditDialogSpinner').hide();
-            $('.zoiaPropertyEditDialogWrap').show();
-            $zUI.notification(lang['Could not load information from database'], {
-                status: 'danger',
-                timeout: 1500
+            propertyEditDialog.hide().then(() => {
+                $('.zoiaPropertyEditDialogSpinner').hide();
+                $('.zoiaPropertyEditDialogWrap').show();
+                $zUI.notification(lang['Could not load information from database'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
             });
         }
     },
@@ -1494,6 +1520,106 @@ const editPropertyFormData = {
                 type: 'submit'
             }],
             html: '<div za-spinner style="display:none;float:right" id="zoiaPropertyFormSpinner"></div>'
+        }
+    }
+};
+
+const editCollectionFormData = {
+    template: {
+        fields: '<div class="za-modal-body">{fields}</div>',
+        buttons: '{buttons}'
+    },
+    save: {
+        url: '/api/warehouse/save/collection',
+        method: 'POST'
+    },
+    load: {
+        url: '/api/warehouse/load/collection',
+        method: 'GET'
+    },
+    formDangerClass: 'za-form-danger',
+    html: formBuilderHTML,
+    events: {
+        onSaveValidate: (data, errors) => {
+            if ($('#editCollectionForm').zoiaFormBuilder().errors(errors)) {
+                return '__stop';
+            }
+            $('.editCollectionForm-form-button').hide();
+            $('#zoiaCollectionFormSpinner').show();
+            data.id = currentEditID;
+            return data;
+        },
+        onSaveSuccess: () => {
+            $('.editCollectionForm-form-button').show();
+            $('#zoiaCollectionFormSpinner').hide();
+            collectionEditDialog.hide();
+            $('#collections').zoiaTable().load();
+            $zUI.notification(lang.fieldErrors['Saved successfully'], {
+                status: 'success',
+                timeout: 1500
+            });
+        },
+        onSaveError: (res) => {
+            $('.editCollectionForm-form-button').show();
+            $('#zoiaCollectionFormSpinner').hide();
+            if (res && res.status !== undefined) {
+                switch (res.status) {
+                    case -1:
+                        $zUI.notification(lang['Item not found'], {
+                            status: 'danger',
+                            timeout: 1500
+                        });
+                        break;
+                    case -2:
+                        $zUI.notification(lang['Item already exists in database'], {
+                            status: 'danger',
+                            timeout: 1500
+                        });
+                        break;
+                    default:
+                        $zUI.notification(lang.fieldErrors['Could not save to the database'], {
+                            status: 'danger',
+                            timeout: 1500
+                        });
+                        break;
+                }
+            }
+        },
+        onLoadSuccess: (data) => {
+            $('.zoiaCollectionEditDialogSpinner').hide();
+            $('.zoiaCollectionEditDialogWrap').show();
+        },
+        onLoadError: () => {
+            collectionEditDialog.hide().then(() => {
+                $('.zoiaCollectionEditDialogSpinner').hide();
+                $('.zoiaCollectionEditDialogWrap').show();
+                $zUI.notification(lang['Could not load information from database'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            });
+        }
+    },
+    lang: formBuilderLang,
+    items: {
+        title: {
+            type: 'valueslistfixed',
+            values: getFormLangData(),
+            label: lang['Title']
+        },
+        buttons: {
+            type: 'buttons',
+            css: 'za-modal-footer za-text-right',
+            buttons: [{
+                label: lang['Cancel'],
+                css: 'za-button-default za-modal-close'
+            }, {
+                name: 'btnSave',
+                label: lang['Save'],
+                css: 'za-button-primary',
+                type: 'submit'
+            }],
+            html: '<div za-spinner style="display:none;float:right" id="zoiaCollectionFormSpinner"></div>'
         }
     }
 };
@@ -1617,6 +1743,43 @@ const propertiesTableData = {
     }
 };
 
+const collectionsTableData = {
+    url: '/api/warehouse/list/collections',
+    limit: 7,
+    sort: {
+        field: 'title',
+        direction: 'asc'
+    },
+    fields: {
+        title: {
+            sortable: true,
+            process: (id, item, value) => {
+                return value || '&ndash;';
+            }
+        },
+        actions: {
+            sortable: false,
+            process: (id, item) => {
+                return '<button class="za-icon-button zoia-collections-action-edit-btn" za-icon="icon: pencil" data="' + item._id +
+                    '" style="margin-right:5px"></button><button class="za-icon-button zoia-collections-action-del-btn" za-icon="icon: trash" data="' + item._id +
+                    '"></button><div style="margin-bottom:17px" class="za-hidden@m">&nbsp;</div>';
+            }
+        }
+    },
+    onLoad: () => {
+        $('.zoia-collections-action-edit-btn').click(function() {
+            editCollection($(this).attr('data'));
+        });
+        $('.zoia-collections-action-del-btn').click(function() {
+            deleteCollection($(this).attr('data'));
+        });
+    },
+    lang: {
+        error: lang['Could not load data from server. Please try to refresh page in a few moments.'],
+        noitems: lang['No items to display']
+    }
+};
+
 const initDialogs = () => {
     deleteDialog = $zUI.modal('#zoiaDeleteDialog', {
         bgClose: false,
@@ -1663,6 +1826,16 @@ const initDialogs = () => {
         stack: true
     });
     propertyEditDialog = $zUI.modal('#zoiaPropertyEditDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    collectionsListDialog = $zUI.modal('#zoiaCollectionsListDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    collectionEditDialog = $zUI.modal('#zoiaCollectionEditDialog', {
         bgClose: false,
         escClose: false,
         stack: true
@@ -1831,6 +2004,10 @@ const addPropertyHandler = () => {
     createProperty();
 };
 
+const addCollectionHandler = () => {
+    createCollection();
+};
+
 const editFormImagesBtnHandler = () => {
     imagesDialog.show();
 };
@@ -1852,6 +2029,10 @@ const warehouseBtnPropertiesListDialogHandler = () => {
     propertiesListDialog.show();
 };
 
+const warehouseBtnCollectionsListDialogHandler = () => {
+    collectionsListDialog.show();
+};
+
 $(document).ready(() => {
     // Init section
     initDialogs();
@@ -1864,8 +2045,10 @@ $(document).ready(() => {
     $('#editFolderForm').zoiaFormBuilder(editFolderFormData);
     $('#editSettingsForm').zoiaFormBuilder(editSettingsFormData);
     $('#editPropertyForm').zoiaFormBuilder(editPropertyFormData);
+    $('#editCollectionForm').zoiaFormBuilder(editCollectionFormData);
     $('#warehouse').zoiaTable(warehouseTableData);
     $('#properties').zoiaTable(propertiesTableData);
+    $('#collections').zoiaTable(collectionsTableData);
     // Handlers    
     $('.zoiaDeleteButton').click(deleteButtonHanlder);
     $('.zoiaPropertyDeleteButton').click(deletePropertyButtonHanlder);
@@ -1874,6 +2057,7 @@ $(document).ready(() => {
     $('#zoiaRepairDialogButton').click(ajaxRepairDatabase);
     $('.zoiaAdd').click(addHandler);
     $('.zoiaPropertyAdd').click(addPropertyHandler);
+    $('.zoiaCollectionAdd').click(addCollectionHandler);
     $('#editForm_folder_btn').click(editFormFolderBtnHandler);
     $('#zoiaFoldersAdd').click(foldersAddHandler);
     $('#zoiaFoldersEdit').click(foldersEditHanlder);
@@ -1886,6 +2070,7 @@ $(document).ready(() => {
     $('.warehouseBtnRebuild').click(ajaxRebuildDatabase);
     $('.warehouseBtnSettingsDialog').click(warehouseBtnSettingsDialogHandler);
     $('.warehouseBtnPropertiesListDialog').click(warehouseBtnPropertiesListDialogHandler);
+    $('.warehouseBtnCollectionsListDialog').click(warehouseBtnCollectionsListDialogHandler);
     $('#editForm_images_btn').click(editFormImagesBtnHandler);
     $('#zoiaImagesDialogBtnClose').click(imagesDialogCloseHandler);
     $('#imagesListBtnDel').click(imagesListBtnDelHandler);

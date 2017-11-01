@@ -56,11 +56,9 @@
     margin-right: 5px;
 }
 
-#warehouse_actions {
-    width: 90px;
-}
-
-#properties_actions {
+#warehouse_actions,
+#properties_actions,
+#collections_actions {
     width: 90px;
 }
 
