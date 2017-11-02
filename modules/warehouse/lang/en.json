@@ -100,5 +100,8 @@
 	"Properties List": "Properties List",
 	"Collections": "Collections",
 	"Item not found": "Item not found",
-	"Item already exists in database": "Item already exists in database"
+	"Item already exists in database": "Item already exists in database",
+	"Add selected": "Add selected",
+	"Added": "Added",
+	"One or more items are duplicated": "One or more items are duplicated"
 }

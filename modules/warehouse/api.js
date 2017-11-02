@@ -6,6 +6,7 @@ const ObjectID = require('mongodb').ObjectID;
 const warehouseFields = require(path.join(__dirname, 'schemas', 'warehouseFields.js'));
 const settingsFields = require(path.join(__dirname, 'schemas', 'settingsFields.js'));
 const propertyFields = require(path.join(__dirname, 'schemas', 'propertyFields.js'));
+const collectionFields = require(path.join(__dirname, 'schemas', 'collectionFields.js'));
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const fs = require('fs-extra');
 const Jimp = require('jimp');
@@ -202,10 +203,10 @@ module.exports = function(app) {
                 fquery = {};
                 let tfq = {};
                 tfq['title.' + locale] = { $regex: search, $options: 'i' };
+                fquery.$or = [];
                 fquery.$or.push(tfq);
             }
-
-            let ffields = { _id: 1, pid: 1, title: 1 };
+            let ffields = { _id: 1, title: 1 };
             const total = await db.collection('warehouse_collections').find(fquery, ffields, { skip: skip, limit: limit }).count();
             const items = await db.collection('warehouse_collections').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
             for (let i in items) {
@@ -297,6 +298,65 @@ module.exports = function(app) {
         } catch (e) {
             res.send(JSON.stringify({
                 status: 0,
+                error: e.message
+            }));
+        }
+    };
+
+    const loadCollection = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const locale = req.session.currentLocale;
+        const id = req.query.id;
+        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+        try {
+            const item = await db.collection('warehouse_collections').findOne({ _id: new ObjectID(id) });
+            if (!item) {
+                return res.send(JSON.stringify({
+                    status: -2
+                }));
+            }
+            let title = [];
+            for (let i in item.title) {
+                title.push({
+                    p: i,
+                    v: item.title[i]
+                });
+            }
+            item.title = title;
+            let propertiesQuery = [];
+            for (let i in item.properties) {
+                propertiesQuery.push({
+                    pid: { $eq: item.properties[i] }
+                });
+            }
+            let propertiesData = {};
+            if (propertiesQuery.length > 0) {
+                const properties = await db.collection('warehouse_properties').find({ $or: propertiesQuery }).toArray();
+                for (let i in item.properties) {
+                    for (let p in properties) {
+                        if (properties[p].pid === item.properties[i]) {
+                            propertiesData[properties[p].pid] = properties[p].title[locale];
+                        }
+                    }
+                }
+            }
+            item.properties = propertiesData;
+            return res.send(JSON.stringify({
+                status: 1,
+                item: item
+            }));
+        } catch (e) {
+            res.send(JSON.stringify({
+                status: -3,
                 error: e.message
             }));
         }
@@ -446,12 +506,71 @@ module.exports = function(app) {
                 status: 1
             }));
         } catch (e) {
-            console.log(e);
             return res.send(JSON.stringify({
                 status: 0
             }));
         }
     };
+
+    const saveCollection = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const id = req.body.id;
+        if (id && (typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/))) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const fieldList = collectionFields.getCollectionFields();
+            let fields = validation.checkRequest(req.body, fieldList);
+            let fieldsFailed = validation.getCheckRequestFailedFields(fields);
+            if (fieldsFailed.length > 0) {
+                return res.send(JSON.stringify({
+                    status: 0,
+                    fields: fieldsFailed
+                }));
+            }
+            if (fields.title && fields.title.value === '') {
+                fields.title.value = [];
+            }
+            const data = {
+                title: {}
+            };
+            for (let i in fields.title.value) {
+                let item = fields.title.value[i];
+                data.title[item.p] = item.v;
+            }
+            let what = id ? { _id: new ObjectID(id) } : data;
+            const propertiesData = req.body.properties;
+            data.properties = [];
+            if (propertiesData && typeof propertiesData === 'object' && propertiesData instanceof Array) {
+                for (let i in propertiesData) {
+                    if (propertiesData[i] && typeof propertiesData[i] === 'string' && propertiesData[i].match(/^[A-Za-z0-9_\-]+$/)) {
+                        data.properties.push(propertiesData[i]);
+                    }
+                }
+            }
+            let updResult = await db.collection('warehouse_collections').update(what, { $set: data }, { upsert: true });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0,
+                    fields: fieldsFailed
+                }));
+            }
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };    
 
     const save = async(req, res) => {
         res.contentType('application/json');
@@ -690,6 +809,54 @@ module.exports = function(app) {
         }
         try {
             const delResult = await db.collection('warehouse_properties').deleteMany({
+                $or: did
+            });
+            if (!delResult || !delResult.result || !delResult.result.ok || delResult.result.n !== ids.length) {
+                output.status = -3;
+                return res.send(JSON.stringify(output));
+            }
+            output.status = 1;
+            res.send(JSON.stringify(output));
+        } catch (e) {
+            output.status = 0;
+            log.error(e);
+            res.send(JSON.stringify(output));
+        }
+    };
+
+    const delCollection = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let output = {};
+        let ids = req.body['id'];
+        if (!ids || (typeof ids !== 'object' && typeof ids !== 'string') || !ids.length) {
+            output.status = -1;
+            return res.send(JSON.stringify(output));
+        }
+        if (typeof ids === 'string') {
+            const id = ids;
+            ids = [];
+            ids.push(id);
+        }
+        let did = [];
+        for (let i in ids) {
+            const id = ids[i];
+            if (!id.match(/^[a-f0-9]{24}$/)) {
+                output.status = -2;
+                return res.send(JSON.stringify(output));
+            }
+            if (config.demo) {
+                did.push({ _id: new ObjectID(id), url: { $ne: '' } });
+            } else {
+                did.push({ _id: new ObjectID(id) });
+            }
+        }
+        try {
+            const delResult = await db.collection('warehouse_collections').deleteMany({
                 $or: did
             });
             if (!delResult || !delResult.result || !delResult.result.ok || delResult.result.n !== ids.length) {
@@ -1246,7 +1413,6 @@ module.exports = function(app) {
             }
             const folders = JSON.parse(foldersString.data);
             const items = await db.collection('warehouse').find({}, { folder: 1, url: 1 }).toArray();
-            console.log(items);
             if (items && items.length) {
                 for (let i in items) {
                     let item = items[i];
@@ -1284,11 +1450,14 @@ module.exports = function(app) {
     router.get('/list/collections', listCollections);
     router.get('/load', load);
     router.get('/load/property', loadProperty);
+    router.get('/load/collection', loadCollection);
     router.post('/save', save);
     router.post('/save/property', saveProperty);
+    router.post('/save/collection', saveCollection);
     router.get('/create', create);
     router.post('/delete', del);
     router.post('/delete/property', delProperty);
+    router.post('/delete/collection', delCollection);
     router.post('/folders', folders);
     router.post('/settings', settings);
     router.post('/repair', repair);

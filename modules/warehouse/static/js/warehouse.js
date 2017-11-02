@@ -3,6 +3,7 @@
 /* eslint max-len: 0 */
 let deleteDialog;
 let deletePropertyDialog;
+let deleteCollectionDialog;
 let foldersDialog;
 let folderEditDialog;
 let spinnerDialog;
@@ -13,6 +14,7 @@ let propertiesListDialog;
 let collectionsListDialog;
 let propertyEditDialog;
 let collectionEditDialog;
+let propertySelectDialog;
 let currentEditID;
 let currentDeleteID;
 let foldersTree;
@@ -215,6 +217,16 @@ const deletePropertyDialogSpinner = (show) => {
     }
 };
 
+const deleteCollectionDialogSpinner = (show) => {
+    if (show) {
+        $('.zoia-deletecollection-dialog-button').hide();
+        $('#zoiaDeleteCollectionDialogSpinner').show();
+    } else {
+        $('.zoia-deletecollection-dialog-button').show();
+        $('#zoiaDeleteCollectionDialogSpinner').hide();
+    }
+};
+
 const foldersDialogSpinner = (show) => {
     if (show) {
         $('.zoia-folders-dialog-button').hide();
@@ -334,7 +346,9 @@ const createCollection = () => {
     collectionEditDialog.show();
     currentEditID = null;
     $('#editCollectionForm').zoiaFormBuilder().resetForm();
+    $('.collectionFormDataItems').html('');
     $('#zoiaCollectionEditDialogHeader').html(lang.addItem);
+    $('.editCollectionForm-title-item-val').first().focus();
 };
 
 const editCollection = (id) => {
@@ -347,6 +361,7 @@ const editCollection = (id) => {
     $('.zoiaCollectionEditDialogWrap').hide();
     collectionEditDialog.show();
     $('#editCollectionForm').zoiaFormBuilder().resetForm();
+    $('.collectionFormDataItems').html('');
     $('#zoiaCollectionEditDialogHeader').html(lang.editItem);
     $('#editCollectionForm').zoiaFormBuilder().loadData({ id: id });
 };
@@ -406,6 +421,32 @@ const deleteProperty = (id) => {
     }
     deletePropertyDialogSpinner(false);
     deletePropertyDialog.show();
+};
+
+const deleteCollection = (id) => {
+    if (!id) {
+        return;
+    }
+    let items = [];
+    let ids = [];
+    currentDeleteID = [];
+    if (typeof id === 'object') {
+        items = id;
+        currentDeleteID = id;
+        for (let i in id) {
+            ids.push($('#collections').zoiaTable().getCurrentData()[id[i]].title);
+        }
+    } else {
+        items.push(id);
+        currentDeleteID.push(id);
+        ids.push($('#collections').zoiaTable().getCurrentData()[id].title);
+    }
+    $('#zoiaDeleteCollectionDialogList').html('');
+    for (let n in ids) {
+        $('#zoiaDeleteCollectionDialogList').append('<li>' + ids[n] + '</li>');
+    }
+    deleteCollectionDialogSpinner(false);
+    deleteCollectionDialog.show();
 };
 
 const ajaxDeleteItem = () => {
@@ -473,6 +514,40 @@ const ajaxDeleteProperty = () => {
             timeout: 1500
         });
         deletePropertyDialogSpinner(false);
+    });
+};
+
+const ajaxDeleteCollection = () => {
+    deleteCollectionDialogSpinner(true);
+    $.ajax({
+        type: 'POST',
+        url: '/api/warehouse/delete/collection',
+        data: {
+            id: currentDeleteID
+        },
+        cache: false
+    }).done((res) => {
+        $('#collections').zoiaTable().load();
+        if (res && res.status === 1) {
+            deleteCollectionDialog.hide();
+            $zUI.notification(lang['Operation was successful'], {
+                status: 'success',
+                timeout: 1500
+            });
+        } else {
+            $zUI.notification(lang['Cannot delete one or more items'], {
+                status: 'danger',
+                timeout: 1500
+            });
+            deleteCollectionDialogSpinner(false);
+        }
+    }).fail(() => {
+        $('#collections').zoiaTable().load();
+        $zUI.notification(lang['Cannot delete one or more items'], {
+            status: 'danger',
+            timeout: 1500
+        });
+        deleteCollectionDialogSpinner(false);
     });
 };
 
@@ -780,6 +855,15 @@ const deletePropertyButtonHanlder = () => {
     }
 };
 
+const deleteCollectionButtonHanlder = () => {
+    const checked = $('.collectionsCheckbox:checkbox:checked').map(function() {
+        return this.id;
+    }).get();
+    if (checked && checked.length > 0) {
+        deleteCollection(checked);
+    }
+};
+
 const formBuilderHTML = {
     helpText: '<div class="za-text-meta">{text}</div>',
     text: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><div class="za-form-controls"><input class="za-input {prefix}-form-field{css}" id="{prefix}_{name}" type="{type}" placeholder=""{autofocus}><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>',
@@ -788,7 +872,7 @@ const formBuilderHTML = {
     captcha: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-grid za-grid-small"><div><input class="za-input {prefix}-form-field {prefix}-captcha-field{css}" type="text" placeholder="" id="{prefix}_{name}"{autofocus}></div><div><div class="za-form-controls"><img class="{prefix}-captcha-img"></div></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}',
     buttonsWrap: '<div class="{css}">{buttons}{html}</div>',
     button: '<button class="za-button {prefix}-form-button{css}" id="{prefix}_{name}" type="{type}">{label}</button>',
-    launcher: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}_btn">{label}:</label><div class="za-flex"><div id="{prefix}_{name}_val" class="{prefix}-{name}-selector" data="{data}">{value}</div><div><button class="za-button za-button-default" id="{prefix}_{name}_btn" type="button">{labelBtn}</button></div></div>{helpText}</div>',
+    launcher: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}_btn">{label}:</label><div class="za-flex"><div id="{prefix}_{name}_val" class="{prefix}-{name}-selector" data="{data}">{value}</div><div><button class="za-button za-button-default" id="{prefix}_{name}_btn" type="button">{labelBtn}</button></div></div>{helpText}{html}</div>',
     textarea: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><div class="za-form-controls"><textarea class="za-textarea {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}></textarea><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>',
     checkboxlistItem: '<li><label><input class="za-checkbox {prefix}-{name}-cbx" type="checkbox" data="{title}">&nbsp;&nbsp;{title}</label></li>',
     checkboxlist: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-panel za-panel-scrollable{css}" id="{prefix}_{name}_wrap"><ul class="za-list">{items}</ul></div>{helpText}</div>',
@@ -1526,7 +1610,7 @@ const editPropertyFormData = {
 
 const editCollectionFormData = {
     template: {
-        fields: '<div class="za-modal-body">{fields}</div>',
+        fields: '<div class="za-modal-body" za-overflow-auto>{fields}</div>',
         buttons: '{buttons}'
     },
     save: {
@@ -1546,6 +1630,11 @@ const editCollectionFormData = {
             }
             $('.editCollectionForm-form-button').hide();
             $('#zoiaCollectionFormSpinner').show();
+            const properties = [];
+            $('.collectionFormDataItems').children().each(function() {
+                properties.push($(this).attr('data-pid'));
+            });
+            data.properties = properties;
             data.id = currentEditID;
             return data;
         },
@@ -1562,32 +1651,22 @@ const editCollectionFormData = {
         onSaveError: (res) => {
             $('.editCollectionForm-form-button').show();
             $('#zoiaCollectionFormSpinner').hide();
-            if (res && res.status !== undefined) {
-                switch (res.status) {
-                    case -1:
-                        $zUI.notification(lang['Item not found'], {
-                            status: 'danger',
-                            timeout: 1500
-                        });
-                        break;
-                    case -2:
-                        $zUI.notification(lang['Item already exists in database'], {
-                            status: 'danger',
-                            timeout: 1500
-                        });
-                        break;
-                    default:
-                        $zUI.notification(lang.fieldErrors['Could not save to the database'], {
-                            status: 'danger',
-                            timeout: 1500
-                        });
-                        break;
-                }
-            }
+            $zUI.notification(lang.fieldErrors['Could not save to the database'], {
+                status: 'danger',
+                timeout: 1500
+            });
         },
         onLoadSuccess: (data) => {
             $('.zoiaCollectionEditDialogSpinner').hide();
             $('.zoiaCollectionEditDialogWrap').show();
+            $('.collectionFormDataItems').html('');
+            for (let i in data.item.properties) {
+                $('.collectionFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + i + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + data.item.properties[i] + '<button type="button" class="collectionProperyItemClose" za-close style="float:right"></button></div>');
+            }
+            $('.collectionProperyItemClose').click(function() {
+                $(this).parent().remove();
+            });
+            $('.editCollectionForm-title-item-val').first().focus();
         },
         onLoadError: () => {
             collectionEditDialog.hide().then(() => {
@@ -1606,6 +1685,14 @@ const editCollectionFormData = {
             type: 'valueslistfixed',
             values: getFormLangData(),
             label: lang['Title']
+        },
+        properties: {
+            type: 'launcher',
+            label: lang['Properties'],
+            labelBtn: lang['Add'],
+            value: '',
+            html: '<div class="collectionFormDataItems za-margin-top" za-sortable="handle: .za-sortable-handle"></div>',
+            data: 1
         },
         buttons: {
             type: 'buttons',
@@ -1780,12 +1867,56 @@ const collectionsTableData = {
     }
 };
 
+const propertyselectTableData = {
+    url: '/api/warehouse/list/properties',
+    limit: 7,
+    sort: {
+        field: 'title',
+        direction: 'asc'
+    },
+    fields: {
+        pid: {
+            sortable: true,
+            process: (id, item, value) => {
+                return value || '&ndash;';
+            }
+        },
+        title: {
+            sortable: true,
+            process: (id, item, value) => {
+                return value || '&ndash;';
+            }
+        },
+        actions: {
+            sortable: false,
+            process: (id, item) => {
+                return '<button class="za-icon-button zoia-propertyselect-action-check-btn" za-icon="icon: check" data="' + item._id +
+                    '" style="margin-right:5px"></button><div style="margin-bottom:17px" class="za-hidden@m">&nbsp;</div>';
+            }
+        }
+    },
+    onLoad: () => {
+        $('.zoia-propertyselect-action-check-btn').click(function() {
+            addCheckedProperties([$(this).attr('data')]);
+        });
+    },
+    lang: {
+        error: lang['Could not load data from server. Please try to refresh page in a few moments.'],
+        noitems: lang['No items to display']
+    }
+};
+
 const initDialogs = () => {
     deleteDialog = $zUI.modal('#zoiaDeleteDialog', {
         bgClose: false,
         escClose: false
     });
     deletePropertyDialog = $zUI.modal('#zoiaDeletePropertyDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    deleteCollectionDialog = $zUI.modal('#zoiaDeleteCollectionDialog', {
         bgClose: false,
         escClose: false,
         stack: true
@@ -1836,6 +1967,11 @@ const initDialogs = () => {
         stack: true
     });
     collectionEditDialog = $zUI.modal('#zoiaCollectionEditDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    propertySelectDialog = $zUI.modal('#zoiaPropertySelectDialog', {
         bgClose: false,
         escClose: false,
         stack: true
@@ -2033,6 +2169,44 @@ const warehouseBtnCollectionsListDialogHandler = () => {
     collectionsListDialog.show();
 };
 
+const editCollectionForm_properties_btnHandler = () => {
+    $('#propertyselect').zoiaTable().load();
+    propertySelectDialog.show();
+};
+
+const addCheckedProperties = (ids) => {
+    const data = $('#propertyselect').zoiaTable().getCurrentData();
+    let duplicate = false;
+    for (let i in ids) {
+        const id = ids[i];        
+        const pid = data[id].pid;
+        $('.collectionFormDataItems').children().each(function() {
+            if ($(this).attr('data-pid') === pid) {
+                duplicate = true;
+            }
+        });
+        if (!duplicate) {
+            const title = data[id].title;
+            $('.collectionFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + pid + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + title + '<button type="button" class="collectionProperyItemClose" za-close style="float:right"></button></div>');
+        }
+    }
+    $zUI.notification.closeAll();
+    $zUI.notification({ message: duplicate ? lang['One or more items are duplicated'] : lang['Added'], status: duplicate ? 'danger' : 'success', timeout: 1000 })
+};
+
+const zoiaSelectedPropertyAddHandler = () => {
+    const checked = $('.propertyselectCheckbox:checkbox:checked').map(function() {
+        return this.id;
+    }).get();
+    if (checked && checked.length > 0) {
+        addCheckedProperties(checked);
+    }
+    $('.collectionProperyItemClose').unbind();
+    $('.collectionProperyItemClose').click(function() {
+        $(this).parent().remove();
+    });
+};
+
 $(document).ready(() => {
     // Init section
     initDialogs();
@@ -2049,11 +2223,14 @@ $(document).ready(() => {
     $('#warehouse').zoiaTable(warehouseTableData);
     $('#properties').zoiaTable(propertiesTableData);
     $('#collections').zoiaTable(collectionsTableData);
+    $('#propertyselect').zoiaTable(propertyselectTableData);
     // Handlers    
     $('.zoiaDeleteButton').click(deleteButtonHanlder);
     $('.zoiaPropertyDeleteButton').click(deletePropertyButtonHanlder);
+    $('.zoiaCollectionDeleteButton').click(deleteCollectionButtonHanlder);
     $('#zoiaDeleteDialogButton').click(ajaxDeleteItem);
     $('#zoiaDeletePropertyDialogButton').click(ajaxDeleteProperty);
+    $('#zoiaDeleteCollectionDialogButton').click(ajaxDeleteCollection);
     $('#zoiaRepairDialogButton').click(ajaxRepairDatabase);
     $('.zoiaAdd').click(addHandler);
     $('.zoiaPropertyAdd').click(addPropertyHandler);
@@ -2077,4 +2254,6 @@ $(document).ready(() => {
     $('#zoiaEditLanguages > li').click(function() {
         onZoiaEditLanguagesClick($(this).attr('data'));
     });
+    $('#editCollectionForm_properties_btn').click(editCollectionForm_properties_btnHandler);
+    $('.zoiaSelectedPropertyAdd').click(zoiaSelectedPropertyAddHandler);
 });

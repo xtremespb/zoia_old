@@ -2,7 +2,7 @@
 /* eslint max-len: 0 */
 /* eslint default-case: 0 */
 /* eslint no-undef: 0 */
-/*! zoiaFormBuilder v1.0.4 | (c) Michael A. Matveev | github.com/xtremespb/zoiaFormBuilder 
+/*! zoiaFormBuilder v1.0.5 | (c) Michael A. Matveev | github.com/xtremespb/zoiaFormBuilder 
  */
 ;
 (($) => {
@@ -30,7 +30,7 @@
             captcha: '<div class="uk-margin"><label class="uk-form-label" for="{prefix}_{name}">{label}:{bullet}</label><div class="uk-grid uk-grid-small"><div><input class="uk-input {prefix}-form-field {prefix}-captcha-field{css}" type="text" placeholder="" id="{prefix}_{name}"{autofocus}></div><div><div class="uk-form-controls"><img class="{prefix}-captcha-img"></div></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="uk-label-danger"></span></div>{helpText}',
             buttonsWrap: '<div class="{css}">{buttons}{html}</div>',
             button: '<button class="uk-button {prefix}-form-button{css}" id="{prefix}_{name}" type="{type}">{label}</button>',
-            launcher: '<div class="uk-margin"><label class="uk-form-label" for="{prefix}_{name}_btn">{label}:{bullet}</label><div class="uk-flex"><div id="{prefix}_{name}_val" class="{prefix}-{name}-selector" data="{data}">{value}</div><div><button class="uk-button uk-button-default" id="{prefix}_{name}_btn" type="button">{labelBtn}</button></div></div>{helpText}</div>',
+            launcher: '<div class="uk-margin"><label class="uk-form-label" for="{prefix}_{name}_btn">{label}:{bullet}</label><div class="uk-flex"><div id="{prefix}_{name}_val" class="{prefix}-{name}-selector" data="{data}">{value}</div><div><button class="uk-button uk-button-default" id="{prefix}_{name}_btn" type="button">{labelBtn}</button></div></div>{helpText}{html}</div>',
             textarea: '<div class="uk-margin-bottom"><label class="uk-form-label" for="{prefix}_{name}">{label}:{bullet}</label><br><div class="uk-form-controls"><textarea class="uk-textarea {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}></textarea><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="uk-label-danger"></span></div>{helpText}</div></div>',
             checkboxlistItem: '<li><label><input class="uk-checkbox {prefix}-{name}-cbx" type="checkbox" data="{title}">&nbsp;&nbsp;{title}</label></li>',
             checkboxlist: '<div class="uk-margin-bottom"><label class="uk-form-label" for="{prefix}_{name}">{label}:{bullet}</label><div class="uk-panel uk-panel-scrollable{css}" id="{prefix}_{name}_wrap"><ul class="uk-list">{items}</ul></div>{helpText}</div>',
@@ -118,7 +118,8 @@
                             helpText: (item.helpText ? this._template(this.settings.html.helpText, {
                                 text: item.helpText,
                                 prefix: this._prefix
-                            }) : '')
+                            }) : ''),
+                            html: (item.html ? ' ' + item.html : '')
                         });
                         break;
                     case 'valueslist':
