@@ -71,13 +71,14 @@
         this._defaults = defaults;
         this._name = pluginName;
         this._prefix = this.element.id;
-        this._formTypes = ['text', 'email', 'password', 'select', 'passwordConfirm', 'captcha', 'launcher', 'textarea', 'checkboxlist', 'valueslist', 'valueslistfixed'];
+        this._formTypes = ['text', 'email', 'password', 'select', 'passwordConfirm', 'captcha', 'launcher', 'textarea', 'checkboxlist', 'valueslist', 'valueslistfixed', 'valueslisteditable'];
         this._saving = false;
         this.init();
     };
 
     $.extend(Plugin.prototype, {
         init: function() {
+            console.log('init');
             let fieldsHTML = '';
             let buttonsHTML = '';
             for (let n in this.settings.items) {
@@ -140,6 +141,26 @@
                             label: item.label,
                             bullet: bullet,
                             items: valuesListItems
+                        });
+                        break;
+                    case 'valueslisteditable':
+                        let valuesListItemsEditable = '';
+                        for (let v in item.values) {
+                            valuesListItemsEditable += this._template(this.settings.html.valueslistItemEditable, {
+                                prefix: this._prefix,
+                                name: n,
+                                key: item.values[v].p,
+                                value: item.values[v].v,
+                                langParameter: this.settings.lang.parameter,
+                                langValue: this.settings.lang.value
+                            });
+                        }
+                        fieldsHTML += this._template(this.settings.html.valueslistEditable, {
+                            prefix: this._prefix,
+                            name: n,
+                            label: item.label,
+                            bullet: bullet,
+                            items: valuesListItemsEditable
                         });
                         break;
                     case 'valueslistfixed':
@@ -288,6 +309,14 @@
             $('.formBuilder-valueslistfixed-btnDel').click(function(e) {
                 $(this).parent().parent().remove();
             });
+            $('.formBuilder-valueslisteditable-btnAdd').unbind();
+            $('.formBuilder-valueslisteditable-btnAdd').click(function(e) {
+                that._valueslistAddFunc($(this).attr('data-prefix'), $(this).attr('data-name'), '', '');
+            });
+            $('.formBuilder-valueslisteditable-btnDel').unbind();
+            $('.formBuilder-valueslisteditable-btnDel').click(function(e) {
+                $(this).parent().parent().remove();
+            });
             if (this.settings.events.onInit) {
                 this.settings.events.onInit();
             }
@@ -313,6 +342,25 @@
             }
             $('.formBuilder-valueslist-btnDel').unbind();
             $('.formBuilder-valueslist-btnDel').click(function(e) {
+                e.stopPropagation();
+                $(this).parent().parent().remove();
+            });
+        },
+        _valueslisteditableAddFunc(prefix, name, key, value, nofocus) {
+            const valuesListItem = this._template(this.settings.html.valueslistItemEditable, {
+                prefix: prefix,
+                name: name,
+                key: key,
+                value: value,
+                langParameter: this.settings.lang.parameter,
+                langValue: this.settings.lang.value
+            });
+            $('#' + prefix + '_' + name + '_wrap').append(valuesListItem);
+            if (!nofocus) {
+                $('.' + prefix + '-' + name + '-item').last().find('div>input:first').focus();
+            }
+            $('.formBuilder-valueslisteditable-btnDel').unbind();
+            $('.formBuilder-valueslisteditable-btnDel').click(function(e) {
                 e.stopPropagation();
                 $(this).parent().parent().remove();
             });
@@ -368,6 +416,7 @@
             }
         },
         serialize() {
+            console.log('serialize');
             let json = {};
             for (let n in this.settings.items) {
                 let field = this.settings.items[n];
@@ -404,6 +453,19 @@
                             value: values
                         };
                         break;
+                    case 'valueslisteditable':
+                        let evalues = [];
+                        $('.' + this._prefix + '-' + n + '-item').each(function() {
+                            evalues.push({
+                                p: String($(this).find('*>.formBuilder-valueslist-par').val()),
+                                v: String($(this).find('*>.formBuilder-valueslist-val').val())
+                            });
+                        });
+                        json[n] = {
+                            type: field.type,
+                            value: evalues
+                        };
+                        break;    
                     case 'valueslistfixed':
                         let fvalues = [];
                         $('.' + this._prefix + '-' + n + '-item').each(function() {
@@ -427,6 +489,8 @@
             return json;
         },
         deserialize(json) {
+            console.log('deserialize');
+            console.log(json);
             if (!json || typeof json !== 'object') {
                 return;
             }
@@ -461,6 +525,19 @@
                             this._valueslistAddFunc(this._prefix, n, par, val, true);
                         }
                         break;
+                    case 'valueslisteditable':
+                        let evalues = [];
+                        for (let v in json[n].value) {
+                            evalues.push(json[n].value[v].p);
+                            evalues.push(json[n].value[v].v);
+                        }
+                        $('#' + this._prefix + '_' + n + '_wrap').html('');
+                        while (evalues.length > 0) {
+                            const par = evalues.shift();
+                            const val = evalues.shift();
+                            this._valueslisteditableAddFunc(this._prefix, n, par, val, true);
+                        }
+                        break;
                     case 'valueslistfixed':
                         $('.' + this._prefix + '-' + n + '-item-val').val('');
                         for (let v in json[n].value) {
@@ -473,6 +550,7 @@
             }
         },
         loadJSON(data) {
+            console.log('loadJSON');
             const that = this;
             jQuery.each(data, (key, value) => {
                 $('#' + that._prefix + '_' + key).val(value);
@@ -493,6 +571,17 @@
                         that._valueslistAddFunc(that._prefix, key, values.shift(), values.shift());
                     }
                 }
+                if (that.settings.items[key] && that.settings.items[key].type === 'valueslisteditable' && value) {
+                    let values = [];
+                    for (let v in value) {
+                        values.push(v);
+                        values.push(value[v]);
+                    }
+                    $('#' + that._prefix + '_' + key + '_wrap').html('');
+                    for (let i in value) {
+                        that._valueslisteditableAddFunc(that._prefix, key, values.shift(), values.shift());
+                    }
+                }
                 if (that.settings.items[key] && that.settings.items[key].type === 'valueslistfixed' && value) {
                     $('.' + this._prefix + '-' + key + '-item-val').val('');
                     for (let v in value) {
@@ -502,6 +591,7 @@
             });
         },
         loadData(data) {
+            console.log('loadData');
             if (this.settings.events.onLoadStart) {
                 this.settings.events.onLoadStart();
             }
@@ -514,7 +604,7 @@
                 cache: false
             }).done((res) => {
                 if (res && res.status === 1) {
-                    jQuery.each(res.item, (key, value) => {
+                    jQuery.each(res.item, (key, value) => {                        
                         $('#' + that._prefix + '_' + key).val(value);
                         if (that.settings.items[key] && that.settings.items[key].type === 'checkboxlist' && value) {
                             const data = value.split(',');
@@ -531,6 +621,17 @@
                             $('#' + that._prefix + '_' + key + '_wrap').html('');
                             for (let i in value) {
                                 that._valueslistAddFunc(that._prefix, key, values.shift(), values.shift());
+                            }
+                        }
+                        if (that.settings.items[key] && that.settings.items[key].type === 'valueslisteditable' && value) {                            
+                            let values = [];
+                            for (let v in value) {
+                                values.push(v);
+                                values.push(value[v]);
+                            }
+                            $('#' + that._prefix + '_' + key + '_wrap').html('');
+                            for (let i in value) {
+                                that._valueslisteditableAddFunc(that._prefix, key, values.shift(), values.shift());
                             }
                         }
                         if (that.settings.items[key] && that.settings.items[key].type === 'valueslistfixed' && value) {
@@ -571,6 +672,7 @@
             return s;
         },
         validate(items) {
+            console.log('validate');
             let errors = {};
             let data = {};
             for (let n in this.settings.items) {
@@ -583,6 +685,22 @@
                     continue;
                 }
                 if (field.type === 'valueslist') {
+                    if (items && items[n]) {
+                        data[n] = items[n].value;
+                        continue;
+                    }
+                    let values = [];
+                    let that = this;
+                    $('.' + this._prefix + '-' + n + '-item').each(function() {
+                        values.push({
+                            p: String($(this).find('*>.formBuilder-valueslist-par').val()),
+                            v: String($(this).find('*>.formBuilder-valueslist-val').val())
+                        });
+                    });
+                    data[n] = values;
+                    continue;
+                }
+                if (field.type === 'valueslisteditable') {
                     if (items && items[n]) {
                         data[n] = items[n].value;
                         continue;

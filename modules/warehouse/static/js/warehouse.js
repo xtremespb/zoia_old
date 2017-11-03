@@ -283,7 +283,7 @@ const createItem = () => {
                         timeout: 1500
                     });
                 }
-            }, 100);
+            }, 200);
         }).fail(() => {
             setTimeout(() => {
                 spinnerDialog.hide();
@@ -293,7 +293,7 @@ const createItem = () => {
                     status: 'danger',
                     timeout: 1500
                 });
-            }, 100);
+            }, 200);
         });
     });
 };
@@ -824,7 +824,7 @@ const imagesDialogCloseHandler = () => {
         }).done(() => {
             setTimeout(() => {
                 spinnerDialog.hide();
-            }, 150);
+            }, 250);
         }).fail(() => {
             setTimeout(() => {
                 spinnerDialog.hide();
@@ -832,7 +832,7 @@ const imagesDialogCloseHandler = () => {
                     status: 'danger',
                     timeout: 1500
                 });
-            }, 150);
+            }, 250);
         });
     });
 };
@@ -878,8 +878,10 @@ const formBuilderHTML = {
     checkboxlist: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-panel za-panel-scrollable{css}" id="{prefix}_{name}_wrap"><ul class="za-list">{items}</ul></div>{helpText}</div>',
     valueslistItem: '<div class="za-flex za-margin-top {prefix}-{name}-item"><div class="za-margin-right"><input placeholder="{langParameter}" type="text" class="za-input formBuilder-valueslist-par" value="{key}"></div><div class="za-margin-right"><input placeholder="{langValue}" type="text" class="za-input formBuilder-valueslist-val" value="{value}"></div><div style="padding-top:3px"><button class="za-icon-button za-button-danger formBuilder-valueslist-btnDel" za-icon="icon:minus"></button></div></div>',
     valueslistItemFixed: '<div class="za-flex za-margin-top {prefix}-{name}-item"><div class="za-margin-right" style="margin-top:10px;min-width:100px;font-size:80%">{value}:</div><div class="za-margin-right"><input placeholder="{langValue}" type="text" class="za-input formBuilder-valueslist-val {prefix}-{name}-item-val" value="{data}" data="{key}"></div></div>',
-    valueslist: '<div class="za-flex za-flex-column"><div class="za-margin-bottom"><label class="za-form-label">{label}:</label></div><div><button type="button" class="za-icon-button za-button-primary formBuilder-valueslist-btnAdd" id="{prefix}_{name}_btnAdd" za-icon="icon:plus" data-prefix="{prefix}" data-name="{name}"></button></div><div id="{prefix}_{name}_wrap" class="za-margin-bottom {prefix}-formBuilder-valueslist-wrap">{items}</div></div>',
+    valueslistItemEditable: '<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body {prefix}-{name}-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="collectionProperyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">{key}</label><input placeholder="{langValue}" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="{value}" data="{data}"></div></div>',
+    valueslist: '<div class="za-flex za-flex-column"><div class="za-margin-bottom"><label class="za-form-label">{label}:</label></div><div><button type="button" class="za-icon-button za-button-primary formBuilder-valueslist-btnAdd" id="{prefix}_{name}_btnAdd" za-icon="icon:plus" data-prefix="{prefix}" data-name="{name}"></button></div><div id="{prefix}_{name}_wrap" class="za-margin-bottom {prefix}-formBuilder-valueslist-wrap">{items}</div>',
     valueslistFixed: '<div class="za-flex za-flex-column"><div><label class="za-form-label">{label}:</label></div><div id="{prefix}_{name}_wrap" class="za-margin-bottom formBuilder-valueslist-wrap">{items}</div></div>',
+    valueslistEditable: '<div class="za-flex za-flex-column"><div class="za-margin-bottom"><label class="za-form-label">{label}:</label></div><div id="{prefix}_{name}_wrap" class="za-margin-bottom {prefix}-formBuilder-valueslist-wrap">{items}</div></div>',
     bullet: '&nbsp;<span style="color:red;font-size:140%">&#8226;</span>'
 };
 
@@ -1055,7 +1057,7 @@ const editFormData = {
                         value: data.item[n].title
                     };
                     editShadow[n].data.properties = {
-                        type: 'valueslist',
+                        type: 'valueslisteditable',
                         value: data.item[n].properties
                     };
                     editShadow[n].data.status = {
@@ -1085,8 +1087,8 @@ const editFormData = {
                         }
                     }
                     spinnerDialog.hide();
-                }, 100);
-            }, 100);
+                }, 200);
+            }, 200);
         },
         onLoadError: () => {
             spinnerDialog.hide();
@@ -1230,7 +1232,7 @@ const editFormData = {
             data: null
         },
         properties: {
-            type: 'valueslist',
+            type: 'valueslisteditable',
             label: lang['Properties']
         },
         keywords: {
