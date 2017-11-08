@@ -4,7 +4,6 @@
 let deleteDialog;
 let foldersDialog;
 let folderEditDialog;
-let spinnerDialog;
 let repairDialog;
 let currentEditID;
 let currentDeleteID;
@@ -106,9 +105,8 @@ const editItem = (id) => {
     $('#editForm').zoiaFormBuilder().resetForm();
     $('#zoiaEditHeader').html(lang.editItem);
     editLanguage = Object.keys(langs)[0];
-    spinnerDialog.show().then(() => {
-        $('#editForm').zoiaFormBuilder().loadData({ id: id });
-    });
+    $('#zoiaSpinnerMain').show();
+    $('#editForm').zoiaFormBuilder().loadData({ id: id });
 };
 
 const deleteItem = (id) => {
@@ -206,15 +204,13 @@ const ajaxRepairDatabase = () => {
 };
 
 const ajaxRebuildDatabase = () => {
-    spinnerDialog.show();
+    $('#zoiaSpinnerMain').show();
     $.ajax({
         type: 'POST',
         url: '/api/pages/rebuild',
         cache: false
     }).done((res) => {
-        setTimeout(() => {
-            spinnerDialog.hide();
-        }, 200);
+        $('#zoiaSpinnerMain').hide();
         $('#pages').zoiaTable().load();
         if (res && res.status === 1) {
             $zUI.notification(lang['Operation was successful'], {
@@ -233,9 +229,7 @@ const ajaxRebuildDatabase = () => {
             status: 'danger',
             timeout: 1500
         });
-        setTimeout(() => {
-            spinnerDialog.hide();
-        }, 200);
+        $('#zoiaSpinnerMain').hide();
     });
 };
 
@@ -487,11 +481,6 @@ $(document).ready(() => {
         escClose: false,
         stack: true
     });
-    spinnerDialog = $zUI.modal('#zoiaSpinnerDialog', {
-        bgClose: false,
-        escClose: false,
-        stack: true
-    });
     repairDialog = $zUI.modal('#zoiaRepairDialog', {
         bgClose: false,
         escClose: false,
@@ -667,14 +656,10 @@ $(document).ready(() => {
                     }
                 }
                 $('#zoiaEdit').show();
-                setTimeout(() => {
-                    spinnerDialog.hide();
-                }, 200);
+                $('#zoiaSpinnerMain').hide();
             },
             onLoadError: () => {
-                setTimeout(() => {
-                    spinnerDialog.hide();
-                }, 200);
+                $('#zoiaSpinnerMain').hide();
                 $zUI.notification(lang['Could not load information from database'], {
                     status: 'danger',
                     timeout: 1500
@@ -1104,5 +1089,5 @@ $(document).ready(() => {
     $('.pagesBtnRebuild').click(() => {
         ajaxRebuildDatabase();
     });
-    initCKEditor();   
+    initCKEditor();
 });
