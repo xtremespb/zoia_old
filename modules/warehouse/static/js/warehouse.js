@@ -6,15 +6,16 @@ let deletePropertyDialog;
 let deleteCollectionDialog;
 let foldersDialog;
 let folderEditDialog;
-let spinnerDialog;
 let repairDialog;
 let imagesDialog;
 let settingsDialog;
 let propertiesListDialog;
+let propertiesSelectDialog;
 let collectionsListDialog;
 let propertyEditDialog;
 let collectionEditDialog;
 let propertySelectDialog;
+let collectionSelectDialog;
 let currentEditID;
 let currentDeleteID;
 let foldersTree;
@@ -249,53 +250,48 @@ const repairDialogSpinner = (show) => {
 
 const createItem = () => {
     editMode = false;
-    spinnerDialog.show().then(() => {
-        $.ajax({
-            type: 'GET',
-            url: '/api/warehouse/create',
-            cache: false
-        }).done((res) => {
-            setTimeout(() => {
-                spinnerDialog.hide();
-                if (res && res.status === 1 && res.id) {
-                    currentEditID = res.id;
-                    $('#wrapTable').hide();
-                    $('#zoiaEdit').show();
-                    $('#zoiaEditHeader').html(lang.addItem);
-                    for (let lng in langs) {
-                        editShadow[lng] = {
-                            enabled: true,
-                            data: {}
-                        };
-                    }
-                    $('#editForm').zoiaFormBuilder().resetForm();
-                    editLanguage = Object.keys(langs)[0];
-                    markZoiaLanguagesTab(editLanguage);
-                    $('#editForm_content').val('');
-                    $('#imagesList').html('');
-                    $('#editForm_images_val').html('0');
-                    $('#imagesListBtnDel').hide();
-                } else {
-                    $('#zoiaEdit').hide();
-                    $('#wrapTable').show();
-                    $zUI.notification(lang['Could not create new item'], {
-                        status: 'danger',
-                        timeout: 1500
-                    });
-                }
-            }, 200);
-        }).fail(() => {
-            setTimeout(() => {
-                spinnerDialog.hide();
-                $('#zoiaEdit').hide();
-                $('#wrapTable').show();
-                $zUI.notification(lang['Could not create new item'], {
-                    status: 'danger',
-                    timeout: 1500
-                });
-            }, 200);
+    $('#zoiaSpinnerMain').show();
+    $.ajax({
+        type: 'GET',
+        url: '/api/warehouse/create',
+        cache: false
+    }).done((res) => {
+        $('#zoiaSpinnerMain').hide();
+        if (res && res.status === 1 && res.id) {
+            currentEditID = res.id;
+            $('#wrapTable').hide();
+            $('#zoiaEdit').show();
+            $('#zoiaEditHeader').html(lang.addItem);
+            for (let lng in langs) {
+                editShadow[lng] = {
+                    enabled: true,
+                    data: {}
+                };
+            }
+            $('#editForm').zoiaFormBuilder().resetForm();
+            editLanguage = Object.keys(langs)[0];
+            markZoiaLanguagesTab(editLanguage);
+            $('#editForm_content').val('');
+            $('#imagesList').html('');
+            $('#editForm_images_val').html('0');
+            $('#imagesListBtnDel').hide();
+        } else {
+            $('#zoiaEdit').hide();
+            $('#wrapTable').show();
+            $zUI.notification(lang['Could not create new item'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        }
+    }).fail(() => {
+        $('#zoiaSpinnerMain').hide();
+        $('#zoiaEdit').hide();
+        $('#wrapTable').show();
+        $zUI.notification(lang['Could not create new item'], {
+            status: 'danger',
+            timeout: 1500
         });
-    });
+    }, 200);
 };
 
 const editItem = (id) => {
@@ -314,9 +310,8 @@ const editItem = (id) => {
     $('#editForm').zoiaFormBuilder().resetForm();
     $('#zoiaEditHeader').html(lang.editItem);
     editLanguage = Object.keys(langs)[0];
-    spinnerDialog.show().then(() => {
-        $('#editForm').zoiaFormBuilder().loadData({ id: id });
-    });
+    $('#zoiaSpinnerMain').show();
+    $('#editForm').zoiaFormBuilder().loadData({ id: id });
 };
 
 const createProperty = () => {
@@ -586,13 +581,13 @@ const ajaxRepairDatabase = () => {
 };
 
 const ajaxRebuildDatabase = () => {
-    spinnerDialog.show();
+    $('#zoiaSpinnerMain').show();
     $.ajax({
         type: 'POST',
         url: '/api/warehouse/rebuild',
         cache: false
     }).done((res) => {
-        spinnerDialog.hide();
+        $('#zoiaSpinnerMain').hide();
         $('#warehouse').zoiaTable().load();
         if (res && res.status === 1) {
             $zUI.notification(lang['Operation was successful'], {
@@ -611,7 +606,7 @@ const ajaxRebuildDatabase = () => {
             status: 'danger',
             timeout: 1500
         });
-        spinnerDialog.hide();
+        $('#zoiaSpinnerMain').hide();
     });
 };
 
@@ -630,6 +625,46 @@ const processState = (eventState) => {
         default:
             showTable();
             break;
+    }
+};
+
+const syncEditFormProperties = (clng) => {
+    let dolly = editShadow[clng].data.properties.value || {};
+    for (let lng in langs) {
+        if (lng !== clng && editShadow[lng].enabled) {
+            let save = {};
+            if (!editShadow[lng].data.properties) {
+                editShadow[lng].data.properties = {};
+            }
+            for (let i in editShadow[lng].data.properties.value) {
+                save[editShadow[lng].data.properties.value[i].d] = editShadow[lng].data.properties.value[i].v;
+            }
+            editShadow[lng].data.properties.value = jQuery.extend(true, {}, dolly);
+            for (let i in editShadow[lng].data.properties.value) {
+                editShadow[lng].data.properties.value[i].v = save[editShadow[lng].data.properties.value[i].d] || '';
+            }
+        }
+    }
+};
+
+const syncEditFormPropertiesFist = () => {
+    let clng;
+    for (let lng in langs) {
+        if (lng !== editLanguage && editShadow[lng].enabled) {
+            clng = lng;
+            break;
+        }
+    }
+    if (!clng) {
+        return;
+    }
+    let dolly = editShadow[clng].data.properties.value || {};
+    editShadow[editLanguage].data.properties = {
+        type: 'valueslisteditable'
+    };
+    editShadow[editLanguage].data.properties.value = jQuery.extend(true, {}, dolly);
+    for (let i in editShadow[editLanguage].data.properties.value) {
+        editShadow[editLanguage].data.properties.value[i].v = '';
     }
 };
 
@@ -658,6 +693,8 @@ const onEditLanguageCheckboxClickEvent = () => {
         $('#editForm').zoiaFormBuilder().resetForm();
         editShadow[editLanguage].enabled = true;
         editShadow[editLanguage].data = {};
+        syncEditFormPropertiesFist();
+        $('#editForm').zoiaFormBuilder().deserializePart('properties', editShadow[editLanguage].data.properties);
         for (let lng in langs) {
             if (editShadow[lng].data) {
                 if (editShadow[lng].data.folder) {
@@ -674,8 +711,8 @@ const onEditLanguageCheckboxClickEvent = () => {
                     $('#editForm_amount').val(editShadow[lng].data.amount.value);
                 }
                 if (editShadow[lng].data.images) {
-                    $('#editForm_folder_val').html(editShadow[lng].data.images.value);
-                    $('#editForm_folder_val').attr('data', editShadow[lng].data.images.id);
+                    $('#editForm_images_val').html(editShadow[lng].data.images.value);
+                    $('#editForm_images_val').attr('data', editShadow[lng].data.images.id);
                 }
                 if (editShadow[lng].data.price) {
                     $('#editForm_price').val(editShadow[lng].data.price.value);
@@ -730,9 +767,14 @@ const onZoiaEditLanguagesClick = (lng) => {
         editShadow[lng].data.price = savePrice;
         editShadow[lng].data.status = saveStatus;
     }
-    editLanguage = lng;
+    syncEditFormProperties(editLanguage);
     $('#editForm').zoiaFormBuilder().resetForm();
-    $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);
+    $('#editForm').zoiaFormBuilder().deserialize(editShadow[lng].data);
+    $('.selectProperyItemClose').unbind();
+    $('.selectProperyItemClose').click(function() {
+        $(this).parent().parent().remove();
+    });
+    editLanguage = lng;
     $('#editForm').show();
 };
 
@@ -812,27 +854,22 @@ const imagesDialogCloseHandler = () => {
     $('#editForm_images_val').attr('data', JSON.stringify(list));
     $('#editForm_images_val').html(list.length);
     imagesDialog.hide();
-    spinnerDialog.show().then(() => {
-        $.ajax({
-            type: 'POST',
-            url: '/api/warehouse/images/save',
-            data: {
-                items: list,
-                id: currentEditID
-            },
-            cache: false
-        }).done(() => {
-            setTimeout(() => {
-                spinnerDialog.hide();
-            }, 250);
-        }).fail(() => {
-            setTimeout(() => {
-                spinnerDialog.hide();
-                $zUI.notification(lang['Cannot save images data'], {
-                    status: 'danger',
-                    timeout: 1500
-                });
-            }, 250);
+    $('#zoiaSpinnerMain').show();
+    $.ajax({
+        type: 'POST',
+        url: '/api/warehouse/images/save',
+        data: {
+            items: list,
+            id: currentEditID
+        },
+        cache: false
+    }).done(() => {
+        $('#zoiaSpinnerMain').hide();
+    }).fail(() => {
+        $('#zoiaSpinnerMain').hide();
+        $zUI.notification(lang['Cannot save images data'], {
+            status: 'danger',
+            timeout: 1500
         });
     });
 };
@@ -878,10 +915,10 @@ const formBuilderHTML = {
     checkboxlist: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-panel za-panel-scrollable{css}" id="{prefix}_{name}_wrap"><ul class="za-list">{items}</ul></div>{helpText}</div>',
     valueslistItem: '<div class="za-flex za-margin-top {prefix}-{name}-item"><div class="za-margin-right"><input placeholder="{langParameter}" type="text" class="za-input formBuilder-valueslist-par" value="{key}"></div><div class="za-margin-right"><input placeholder="{langValue}" type="text" class="za-input formBuilder-valueslist-val" value="{value}"></div><div style="padding-top:3px"><button class="za-icon-button za-button-danger formBuilder-valueslist-btnDel" za-icon="icon:minus"></button></div></div>',
     valueslistItemFixed: '<div class="za-flex za-margin-top {prefix}-{name}-item"><div class="za-margin-right" style="margin-top:10px;min-width:100px;font-size:80%">{value}:</div><div class="za-margin-right"><input placeholder="{langValue}" type="text" class="za-input formBuilder-valueslist-val {prefix}-{name}-item-val" value="{data}" data="{key}"></div></div>',
-    valueslistItemEditable: '<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body {prefix}-{name}-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="collectionProperyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">{key}</label><input placeholder="{langValue}" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="{value}" data="{data}"></div></div>',
+    valueslistItemEditable: '<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body {prefix}-{name}-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectProperyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">{key}</label><input placeholder="{langValue}" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="{value}" data="{data}"></div></div>',
     valueslist: '<div class="za-flex za-flex-column"><div class="za-margin-bottom"><label class="za-form-label">{label}:</label></div><div><button type="button" class="za-icon-button za-button-primary formBuilder-valueslist-btnAdd" id="{prefix}_{name}_btnAdd" za-icon="icon:plus" data-prefix="{prefix}" data-name="{name}"></button></div><div id="{prefix}_{name}_wrap" class="za-margin-bottom {prefix}-formBuilder-valueslist-wrap">{items}</div>',
     valueslistFixed: '<div class="za-flex za-flex-column"><div><label class="za-form-label">{label}:</label></div><div id="{prefix}_{name}_wrap" class="za-margin-bottom formBuilder-valueslist-wrap">{items}</div></div>',
-    valueslistEditable: '<div class="za-flex za-flex-column"><div class="za-margin-bottom"><label class="za-form-label">{label}:</label></div><div id="{prefix}_{name}_wrap" class="za-margin-bottom {prefix}-formBuilder-valueslist-wrap">{items}</div></div>',
+    valueslistEditable: '<div class="za-flex za-flex-column" id="{prefix}_{name}_widget"><div class="za-margin-bottom"><label class="za-form-label">{label}:</label></div>{buttons}<div id="{prefix}_{name}_wrap" class="za-margin-bottom {prefix}-formBuilder-valueslist-wrap" za-sortable="handle:.za-sortable-handle">{items}</div></div>',
     bullet: '&nbsp;<span style="color:red;font-size:140%">&#8226;</span>'
 };
 
@@ -891,8 +928,8 @@ const formBuilderLang = {
     tooLong: lang['Too long'],
     invalidFormat: lang['Doesn\'t match required format'],
     passwordsNotMatch: lang['Passwords do not match'],
-    parameter: 'Parameter',
-    value: 'Value'
+    parameter: lang['Parameter'],
+    value: lang['Value']
 };
 
 const editFormData = {
@@ -913,6 +950,7 @@ const editFormData = {
     events: {
         onSaveValidate: (data) => {
             editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
+            syncEditFormProperties(editLanguage);
             let saveFolder = editShadow[editLanguage].data.folder.id;
             let saveImages = editShadow[editLanguage].data.images.id;
             let saveURL = editShadow[editLanguage].data.folder.value;
@@ -986,112 +1024,113 @@ const editFormData = {
             }
         },
         onLoadSuccess: (data) => {
-            setTimeout(() => {
-                for (let n in langs) {
-                    if (Object.keys(data.item[n]).length === 0) {
-                        editShadow[n] = {
-                            enabled: false
-                        };
-                        continue;
-                    }
+            for (let n in langs) {
+                if (Object.keys(data.item[n]).length === 0) {
                     editShadow[n] = {
-                        enabled: true,
-                        data: {}
+                        enabled: false
                     };
-                    let path = treePath(foldersData, data.item.folder);
-                    if (path) {
-                        path = path.reverse().join('/').replace('//', '');
-                        if (path === '/') {
-                            path = '';
-                        }
-                        editShadow[n].data.folder = {
-                            type: 'launcher',
-                            id: data.item.folder,
-                            value: path
-                        };
-                    } else {
-                        editShadow[n].data.folder = {
-                            type: 'launcher',
-                            id: 1,
-                            value: '<div za-icon="icon:ban" style="padding-top:4px"></div>'
-                        };
+                    continue;
+                }
+                editShadow[n] = {
+                    enabled: true,
+                    data: {}
+                };
+                let path = treePath(foldersData, data.item.folder);
+                if (path) {
+                    path = path.reverse().join('/').replace('//', '');
+                    if (path === '/') {
+                        path = '';
                     }
-                    if (data.item.images && data.item.images.length) {
-                        editShadow[n].data.images = {
-                            type: 'launcher',
-                            id: JSON.stringify(data.item.images),
-                            value: data.item.images.length
-                        };
-                    } else {
-                        editShadow[n].data.images = {
-                            type: 'launcher',
-                            id: JSON.stringify([]),
-                            value: '0'
-                        };
-                    }
-                    $('#imagesList').html('');
-                    for (let i in data.item.images) {
-                        const img = data.item.images[i];
-                        $('#imagesList').append('<div class="za-card za-card-default za-card-body warehouse-image-item" data-id="' + img.id + '" data-ext="' + img.ext + '"><img src="/warehouse/static/images/' + currentEditID + '/tn_' + img.id + '.' + img.ext + '"></div>');
-                    }
-                    $('#imagesListBtnDel').hide();
-                    initShifty();
-                    editShadow[n].data.sku = {
-                        type: 'text',
-                        value: data.item.sku
+                    editShadow[n].data.folder = {
+                        type: 'launcher',
+                        id: data.item.folder,
+                        value: path
                     };
-                    editShadow[n].data.weight = {
-                        type: 'text',
-                        value: data.item.weight
-                    };
-                    editShadow[n].data.amount = {
-                        type: 'text',
-                        value: data.item.amount
-                    };
-                    editShadow[n].data.price = {
-                        type: 'text',
-                        value: data.item.price ? String(data.item.price) : '0'
-                    };
-                    editShadow[n].data.title = {
-                        type: 'text',
-                        value: data.item[n].title
-                    };
-                    editShadow[n].data.properties = {
-                        type: 'valueslisteditable',
-                        value: data.item[n].properties
-                    };
-                    editShadow[n].data.status = {
-                        type: 'select',
-                        value: data.item.status
-                    };
-                    editShadow[n].data.keywords = {
-                        type: 'text',
-                        value: data.item[n].keywords
-                    };
-                    editShadow[n].data.description = {
-                        type: 'text',
-                        value: data.item[n].description
-                    };
-                    editShadow[n].data.content = {
-                        type: 'textarea',
-                        value: data.item[n].content
+                } else {
+                    editShadow[n].data.folder = {
+                        type: 'launcher',
+                        id: 1,
+                        value: '<div za-icon="icon:ban" style="padding-top:4px"></div>'
                     };
                 }
-                $('#zoiaEditLanguageCheckbox').prop('checked', editShadow[editLanguage].enabled);
-                setTimeout(() => {
-                    for (let n in langs) {
-                        if (editShadow[n].enabled) {
-                            $('#zoiaEditLanguages > li[data=' + n + ']').click();
-                            $('#zoiaEdit').show();
-                            break;
-                        }
-                    }
-                    spinnerDialog.hide();
-                }, 200);
-            }, 200);
+                if (data.item.images && data.item.images.length) {
+                    editShadow[n].data.images = {
+                        type: 'launcher',
+                        id: JSON.stringify(data.item.images),
+                        value: data.item.images.length
+                    };
+                } else {
+                    editShadow[n].data.images = {
+                        type: 'launcher',
+                        id: JSON.stringify([]),
+                        value: '0'
+                    };
+                }
+                $('#imagesList').html('');
+                for (let i in data.item.images) {
+                    const img = data.item.images[i];
+                    $('#imagesList').append('<div class="za-card za-card-default za-card-body warehouse-image-item" data-id="' + img.id + '" data-ext="' + img.ext + '"><img src="/warehouse/static/images/' + currentEditID + '/tn_' + img.id + '.' + img.ext + '"></div>');
+                }
+                $('#imagesListBtnDel').hide();
+                initShifty();
+                editShadow[n].data.sku = {
+                    type: 'text',
+                    value: data.item.sku
+                };
+                editShadow[n].data.weight = {
+                    type: 'text',
+                    value: data.item.weight
+                };
+                editShadow[n].data.amount = {
+                    type: 'text',
+                    value: data.item.amount
+                };
+                editShadow[n].data.price = {
+                    type: 'text',
+                    value: data.item.price ? String(data.item.price) : '0'
+                };
+                editShadow[n].data.title = {
+                    type: 'text',
+                    value: data.item[n].title
+                };
+                editShadow[n].data.properties = {
+                    type: 'valueslisteditable',
+                    value: data.item[n].properties
+                };
+                editShadow[n].data.status = {
+                    type: 'select',
+                    value: data.item.status
+                };
+                editShadow[n].data.keywords = {
+                    type: 'text',
+                    value: data.item[n].keywords
+                };
+                editShadow[n].data.description = {
+                    type: 'text',
+                    value: data.item[n].description
+                };
+                editShadow[n].data.content = {
+                    type: 'textarea',
+                    value: data.item[n].content
+                };
+            }
+            $('#zoiaEditLanguageCheckbox').prop('checked', editShadow[editLanguage].enabled);
+            $('.selectProperyItemClose').unbind();
+            for (let n in langs) {
+                if (editShadow[n].enabled) {
+                    $('#zoiaEditLanguages > li[data=' + n + ']').click();
+                    $('#zoiaEdit').show();
+                    break;
+                }
+            }
+            $('.selectProperyItemClose').unbind();
+            $('.selectProperyItemClose').click(function() {
+                $(this).parent().parent().remove();
+            });
+            $('#zoiaSpinnerMain').hide();
         },
         onLoadError: () => {
-            spinnerDialog.hide();
+            $('#zoiaSpinnerMain').hide();
             $('#zoiaEdit').hide();
             $('#wrapTable').show();
             $zUI.notification(lang['Could not load information from database'], {
@@ -1233,6 +1272,7 @@ const editFormData = {
         },
         properties: {
             type: 'valueslisteditable',
+            buttons: '<div class="za-margin-bottom"><ul class="za-iconnav"><li><button type="button" class="za-icon-button zoiaAddPropertyBtn" za-icon="icon:copy" title="'+lang['Insert property']+'" za-tooltip="pos: bottom-right"></button></li><li><button type="button" class="za-icon-button zoiaAddCollectionBtn"za-icon="icon:album" title="'+lang['Insert collection']+'" za-tooltip="pos: bottom-right"></button></li></ul></div>',
             label: lang['Properties']
         },
         keywords: {
@@ -1869,6 +1909,39 @@ const collectionsTableData = {
     }
 };
 
+const collectionselectTableData = {
+    url: '/api/warehouse/list/collections',
+    limit: 7,
+    sort: {
+        field: 'title',
+        direction: 'asc'
+    },
+    fields: {
+        title: {
+            sortable: true,
+            process: (id, item, value) => {
+                return value || '&ndash;';
+            }
+        },
+        actions: {
+            sortable: false,
+            process: (id, item) => {
+                return '<button class="za-icon-button zoia-collectionselect-action-check-btn" za-icon="icon: check" data="' + item._id +
+                    '"></button><div style="margin-bottom:17px" class="za-hidden@m">&nbsp;</div>';
+            }
+        }
+    },
+    onLoad: () => {
+        $('.zoia-collectionselect-action-check-btn').click(function() {
+            selectCheckedCollection($(this).attr('data'));
+        });
+    },
+    lang: {
+        error: lang['Could not load data from server. Please try to refresh page in a few moments.'],
+        noitems: lang['No items to display']
+    }
+};
+
 const propertyselectTableData = {
     url: '/api/warehouse/list/properties',
     limit: 7,
@@ -1908,6 +1981,45 @@ const propertyselectTableData = {
     }
 };
 
+const propertiesselectTableData = {
+    url: '/api/warehouse/list/properties',
+    limit: 7,
+    sort: {
+        field: 'title',
+        direction: 'asc'
+    },
+    fields: {
+        pid: {
+            sortable: true,
+            process: (id, item, value) => {
+                return value || '&ndash;';
+            }
+        },
+        title: {
+            sortable: true,
+            process: (id, item, value) => {
+                return value || '&ndash;';
+            }
+        },
+        actions: {
+            sortable: false,
+            process: (id, item) => {
+                return '<button class="za-icon-button zoia-propertiesselect-action-check-btn" za-icon="icon: check" data="' + item._id +
+                    '" style="margin-right:5px"></button><div style="margin-bottom:17px" class="za-hidden@m">&nbsp;</div>';
+            }
+        }
+    },
+    onLoad: () => {
+        $('.zoia-propertiesselect-action-check-btn').click(function() {
+            selectCheckedProperties([$(this).attr('data')]);
+        });
+    },
+    lang: {
+        error: lang['Could not load data from server. Please try to refresh page in a few moments.'],
+        noitems: lang['No items to display']
+    }
+};
+
 const initDialogs = () => {
     deleteDialog = $zUI.modal('#zoiaDeleteDialog', {
         bgClose: false,
@@ -1933,11 +2045,6 @@ const initDialogs = () => {
         escClose: false,
         stack: true
     });
-    spinnerDialog = $zUI.modal('#zoiaSpinnerDialog', {
-        bgClose: false,
-        escClose: false,
-        stack: true
-    });
     repairDialog = $zUI.modal('#zoiaRepairDialog', {
         bgClose: false,
         escClose: false,
@@ -1958,6 +2065,11 @@ const initDialogs = () => {
         escClose: false,
         stack: true
     });
+    propertiesSelectDialog = $zUI.modal('#zoiaPropertiesSelectDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
     propertyEditDialog = $zUI.modal('#zoiaPropertyEditDialog', {
         bgClose: false,
         escClose: false,
@@ -1974,6 +2086,11 @@ const initDialogs = () => {
         stack: true
     });
     propertySelectDialog = $zUI.modal('#zoiaPropertySelectDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    collectionSelectDialog = $zUI.modal('#zoiaCollectionSelectDialog', {
         bgClose: false,
         escClose: false,
         stack: true
@@ -2180,7 +2297,7 @@ const addCheckedProperties = (ids) => {
     const data = $('#propertyselect').zoiaTable().getCurrentData();
     let duplicate = false;
     for (let i in ids) {
-        const id = ids[i];        
+        const id = ids[i];
         const pid = data[id].pid;
         $('.collectionFormDataItems').children().each(function() {
             if ($(this).attr('data-pid') === pid) {
@@ -2192,11 +2309,32 @@ const addCheckedProperties = (ids) => {
             $('.collectionFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + pid + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + title + '<button type="button" class="collectionProperyItemClose" za-close style="float:right"></button></div>');
         }
     }
+    $('.collectionProperyItemClose').unbind();
+    $('.collectionProperyItemClose').click(function() {
+        $(this).parent().remove();
+    });
     $zUI.notification.closeAll();
     $zUI.notification({ message: duplicate ? lang['One or more items are duplicated'] : lang['Added'], status: duplicate ? 'danger' : 'success', timeout: 1000 })
 };
 
-const zoiaSelectedPropertyAddHandler = () => {
+const selectCheckedProperties = (ids) => {
+    const data = $('#propertyselect').zoiaTable().getCurrentData();
+    let duplicate = false;
+    for (let i in ids) {
+        const id = ids[i];
+        const pid = data[id].pid;
+        const title = data[id].title;
+        $('#editForm_properties_wrap').append('<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body editForm-properties-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectProperyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">' + title + '</label><input placeholder="' + lang['Value'] + '" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="" data="' + pid + '"></div></div>');
+    }
+    $('.selectProperyItemClose').unbind();
+    $('.selectProperyItemClose').click(function() {
+        $(this).parent().parent().remove();
+    });
+    $zUI.notification.closeAll();
+    $zUI.notification({ message: lang['Added'], status: 'success', timeout: 1000 });
+};
+
+const zoiaPropertySelectHandler = () => {
     const checked = $('.propertyselectCheckbox:checkbox:checked').map(function() {
         return this.id;
     }).get();
@@ -2206,6 +2344,56 @@ const zoiaSelectedPropertyAddHandler = () => {
     $('.collectionProperyItemClose').unbind();
     $('.collectionProperyItemClose').click(function() {
         $(this).parent().remove();
+    });
+};
+
+const zoiaSelectedPropertyAddHandler = () => {
+    const checked = $('.propertiesselectCheckbox:checkbox:checked').map(function() {
+        return this.id;
+    }).get();
+    if (checked && checked.length > 0) {
+        selectCheckedProperties(checked);
+    }
+    $('.selectProperyItemClose').unbind();
+    $('.selectProperyItemClose').click(function() {
+        $(this).parent().parent().remove();
+    });
+};
+
+const selectCheckedCollection = (id) => {
+    collectionSelectDialog.hide().then(() => {
+        $('#zoiaSpinnerMain').show();
+        $.ajax({
+            type: 'GET',
+            url: '/api/warehouse/load/collection/data',
+            data: {
+                id: id
+            },
+            cache: false
+        }).done((res) => {
+            $('#zoiaSpinnerMain').hide();
+            if (res && res.status === 1 && res.items) {
+                for (let pid in res.items) {
+                    $('#editForm_properties_wrap').append('<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body editForm-properties-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectProperyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">' + res.items[pid] + '</label><input placeholder="' + lang['Value'] + '" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="" data="' + pid + '"></div></div>');
+                }
+                $('.selectProperyItemClose').unbind();
+                $('.selectProperyItemClose').click(function() {
+                    $(this).parent().parent().remove();
+                });
+                $(window).scrollTop($('#editForm_properties_widget').offset().top - 100);
+            } else {
+                $zUI.notification(lang['Could not load information from database'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            }
+        }).fail(() => {
+            $('#zoiaSpinnerMain').hide();
+            $zUI.notification(lang['Could not load information from database'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        }, 200);
     });
 };
 
@@ -2226,6 +2414,8 @@ $(document).ready(() => {
     $('#properties').zoiaTable(propertiesTableData);
     $('#collections').zoiaTable(collectionsTableData);
     $('#propertyselect').zoiaTable(propertyselectTableData);
+    $('#propertiesselect').zoiaTable(propertiesselectTableData);
+    $('#collectionselect').zoiaTable(collectionselectTableData);
     // Handlers    
     $('.zoiaDeleteButton').click(deleteButtonHanlder);
     $('.zoiaPropertyDeleteButton').click(deletePropertyButtonHanlder);
@@ -2257,5 +2447,20 @@ $(document).ready(() => {
         onZoiaEditLanguagesClick($(this).attr('data'));
     });
     $('#editCollectionForm_properties_btn').click(editCollectionForm_properties_btnHandler);
+    $('.zoiaPropertySelect').click(zoiaPropertySelectHandler);
     $('.zoiaSelectedPropertyAdd').click(zoiaSelectedPropertyAddHandler);
+    $('.zoiaAddPropertyBtn').click(() => {
+        propertiesSelectDialog.show();
+    });
+    $('#zoiaPropertiesSelectDialogCloseBtn').click(() => {
+        propertiesSelectDialog.hide().then(() => {
+            $(window).scrollTop($('#editForm_properties_widget').offset().top - 100);
+        });
+    });
+    $('.zoiaAddCollectionBtn').click(() => {
+        collectionSelectDialog.show();
+    });
+    $('.zoiaPropertySelect').click(() => {
+
+    });
 });

@@ -78,7 +78,6 @@
 
     $.extend(Plugin.prototype, {
         init: function() {
-            console.log('init');
             let fieldsHTML = '';
             let buttonsHTML = '';
             for (let n in this.settings.items) {
@@ -160,7 +159,8 @@
                             name: n,
                             label: item.label,
                             bullet: bullet,
-                            items: valuesListItemsEditable
+                            items: valuesListItemsEditable,
+                            buttons: item.buttons || ''
                         });
                         break;
                     case 'valueslistfixed':
@@ -346,12 +346,13 @@
                 $(this).parent().parent().remove();
             });
         },
-        _valueslisteditableAddFunc(prefix, name, key, value, nofocus) {
+        _valueslisteditableAddFunc(prefix, name, key, value, data, nofocus) {
             const valuesListItem = this._template(this.settings.html.valueslistItemEditable, {
                 prefix: prefix,
                 name: name,
                 key: key,
                 value: value,
+                data: data,
                 langParameter: this.settings.lang.parameter,
                 langValue: this.settings.lang.value
             });
@@ -416,7 +417,6 @@
             }
         },
         serialize() {
-            console.log('serialize');
             let json = {};
             for (let n in this.settings.items) {
                 let field = this.settings.items[n];
@@ -457,15 +457,16 @@
                         let evalues = [];
                         $('.' + this._prefix + '-' + n + '-item').each(function() {
                             evalues.push({
-                                p: String($(this).find('*>.formBuilder-valueslist-par').val()),
-                                v: String($(this).find('*>.formBuilder-valueslist-val').val())
+                                p: String($(this).find('*>.formBuilder-valueslist-par').html()),
+                                v: String($(this).find('*>.formBuilder-valueslist-val').val()),
+                                d: String($(this).find('*>.formBuilder-valueslist-val').attr('data'))
                             });
                         });
                         json[n] = {
                             type: field.type,
                             value: evalues
                         };
-                        break;    
+                        break;
                     case 'valueslistfixed':
                         let fvalues = [];
                         $('.' + this._prefix + '-' + n + '-item').each(function() {
@@ -489,8 +490,6 @@
             return json;
         },
         deserialize(json) {
-            console.log('deserialize');
-            console.log(json);
             if (!json || typeof json !== 'object') {
                 return;
             }
@@ -530,12 +529,14 @@
                         for (let v in json[n].value) {
                             evalues.push(json[n].value[v].p);
                             evalues.push(json[n].value[v].v);
+                            evalues.push(json[n].value[v].d);
                         }
                         $('#' + this._prefix + '_' + n + '_wrap').html('');
                         while (evalues.length > 0) {
                             const par = evalues.shift();
                             const val = evalues.shift();
-                            this._valueslisteditableAddFunc(this._prefix, n, par, val, true);
+                            const dat = evalues.shift();
+                            this._valueslisteditableAddFunc(this._prefix, n, par, val, dat, true);
                         }
                         break;
                     case 'valueslistfixed':
@@ -549,8 +550,66 @@
                 }
             }
         },
+        deserializePart(n, item) {
+            if (!item || typeof item !== 'object') {
+                return;
+            }
+            if (!item) {
+                item = {
+                    id: '',
+                    value: ''
+                };
+            }
+            switch (item.type) {
+                case 'launcher':
+                    $('#' + this._prefix + '_' + n + '_val').html(item.value);
+                    $('#' + this._prefix + '_' + n + '_val').attr('data', item.id);
+                    break;
+                case 'checkboxlist':
+                    const data = item.value.split(',');
+                    for (let i in data) {
+                        $('.editForm-groups-cbx[data="' + data[i] + '"]').prop('checked', true);
+                    }
+                    break;
+                case 'valueslist':
+                    let values = [];
+                    for (let v in item.value) {
+                        values.push(item.value[v].p);
+                        values.push(item.value[v].v);
+                    }
+                    $('#' + this._prefix + '_' + n + '_wrap').html('');
+                    while (values.length > 0) {
+                        const par = values.shift();
+                        const val = values.shift();
+                        this._valueslistAddFunc(this._prefix, n, par, val, true);
+                    }
+                    break;
+                case 'valueslisteditable':
+                    let evalues = [];
+                    for (let v in item.value) {
+                        evalues.push(item.value[v].p);
+                        evalues.push(item.value[v].v);
+                        evalues.push(item.value[v].d);
+                    }
+                    $('#' + this._prefix + '_' + n + '_wrap').html('');
+                    while (evalues.length > 0) {
+                        const par = evalues.shift();
+                        const val = evalues.shift();
+                        const dat = evalues.shift();
+                        this._valueslisteditableAddFunc(this._prefix, n, par, val, dat, true);
+                    }
+                    break;
+                case 'valueslistfixed':
+                    $('.' + this._prefix + '-' + n + '-item-val').val('');
+                    for (let v in item.value) {
+                        $('.' + this._prefix + '-' + n + '-item-val[data="' + item.value[v].p + '"]').val(item.value[v].v);
+                    }
+                    break;
+                default:
+                    $('#' + this._prefix + '_' + n).val(item.value || '');
+            }
+        },
         loadJSON(data) {
-            console.log('loadJSON');
             const that = this;
             jQuery.each(data, (key, value) => {
                 $('#' + that._prefix + '_' + key).val(value);
@@ -572,6 +631,7 @@
                     }
                 }
                 if (that.settings.items[key] && that.settings.items[key].type === 'valueslisteditable' && value) {
+                    console('value: ' + value);
                     let values = [];
                     for (let v in value) {
                         values.push(v);
@@ -579,7 +639,7 @@
                     }
                     $('#' + that._prefix + '_' + key + '_wrap').html('');
                     for (let i in value) {
-                        that._valueslisteditableAddFunc(that._prefix, key, values.shift(), values.shift());
+                        that._valueslisteditableAddFunc(that._prefix, key, values.shift(), values.shift(), values.shift());
                     }
                 }
                 if (that.settings.items[key] && that.settings.items[key].type === 'valueslistfixed' && value) {
@@ -591,7 +651,6 @@
             });
         },
         loadData(data) {
-            console.log('loadData');
             if (this.settings.events.onLoadStart) {
                 this.settings.events.onLoadStart();
             }
@@ -604,7 +663,7 @@
                 cache: false
             }).done((res) => {
                 if (res && res.status === 1) {
-                    jQuery.each(res.item, (key, value) => {                        
+                    jQuery.each(res.item, (key, value) => {
                         $('#' + that._prefix + '_' + key).val(value);
                         if (that.settings.items[key] && that.settings.items[key].type === 'checkboxlist' && value) {
                             const data = value.split(',');
@@ -623,7 +682,7 @@
                                 that._valueslistAddFunc(that._prefix, key, values.shift(), values.shift());
                             }
                         }
-                        if (that.settings.items[key] && that.settings.items[key].type === 'valueslisteditable' && value) {                            
+                        if (that.settings.items[key] && that.settings.items[key].type === 'valueslisteditable' && value) {
                             let values = [];
                             for (let v in value) {
                                 values.push(v);
@@ -672,7 +731,6 @@
             return s;
         },
         validate(items) {
-            console.log('validate');
             let errors = {};
             let data = {};
             for (let n in this.settings.items) {

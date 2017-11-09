@@ -238,6 +238,7 @@ module.exports = function(app) {
                 status: 0
             }));
         }
+        const locale = req.session.currentLocale;
         const id = req.query.id;
         if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
             return res.send(JSON.stringify({
@@ -250,6 +251,33 @@ module.exports = function(app) {
                 return res.send(JSON.stringify({
                     status: 0
                 }));
+            }
+            let propertiesQuery = [];
+            for (let i in item[locale].properties) {
+                propertiesQuery.push({
+                    pid: { $eq: item[locale].properties[i].d }
+                });
+            }
+            let propertiesData = {};
+            if (propertiesQuery.length > 0) {
+                const properties = await db.collection('warehouse_properties').find({ $or: propertiesQuery }).toArray();
+                for (let p in properties) {
+                    for (let i in item[locale].properties) {
+                        if (item[locale].properties[i].d === properties[p].pid) {
+                            propertiesData[properties[p].pid] = properties[p].title[locale];
+                        }
+                    }
+                }
+            }
+            for (let i in config.i18n.locales) {
+                let lng = config.i18n.locales[i];
+                for (let p in propertiesData) {
+                    for (let i in item[lng].properties) {
+                        if (p === item[lng].properties[i].d) {
+                            item[lng].properties[i].p = propertiesData[p];
+                        }
+                    }
+                }
             }
             return res.send(JSON.stringify({
                 status: 1,
@@ -353,6 +381,56 @@ module.exports = function(app) {
             return res.send(JSON.stringify({
                 status: 1,
                 item: item
+            }));
+        } catch (e) {
+            res.send(JSON.stringify({
+                status: -3,
+                error: e.message
+            }));
+        }
+    };
+
+    const loadCollectionData = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const locale = req.session.currentLocale;
+        const id = req.query.id;
+        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+        try {
+            const item = await db.collection('warehouse_collections').findOne({ _id: new ObjectID(id) });
+            if (!item) {
+                return res.send(JSON.stringify({
+                    status: -2
+                }));
+            }            
+            let propertiesQuery = [];
+            for (let i in item.properties) {
+                propertiesQuery.push({
+                    pid: { $eq: item.properties[i] }
+                });
+            }
+            let propertiesData = {};
+            if (propertiesQuery.length > 0) {
+                const properties = await db.collection('warehouse_properties').find({ $or: propertiesQuery }).toArray();
+                for (let i in item.properties) {
+                    for (let p in properties) {
+                        if (properties[p].pid === item.properties[i]) {
+                            propertiesData[properties[p].pid] = properties[p].title[locale];
+                        }
+                    }
+                }
+            }
+            return res.send(JSON.stringify({
+                status: 1,
+                items: propertiesData
             }));
         } catch (e) {
             res.send(JSON.stringify({
@@ -570,7 +648,7 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-    };    
+    };
 
     const save = async(req, res) => {
         res.contentType('application/json');
@@ -602,6 +680,9 @@ module.exports = function(app) {
                     }
                     if (fields.properties && fields.properties.value === '') {
                         fields.properties.value = [];
+                    }
+                    for (let p in fields.properties.value) {
+                        delete fields.properties.value[p].p;
                     }
                     data[lng] = {
                         title: fields.title.value,
@@ -1451,6 +1532,7 @@ module.exports = function(app) {
     router.get('/load', load);
     router.get('/load/property', loadProperty);
     router.get('/load/collection', loadCollection);
+    router.get('/load/collection/data', loadCollectionData);
     router.post('/save', save);
     router.post('/save/property', saveProperty);
     router.post('/save/collection', saveCollection);

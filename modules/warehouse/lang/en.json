@@ -103,5 +103,9 @@
 	"Item already exists in database": "Item already exists in database",
 	"Add selected": "Add selected",
 	"Added": "Added",
-	"One or more items are duplicated": "One or more items are duplicated"
+	"One or more items are duplicated": "One or more items are duplicated",
+	"Parameter": "Parameter",
+	"Value": "Value",
+	"Insert property": "Insert property",
+	"Insert collection": "Insert collection"
 }
