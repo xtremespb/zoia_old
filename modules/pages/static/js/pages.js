@@ -105,6 +105,7 @@ const editItem = (id) => {
     $('#editForm').zoiaFormBuilder().resetForm();
     $('#zoiaEditHeader').html(lang.editItem);
     editLanguage = Object.keys(langs)[0];
+    markZoiaLanguagesTab(editLanguage);
     $('#zoiaSpinnerMain').show();
     $('#editForm').zoiaFormBuilder().loadData({ id: id });
 };
@@ -461,6 +462,7 @@ const onZoiaEditLanguagesClick = (lng) => {
         editShadow[lng].data.status = saveStatus;
     }
     editLanguage = lng;
+    markZoiaLanguagesTab(editLanguage);
     $('#editForm').zoiaFormBuilder().resetForm();
     $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);
     $('#editForm').show();
