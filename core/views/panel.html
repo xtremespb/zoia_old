@@ -22,7 +22,7 @@
             <ul class="za-navbar-nav">
                 <li>
                     <a href="#">{{ auth.username }}&nbsp;&#x25BE;&nbsp;&nbsp;</a>
-                    <div class="za-navbar-dropdown">
+                    <div class="za-navbar-dropdown" za-dropdown="mode:click;offset:-10">
                         <ul class="za-nav za-navbar-dropdown-nav">
                             <li><a href="/auth/logout">{{ i18n.__(locale, 'Log out') }}</a></li>
                         </ul>
