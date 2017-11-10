@@ -16,6 +16,7 @@ let propertyEditDialog;
 let collectionEditDialog;
 let propertySelectDialog;
 let collectionSelectDialog;
+let propertiesImportDialog;
 let currentEditID;
 let currentDeleteID;
 let foldersTree;
@@ -310,6 +311,7 @@ const editItem = (id) => {
     $('#editForm').zoiaFormBuilder().resetForm();
     $('#zoiaEditHeader').html(lang.editItem);
     editLanguage = Object.keys(langs)[0];
+    markZoiaLanguagesTab(editLanguage);
     $('#zoiaSpinnerMain').show();
     $('#editForm').zoiaFormBuilder().loadData({ id: id });
 };
@@ -775,6 +777,7 @@ const onZoiaEditLanguagesClick = (lng) => {
         $(this).parent().parent().remove();
     });
     editLanguage = lng;
+    markZoiaLanguagesTab(editLanguage);
     $('#editForm').show();
 };
 
@@ -918,7 +921,7 @@ const formBuilderHTML = {
     valueslistItemEditable: '<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body {prefix}-{name}-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectProperyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">{key}</label><input placeholder="{langValue}" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="{value}" data="{data}"></div></div>',
     valueslist: '<div class="za-flex za-flex-column"><div class="za-margin-bottom"><label class="za-form-label">{label}:</label></div><div><button type="button" class="za-icon-button za-button-primary formBuilder-valueslist-btnAdd" id="{prefix}_{name}_btnAdd" za-icon="icon:plus" data-prefix="{prefix}" data-name="{name}"></button></div><div id="{prefix}_{name}_wrap" class="za-margin-bottom {prefix}-formBuilder-valueslist-wrap">{items}</div>',
     valueslistFixed: '<div class="za-flex za-flex-column"><div><label class="za-form-label">{label}:</label></div><div id="{prefix}_{name}_wrap" class="za-margin-bottom formBuilder-valueslist-wrap">{items}</div></div>',
-    valueslistEditable: '<div class="za-flex za-flex-column" id="{prefix}_{name}_widget"><div class="za-margin-bottom"><label class="za-form-label">{label}:</label></div>{buttons}<div id="{prefix}_{name}_wrap" class="za-margin-bottom {prefix}-formBuilder-valueslist-wrap" za-sortable="handle:.za-sortable-handle">{items}</div></div>',
+    valueslistEditable: '<div class="za-flex za-flex-column" id="{prefix}_{name}_widget"><div class="za-margin-bottom"><label class="za-form-label">{label}:</label></div>{buttons}<div id="{prefix}_{name}_wrap" class="za-margin-bottom {prefix}-formBuilder-valueslist-wrap" za-sortable="handle:.za-sortable-handle">{items}</div><div class="za-margin-bottom">{helpText}</div></div>',
     bullet: '&nbsp;<span style="color:red;font-size:140%">&#8226;</span>'
 };
 
@@ -1272,7 +1275,8 @@ const editFormData = {
         },
         properties: {
             type: 'valueslisteditable',
-            buttons: '<div class="za-margin-bottom"><ul class="za-iconnav"><li><button type="button" class="za-icon-button zoiaAddPropertyBtn" za-icon="icon:copy" title="'+lang['Insert property']+'" za-tooltip="pos: bottom-right"></button></li><li><button type="button" class="za-icon-button zoiaAddCollectionBtn"za-icon="icon:album" title="'+lang['Insert collection']+'" za-tooltip="pos: bottom-right"></button></li></ul></div>',
+            buttons: '<div class="za-margin-bottom"><ul class="za-iconnav"><li><button type="button" class="za-icon-button zoiaAddPropertyBtn" za-icon="icon:file" title="' + lang['Insert property'] + '" za-tooltip="pos: bottom-right"></button></li><li><button type="button" class="za-icon-button zoiaAddCollectionBtn"za-icon="icon:album" title="' + lang['Insert collection'] + '" za-tooltip="pos: bottom-right"></button></li><li><button type="button" class="za-icon-button zoiaRemoveAllProperties"za-icon="icon:trash" title="' + lang['Remove all properties'] + '" za-tooltip="pos: bottom-right"></button></li></ul></div>',
+            helpText: lang['Use drag-and-drop to arrange properties order'],
             label: lang['Properties']
         },
         keywords: {
@@ -2095,6 +2099,11 @@ const initDialogs = () => {
         escClose: false,
         stack: true
     });
+    propertiesImportDialog = $zUI.modal('#zoiaPropertiesImportDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
 };
 
 const foldersDialogButtonHandler = () => {
@@ -2397,6 +2406,52 @@ const selectCheckedCollection = (id) => {
     });
 };
 
+const initImportPropertiesUploader = () => {
+    const pimport_bar = document.getElementById('pimport_progressbar');
+    $zUI.upload('.pimport-upload', {
+        url: '/api/warehouse/import/properties',
+        multiple: false,
+        beforeSend: function() {
+            console.log('beforeSend', arguments);
+        },
+        beforeAll: function() {
+            console.log('beforeAll', arguments);
+        },
+        load: function() {
+            console.log('load', arguments);
+        },
+        error: function() {
+            console.log('error', arguments);
+        },
+        complete: function() {
+            console.log('complete', arguments);
+        },
+        loadStart: function(e) {
+            console.log('loadStart', arguments);
+            pimport_bar.removeAttribute('hidden');
+            pimport_bar.max = e.total;
+            pimport_bar.value = e.loaded;
+        },
+        progress: function(e) {
+            console.log('progress', arguments);
+            pimport_bar.max = e.total;
+            pimport_bar.value = e.loaded;
+        },
+        loadEnd: function(e) {
+            console.log('loadEnd', arguments);
+            pimport_bar.max = e.total;
+            pimport_bar.value = e.loaded;
+        },
+        completeAll: function() {
+            console.log('completeAll', arguments);
+            setTimeout(function() {
+                pimport_bar.setAttribute('hidden', 'hidden');
+            }, 1000);
+            alert('Upload Completed');
+        }
+    });
+};
+
 $(document).ready(() => {
     // Init section
     initDialogs();
@@ -2404,6 +2459,7 @@ $(document).ready(() => {
     initCKEditor();
     initUploader();
     initEditLanguages();
+    initImportPropertiesUploader();
     // Forms and tables
     $('#editForm').zoiaFormBuilder(editFormData);
     $('#editFolderForm').zoiaFormBuilder(editFolderFormData);
@@ -2460,7 +2516,10 @@ $(document).ready(() => {
     $('.zoiaAddCollectionBtn').click(() => {
         collectionSelectDialog.show();
     });
-    $('.zoiaPropertySelect').click(() => {
-
+    $('.zoiaRemoveAllProperties').click(() => {
+        $('#editForm_properties_wrap').empty();
+    });
+    $('.zoiaPropertiesImportButton').click(() => {
+        propertiesImportDialog.show();
     });
 });

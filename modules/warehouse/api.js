@@ -410,7 +410,7 @@ module.exports = function(app) {
                 return res.send(JSON.stringify({
                     status: -2
                 }));
-            }            
+            }
             let propertiesQuery = [];
             for (let i in item.properties) {
                 propertiesQuery.push({
@@ -1525,6 +1525,25 @@ module.exports = function(app) {
         }
     };
 
+    const importProperties = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        console.log(req.files['files[]'].name);
+        if (!req.files || typeof req.files !== 'object' || !req.files['files[]'] || !req.files['files[]'].name || !req.files['files[]'].data ||
+            !req.files['files[]'].data.length || req.files['files[]'].data.length > config.maxUploadSizeMB * 1048576) {
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+        return res.send(JSON.stringify({
+            status: 1
+        }));
+    };
+
     let router = Router();
     router.get('/list', list);
     router.get('/list/properties', listProperties);
@@ -1547,6 +1566,8 @@ module.exports = function(app) {
     router.post('/upload', upload);
     router.post('/images/delete', delImages);
     router.post('/images/save', saveImages);
+    router.post('/import/properties', importProperties);
+    // Browser routes
     router.all('/browse/list', browseList);
     router.all('/browse/folder/create', browseFolderCreate);
     router.all('/browse/rename', browseRename);

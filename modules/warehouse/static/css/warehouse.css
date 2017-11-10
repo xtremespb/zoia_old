@@ -208,3 +208,7 @@
     opacity: .7;
     z-index: 900;
 }
+
+#editForm_properties_wrap:empty {
+    display: none;
+}

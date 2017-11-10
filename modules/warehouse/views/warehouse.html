@@ -245,6 +245,9 @@
                             <button za-icon="icon:trash" class="za-icon-button zoiaPropertyDeleteButton" title="{{ i18n.__(locale, 'Delete')}}" za-tooltip="pos:bottom-right"></button>
                         </li>
                         <li>
+                            <button za-icon="icon:upload" class="za-icon-button zoiaPropertiesImportButton" title="{{ i18n.__(locale, 'Import Properties from CSV')}}" za-tooltip="pos:bottom-right"></button>
+                        </li>
+                        <li>
                             <button za-icon="icon:check" class="za-icon-button propertiesBtnSelectAll" title="{{ i18n.__(locale, 'Select all')}}" za-tooltip="pos:bottom-right"></button>
                         </li>
                         <li>
@@ -490,7 +493,7 @@
         <div class="za-modal-header">
             <h2>{{ i18n.__(locale, 'Properties List')}}</h2>
         </div>
-        <div class="za-modal-body" id="zoiaPropertiesSelectDialogBody" za-overflow-auto>            
+        <div class="za-modal-body" id="zoiaPropertiesSelectDialogBody" za-overflow-auto>
             <div class="za-grid za-grid-small">
                 <div>
                     <ul class="za-iconnav">
@@ -537,6 +540,29 @@
         </div>
         <div class="za-modal-footer za-text-right">
             <button class="za-button za-button-default zoia-images-dialog-button" id="zoiaPropertiesSelectDialogCloseBtn" type="button">{{ i18n.__(locale, 'Done')}}</button>
+        </div>
+    </div>
+</div>
+<div id="zoiaPropertiesImportDialog" style="display:none">
+    <div class="za-modal-dialog">
+        <div class="za-modal-header">
+            <h2>{{ i18n.__(locale, 'Import Properties from CSV')}}</h2>
+        </div>
+        <div class="za-modal-body" id="zoiaPropertiesImportDialogBody">
+            <div class="pimport-upload za-placeholder za-text-center">
+                <span class="za-text-middle">{{ i18n.__(locale, 'Attach CSV file by dropping it here or')}}</span>
+                <div za-form-custom>
+                    <input type="file" multiple>
+                    <span class="za-link" style="cursor:pointer">{{ i18n.__(locale, 'selecting one')}}</span>
+                </div>
+            </div>
+            <progress id="pimport_progressbar" class="za-progress" value="0" max="100" hidden></progress>
+        </div>
+        <div class="za-modal-body za-flex za-flex-center za-flex-middle" id="zoiaPropertiesImportDialogSpinner" style="display:none">
+            <div za-spinner></div>
+        </div>
+        <div class="za-modal-footer za-text-right" id="zoiaPropertiesImportDialogFooter">
+            <button class="za-button za-button-default zoia-images-dialog-button za-modal-close" type="button">{{ i18n.__(locale, 'Cancel')}}</button>
         </div>
     </div>
 </div>

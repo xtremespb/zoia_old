@@ -160,6 +160,10 @@
                             label: item.label,
                             bullet: bullet,
                             items: valuesListItemsEditable,
+                            helpText: (item.helpText ? this._template(this.settings.html.helpText, {
+                                text: item.helpText,
+                                prefix: this._prefix
+                            }) : ''),
                             buttons: item.buttons || ''
                         });
                         break;

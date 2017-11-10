@@ -107,5 +107,10 @@
 	"Parameter": "Parameter",
 	"Value": "Value",
 	"Insert property": "Insert property",
-	"Insert collection": "Insert collection"
+	"Insert collection": "Insert collection",
+	"Remove all properties": "Remove all properties",
+	"Use drag-and-drop to arrange properties order": "Use drag-and-drop to arrange properties order",
+	"Import Properties from CSV": "Import Properties from CSV",
+	"Attach CSV file by dropping it here or": "Attach CSV file by dropping it here or",
+	"selecting one": "selecting one"
 }
