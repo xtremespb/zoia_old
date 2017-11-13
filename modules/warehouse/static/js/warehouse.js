@@ -2402,7 +2402,51 @@ const selectCheckedCollection = (id) => {
                 status: 'danger',
                 timeout: 1500
             });
-        }, 200);
+        });
+    });
+};
+
+const propertiesImportTaskStateCheck = (id) => {
+    $.ajax({
+        type: 'GET',
+        url: '/api/warehouse/import/properties/state',
+        data: {
+            id: id
+        },
+        cache: false
+    }).done((res) => {
+        if (res && res.status === 1 && res.state) {
+            if (res.state === 3 || res.state === 0) {
+                propertiesImportDialog.hide();
+                $('#properties').zoiaTable().load();
+                $('#propertyselect').zoiaTable().load();
+                $('#propertiesselect').zoiaTable().load();
+                $zUI.notification(res.state === 0 ? lang['Could not import'] : lang['Import complete'], {
+                    status: res.state === 0 ? 'danger' : 'success',
+                    timeout: 1500
+                });                
+            } else {
+                setTimeout(() => {
+                    propertiesImportTaskStateCheck(id);
+                }, 5000);
+            }
+        } else {
+            $('#zoiaPropertiesImportDialogBody').show();
+            $('#zoiaPropertiesImportDialogSpinner').hide();
+            $('#zoiaPropertiesImportDialogFooter').show();
+            $zUI.notification(lang['Could not load information from database'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        }
+    }).fail(() => {
+        $('#zoiaPropertiesImportDialogBody').show();
+        $('#zoiaPropertiesImportDialogSpinner').hide();
+        $('#zoiaPropertiesImportDialogFooter').show();
+        $zUI.notification(lang['Could not load information from database'], {
+            status: 'danger',
+            timeout: 1500
+        });
     });
 };
 
@@ -2411,43 +2455,48 @@ const initImportPropertiesUploader = () => {
     $zUI.upload('.pimport-upload', {
         url: '/api/warehouse/import/properties',
         multiple: false,
-        beforeSend: function() {
-            console.log('beforeSend', arguments);
-        },
-        beforeAll: function() {
-            console.log('beforeAll', arguments);
-        },
-        load: function() {
-            console.log('load', arguments);
-        },
         error: function() {
-            console.log('error', arguments);
-        },
-        complete: function() {
-            console.log('complete', arguments);
+            $zUI.notification(lang['Could not upload file'], {
+                status: 'danger',
+                timeout: 1500
+            });
         },
         loadStart: function(e) {
-            console.log('loadStart', arguments);
             pimport_bar.removeAttribute('hidden');
             pimport_bar.max = e.total;
             pimport_bar.value = e.loaded;
         },
         progress: function(e) {
-            console.log('progress', arguments);
             pimport_bar.max = e.total;
             pimport_bar.value = e.loaded;
         },
         loadEnd: function(e) {
-            console.log('loadEnd', arguments);
             pimport_bar.max = e.total;
             pimport_bar.value = e.loaded;
         },
         completeAll: function() {
-            console.log('completeAll', arguments);
             setTimeout(function() {
                 pimport_bar.setAttribute('hidden', 'hidden');
             }, 1000);
-            alert('Upload Completed');
+            let response = {};
+            try {
+                response = JSON.parse(arguments[0].response);
+            } catch (e) {
+                // Ignore
+            }
+            if (response.uid) {
+                $('#zoiaPropertiesImportDialogBody').hide();
+                $('#zoiaPropertiesImportDialogSpinner').show();
+                $('#zoiaPropertiesImportDialogFooter').hide();
+                setTimeout(() => {
+                    propertiesImportTaskStateCheck(response.uid);
+                }, 5000);
+            } else {
+                $zUI.notification(lang['Could not upload file'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            }
         }
     });
 };
@@ -2520,6 +2569,10 @@ $(document).ready(() => {
         $('#editForm_properties_wrap').empty();
     });
     $('.zoiaPropertiesImportButton').click(() => {
+        $('#zoiaPropertiesImportDialogBody').show();
+        $('#zoiaPropertiesImportDialogSpinner').hide();
+        $('#zoiaPropertiesImportDialogFooter').show();
         propertiesImportDialog.show();
+
     });
 });

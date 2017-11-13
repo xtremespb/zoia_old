@@ -112,5 +112,8 @@
 	"Use drag-and-drop to arrange properties order": "Use drag-and-drop to arrange properties order",
 	"Import Properties from CSV": "Import Properties from CSV",
 	"Attach CSV file by dropping it here or": "Attach CSV file by dropping it here or",
-	"selecting one": "selecting one"
+	"selecting one": "selecting one",
+	"Could not upload file": "Could not upload file",
+	"Could not import": "Could not import",
+	"Import complete": "Import complete"
 }

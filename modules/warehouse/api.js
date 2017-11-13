@@ -11,6 +11,7 @@ const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const fs = require('fs-extra');
 const Jimp = require('jimp');
 const imageType = require('image-type');
+const csv = require('csvtojson');
 
 module.exports = function(app) {
     const log = app.get('log');
@@ -1532,16 +1533,97 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        console.log(req.files['files[]'].name);
         if (!req.files || typeof req.files !== 'object' || !req.files['files[]'] || !req.files['files[]'].name || !req.files['files[]'].data ||
             !req.files['files[]'].data.length || req.files['files[]'].data.length > config.maxUploadSizeMB * 1048576) {
             return res.send(JSON.stringify({
                 status: -1
             }));
         }
-        return res.send(JSON.stringify({
-            status: 1
-        }));
+        try {
+            const fid = String(Date.now());
+            const tempFile = path.join(__dirname, '..', '..', 'temp', 'pimport_' + fid + '.csv');
+            await fs.writeFile(tempFile, req.files['files[]'].data);
+            const insResult = await db.collection('warehouse_tasks').insertOne({
+                state: 1,
+                fid: fid
+            });
+            if (!insResult || !insResult.result || !insResult.result.ok || !insResult.insertedId) {
+                return res.send(JSON.stringify({
+                    status: -1
+                }));
+            }
+            const uid = insResult.insertedId;
+            setTimeout(function() {
+                csv().fromFile(tempFile)
+                    .on('json', async(json) => {
+                        if (!json || typeof json !== 'object' || !json.pid) {
+                            return;
+                        }
+                        let prop = {
+                            pid: json.pid,
+                            title: {}
+                        };
+                        for (let i in config.i18n.locales) {
+                            let lng = config.i18n.locales[i];
+                            prop.title[lng] = json[lng] || '';
+                        }
+                        await db.collection('warehouse_properties').insertOne(prop);
+                    }).on('done', async(error) => {
+                        await db.collection('warehouse_tasks').update({ _id: new ObjectID(uid) }, { $set: { state: 3 } }, { upsert: true });
+                    });
+            }, 0);
+            return res.send(JSON.stringify({
+                status: 1,
+                uid: uid
+            }));
+        } catch (e) {
+            log.error(e);
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
+    const importPropertiesState = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const locale = req.session.currentLocale;
+        const id = req.query.id;
+        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const item = await db.collection('warehouse_tasks').findOne({ _id: new ObjectID(id) });
+            if (!item || !item.state) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            if (item.state === 3 && item.fid) {
+                try {
+                    await db.collection('warehouse_tasks').remove({ _id: new ObjectID(id) });
+                    await fs.remove(path.join(__dirname, '..', '..', 'temp', 'pimport_' + item.fid + '.csv'));
+                } catch (e) {
+                    log.error(e);
+                    // Ignore
+                }
+            }
+            return res.send(JSON.stringify({
+                status: 1,
+                state: item.state
+            }));
+        } catch (e) {
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
     };
 
     let router = Router();
@@ -1567,6 +1649,7 @@ module.exports = function(app) {
     router.post('/images/delete', delImages);
     router.post('/images/save', saveImages);
     router.post('/import/properties', importProperties);
+    router.get('/import/properties/state', importPropertiesState);
     // Browser routes
     router.all('/browse/list', browseList);
     router.all('/browse/folder/create', browseFolderCreate);
