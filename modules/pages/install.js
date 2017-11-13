@@ -2,6 +2,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const ObjectId = require('mongodb').ObjectID;
+const inquirer = require('inquirer');
 module.exports = function(data) {
     return async() => {
         const db = data.db;
@@ -28,126 +29,140 @@ module.exports = function(data) {
             idx[lng + '.title'] = -1;
             await db.collection('pages').createIndex(idx);
         }
-        console.log('      Creating default pages...');
-        let upd = await db.collection('pages').update({ _id: new ObjectId('59953847ffa00062b54c92ae') }, {
-            $set: {
-                _id: ObjectId('59953847ffa00062b54c92ae'),
-                folder: '1',
-                name: '',
-                url: '',
-                en: {
-                    title: 'Home page',
-                    keywords: 'zoia, framework, node, mongo, cms',
-                    description: 'Zoia is the Web Framework for rapid development',
-                    content: '<h1>Welcome</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Installation has been successfully completed, the website is up and running.</p>'
-                },
-                status: '1',
-                ru: {
-                    title: 'Главная страница',
-                    keywords: 'zoia, framework, node, mongo, cms',
-                    description: 'Zoia - веб-фреймворк для быстрой разработки',
-                    content: '<h1>Добро пожаловать</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Инсталляция выполнена успешно, тестовый веб-сайт запущен.</p>'
-                }
-            }
-        }, { upsert: true });
-        if (!upd || !upd.result || !upd.result.ok) {
-            throw new Error('Could not run db.collection(\'pages\').update');
+        let res = {};
+        if (!data.options.force) {
+            res = await inquirer.prompt([{
+                type: 'list',
+                name: 'continue',
+                message: 'Do you wish to create default pages?\n',
+                choices: [
+                    'Yes, please',
+                    'No'
+                ]
+            }]);
         }
-        upd = await db.collection('pages').update({ _id: ObjectId('59953847ffa00062b54c92b0') }, {
-            $set: {
-                _id: ObjectId('59953847ffa00062b54c92b0'),
-                folder: '1502985623',
-                name: 'installation',
-                url: 'manual/installation',
-                en: {
-                    title: 'Installation',
-                    keywords: '',
-                    description: '',
-                    content: '<h1>Installation</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>To install Zoia on your server or desktop, you will need the following&nbsp;prerequisites:</p>\n\n<ul>\n\t<li>Node.js version 7 and later</li>\n\t<li>MongoDB 3 and later</li>\n</ul>\n\n<p>Get your copy of Zoia from Github repository:</p>\n\n<p><code>git clone https://github.com/xtremespb/zoia.git</code></p>\n\n<p>Modify the configuration files (config.js and website.js) to match your <a href=\'/manual/configuration\'>server settings</a>. Don&#39;t forget to modify MongoDB settings and to set the salt. Then install the missing NPM modules and run the installer:</p>\n\n<p><code>npm install &amp;&amp; cd ./bin &amp;&amp; node install</code></p>\n\n<p>Run the Zoia web server:</p>\n\n<p><code>node webserver</code></p>\n\n<p>Default address for Zoia webserver is <a href=\'http://127.0.0.1:3000/\'>http://127.0.0.1:3000/</a>. You may also login to Administrator panel by opening the URL: <a href=\'http://127.0.0.1:3000/admin/\'>http://127.0.0.1:3000/admin/</a> (default username and password is admin/admin).</p>'
-                },
-                status: '1',
-                ru: {
-                    title: 'Установка',
-                    keywords: '',
-                    description: '',
-                    content: '<h1>Установка</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Перевод для данной страницы в настоящий момент отсутствует.</p>'
+        if (res.continue !== 'No' || data.options.force) {
+            console.log('      Creating default pages...');
+            let upd = await db.collection('pages').update({ _id: new ObjectId('59953847ffa00062b54c92ae') }, {
+                $set: {
+                    _id: ObjectId('59953847ffa00062b54c92ae'),
+                    folder: '1',
+                    name: '',
+                    url: '',
+                    en: {
+                        title: 'Home page',
+                        keywords: 'zoia, framework, node, mongo, cms',
+                        description: 'Zoia is the Web Framework for rapid development',
+                        content: '<h1>Welcome</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Installation has been successfully completed, the website is up and running.</p>'
+                    },
+                    status: '1',
+                    ru: {
+                        title: 'Главная страница',
+                        keywords: 'zoia, framework, node, mongo, cms',
+                        description: 'Zoia - веб-фреймворк для быстрой разработки',
+                        content: '<h1>Добро пожаловать</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Инсталляция выполнена успешно, тестовый веб-сайт запущен.</p>'
+                    }
                 }
+            }, { upsert: true });
+            if (!upd || !upd.result || !upd.result.ok) {
+                throw new Error('Could not run db.collection(\'pages\').update');
             }
-        }, { upsert: true });
-        if (!upd || !upd.result || !upd.result.ok) {
-            throw new Error('Could not run db.collection(\'pages\').update');
-        }
-        upd = await db.collection('pages').update({ _id: ObjectId('59953847ffa00062b54c92b2') }, {
-            $set: {
-                _id: ObjectId('59953847ffa00062b54c92b2'),
-                folder: '1502985623',
-                name: 'configuration',
-                url: 'manual/configuration',
-                en: {
-                    title: 'Configuration',
-                    keywords: '',
-                    description: '',
-                    content: '<h1>Configuration</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Configuration files are located in <strong>./etc</strong> folder. There are the following configuration files:</p>\n\n<ul>\n\t<li>config.js: main configuration file (database, host, port etc.)</li>\n\t<li>website.js: website configuration file (website title, templates, e-mail etc.)</li>\n</ul>\n\n<p>You will need to edit config.js in order to match your server/desktop configuration.</p>'
-                },
-                status: '1',
-                ru: {
-                    title: 'Конфигурация',
-                    keywords: '',
-                    description: '',
-                    content: '<h1>Конфигурация</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Перевод для данной страницы в настоящий момент отсутствует.</p>'
+            upd = await db.collection('pages').update({ _id: ObjectId('59953847ffa00062b54c92b0') }, {
+                $set: {
+                    _id: ObjectId('59953847ffa00062b54c92b0'),
+                    folder: '1502985623',
+                    name: 'installation',
+                    url: 'manual/installation',
+                    en: {
+                        title: 'Installation',
+                        keywords: '',
+                        description: '',
+                        content: '<h1>Installation</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>To install Zoia on your server or desktop, you will need the following&nbsp;prerequisites:</p>\n\n<ul>\n\t<li>Node.js version 7 and later</li>\n\t<li>MongoDB 3 and later</li>\n</ul>\n\n<p>Get your copy of Zoia from Github repository:</p>\n\n<p><code>git clone https://github.com/xtremespb/zoia.git</code></p>\n\n<p>Modify the configuration files (config.js and website.js) to match your <a href=\'/manual/configuration\'>server settings</a>. Don&#39;t forget to modify MongoDB settings and to set the salt. Then install the missing NPM modules and run the installer:</p>\n\n<p><code>npm install &amp;&amp; cd ./bin &amp;&amp; node install</code></p>\n\n<p>Run the Zoia web server:</p>\n\n<p><code>node webserver</code></p>\n\n<p>Default address for Zoia webserver is <a href=\'http://127.0.0.1:3000/\'>http://127.0.0.1:3000/</a>. You may also login to Administrator panel by opening the URL: <a href=\'http://127.0.0.1:3000/admin/\'>http://127.0.0.1:3000/admin/</a> (default username and password is admin/admin).</p>'
+                    },
+                    status: '1',
+                    ru: {
+                        title: 'Установка',
+                        keywords: '',
+                        description: '',
+                        content: '<h1>Установка</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Перевод для данной страницы в настоящий момент отсутствует.</p>'
+                    }
                 }
+            }, { upsert: true });
+            if (!upd || !upd.result || !upd.result.ok) {
+                throw new Error('Could not run db.collection(\'pages\').update');
             }
-        }, { upsert: true });
-        if (!upd || !upd.result || !upd.result.ok) {
-            throw new Error('Could not run db.collection(\'pages\').update');
-        }
-        upd = await db.collection('pages').update({ _id: ObjectId('59953847ffa00062b54c92b4') }, {
-            $set: {
-                _id: ObjectId('59953847ffa00062b54c92b4'),
-                folder: '1',
-                name: 'support',
-                url: 'support',
-                en: {
-                    title: 'Support',
-                    keywords: '',
-                    description: '',
-                    content: '<h1>Support</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>You are welcome to create issues and pull requests on <a href=\'https://github.com/xtremespb/zoia\'>Github</a> page.</p>'
-                },
-                status: '1',
-                ru: {
-                    title: 'Поддержка',
-                    keywords: '',
-                    description: '',
-                    content: '<p>Вы можете создавать тикеты и pull request&#39;ы на странице в&nbsp;<a href=\'https://github.com/xtremespb/zoia\'>Github</a>.</p>'
+            upd = await db.collection('pages').update({ _id: ObjectId('59953847ffa00062b54c92b2') }, {
+                $set: {
+                    _id: ObjectId('59953847ffa00062b54c92b2'),
+                    folder: '1502985623',
+                    name: 'configuration',
+                    url: 'manual/configuration',
+                    en: {
+                        title: 'Configuration',
+                        keywords: '',
+                        description: '',
+                        content: '<h1>Configuration</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Configuration files are located in <strong>./etc</strong> folder. There are the following configuration files:</p>\n\n<ul>\n\t<li>config.js: main configuration file (database, host, port etc.)</li>\n\t<li>website.js: website configuration file (website title, templates, e-mail etc.)</li>\n</ul>\n\n<p>You will need to edit config.js in order to match your server/desktop configuration.</p>'
+                    },
+                    status: '1',
+                    ru: {
+                        title: 'Конфигурация',
+                        keywords: '',
+                        description: '',
+                        content: '<h1>Конфигурация</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Перевод для данной страницы в настоящий момент отсутствует.</p>'
+                    }
                 }
+            }, { upsert: true });
+            if (!upd || !upd.result || !upd.result.ok) {
+                throw new Error('Could not run db.collection(\'pages\').update');
             }
-        }, { upsert: true });
-        if (!upd || !upd.result || !upd.result.ok) {
-            throw new Error('Could not run db.collection(\'pages\').update');
-        }
-        upd = await db.collection('pages').update({ _id: ObjectId('5995685cffa00062b54cb2c0') }, {
-            $set: {
-                _id: ObjectId('5995685cffa00062b54cb2c0'),
-                folder: '1502985623',
-                name: '',
-                en: {
-                    title: 'Manual',
-                    keywords: '',
-                    description: '',
-                    content: '<h1>Manual</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>The following documentation is currently available:</p>\n\n<ul>\n\t<li><a href=\'/manual/installation\'>Installation</a></li>\n\t<li><a href=\'/manual/configuration\'>Configuration</a></li>\n</ul>'
-                },
-                url: 'manual',
-                status: '1',
-                ru: {
-                    title: 'Руководство',
-                    keywords: '',
-                    description: '',
-                    content: '<h1>Руководство</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Доступна следующая документация:</p>\n\n<ul>\n\t<li><a href=\'/manual/installation\'>Установка</a></li>\n\t<li><a href=\'/manual/configuration\'>Конфигурация</a></li>\n</ul>'
+            upd = await db.collection('pages').update({ _id: ObjectId('59953847ffa00062b54c92b4') }, {
+                $set: {
+                    _id: ObjectId('59953847ffa00062b54c92b4'),
+                    folder: '1',
+                    name: 'support',
+                    url: 'support',
+                    en: {
+                        title: 'Support',
+                        keywords: '',
+                        description: '',
+                        content: '<h1>Support</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>You are welcome to create issues and pull requests on <a href=\'https://github.com/xtremespb/zoia\'>Github</a> page.</p>'
+                    },
+                    status: '1',
+                    ru: {
+                        title: 'Поддержка',
+                        keywords: '',
+                        description: '',
+                        content: '<p>Вы можете создавать тикеты и pull request&#39;ы на странице в&nbsp;<a href=\'https://github.com/xtremespb/zoia\'>Github</a>.</p>'
+                    }
                 }
+            }, { upsert: true });
+            if (!upd || !upd.result || !upd.result.ok) {
+                throw new Error('Could not run db.collection(\'pages\').update');
             }
-        }, { upsert: true });
-        if (!upd || !upd.result || !upd.result.ok) {
-            throw new Error('Could not run db.collection(\'pages\').update');
+            upd = await db.collection('pages').update({ _id: ObjectId('5995685cffa00062b54cb2c0') }, {
+                $set: {
+                    _id: ObjectId('5995685cffa00062b54cb2c0'),
+                    folder: '1502985623',
+                    name: '',
+                    en: {
+                        title: 'Manual',
+                        keywords: '',
+                        description: '',
+                        content: '<h1>Manual</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>The following documentation is currently available:</p>\n\n<ul>\n\t<li><a href=\'/manual/installation\'>Installation</a></li>\n\t<li><a href=\'/manual/configuration\'>Configuration</a></li>\n</ul>'
+                    },
+                    url: 'manual',
+                    status: '1',
+                    ru: {
+                        title: 'Руководство',
+                        keywords: '',
+                        description: '',
+                        content: '<h1>Руководство</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Доступна следующая документация:</p>\n\n<ul>\n\t<li><a href=\'/manual/installation\'>Установка</a></li>\n\t<li><a href=\'/manual/configuration\'>Конфигурация</a></li>\n</ul>'
+                    }
+                }
+            }, { upsert: true });
+            if (!upd || !upd.result || !upd.result.ok) {
+                throw new Error('Could not run db.collection(\'pages\').update');
+            }
         }
         upd = await db.collection('registry').update({ name: 'pagesFolders' }, {
             $set: {
