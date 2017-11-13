@@ -14,14 +14,29 @@ const inquirer = require('inquirer');
 const config = require(path.join(__dirname, '..', 'core', 'config.js'));
 const commandLineArgs = require('command-line-args');
 const optionDefinitions = [
-    { name: 'force', alias: 'f', type: Boolean }
+    { name: 'force', alias: 'f', type: Boolean },
+    { name: 'module', alias: 'm', type: String }
 ];
 const options = commandLineArgs(optionDefinitions);
+
+const instalModule = async(md, data) => {
+    const install = require(path.join(__dirname, '..', 'modules', md, 'install'))(data);
+    if (install) {
+        process.stdout.write('\n');
+        await install();
+    } else {
+        process.stdout.write('OK\n');
+    }
+};
+
 const install = async() => {
     try {
         console.log('           _         _\n          (_)       (_)\n  _______  _  __ _   _ ___\n |_  / _ \\| |/ _` | | / __|\n  / / (_) | | (_| |_| \\__ \\\n /___\\___/|_|\\__,_(_) |___/\n                   _/ /\n                  |__/\n');
         console.log('Current configuration (config.js) will be used.\n');
         console.log('Hostname: ' + config.ip + '\nPort: ' + config.port + '\nMongo URL: ' + config.mongo.url + '\n');
+        if (options.module) {
+            console.log('Installing module: ' + options.module + '\n');
+        }
         if (!options.force) {
             let res = await inquirer.prompt([{
                 type: 'list',
@@ -45,15 +60,14 @@ const install = async() => {
             config: config,
             db: db
         }
-        let modules = fs.readdirSync(path.join(__dirname, '..', 'modules'));
-        for (let m in modules) {
-            process.stdout.write(' [+] ' + modules[m] + '... ');
-            const install = require(path.join(__dirname, '..', 'modules', modules[m], 'install'))(data);
-            if (install) {
-                process.stdout.write('\n');
-                await install();
-            } else {
-                process.stdout.write('OK\n');
+        if (options.module) {
+            process.stdout.write(' [+] ' + options.module + '... ');
+            await instalModule(options.module, data);
+        } else {
+            let modules = fs.readdirSync(path.join(__dirname, '..', 'modules'));
+            for (let m in modules) {
+                process.stdout.write(' [+] ' + modules[m] + '... ');
+                await instalModule(modules[m], data);
             }
         }
         console.log('\nUse http://' + config.ip + ':' + config.port + '/admin (admin/admin) to access your Admin panel.');
