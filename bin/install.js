@@ -64,7 +64,7 @@ const install = async() => {
             process.stdout.write(' [+] ' + options.module + '... ');
             await instalModule(options.module, data);
         } else {
-            let modules = fs.readdirSync(path.join(__dirname, '..', 'modules'));
+            let modules = fs.readdirSync(path.join(__dirname, '..', 'modules')).sort();
             for (let m in modules) {
                 process.stdout.write(' [+] ' + modules[m] + '... ');
                 await instalModule(modules[m], data);
