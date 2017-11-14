@@ -24,6 +24,7 @@
                                     <li><a href="#" class="warehouseBtnSettingsDialog">{{ i18n.__(locale, 'Warehouse Settings')}}</a></li>
                                     <li><a href="#" class="warehouseBtnPropertiesListDialog">{{ i18n.__(locale, 'Properties List')}}</a></li>
                                     <li><a href="#" class="warehouseBtnCollectionsListDialog">{{ i18n.__(locale, 'Collections')}}</a></li>
+                                    <li><a href="#" class="warehouseBtnDeliveryDialog">{{ i18n.__(locale, 'Delivery')}}</a></li>
                                     <li class="za-nav-divider"></li>
                                     <li><a href="#" class="warehouseBtnRepair">{{ i18n.__(locale, 'Repair database')}}</a></li>
                                     <li><a href="#" class="warehouseBtnRebuild">{{ i18n.__(locale, 'Re-build URL cache')}}</a></li>
@@ -50,6 +51,7 @@
                                 <li><a href="#" class="warehouseBtnSettingsDialog">{{ i18n.__(locale, 'Warehouse Settings')}}</a></li>
                                 <li><a href="#" class="warehouseBtnPropertiesListDialog">{{ i18n.__(locale, 'Properties List')}}</a></li>
                                 <li><a href="#" class="warehouseBtnCollectionsListDialog">{{ i18n.__(locale, 'Collections')}}</a></li>
+                                <li><a href="#" class="warehouseBtnDeliveryDialog">{{ i18n.__(locale, 'Delivery')}}</a></li>
                                 <li class="za-nav-divider"></li>
                                 <li><a href="#" class="warehouseBtnRepair">{{ i18n.__(locale, 'Repair database')}}</a></li>
                                 <li><a href="#" class="warehouseBtnRebuild">{{ i18n.__(locale, 'Re-build URL cache')}}</a></li>
@@ -563,6 +565,81 @@
         </div>
         <div class="za-modal-footer za-text-right" id="zoiaPropertiesImportDialogFooter">
             <button class="za-button za-button-default zoia-images-dialog-button za-modal-close" type="button">{{ i18n.__(locale, 'Cancel')}}</button>
+        </div>
+    </div>
+</div>
+<div id="zoiaDeliveryDialog" style="display:none" class="za-modal-container">
+    <div class="za-modal-dialog">
+        <div class="za-modal-header">
+            <h2>{{ i18n.__(locale, 'Delivery Options')}}</h2>
+        </div>
+        <div class="za-modal-body" id="zoiaDeliveryDialogBody" za-overflow-auto>
+            <div class="za-grid za-grid-small">
+                <div>
+                    <ul class="za-iconnav">
+                        <li>
+                            <button za-icon="icon:plus" class="za-icon-button zoiaPropertyAdd" title="{{ i18n.__(locale, 'Add')}}" za-tooltip="pos: bottom-right"></button>
+                        </li>
+                        <li>
+                            <button za-icon="icon:trash" class="za-icon-button zoiaPropertyDeleteButton" title="{{ i18n.__(locale, 'Delete')}}" za-tooltip="pos:bottom-right"></button>
+                        </li>
+                        <li>
+                            <button za-icon="icon:check" class="za-icon-button deliveryBtnSelectAll" title="{{ i18n.__(locale, 'Select all')}}" za-tooltip="pos:bottom-right"></button>
+                        </li>
+                        <li>
+                            <button za-icon="icon:close" class="za-icon-button deliveryBtnSelectNone" title="{{ i18n.__(locale, 'Select none')}}" za-tooltip="pos:bottom-right"></button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="za-width-expand">
+                    <div class="za-inline za-float-right">
+                        <a class="za-form-icon za-form-icon-flip deliverySearchInputClear" za-icon="icon: close"></a>
+                        <input type="text" class="deliverySearchInput za-input za-width-medium" placeholder="{{ i18n.__(locale, 'Search')}}">
+                    </div>
+                </div>
+            </div>
+            <div class="deliveryPagination za-margin-top noselect"></div>
+            <table class="za-table za-table-divider za-table-striped za-table-hover za-table-responsive za-table-middle" id="delivery">
+                <thead class="noselect" style="display:none">
+                    <tr>
+                        <th id="deliveryID" class="za-table-shrink"></th>
+                        <th id="delivery_pid" class="za-table-shrink">{{ i18n.__(locale, 'ID')}}</th>
+                        <th id="delivery_title">{{ i18n.__(locale, 'Title')}}</th>
+                        <th id="delivery_actions" class="za-table-shrink">{{ i18n.__(locale, 'Actions')}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="100%">
+                            <div za-spinner style="margin:-2px 5px 0 0"></div>&nbsp;{{ i18n.__(locale, 'Loading data, please wait')}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="deliveryPagination za-margin noselect"></div>
+        </div>
+        <div class="za-modal-body za-flex za-flex-center za-flex-middle" id="zoiaDeliveryDialogSpinner" style="display:none">
+            <div za-spinner></div>
+        </div>
+        <div class="za-modal-footer za-text-right">
+            <button class="za-button za-button-default zoia-images-dialog-button za-modal-close" type="button">{{ i18n.__(locale, 'Done')}}</button>
+        </div>
+    </div>
+</div>
+<div id="zoiaDeliveryEditDialog" style="display:none">
+    <div class="za-modal-dialog">
+        <div class="za-margin-top za-margin-bottom za-modal-header za-flex za-flex-center za-flex-middle zoiaDeliveryEditDialogSpinner" style="display:none">
+            <span za-spinner></span>
+        </div>
+        <div class="zoiaDeliveryEditDialogWrap">
+            <div class="za-modal-header">
+                <h2 id="zoiaDeliveryEditDialogHeader"></h2>
+            </div>
+            <form id="editDeliveryForm">
+                <div class="za-flex za-flex-center za-margin-top">
+                    <div za-spinner class="za-margin-bottom"></div>
+                </div>
+            </form>
         </div>
     </div>
 </div>

@@ -17,6 +17,8 @@ let collectionEditDialog;
 let propertySelectDialog;
 let collectionSelectDialog;
 let propertiesImportDialog;
+let deliveryEditDialog;
+let deliveryDialog;
 let currentEditID;
 let currentDeleteID;
 let foldersTree;
@@ -1654,6 +1656,127 @@ const editPropertyFormData = {
     }
 };
 
+const editDeliveryFormData = {
+    template: {
+        fields: '<div class="za-modal-body">{fields}</div>',
+        buttons: '{buttons}'
+    },
+    save: {
+        url: '/api/warehouse/save/delivery',
+        method: 'POST'
+    },
+    load: {
+        url: '/api/warehouse/load/delivery',
+        method: 'GET'
+    },
+    formDangerClass: 'za-form-danger',
+    html: formBuilderHTML,
+    events: {
+        onSaveValidate: (data, errors) => {
+            if ($('#editDeliveryForm').zoiaFormBuilder().errors(errors)) {
+                return '__stop';
+            }
+            $('.editDeliveryForm-form-button').hide();
+            $('#zoiaDeliveryFormSpinner').show();
+            data.id = currentEditID;
+            return data;
+        },
+        onSaveSuccess: () => {
+            $('.editDeliveryForm-form-button').show();
+            $('#zoiaDeliveryFormSpinner').hide();
+            deliveryEditDialog.hide();
+            $('#delivery').zoiaTable().load();
+            $zUI.notification(lang.fieldErrors['Saved successfully'], {
+                status: 'success',
+                timeout: 1500
+            });
+        },
+        onSaveError: (res) => {
+            $('.editDeliveryForm-form-button').show();
+            $('#zoiaDeliveryFormSpinner').hide();
+            if (res && res.status !== undefined) {
+                switch (res.status) {
+                    case -1:
+                        $('#editDeliveryForm_pid').addClass('za-form-danger');
+                        $zUI.notification(lang['Item not found'], {
+                            status: 'danger',
+                            timeout: 1500
+                        });
+                        break;
+                    case -2:
+                        $('#editDeliveryForm_pid').addClass('za-form-danger');
+                        $zUI.notification(lang['Item already exists in database'], {
+                            status: 'danger',
+                            timeout: 1500
+                        });
+                        break;
+                    default:
+                        $zUI.notification(lang.fieldErrors['Could not save to the database'], {
+                            status: 'danger',
+                            timeout: 1500
+                        });
+                        break;
+                }
+            }
+        },
+        onLoadSuccess: (data) => {
+            $('.zoiaDeliveryEditDialogSpinner').hide();
+            $('.zoiaDeliveryEditDialogWrap').show();
+        },
+        onLoadError: () => {
+            deliveryEditDialog.hide().then(() => {
+                $('.zoiaDeliveryEditDialogSpinner').hide();
+                $('.zoiaDeliveryEditDialogWrap').show();
+                $zUI.notification(lang['Could not load information from database'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            });
+        }
+    },
+    lang: formBuilderLang,
+    items: {
+        pid: {
+            type: 'text',
+            label: lang['ID'],
+            css: 'za-width-medium',
+            autofocus: true,
+            validation: {
+                mandatoryCreate: true,
+                mandatoryEdit: true,
+                length: {
+                    min: 1,
+                    max: 64
+                },
+                regexp: /^[A-Za-z0-9_\-]+$/,
+                process: (item) => {
+                    return item.trim();
+                }
+            },
+            helpText: lang['Latin characters and numbers only (1-64 chars)']
+        },
+        title: {
+            type: 'valueslistfixed',
+            values: getFormLangData(),
+            label: lang['Title']
+        },
+        buttons: {
+            type: 'buttons',
+            css: 'za-modal-footer za-text-right',
+            buttons: [{
+                label: lang['Cancel'],
+                css: 'za-button-default za-modal-close'
+            }, {
+                name: 'btnSave',
+                label: lang['Save'],
+                css: 'za-button-primary',
+                type: 'submit'
+            }],
+            html: '<div za-spinner style="display:none;float:right" id="zoiaDeliveryFormSpinner"></div>'
+        }
+    }
+};
+
 const editCollectionFormData = {
     template: {
         fields: '<div class="za-modal-body" za-overflow-auto>{fields}</div>',
@@ -1867,6 +1990,49 @@ const propertiesTableData = {
             editProperty($(this).attr('data'));
         });
         $('.zoia-properties-action-del-btn').click(function() {
+            deleteProperty($(this).attr('data'));
+        });
+    },
+    lang: {
+        error: lang['Could not load data from server. Please try to refresh page in a few moments.'],
+        noitems: lang['No items to display']
+    }
+};
+
+const deliveryTableData = {
+    url: '/api/warehouse/list/delivery',
+    limit: 7,
+    sort: {
+        field: 'title',
+        direction: 'asc'
+    },
+    fields: {
+        pid: {
+            sortable: true,
+            process: (id, item, value) => {
+                return value || '&ndash;';
+            }
+        },
+        title: {
+            sortable: true,
+            process: (id, item, value) => {
+                return value || '&ndash;';
+            }
+        },
+        actions: {
+            sortable: false,
+            process: (id, item) => {
+                return '<button class="za-icon-button zoia-delivery-action-edit-btn" za-icon="icon: pencil" data="' + item._id +
+                    '" style="margin-right:5px"></button><button class="za-icon-button zoia-delivery-action-del-btn" za-icon="icon: trash" data="' + item._id +
+                    '"></button><div style="margin-bottom:17px" class="za-hidden@m">&nbsp;</div>';
+            }
+        }
+    },
+    onLoad: () => {
+        $('.zoia-delivery-action-edit-btn').click(function() {
+            editProperty($(this).attr('data'));
+        });
+        $('.zoia-delivery-action-del-btn').click(function() {
             deleteProperty($(this).attr('data'));
         });
     },
@@ -2100,6 +2266,16 @@ const initDialogs = () => {
         stack: true
     });
     propertiesImportDialog = $zUI.modal('#zoiaPropertiesImportDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    deliveryDialog = $zUI.modal('#zoiaDeliveryDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    deliveryEditDialog = $zUI.modal('#zoiaDeliveryEditDialog', {
         bgClose: false,
         escClose: false,
         stack: true
@@ -2514,6 +2690,7 @@ $(document).ready(() => {
     $('#editFolderForm').zoiaFormBuilder(editFolderFormData);
     $('#editSettingsForm').zoiaFormBuilder(editSettingsFormData);
     $('#editPropertyForm').zoiaFormBuilder(editPropertyFormData);
+    $('#editDeliveryForm').zoiaFormBuilder(editDeliveryFormData);
     $('#editCollectionForm').zoiaFormBuilder(editCollectionFormData);
     $('#warehouse').zoiaTable(warehouseTableData);
     $('#properties').zoiaTable(propertiesTableData);
@@ -2521,6 +2698,7 @@ $(document).ready(() => {
     $('#propertyselect').zoiaTable(propertyselectTableData);
     $('#propertiesselect').zoiaTable(propertiesselectTableData);
     $('#collectionselect').zoiaTable(collectionselectTableData);
+    $('#delivery').zoiaTable(deliveryTableData);
     // Handlers    
     $('.zoiaDeleteButton').click(deleteButtonHanlder);
     $('.zoiaPropertyDeleteButton').click(deletePropertyButtonHanlder);
@@ -2573,6 +2751,9 @@ $(document).ready(() => {
         $('#zoiaPropertiesImportDialogSpinner').hide();
         $('#zoiaPropertiesImportDialogFooter').show();
         propertiesImportDialog.show();
-
+    });
+    $('.warehouseBtnDeliveryDialog').click(() => {
+    	$('#delivery').zoiaTable().load();
+    	deliveryDialog.show();
     });
 });

@@ -58,7 +58,8 @@
 
 #warehouse_actions,
 #properties_actions,
-#collections_actions {
+#collections_actions,
+#delivery_actions {
     width: 90px;
 }
 

@@ -165,6 +165,77 @@ module.exports = function(app) {
         }
     };
 
+    const listDelivery = async(req, res) => {
+        const locale = req.session.currentLocale;
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const sortField = req.query.sortField || 'title';
+        const sortDirection = (req.query.sortDirection === 'asc') ? 1 : -1;
+        const sort = {};
+        sort[sortField] = sortDirection;
+        let skip = req.query.skip || 0;
+        let limit = req.query.limit || 10;
+        let search = req.query.search || '';
+        if (typeof sortField !== 'string' || typeof skip !== 'string' || typeof limit !== 'string' || typeof search !== 'string') {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        skip = parseInt(skip, 10) || 0;
+        limit = parseInt(limit, 10) || 0;
+        search = search.trim();
+        if (search.length < 3) {
+            search = null;
+        }
+        let result = {
+            status: 0
+        };
+        if (sortPropertyFields.indexOf(sortField) === -1) {
+            result.failedField = 'sortField';
+            return res.send(result);
+        }
+        let fquery = {};
+        try {
+            if (search) {
+                fquery = {
+                    $or: [
+                        { pid: { $regex: search, $options: 'i' } }
+                    ]
+                };
+                let tfq = {};
+                tfq['title.' + locale] = { $regex: search, $options: 'i' };
+                fquery.$or.push(tfq);
+            }
+
+            let ffields = { _id: 1, pid: 1, title: 1 };
+            const total = await db.collection('warehouse_delivery').find(fquery, ffields, { skip: skip, limit: limit }).count();
+            const items = await db.collection('warehouse_delivery').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
+            for (let i in items) {
+                if (items[i].title[locale]) {
+                    items[i].title = items[i].title[locale];
+                } else {
+                    items[i].title = '';
+                }
+            }
+            let data = {
+                status: 1,
+                count: items.length,
+                total: total,
+                items: items
+            };
+            res.send(JSON.stringify(data));
+        } catch (e) {
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
     const listCollections = async(req, res) => {
         const locale = req.session.currentLocale;
         res.contentType('application/json');
@@ -1630,6 +1701,7 @@ module.exports = function(app) {
     router.get('/list', list);
     router.get('/list/properties', listProperties);
     router.get('/list/collections', listCollections);
+    router.get('/list/delivery', listDelivery);
     router.get('/load', load);
     router.get('/load/property', loadProperty);
     router.get('/load/collection', loadCollection);
