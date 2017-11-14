@@ -58,7 +58,8 @@ const install = async() => {
         console.log('- Connected\n- Installing modules:\n');
         let data = {
             config: config,
-            db: db
+            db: db,
+            options: options
         }
         if (options.module) {
             process.stdout.write(' [+] ' + options.module + '... ');
