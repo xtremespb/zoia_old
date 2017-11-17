@@ -117,5 +117,10 @@
 	"Could not import": "Could not import",
 	"Import complete": "Import complete",
 	"Delivery": "Delivery",
-	"Delivery Options": "Delivery Options"
+	"Delivery Options": "Delivery Options",
+	"Cost": "Cost",
+	"Weight Cost": "Weight Cost",
+	"Example: 123.45": "Example: 123.45",
+	"Need to enter an address": "Need to enter an address",
+	"Local pickup": "Local pickup"
 }

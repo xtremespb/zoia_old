@@ -26,7 +26,6 @@ module.exports = function(app) {
                 config: config
             });
             app.get('log').error('[' + err.status + '] ' + req.ip + ' ' + req.method + ' ' + req.url);
-            console.log(config.log.stackTrace);
             if (config.log.stackTrace && err.status !== 404) {
                 app.get('log').error(err.stack);
             }

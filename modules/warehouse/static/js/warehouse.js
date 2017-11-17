@@ -340,6 +340,28 @@ const editProperty = (id) => {
     $('#editPropertyForm').zoiaFormBuilder().loadData({ id: id });
 };
 
+const createDelivery = () => {
+    editMode = false;
+    deliveryEditDialog.show();
+    currentEditID = null;
+    $('#editDeliveryForm').zoiaFormBuilder().resetForm();
+    $('#zoiaDeliveryEditDialogHeader').html(lang.addItem);
+};
+
+const editDelivery = (id) => {
+    editMode = true;
+    if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+        return;
+    }
+    currentEditID = id;
+    $('.zoiaDeliveryEditDialogSpinner').show();
+    $('.zoiaDeliveryEditDialogWrap').hide();
+    deliveryEditDialog.show();
+    $('#editDeliveryForm').zoiaFormBuilder().resetForm();
+    $('#zoiaDeliveryEditDialogHeader').html(lang.editItem);
+    $('#editDeliveryForm').zoiaFormBuilder().loadData({ id: id });
+};
+
 const createCollection = () => {
     editMode = false;
     collectionEditDialog.show();
@@ -651,7 +673,7 @@ const syncEditFormProperties = (clng) => {
     }
 };
 
-const syncEditFormPropertiesFist = () => {
+const syncEditFormPropertiesFirst = () => {
     let clng;
     for (let lng in langs) {
         if (lng !== editLanguage && editShadow[lng].enabled) {
@@ -697,7 +719,7 @@ const onEditLanguageCheckboxClickEvent = () => {
         $('#editForm').zoiaFormBuilder().resetForm();
         editShadow[editLanguage].enabled = true;
         editShadow[editLanguage].data = {};
-        syncEditFormPropertiesFist();
+        syncEditFormPropertiesFirst();
         $('#editForm').zoiaFormBuilder().deserializePart('properties', editShadow[editLanguage].data.properties);
         for (let lng in langs) {
             if (editShadow[lng].data) {
@@ -971,10 +993,13 @@ const editFormData = {
                 let lngdata = editShadow[n].data;
                 let vr = $('#editForm').zoiaFormBuilder().validate(lngdata);
                 if (Object.keys(vr.errors).length > 0) {
-                    markZoiaLanguagesTab(n);
                     onZoiaEditLanguagesClick(n);
+                    markZoiaLanguagesTab(n);
+                    syncEditFormProperties(editLanguage);                    
                     vr = $('#editForm').zoiaFormBuilder().validate($('#editForm').zoiaFormBuilder().serialize());
                     if ($('#editForm').zoiaFormBuilder().errors(vr.errors)) {
+                    	editShadow[editLanguage].data.properties.type = 'valueslisteditable';
+                    	$('#editForm').zoiaFormBuilder().deserializePart("properties", editShadow[editLanguage].data.properties);
                         return '__stop';
                     }
                 }
@@ -1760,6 +1785,75 @@ const editDeliveryFormData = {
             values: getFormLangData(),
             label: lang['Title']
         },
+        cost: {
+            type: 'text',
+            label: lang['Cost'],
+            css: 'za-width-small',
+            validation: {
+                mandatoryCreate: false,
+                mandatoryEdit: false,
+                length: {
+                    min: 1,
+                    max: 64
+                },
+                regexp: /^\d+(\.\d+)?$/,
+                process: (item) => {
+                    return item.trim();
+                }
+            },
+            helpText: lang['Example: 123.45']
+        },
+        cost_weight: {
+            type: 'text',
+            label: lang['Weight Cost'],
+            css: 'za-width-small',
+            validation: {
+                mandatoryCreate: false,
+                mandatoryEdit: false,
+                length: {
+                    min: 1,
+                    max: 64
+                },
+                regexp: /^\d+(\.\d+)?$/,
+                process: (item) => {
+                    return item.trim();
+                }
+            },
+            helpText: lang['Example: 123.45']
+        },
+        delivery: {
+            type: 'select',
+            label: lang['Delivery'],
+            css: 'uk-form-width-medium',
+            values: {
+                'delivery': 'Need to enter an address',
+                'pickup': 'Local pickup'
+            },
+            validation: {
+                mandatoryCreate: true,
+                mandatoryEdit: true,
+                regexp: /^(delivery|pickup)$/
+            }
+        },
+        status: {
+            type: 'select',
+            label: lang['Status'],
+            css: 'za-form-width-small',
+            values: {
+                0: lang.statuses[0],
+                1: lang.statuses[1]
+            },
+            default: '1',
+            validation: {
+                mandatoryCreate: true,
+                mandatoryEdit: true,
+                length: {
+                    min: 1,
+                    max: 1
+                },
+                regexp: /^(0|1|2)$/
+            }
+        },
         buttons: {
             type: 'buttons',
             css: 'za-modal-footer za-text-right',
@@ -2030,10 +2124,10 @@ const deliveryTableData = {
     },
     onLoad: () => {
         $('.zoia-delivery-action-edit-btn').click(function() {
-            editProperty($(this).attr('data'));
+            editDelivery($(this).attr('data'));
         });
         $('.zoia-delivery-action-del-btn').click(function() {
-            deleteProperty($(this).attr('data'));
+            deleteDelivery($(this).attr('data'));
         });
     },
     lang: {
@@ -2448,6 +2542,10 @@ const addCollectionHandler = () => {
     createCollection();
 };
 
+const addDeliveryHandler = () => {
+    createDelivery();
+};
+
 const editFormImagesBtnHandler = () => {
     imagesDialog.show();
 };
@@ -2600,7 +2698,7 @@ const propertiesImportTaskStateCheck = (id) => {
                 $zUI.notification(res.state === 0 ? lang['Could not import'] : lang['Import complete'], {
                     status: res.state === 0 ? 'danger' : 'success',
                     timeout: 1500
-                });                
+                });
             } else {
                 setTimeout(() => {
                     propertiesImportTaskStateCheck(id);
@@ -2710,6 +2808,7 @@ $(document).ready(() => {
     $('.zoiaAdd').click(addHandler);
     $('.zoiaPropertyAdd').click(addPropertyHandler);
     $('.zoiaCollectionAdd').click(addCollectionHandler);
+    $('.zoiaDeliveryAdd').click(addDeliveryHandler);
     $('#editForm_folder_btn').click(editFormFolderBtnHandler);
     $('#zoiaFoldersAdd').click(foldersAddHandler);
     $('#zoiaFoldersEdit').click(foldersEditHanlder);
@@ -2753,7 +2852,7 @@ $(document).ready(() => {
         propertiesImportDialog.show();
     });
     $('.warehouseBtnDeliveryDialog').click(() => {
-    	$('#delivery').zoiaTable().load();
-    	deliveryDialog.show();
+        $('#delivery').zoiaTable().load();
+        deliveryDialog.show();
     });
 });

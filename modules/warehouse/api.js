@@ -6,6 +6,7 @@ const ObjectID = require('mongodb').ObjectID;
 const warehouseFields = require(path.join(__dirname, 'schemas', 'warehouseFields.js'));
 const settingsFields = require(path.join(__dirname, 'schemas', 'settingsFields.js'));
 const propertyFields = require(path.join(__dirname, 'schemas', 'propertyFields.js'));
+const deliveryFields = require(path.join(__dirname, 'schemas', 'deliveryFields.js'));
 const collectionFields = require(path.join(__dirname, 'schemas', 'collectionFields.js'));
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const fs = require('fs-extra');
@@ -403,6 +404,47 @@ module.exports = function(app) {
         }
     };
 
+    const loadDelivery = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const id = req.query.id;
+        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const item = await db.collection('warehouse_delivery').findOne({ _id: new ObjectID(id) });
+            if (!item) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            let title = [];
+            for (let i in item.title) {
+                title.push({
+                    p: i,
+                    v: item.title[i]
+                });
+            }
+            item.title = title;
+            return res.send(JSON.stringify({
+                status: 1,
+                item: item
+            }));
+        } catch (e) {
+            log.error(e);
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
     const loadCollection = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
@@ -662,6 +704,87 @@ module.exports = function(app) {
         }
     };
 
+    const saveDelivery = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const id = req.body.id;
+        if (id && (typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/))) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const fieldList = deliveryFields.getDeliveryFields();
+            let fields = validation.checkRequest(req.body, fieldList);
+            let fieldsFailed = validation.getCheckRequestFailedFields(fields);
+            if (fieldsFailed.length > 0) {
+                return res.send(JSON.stringify({
+                    status: 0,
+                    fields: fieldsFailed
+                }));
+            }
+            if (fields.title && fields.title.value === '') {
+                fields.title.value = [];
+            }
+            const data = {
+                pid: fields.pid.value,
+                cost: fields.cost ? fields.cost.value : null,
+                cost_weight: fields.cost_weight ? fields.cost_weight.value : null,
+                delivery: fields.delivery.value,
+                status: fields.status.value,
+                title: {}
+            };
+            for (let i in fields.title.value) {
+                let item = fields.title.value[i];
+                data.title[item.p] = item.v;
+            }
+            if (id) {
+                let item = await db.collection('warehouse_delivery').findOne({ _id: new ObjectID(id) });
+                if (!item) {
+                    return res.send(JSON.stringify({
+                        status: -1,
+                        fields: fieldsFailed
+                    }));
+                }
+                let duplicate = await db.collection('warehouse_delivery').findOne({ pid: data.pid });
+                if (duplicate && JSON.stringify(duplicate._id) !== JSON.stringify(item._id)) {
+                    return res.send(JSON.stringify({
+                        status: -2,
+                        fields: fieldsFailed
+                    }));
+                }
+            } else {
+                let duplicate = await db.collection('warehouse_delivery').findOne({ pid: data.pid });
+                if (duplicate) {
+                    return res.send(JSON.stringify({
+                        status: -2,
+                        fields: fieldsFailed
+                    }));
+                }
+            }
+            let what = id ? { _id: new ObjectID(id) } : { pid: data.pid };
+            let updResult = await db.collection('warehouse_delivery').update(what, { $set: data }, { upsert: true });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0,
+                    fields: fieldsFailed
+                }));
+            }
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            log.error(e);
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
     const saveCollection = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
@@ -764,7 +887,7 @@ module.exports = function(app) {
                         properties: fields.properties.value
                     };
                     data.folder = fields.folder.value;
-                    data.images = JSON.parse(fields.images.value);
+                    data.images = fields.images.value ? JSON.parse(fields.images.value) : [];
                     data.url = fields.url.value;
                     data.sku = fields.sku.value;
                     data.weight = fields.weight.value;
@@ -1706,9 +1829,11 @@ module.exports = function(app) {
     router.get('/load/property', loadProperty);
     router.get('/load/collection', loadCollection);
     router.get('/load/collection/data', loadCollectionData);
+    router.get('/load/delivery', loadDelivery);
     router.post('/save', save);
     router.post('/save/property', saveProperty);
     router.post('/save/collection', saveCollection);
+    router.post('/save/delivery', saveDelivery);
     router.get('/create', create);
     router.post('/delete', del);
     router.post('/delete/property', delProperty);
