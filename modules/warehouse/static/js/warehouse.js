@@ -17,6 +17,8 @@ let collectionEditDialog;
 let propertySelectDialog;
 let collectionSelectDialog;
 let propertiesImportDialog;
+let addressAddEditDialog;
+let addressEditDialog;
 let deliveryEditDialog;
 let deliveryDialog;
 let currentEditID;
@@ -995,11 +997,11 @@ const editFormData = {
                 if (Object.keys(vr.errors).length > 0) {
                     onZoiaEditLanguagesClick(n);
                     markZoiaLanguagesTab(n);
-                    syncEditFormProperties(editLanguage);                    
+                    syncEditFormProperties(editLanguage);
                     vr = $('#editForm').zoiaFormBuilder().validate($('#editForm').zoiaFormBuilder().serialize());
                     if ($('#editForm').zoiaFormBuilder().errors(vr.errors)) {
-                    	editShadow[editLanguage].data.properties.type = 'valueslisteditable';
-                    	$('#editForm').zoiaFormBuilder().deserializePart("properties", editShadow[editLanguage].data.properties);
+                        editShadow[editLanguage].data.properties.type = 'valueslisteditable';
+                        $('#editForm').zoiaFormBuilder().deserializePart("properties", editShadow[editLanguage].data.properties);
                         return '__stop';
                     }
                 }
@@ -1210,7 +1212,7 @@ const editFormData = {
                     max: 32
                 },
                 type: 'string',
-                regexp: /^[0-9]+\.?[0-9]+$/,
+                regexp: /^[0-9]+\.?([0-9]+)?$/,
                 process: function(item) {
                     return item.trim();
                 }
@@ -1247,7 +1249,7 @@ const editFormData = {
                     max: 32
                 },
                 type: 'string',
-                regexp: /^[0-9]+\.?[0-9]+$/,
+                regexp: /^[0-9]+\.?([0-9]+)?$/,
                 process: function(item) {
                     return item.trim();
                 }
@@ -1974,6 +1976,104 @@ const editCollectionFormData = {
     }
 };
 
+const editAddressFormData = {
+    template: {
+        fields: '<div class="za-modal-body" za-overflow-auto>{fields}</div>',
+        buttons: '{buttons}'
+    },
+    save: {
+        url: '/api/warehouse/save/address',
+        method: 'POST'
+    },
+    load: {
+        url: '/api/warehouse/load/address',
+        method: 'GET'
+    },
+    formDangerClass: 'za-form-danger',
+    html: formBuilderHTML,
+    events: {
+        onSaveValidate: (data, errors) => {
+            if ($('#editAddressForm').zoiaFormBuilder().errors(errors)) {
+                return '__stop';
+            }
+            $('.editAddressForm-form-button').hide();
+            $('#zoiaAddressFormSpinner').show();
+            const properties = [];
+            $('.addressFormDataItems').children().each(function() {
+                properties.push($(this).attr('data-pid'));
+            });
+            data.properties = properties;
+            data.id = currentEditID;
+            return data;
+        },
+        onSaveSuccess: () => {
+            $('.editAddressForm-form-button').show();
+            $('#zoiaAddressFormSpinner').hide();
+            addressEditDialog.hide();
+            $zUI.notification(lang.fieldErrors['Saved successfully'], {
+                status: 'success',
+                timeout: 1500
+            });
+        },
+        onSaveError: (res) => {
+            $('.editAddressForm-form-button').show();
+            $('#zoiaAddressFormSpinner').hide();
+            $zUI.notification(lang.fieldErrors['Could not save to the database'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        },
+        onLoadSuccess: (data) => {
+            $('.zoiaAddressEditDialogSpinner').hide();
+            $('.zoiaAddressEditDialogWrap').show();
+            $('.addressFormDataItems').html('');
+            for (let i in data.item.properties) {
+                $('.addressFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + i + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + data.item.properties[i] + '<button type="button" class="addressItemClose" za-close style="float:right"></button></div>');
+            }
+            $('.addressItemClose').unbind();
+            $('.addressItemClose').click(function() {
+                $(this).parent().remove();
+            });
+            $('.editAddressForm-title-item-val').first().focus();
+        },
+        onLoadError: () => {
+            addressEditDialog.hide().then(() => {
+                $('.zoiaAddressEditDialogSpinner').hide();
+                $('.zoiaAddressEditDialogWrap').show();
+                $zUI.notification(lang['Could not load information from database'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            });
+        }
+    },
+    lang: formBuilderLang,
+    items: {
+        properties: {
+            type: 'launcher',
+            label: lang['Address lines'],
+            labelBtn: lang['Add'],
+            value: '',
+            html: '<div class="addressFormDataItems za-margin-top" za-sortable="handle: .za-sortable-handle"></div>',
+            data: 1
+        },
+        buttons: {
+            type: 'buttons',
+            css: 'za-modal-footer za-text-right',
+            buttons: [{
+                label: lang['Cancel'],
+                css: 'za-button-default za-modal-close'
+            }, {
+                name: 'btnSave',
+                label: lang['Save'],
+                css: 'za-button-primary',
+                type: 'submit'
+            }],
+            html: '<div za-spinner style="display:none;float:right" id="zoiaAddressFormSpinner"></div>'
+        }
+    }
+};
+
 const warehouseTableData = {
     url: '/api/warehouse/list',
     limit: 20,
@@ -2370,6 +2470,16 @@ const initDialogs = () => {
         stack: true
     });
     deliveryEditDialog = $zUI.modal('#zoiaDeliveryEditDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    addressEditDialog = $zUI.modal('#zoiaAddressEditDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    addressAddEditDialog = $zUI.modal('#zoiaAddressAddEditDialog', {
         bgClose: false,
         escClose: false,
         stack: true
@@ -2775,6 +2885,13 @@ const initImportPropertiesUploader = () => {
     });
 };
 
+const initAddressSelect = () => {
+    for (let i in addressData) {
+        const item = addressData[i];
+        $('#zoiaAddressSelect').append('<option value="' + item.id + '">' + item.title[locale] + '</option>');
+    }
+};
+
 $(document).ready(() => {
     // Init section
     initDialogs();
@@ -2783,6 +2900,7 @@ $(document).ready(() => {
     initUploader();
     initEditLanguages();
     initImportPropertiesUploader();
+    initAddressSelect();
     // Forms and tables
     $('#editForm').zoiaFormBuilder(editFormData);
     $('#editFolderForm').zoiaFormBuilder(editFolderFormData);
@@ -2790,6 +2908,7 @@ $(document).ready(() => {
     $('#editPropertyForm').zoiaFormBuilder(editPropertyFormData);
     $('#editDeliveryForm').zoiaFormBuilder(editDeliveryFormData);
     $('#editCollectionForm').zoiaFormBuilder(editCollectionFormData);
+    $('#editAddressForm').zoiaFormBuilder(editAddressFormData);
     $('#warehouse').zoiaTable(warehouseTableData);
     $('#properties').zoiaTable(propertiesTableData);
     $('#collections').zoiaTable(collectionsTableData);
@@ -2854,5 +2973,20 @@ $(document).ready(() => {
     $('.warehouseBtnDeliveryDialog').click(() => {
         $('#delivery').zoiaTable().load();
         deliveryDialog.show();
+    });
+    $('.warehouseBtnAddressDialog').click(() => {
+        addressEditDialog.show();
+    });
+    $('#editAddressForm_properties_btn').click(() => {
+        $("#zoiaAddressSelect").prop("selectedIndex", 0);
+        addressAddEditDialog.show();
+    });
+    $('#btnAddressAdd').click(() => {
+        addressAddEditDialog.hide();
+        $('.addressFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + $('#zoiaAddressSelect').val() + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + $('#zoiaAddressSelect option:selected').text() + '<button type="button" class="addressItemClose" za-close style="float:right"></button></div>');
+        $('.addressItemClose').unbind();
+        $('.addressItemClose').click(function() {
+            $(this).parent().remove();
+        });
     });
 });

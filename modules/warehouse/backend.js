@@ -6,6 +6,13 @@ const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
 
+let jsonAddress;
+try {
+    jsonAddress = require(path.join(__dirname, 'config', 'address.json'));
+} catch (e) {
+    jsonAddress = require(path.join(__dirname, 'config', 'address.dist.json'));
+}
+
 module.exports = function(app) {
     const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
     const panel = new(require(path.join(__dirname, '..', '..', 'core', 'panel.js')))(app);
@@ -27,6 +34,7 @@ module.exports = function(app) {
                 locale: locale,
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 langs: JSON.stringify(config.i18n.localeNames),
+                address: JSON.stringify(jsonAddress),
                 folders: folders ? folders.data : JSON.stringify([{ id: 1, text: '/', data: null, parent: '#', type: 'root' }]),
                 settings: settings ? settings.data : JSON.stringify({})
             });

@@ -66,7 +66,7 @@
                     max: 32
                 },
                 type: 'string',
-                regexp: /^[0-9]+\.?[0-9]+$/,
+                regexp: /^[0-9]+\.?([0-9]+)?$/,
                 process: function(item) {
                     return item;
                 }
@@ -78,7 +78,7 @@
                     max: 32
                 },
                 type: 'string',
-                regexp: /^[0-9]+\.?[0-9]+$/,
+                regexp: /^[0-9]+\.?([0-9]+)?$/,
                 process: function(item) {
                     return item;
                 }

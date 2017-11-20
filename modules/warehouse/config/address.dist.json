@@ -1,0 +1,38 @@
+ [{
+     "id": "name",
+     "title":
+     {
+         "en": "Last name, first name (mandatory)",
+         "ru": "Фамилия, имя (обяз.)"
+     },
+     "length":
+     {
+         "min": 1,
+         "max": 80
+     },
+     "type": "text",
+     "label":
+     {
+         "en": "Last name, first name",
+         "ru": "Фамилия, имя"
+     }
+ },
+ {
+     "id": "zip",
+     "title": {
+         "en": "ZIP (mandatory)",
+         "ru": "Индекс (обяз.)"
+     },
+     "length":
+     {
+         "min": 1,
+         "max": 6
+     },
+     "type": "integer",
+     "label":
+     {
+         "en": "ZIP",
+         "ru": "Индекс"
+     },
+     "regex": "^[A-Za-z0-9_\\-]+$"
+ }]
