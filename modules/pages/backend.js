@@ -26,7 +26,7 @@ module.exports = function(app) {
                 locale: locale,
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 langs: JSON.stringify(config.i18n.localeNames),
-                folders: folders ? folders.data : JSON.stringify([{ id: 1, text: '/', data: null, parent: '#', type: 'root' }])
+                folders: folders ? folders.data : JSON.stringify([{ 'id': '1', 'text': '/', 'parent': '#', 'type': 'root' }])
             });
             res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, config.production ? ['/pages/static/css/pages.min.css'] : ['/zoia/3rdparty/jstree/themes/default/style.min.css', '/pages/static/css/pages.css'],
                 config.production ? ['/zoia/3rdparty/ckeditor/ckeditor.js', '/zoia/3rdparty/ckeditor/adapters/jquery.js', '/pages/static/js/pages.min.js'] : ['/zoia/3rdparty/ckeditor/ckeditor.js', '/zoia/3rdparty/ckeditor/adapters/jquery.js',
