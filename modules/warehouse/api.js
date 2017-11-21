@@ -445,6 +445,37 @@ module.exports = function(app) {
         }
     };
 
+    const loadAddress = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const item = await db.collection('registry').findOne({ name: 'warehouse_address' });
+            if (!item || !item.data) {
+                return res.send(JSON.stringify({
+                    status: 1,
+                    item: {
+                        name: 'warehouse_address',
+                        data: []
+                    }
+                }));
+            }            
+            return res.send(JSON.stringify({
+                status: 1,
+                item: item
+            }));
+        } catch (e) {
+            log.error(e);
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
     const loadCollection = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
@@ -768,6 +799,44 @@ module.exports = function(app) {
             }
             let what = id ? { _id: new ObjectID(id) } : { pid: data.pid };
             let updResult = await db.collection('warehouse_delivery').update(what, { $set: data }, { upsert: true });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0,
+                    fields: fieldsFailed
+                }));
+            }
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            log.error(e);
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
+    const saveAddress = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const id = req.body.id;
+        if (id && (typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/))) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const properties = req.body.properties;
+        if (properties && (typeof properties !== 'object' || !(properties instanceof Array))) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            let updResult = await db.collection('registry').update({ name: 'warehouse_address' }, { $set: { data: properties } }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0,
@@ -1830,10 +1899,12 @@ module.exports = function(app) {
     router.get('/load/collection', loadCollection);
     router.get('/load/collection/data', loadCollectionData);
     router.get('/load/delivery', loadDelivery);
+    router.get('/load/address', loadAddress);
     router.post('/save', save);
     router.post('/save/property', saveProperty);
     router.post('/save/collection', saveCollection);
     router.post('/save/delivery', saveDelivery);
+    router.post('/save/address', saveAddress);
     router.get('/create', create);
     router.post('/delete', del);
     router.post('/delete/property', delProperty);

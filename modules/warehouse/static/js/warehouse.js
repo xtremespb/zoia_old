@@ -2027,8 +2027,18 @@ const editAddressFormData = {
             $('.zoiaAddressEditDialogSpinner').hide();
             $('.zoiaAddressEditDialogWrap').show();
             $('.addressFormDataItems').html('');
-            for (let i in data.item.properties) {
-                $('.addressFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + i + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + data.item.properties[i] + '<button type="button" class="addressItemClose" za-close style="float:right"></button></div>');
+            if (data && data.item && data.item.data) {
+                for (let i in data.item.data) {
+                    let item = data.item.data[i];
+                    let title = item;
+                    for (let a in addressData) {
+                        if (addressData[a].id === item) {                            
+                            title = addressData[a].title[locale];
+                            break;
+                        }
+                    }
+                    $('.addressFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + item + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + title + '<button type="button" class="addressItemClose" za-close style="float:right"></button></div>');
+                }
             }
             $('.addressItemClose').unbind();
             $('.addressItemClose').click(function() {
@@ -2976,6 +2986,9 @@ $(document).ready(() => {
     });
     $('.warehouseBtnAddressDialog').click(() => {
         addressEditDialog.show();
+        $('.zoiaAddressEditDialogSpinner').show();
+        $('.zoiaAddressEditDialogWrap').hide();
+        $('#editAddressForm').zoiaFormBuilder().loadData();
     });
     $('#editAddressForm_properties_btn').click(() => {
         $("#zoiaAddressSelect").prop("selectedIndex", 0);
