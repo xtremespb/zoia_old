@@ -131,7 +131,9 @@
     text-align: left;
 }
 
-.warehouseBtnSettings {
+.warehouseBtnSettings,
+.warehouseBtnSelectAll,
+.warehouseBtnSelectNone {
     padding: 9px;
 }
 

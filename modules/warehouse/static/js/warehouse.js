@@ -2033,7 +2033,7 @@ const editAddressFormData = {
                     let item = data.item.data[i];
                     let title = item;
                     for (let a in addressData) {
-                        if (addressData[a].id === item) {                            
+                        if (addressData[a].id === item) {
                             title = addressData[a].title[locale];
                             break;
                         }
@@ -2850,6 +2850,50 @@ const propertiesImportTaskStateCheck = (id) => {
     });
 };
 
+const collectionsImportTaskStateCheck = (id) => {
+    $.ajax({
+        type: 'GET',
+        url: '/api/warehouse/import/collections/state',
+        data: {
+            id: id
+        },
+        cache: false
+    }).done((res) => {
+        if (res && res.status === 1 && res.state) {
+            if (res.state === 3 || res.state === 0) {
+                collectionsImportDialog.hide();
+                $('#collections').zoiaTable().load();
+                $('#propertyselect').zoiaTable().load();
+                $('#collectionselect').zoiaTable().load();
+                $zUI.notification(res.state === 0 ? lang['Could not import'] : lang['Import complete'], {
+                    status: res.state === 0 ? 'danger' : 'success',
+                    timeout: 1500
+                });
+            } else {
+                setTimeout(() => {
+                    collectionsImportTaskStateCheck(id);
+                }, 5000);
+            }
+        } else {
+            $('#zoiaCollectionsImportDialogBody').show();
+            $('#zoiaCollectionsImportDialogSpinner').hide();
+            $('#zoiaCollectionsImportDialogFooter').show();
+            $zUI.notification(lang['Could not load information from database'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        }
+    }).fail(() => {
+        $('#zoiaCollectionsImportDialogBody').show();
+        $('#zoiaCollectionsImportDialogSpinner').hide();
+        $('#zoiaCollectionsImportDialogFooter').show();
+        $zUI.notification(lang['Could not load information from database'], {
+            status: 'danger',
+            timeout: 1500
+        });
+    });
+};
+
 const initImportPropertiesUploader = () => {
     const pimport_bar = document.getElementById('pimport_progressbar');
     $zUI.upload('.pimport-upload', {
@@ -2901,6 +2945,57 @@ const initImportPropertiesUploader = () => {
     });
 };
 
+const initImportCollectionsUploader = () => {
+    const cimport_bar = document.getElementById('cimport_progressbar');
+    $zUI.upload('.cimport-upload', {
+        url: '/api/warehouse/import/collections',
+        multiple: false,
+        error: function() {
+            $zUI.notification(lang['Could not upload file'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        },
+        loadStart: function(e) {
+            cimport_bar.removeAttribute('hidden');
+            cimport_bar.max = e.total;
+            cimport_bar.value = e.loaded;
+        },
+        progress: function(e) {
+            cimport_bar.max = e.total;
+            cimport_bar.value = e.loaded;
+        },
+        loadEnd: function(e) {
+            cimport_bar.max = e.total;
+            cimport_bar.value = e.loaded;
+        },
+        completeAll: function() {
+            setTimeout(function() {
+                cimport_bar.setAttribute('hidden', 'hidden');
+            }, 1000);
+            let response = {};
+            try {
+                response = JSON.parse(arguments[0].response);
+            } catch (e) {
+                // Ignore
+            }
+            if (response.uid) {
+                $('#zoiaCollectionsImportDialogBody').hide();
+                $('#zoiaCollectionsImportDialogSpinner').show();
+                $('#zoiaCollectionsImportDialogFooter').hide();
+                setTimeout(() => {
+                    collectionsImportTaskStateCheck(response.uid);
+                }, 5000);
+            } else {
+                $zUI.notification(lang['Could not upload file'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            }
+        }
+    });
+};
+
 const initAddressSelect = () => {
     for (let i in addressData) {
         const item = addressData[i];
@@ -2916,6 +3011,7 @@ $(document).ready(() => {
     initUploader();
     initEditLanguages();
     initImportPropertiesUploader();
+    initImportCollectionsUploader();
     initAddressSelect();
     // Forms and tables
     $('#editForm').zoiaFormBuilder(editFormData);

@@ -80,6 +80,11 @@
     padding: 10px;
 }
 
+.pagesBtnSelectAll,
+.pagesBtnSelectNone {
+    padding: 9px;
+}
+
 #zoia_folders_tree {
     margin-top: 20px;
 }

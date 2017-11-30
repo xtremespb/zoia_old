@@ -947,6 +947,12 @@ module.exports = function(app) {
                     }
                     for (let p in fields.properties.value) {
                         delete fields.properties.value[p].p;
+                        if (!fields.properties.value[p].d || typeof fields.properties.value[p].d !== 'string' || !fields.properties.value[p].d.match(/^[A-Za-z0-9_\-]+$/)) {
+                            throw new Error('Invalid property ID');
+                        }
+                        if (fields.properties.value[p].v && typeof fields.properties.value[p].v === 'string') {
+                            fields.properties.value[p].v = fields.properties.value[p].v.replace(/\&/gm, '&amp;').replace(/\"/gm, '&quot;').replace(/\'/gm, '&apos;').replace(/\</gm, '&lt;').replace(/\>/gm, '&gt;')
+                        }
                     }
                     data[lng] = {
                         title: fields.title.value,
@@ -1889,6 +1895,119 @@ module.exports = function(app) {
         }
     };
 
+    const importCollections = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        if (!req.files || typeof req.files !== 'object' || !req.files['files[]'] || !req.files['files[]'].name || !req.files['files[]'].data ||
+            !req.files['files[]'].data.length || req.files['files[]'].data.length > config.maxUploadSizeMB * 1048576) {
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+        try {
+            const fid = String(Date.now());
+            console.log('Fid: ' + fid);
+            const tempFile = path.join(__dirname, '..', '..', 'temp', 'cimport_' + fid + '.csv');
+            await fs.writeFile(tempFile, req.files['files[]'].data);
+            const insResult = await db.collection('warehouse_tasks').insertOne({
+                state: 1,
+                fid: fid
+            });
+            if (!insResult || !insResult.result || !insResult.result.ok || !insResult.insertedId) {
+                return res.send(JSON.stringify({
+                    status: -1
+                }));
+            }
+            const uid = insResult.insertedId;
+            console.log('Importing...');
+            setTimeout(function() {
+                csv().fromFile(tempFile)
+                    .on('json', async(json) => {
+                        console.log('Got JSON!');
+                        console.log(json);
+                        if (!json || typeof json !== 'object' || !json.properties) {
+                            return;
+                        }
+                        let prop = {
+                            properties: [],
+                            title: {}
+                        };
+                        console.log('Prop: ' + prop);
+                        if (json.properties && typeof json.properties === 'string') {
+                            json.properties = json.properties.replace(/\s\t/, '');
+                            const properties = json.properties.split(/;/);
+                            for (let p in properties) {
+                                prop.properties.push(properties[p]);
+                            }
+                        }
+                        for (let i in config.i18n.locales) {
+                            let lng = config.i18n.locales[i];
+                            prop.title[lng] = json[lng] || '';
+                        }
+                        console.log('Inserting prop');
+                        await db.collection('warehouse_collections').insertOne(prop);
+                    }).on('done', async(error) => {
+                        await db.collection('warehouse_tasks').update({ _id: new ObjectID(uid) }, { $set: { state: 3 } }, { upsert: true });
+                    });
+            }, 0);
+            return res.send(JSON.stringify({
+                status: 1,
+                uid: uid
+            }));
+        } catch (e) {
+            log.error(e);
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
+    const importCollectionsState = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const locale = req.session.currentLocale;
+        const id = req.query.id;
+        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const item = await db.collection('warehouse_tasks').findOne({ _id: new ObjectID(id) });
+            if (!item || !item.state) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            if (item.state === 3 && item.fid) {
+                try {
+                    await db.collection('warehouse_tasks').remove({ _id: new ObjectID(id) });
+                    await fs.remove(path.join(__dirname, '..', '..', 'temp', 'cimport_' + item.fid + '.csv'));
+                } catch (e) {
+                    log.error(e);
+                    // Ignore
+                }
+            }
+            return res.send(JSON.stringify({
+                status: 1,
+                state: item.state
+            }));
+        } catch (e) {
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
     let router = Router();
     router.get('/list', list);
     router.get('/list/properties', listProperties);
@@ -1918,6 +2037,8 @@ module.exports = function(app) {
     router.post('/images/save', saveImages);
     router.post('/import/properties', importProperties);
     router.get('/import/properties/state', importPropertiesState);
+    router.post('/import/collections', importCollections);
+    router.get('/import/collections/state', importCollectionsState);
     // Browser routes
     router.all('/browse/list', browseList);
     router.all('/browse/folder/create', browseFolderCreate);

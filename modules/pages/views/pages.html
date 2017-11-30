@@ -38,12 +38,12 @@
                 <button class="za-button za-button-danger zoiaDeleteButton">{{ i18n.__(locale, 'Delete')}}</button>
             </div>
             <div class="za-button-group za-visible@m">
-                <button class="za-button za-button-default pagesBtnSelectAll">{{ i18n.__(locale, 'Select all')}}</button>
-                <button class="za-button za-button-default pagesBtnSelectNone">{{ i18n.__(locale, 'Select none')}}</button>
+                <button class="za-button za-button-default pagesBtnSelectAll" title="{{ i18n.__(locale, 'Select all')}}" za-tooltip="pos:bottom-right"><span za-icon="icon:check"></span></button>
+                <button class="za-button za-button-default pagesBtnSelectNone" title="{{ i18n.__(locale, 'Select none')}}" za-tooltip="pos:bottom-right"><span za-icon="icon:close"></span></button>
             </div>
             <div class="za-button-group za-visible@m">
                 <div class="za-inline">
-                    <button class="za-button za-button-default pagesBtnSettings"><span za-icon="icon:cog"></span></button>
+                    <button class="za-button za-button-default pagesBtnSettings" title="{{ i18n.__(locale, 'Settings')}}" za-tooltip="pos:bottom-right"><span za-icon="icon:cog"></span>
                     <div za-dropdown="mode:click">
                         <div class="za-width-1-1">
                             <ul class="za-nav za-nav-default zoia-nav-default">
