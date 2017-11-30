@@ -17,6 +17,7 @@ let collectionEditDialog;
 let propertySelectDialog;
 let collectionSelectDialog;
 let propertiesImportDialog;
+let collectionsImportDialog;
 let addressAddEditDialog;
 let addressEditDialog;
 let deliveryEditDialog;
@@ -2474,6 +2475,11 @@ const initDialogs = () => {
         escClose: false,
         stack: true
     });
+    collectionsImportDialog = $zUI.modal('#zoiaCollectionsImportDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
     deliveryDialog = $zUI.modal('#zoiaDeliveryDialog', {
         bgClose: false,
         escClose: false,
@@ -2961,6 +2967,7 @@ $(document).ready(() => {
     $('.zoiaPropertySelect').click(zoiaPropertySelectHandler);
     $('.zoiaSelectedPropertyAdd').click(zoiaSelectedPropertyAddHandler);
     $('.zoiaAddPropertyBtn').click(() => {
+        $('#propertiesselect').zoiaTable().load();
         propertiesSelectDialog.show();
     });
     $('#zoiaPropertiesSelectDialogCloseBtn').click(() => {
@@ -2969,6 +2976,7 @@ $(document).ready(() => {
         });
     });
     $('.zoiaAddCollectionBtn').click(() => {
+        $('#collectionsselect').zoiaTable().load();
         collectionSelectDialog.show();
     });
     $('.zoiaRemoveAllProperties').click(() => {
@@ -2979,6 +2987,12 @@ $(document).ready(() => {
         $('#zoiaPropertiesImportDialogSpinner').hide();
         $('#zoiaPropertiesImportDialogFooter').show();
         propertiesImportDialog.show();
+    });
+    $('.zoiaCollectionsImportButton').click(() => {
+        $('#zoiaCollectionsImportDialogBody').show();
+        $('#zoiaCollectionsImportDialogSpinner').hide();
+        $('#zoiaCollectionsImportDialogFooter').show();
+        collectionsImportDialog.show();
     });
     $('.warehouseBtnDeliveryDialog').click(() => {
         $('#delivery').zoiaTable().load();
