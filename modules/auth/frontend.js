@@ -1,6 +1,11 @@
 const path = require('path');
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
-const configModule = require(path.join(__dirname, 'config.js'));
+let configModule;
+try {
+    configModule = require(path.join(__dirname, 'config', 'auth.json'));
+} catch (e) {
+    configModule = require(path.join(__dirname, 'config', 'auth.dist.json'));
+}
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
 const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js')))();
