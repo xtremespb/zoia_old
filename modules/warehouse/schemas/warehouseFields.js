@@ -13,7 +13,7 @@
                 },
                 type: 'string',
                 process: function(item) {
-                    return item.trim().replace(/\&/gm, '&amp;').replace(/\"/gm, '&quot;').replace(/\'/gm, '&apos;').replace(/\</gm, '&lt;').replace(/\>/gm, '&gt;');
+                    return item.trim();
                 }
             },
             sku: {
@@ -44,7 +44,7 @@
                 mandatoryCreate: false,
                 type: 'string',
                 process: function(item) {
-                    return item.trim().replace(/\&/gm, '&amp;').replace(/\"/gm, '&quot;').replace(/\'/gm, '&apos;').replace(/\</gm, '&lt;').replace(/\>/gm, '&gt;');
+                    return item.trim();
                 }
             },
             url: {
@@ -118,7 +118,7 @@
                 },
                 type: 'string',
                 process: function(item) {
-                    return item.trim().replace(/\&/gm, '&amp;').replace(/\"/gm, '&quot;').replace(/\'/gm, '&apos;').replace(/\</gm, '&lt;').replace(/\>/gm, '&gt;');
+                    return item.trim();
                 }
             },
             description: {
@@ -129,7 +129,7 @@
                 },
                 type: 'string',
                 process: function(item) {
-                    return item.trim().replace(/\&/gm, '&amp;').replace(/\"/gm, '&quot;').replace(/\'/gm, '&apos;').replace(/\</gm, '&lt;').replace(/\>/gm, '&gt;');
+                    return item.trim();
                 }
             },
             content: {

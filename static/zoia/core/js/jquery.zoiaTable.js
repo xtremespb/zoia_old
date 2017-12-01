@@ -267,6 +267,9 @@
                                 let th = that.header[h].replace(new RegExp('^' + that.element.id + '_'), '');
                                 for (let ie in item) {
                                     if (ie === th && that.settings.fields[ie]) {
+                                        if (item[ie] && typeof item[ie] === 'string') {
+                                            item[ie] = item[ie].replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+                                        }
                                         html += '<td>' + that.settings.fields[ie].process(ie, item, item[ie]) + '</td>';
                                         found = true;
                                     }

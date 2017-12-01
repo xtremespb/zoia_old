@@ -335,7 +335,7 @@
             const valuesListItem = this._template(this.settings.html.valueslistItem, {
                 prefix: prefix,
                 name: name,
-                key: key,
+                key: key.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"),
                 value: value,
                 langParameter: this.settings.lang.parameter,
                 langValue: this.settings.lang.value
@@ -354,7 +354,7 @@
             const valuesListItem = this._template(this.settings.html.valueslistItemEditable, {
                 prefix: prefix,
                 name: name,
-                key: key,
+                key: key.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"),
                 value: value,
                 data: data,
                 langParameter: this.settings.lang.parameter,
@@ -374,7 +374,7 @@
             const valuesListItem = this._template(this.settings.html.valueslistfixedItem, {
                 prefix: prefix,
                 name: name,
-                key: key,
+                key: key.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"),
                 value: value,
                 langParameter: this.settings.lang.parameter,
                 langValue: this.settings.lang.value

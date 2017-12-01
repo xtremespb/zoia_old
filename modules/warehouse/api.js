@@ -1910,7 +1910,6 @@ module.exports = function(app) {
         }
         try {
             const fid = String(Date.now());
-            console.log('Fid: ' + fid);
             const tempFile = path.join(__dirname, '..', '..', 'temp', 'cimport_' + fid + '.csv');
             await fs.writeFile(tempFile, req.files['files[]'].data);
             const insResult = await db.collection('warehouse_tasks').insertOne({
@@ -1923,12 +1922,9 @@ module.exports = function(app) {
                 }));
             }
             const uid = insResult.insertedId;
-            console.log('Importing...');
             setTimeout(function() {
                 csv().fromFile(tempFile)
                     .on('json', async(json) => {
-                        console.log('Got JSON!');
-                        console.log(json);
                         if (!json || typeof json !== 'object' || !json.properties) {
                             return;
                         }
@@ -1936,7 +1932,6 @@ module.exports = function(app) {
                             properties: [],
                             title: {}
                         };
-                        console.log('Prop: ' + prop);
                         if (json.properties && typeof json.properties === 'string') {
                             json.properties = json.properties.replace(/\s\t/, '');
                             const properties = json.properties.split(/;/);
@@ -1948,7 +1943,6 @@ module.exports = function(app) {
                             let lng = config.i18n.locales[i];
                             prop.title[lng] = json[lng] || '';
                         }
-                        console.log('Inserting prop');
                         await db.collection('warehouse_collections').insertOne(prop);
                     }).on('done', async(error) => {
                         await db.collection('warehouse_tasks').update({ _id: new ObjectID(uid) }, { $set: { state: 3 } }, { upsert: true });

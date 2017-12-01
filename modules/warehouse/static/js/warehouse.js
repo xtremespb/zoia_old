@@ -3072,7 +3072,7 @@ $(document).ready(() => {
         });
     });
     $('.zoiaAddCollectionBtn').click(() => {
-        $('#collectionsselect').zoiaTable().load();
+        $('#collectionselect').zoiaTable().load();
         collectionSelectDialog.show();
     });
     $('.zoiaRemoveAllProperties').click(() => {
