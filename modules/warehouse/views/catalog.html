@@ -1,0 +1,29 @@
+<div class="za-grid-small za-child-width-expand" za-grid>
+    <div class="za-width-medium@m">
+        <div class="za-card za-card-default za-card-small za-card-body">
+            <div class="za-width-1-2@s za-width-2-5@m">
+                {% if parent %}
+                <ul class="za-nav za-nav-default">
+                    <li class="za-parent za-active">
+                        <a href="{{ parent.path }}">{{ parent.title }}&nbsp;<span za-icon="icon:chevron-left;ratio:0.7"></span></a>
+                        <ul class="za-nav-sub">
+                            {% for folder in folders %}
+                            <li><a href="{{ folder.path }}">{{ folder.title }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                </ul>
+                {% else %}
+                <ul class="za-nav za-nav-default">
+                    {% for folder in folders %}
+                    <li><a href="{{ folder.path }}">{{ folder.title }}</a></li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div>
+        <div>Item</div>
+    </div>
+</div>
