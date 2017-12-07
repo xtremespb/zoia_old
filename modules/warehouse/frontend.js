@@ -24,13 +24,27 @@ module.exports = function(app) {
         }
     };
 
-    const _findChildren = (tree, id) => {
+    const _hasChildren = (tree, id) => {
         for (let i in tree) {
             const item = tree[i];
             if (item.parent === id) {
                 return true;
             }
         }
+    };
+
+    const _findChildren = (tree, id, _children) => {
+        if (id === '1') {
+            return [];
+        }
+        let children = _children || [id];
+        for (let k in tree) {
+            if (tree[k].parent === id) {
+                _findChildren(tree, tree[k].id, children);
+                children.push(id);
+            }
+        }
+        return children;
     };
 
     const _getTreePath = (tree, id) => {
@@ -64,6 +78,35 @@ module.exports = function(app) {
         }
     };
 
+    const _getTreeBreadcrumbs = (tree, id, locale) => {
+        let path = [];
+        let nextId = id;
+        while (true) {
+            let item = _findTreeItemById(tree, nextId);
+            if (!item) {
+                break;
+            }
+            if (item.parent !== '#') {
+                path.push({
+                    title: item.data.lang[locale],
+                    url: item.text
+                });
+            }
+            nextId = item.parent;
+        }
+        path.push({ title: i18n.get().__(locale, 'Catalog'), url: configModule.prefix.replace(/\//, '') });
+        path = path.reverse();
+        let prevPath = '';
+        for (let i in path) {
+            path[i].url = prevPath + '/' + path[i].url;
+            prevPath = path[i].url;
+        }
+        if (path.length > 1) {
+            path[path.length - 1].url = null;
+        }
+        return path;
+    };
+
     const list = async(req, res, next) => {
         let locale = config.i18n.locales[0];
         if (req.session && req.session.currentLocale) {
@@ -89,6 +132,8 @@ module.exports = function(app) {
         let folders = [];
         let folder = '1';
         let parent = null;
+        let breadcrumbs = [];
+        let children = [];
         if (dataTree && dataTree.data) {
             try {
                 let items = [];
@@ -103,32 +148,29 @@ module.exports = function(app) {
                     let folderFound = _findFolderId(items, sText, urlPartsCopy);
                     folder = folderFound ? folderFound : '1';
                 }
+                let lookupFolder = folder;
+                if (folder !== '1' && !_hasChildren(items, folder)) {
+                    let itemCurrent = _findTreeItemById(items, folder);
+                    if (itemCurrent) {
+                        lookupFolder = itemCurrent.parent;
+                    }
+                }
                 for (let i in items) {
                     const item = items[i];
-                    if (item.parent === folder) {
-                        const path = _getTreePath(items, folder);
+                    if (item.parent === lookupFolder) {
+                        const path = _getTreePath(items, lookupFolder);
                         path.push(item.text);
                         folders.push({
                             id: item.id,
                             fid: item.text,
                             title: item.data.lang[locale] || '',
+                            active: (item.id === folder) ? 'za-active' : '',
                             path: path.join('/')
                         });
                     }
                 }
-                const parentDataItem = _findTreeItemById(items, folder);
-                if (parentDataItem) {
-                    const parentData = _findTreeItemById(items, parentDataItem.parent);
-                    if (parentData) {
-                        const parentPath = _getTreePath(items, parentData.id);
-                        parent = {
-                            id: parentData.id,
-                            fid: parentData.text,
-                            title: (parentData.data && parentData.data.lang && parentData.data.lang[locale]) ? parentData.data.lang[locale] : i18n.get().__(locale, 'Catalog'),
-                            path: parentPath.join('/')
-                        };
-                    }
-                }
+                breadcrumbs = _getTreeBreadcrumbs(items, folder, locale);
+                children = _findChildren(items, folder);
             } catch (e) {
                 // OK, there will be no folders
                 console.log(e);
@@ -141,7 +183,8 @@ module.exports = function(app) {
             prefix: configModule.prefix,
             config: config,
             folders: folders,
-            parent: parent
+            parent: parent,
+            breadcrumbs: breadcrumbs
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Catalog'), {
             content: registerHTML,

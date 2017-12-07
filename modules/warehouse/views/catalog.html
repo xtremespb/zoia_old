@@ -1,29 +1,24 @@
+<div>
+    <ul class="za-breadcrumb">
+        {% for c in breadcrumbs %} {% if c.url %}
+        <li><a href="{{ c.url }}">{{ c.title }}</a></li>
+        {% else %}
+        <li><span>{{ c.title }}</span></li>
+        {% endif %} {% endfor %}
+    </ul>
+</div>
+<a class="za-icon-button za-margin-small-right za-margin-bottom za-hidden@s" za-icon="icon:chevron-down" type="button" id="zoia_catalog_folders_toggle"></a>
 <div class="za-grid-small za-child-width-expand" za-grid>
-    <div class="za-width-medium@m">
+    <div class="za-width-medium@s za-visible@m za-margin-bottom" id="zoia_catalog_folders">
         <div class="za-card za-card-default za-card-small za-card-body">
-            <div class="za-width-1-2@s za-width-2-5@m">
-                {% if parent %}
-                <ul class="za-nav za-nav-default">
-                    <li class="za-parent za-active">
-                        <a href="{{ parent.path }}">{{ parent.title }}&nbsp;<span za-icon="icon:chevron-left;ratio:0.7"></span></a>
-                        <ul class="za-nav-sub">
-                            {% for folder in folders %}
-                            <li><a href="{{ folder.path }}">{{ folder.title }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </li>
-                </ul>
-                {% else %}
-                <ul class="za-nav za-nav-default">
-                    {% for folder in folders %}
-                    <li><a href="{{ folder.path }}">{{ folder.title }}</a></li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-            </div>
+            <ul class="za-nav za-nav-default">
+                {% for folder in folders %}
+                <li class="{{ folder.active }}"><a href="{{ folder.path }}">{{ folder.title }}</a></li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
     <div>
-        <div>Item</div>
+        <div>Content</div>
     </div>
 </div>
