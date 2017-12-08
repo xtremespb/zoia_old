@@ -37,11 +37,11 @@ module.exports = function(app) {
         if (id === '1') {
             return [];
         }
-        let children = _children || [id];
+        let children = _children || [{ folder: id }];
         for (let k in tree) {
             if (tree[k].parent === id) {
                 _findChildren(tree, tree[k].id, children);
-                children.push(id);
+                children.push({ folder: id });
             }
         }
         return children;
@@ -124,6 +124,14 @@ module.exports = function(app) {
             }
         });
         urlParts.shift();
+        // load parameters
+        let page = req.query.p || '1';
+        if (typeof page !== 'string' || !page.match(/^[0-9]+$/)) {
+            page = 1;
+        } else {
+            page = parseInt(page);
+        }
+        const skip = (page - 1) * configModule.itemsPerPage;
         // Load filters
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
@@ -173,9 +181,18 @@ module.exports = function(app) {
                 children = _findChildren(items, folder);
             } catch (e) {
                 // OK, there will be no folders
-                console.log(e);
             }
         }
+        let ffields = { _id: 1, folder: 1, sku: 1, status: 1, price: 1, images: 1 };
+        ffields[locale + '.title'] = 1;
+        let what = {
+            status: '1',
+        };
+        if (children.length) {
+            what.$or = children;
+        }
+        const catalogItemsCount = await db.collection('warehouse').find(what, ffields, { skip: skip, limit: configModule.itemsPerPage }).count();
+        const catalogItems = await db.collection('warehouse').find(what, ffields, { skip: skip, limit: configModule.itemsPerPage }).toArray();
         let registerHTML = await renderAuth.file('catalog.html', {
             i18n: i18n.get(),
             locale: locale,
@@ -184,7 +201,10 @@ module.exports = function(app) {
             config: config,
             folders: folders,
             parent: parent,
-            breadcrumbs: breadcrumbs
+            breadcrumbs: breadcrumbs,
+            page: page,
+            items: catalogItems,
+            count: catalogItemsCount
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Catalog'), {
             content: registerHTML,

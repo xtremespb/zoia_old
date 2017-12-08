@@ -19,6 +19,10 @@
         </div>
     </div>
     <div>
-        <div>Content</div>
+        <div class="za-flex za-flex-wrap">
+        	{% for item in items %}
+        	<div class="za-card za-card-default za-card-small za-card-body">{{ item[locale].title }}</div>
+        	{% endfor %}
+        </div>
     </div>
 </div>

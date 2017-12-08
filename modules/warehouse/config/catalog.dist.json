@@ -1,3 +1,4 @@
 {
-    "prefix": "/catalog"
+    "prefix": "/catalog",
+    "itemsPerPage": 10
 }
