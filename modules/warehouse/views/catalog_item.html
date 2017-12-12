@@ -1,0 +1,27 @@
+<div>
+    <ul class="za-breadcrumb">
+        {% for c in breadcrumbs %} {% if c.url %}
+        <li><a href="{{ c.url }}">{{ c.title }}</a></li>
+        {% else %}
+        <li><span>{{ c.title }}</span></li>
+        {% endif %} {% endfor %}
+    </ul>
+</div>
+<div class="za-grid-collapse" za-grid>
+    {% if data.images.length %}
+    <div>
+        <div class="za-flex za-flex-column">
+            {% for image in data.images %}
+            <img src="/warehouse/static/images/{{ data._id }}/tn_{{ image.id }}.{{ image.ext }}" class="za-catalog-item-tn">
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    <div>
+        {% if data.images.length %}
+        <img src="/warehouse/static/images/{{ data._id }}/tn_{{ data.images[0].id }}.{{ data.images[0].ext }}"> {% else %} zhopa {% endif %}
+    </div>
+    <div class="za-width-expand">
+        <div class="za-heading-line">{{ data[locale].title }}</div>
+    </div>
+</div>

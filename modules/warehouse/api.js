@@ -13,6 +13,12 @@ const fs = require('fs-extra');
 const Jimp = require('jimp');
 const imageType = require('image-type');
 const csv = require('csvtojson');
+let configModule;
+try {
+    configModule = require(path.join(__dirname, 'config', 'catalog.json'));
+} catch (e) {
+    configModule = require(path.join(__dirname, 'config', 'catalog.dist.json'));
+} 
 
 module.exports = function(app) {
     const log = app.get('log');
@@ -1669,7 +1675,7 @@ module.exports = function(app) {
                 if (!img) {
                     throw new Error('Invalid file format');
                 }
-                img.cover(150, 150, Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE);
+                img.cover(configModule.thumb.width, configModule.thumb.height, Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE);
                 img.quality(60);
                 let buf = await _buf(img);
                 if (!buf) {

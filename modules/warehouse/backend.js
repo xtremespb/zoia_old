@@ -1,11 +1,9 @@
 const moduleId = 'warehouse';
 const moduleURL = '/admin/warehouse';
-
 const path = require('path');
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
-
 let jsonAddress;
 try {
     jsonAddress = require(path.join(__dirname, 'config', 'address.json'));

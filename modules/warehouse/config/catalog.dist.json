@@ -1,4 +1,8 @@
 {
     "prefix": "/catalog",
-    "itemsPerPage": 10
+    "itemsPerPage": 10,
+    "thumb": {
+    	"width": 300,
+    	"height": 300
+    }
 }

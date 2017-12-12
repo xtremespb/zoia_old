@@ -21,7 +21,15 @@
     <div>
         <div class="za-flex za-flex-wrap">
         	{% for item in items %}
-        	<div class="za-card za-card-default za-card-small za-card-body">{{ item[locale].title }}</div>
+        	<div class="za-catalog-item">
+        	<div class="za-catalog-image-wrap za-flex za-flex-center">{% if item.firstImage %}
+        	<img src="/warehouse/static/images/{{ item._id }}/tn_{{ item.firstImage }}" class="za-catalog-image">
+        	{% else %}
+        	<div class="za-catalog-item-img-placeholder za-flex za-flex-center za-flex-middle"><span class="za-catalog-item-img-placeholder-icon" za-icon="icon:image;ratio:4"></span></div>
+        	{% endif %}</div>
+        	<div class="za-catalog-item-text za-text-truncate"><a href="{{ configModule.prefix }}/item/{{ item.sku }}">{{ item[locale].title }}</a></div>
+        	<div class="za-catalog-item-price">{{ item.price }} {{ settings.currency }}</div>
+        	</div>
         	{% endfor %}
         </div>
     </div>

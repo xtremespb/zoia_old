@@ -78,7 +78,7 @@ module.exports = function(app) {
         }
     };
 
-    const _getTreeBreadcrumbs = (tree, id, locale) => {
+    const _getTreeBreadcrumbs = (tree, id, locale, nonulllast) => {
         let path = [];
         let nextId = id;
         while (true) {
@@ -101,10 +101,106 @@ module.exports = function(app) {
             path[i].url = prevPath + '/' + path[i].url;
             prevPath = path[i].url;
         }
-        if (path.length > 1) {
+        if (path.length > 1 && !nonulllast) {
             path[path.length - 1].url = null;
         }
         return path;
+    };
+
+    const _loadTree = async() => {
+        let items = [];
+        const dataTree = await db.collection('registry').findOne({ name: 'warehouseFolders' });
+        if (dataTree && dataTree.data) {
+            try {
+                try {
+                    items = JSON.parse(dataTree.data);
+                } catch (e) {
+                    // Ignore
+                }
+            } catch (e) {
+                // OK, there will be no folders
+            }
+        }
+        return items;
+    }
+
+    const _loadFolders = async(locale, urlParts) => {
+        let folders = [];
+        let folder = '1';
+        let breadcrumbs = [];
+        let children = [];
+        const dataTree = await db.collection('registry').findOne({ name: 'warehouseFolders' });
+        let items = await _loadTree();
+        if (items) {
+            try {
+                if (urlParts.length === 1 && urlParts[0] === '') {
+                    urlParts.pop();
+                }
+                if (urlParts.length > 0) {
+                    let urlPartsCopy = urlParts.slice(0);
+                    const sText = urlPartsCopy.pop();
+                    let folderFound = _findFolderId(items, sText, urlPartsCopy);
+                    if (!folderFound) {
+                        return false;
+                    }
+                    folder = folderFound;
+                }
+                let lookupFolder = folder;
+                if (folder !== '1' && !_hasChildren(items, folder)) {
+                    let itemCurrent = _findTreeItemById(items, folder);
+                    if (itemCurrent) {
+                        lookupFolder = itemCurrent.parent;
+                    }
+                }
+                for (let i in items) {
+                    const item = items[i];
+                    if (item.parent === lookupFolder) {
+                        const path = _getTreePath(items, lookupFolder);
+                        path.push(item.text);
+                        folders.push({
+                            id: item.id,
+                            fid: item.text,
+                            title: item.data.lang[locale] || '',
+                            active: (item.id === folder) ? 'za-active' : '',
+                            path: path.join('/')
+                        });
+                    }
+                }
+                breadcrumbs = _getTreeBreadcrumbs(items, folder, locale);
+                children = _findChildren(items, folder);
+            } catch (e) {
+                // OK, there will be no folders
+            }
+        }
+        return {
+            folders: folders,
+            folder: folder,
+            breadcrumbs: breadcrumbs,
+            children: children
+        };
+    };
+
+    const _loadSettings = async(locale) => {
+        const dataSettings = await db.collection('registry').findOne({ name: 'warehouseSettings' });
+        let settings = {
+            currency: '',
+            weight: ''
+        };
+        if (dataSettings && dataSettings.data) {
+            try {
+                settingsParsed = JSON.parse(dataSettings.data);
+                for (let i in settingsParsed) {
+                    for (let p in settingsParsed[i]) {
+                        if (settingsParsed[i][p].p === locale) {
+                            settings[i] = settingsParsed[i][p].v;
+                        }
+                    }
+                }
+            } catch (e) {
+                // Ignore
+            }
+        }
+        return settings;
     };
 
     const list = async(req, res, next) => {
@@ -136,86 +232,95 @@ module.exports = function(app) {
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
         // Load data tree
-        const dataTree = await db.collection('registry').findOne({ name: 'warehouseFolders' });
-        let folders = [];
-        let folder = '1';
-        let parent = null;
-        let breadcrumbs = [];
-        let children = [];
-        if (dataTree && dataTree.data) {
-            try {
-                let items = [];
-                try {
-                    items = JSON.parse(dataTree.data);
-                } catch (e) {
-                    // Ignore
-                }
-                if (urlParts.length > 0) {
-                    let urlPartsCopy = urlParts.slice(0);
-                    const sText = urlPartsCopy.pop();
-                    let folderFound = _findFolderId(items, sText, urlPartsCopy);
-                    folder = folderFound ? folderFound : '1';
-                }
-                let lookupFolder = folder;
-                if (folder !== '1' && !_hasChildren(items, folder)) {
-                    let itemCurrent = _findTreeItemById(items, folder);
-                    if (itemCurrent) {
-                        lookupFolder = itemCurrent.parent;
-                    }
-                }
-                for (let i in items) {
-                    const item = items[i];
-                    if (item.parent === lookupFolder) {
-                        const path = _getTreePath(items, lookupFolder);
-                        path.push(item.text);
-                        folders.push({
-                            id: item.id,
-                            fid: item.text,
-                            title: item.data.lang[locale] || '',
-                            active: (item.id === folder) ? 'za-active' : '',
-                            path: path.join('/')
-                        });
-                    }
-                }
-                breadcrumbs = _getTreeBreadcrumbs(items, folder, locale);
-                children = _findChildren(items, folder);
-            } catch (e) {
-                // OK, there will be no folders
-            }
+        const foldersData = await _loadFolders(locale, urlParts);
+        if (!foldersData) {
+            return next();
         }
-        let ffields = { _id: 1, folder: 1, sku: 1, status: 1, price: 1, images: 1 };
-        ffields[locale + '.title'] = 1;
+        let folders = foldersData.folders;
+        let folder = foldersData.folder;
+        let breadcrumbs = foldersData.breadcrumbs;
+        let children = foldersData.children;
         let what = {
             status: '1',
         };
         if (children.length) {
             what.$or = children;
         }
+        let ffields = { _id: 1, folder: 1, sku: 1, status: 1, price: 1, images: 1 };
+        ffields[locale + '.title'] = 1;
+        const settings = await _loadSettings(locale);
         const catalogItemsCount = await db.collection('warehouse').find(what, ffields, { skip: skip, limit: configModule.itemsPerPage }).count();
         const catalogItems = await db.collection('warehouse').find(what, ffields, { skip: skip, limit: configModule.itemsPerPage }).toArray();
-        let registerHTML = await renderAuth.file('catalog.html', {
+        for (let item in catalogItems) {
+            if (catalogItems[item].images && catalogItems[item].images.length) {
+                catalogItems[item].firstImage = catalogItems[item].images[0].id + '.' + catalogItems[item].images[0].ext;
+            }
+        }
+        let catalogHTML = await renderAuth.file('catalog.html', {
             i18n: i18n.get(),
             locale: locale,
             lang: JSON.stringify(i18n.get().locales[locale]),
-            prefix: configModule.prefix,
+            configModule: configModule,
             config: config,
+            settings: settings,
             folders: folders,
-            parent: parent,
             breadcrumbs: breadcrumbs,
             page: page,
             items: catalogItems,
             count: catalogItemsCount
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Catalog'), {
-            content: registerHTML,
+            content: catalogHTML,
             extraCSS: config.production ? ['/warehouse/static/css/catalog.min.css'] : ['/warehouse/static/css/catalog.css'],
             extraJS: config.production ? ['/warehouse/static/js/catalog.min.js'] : ['/warehouse/static/js/catalog.js']
         });
         res.send(html);
     };
 
+    const item = async(req, res, next) => {
+        let locale = config.i18n.locales[0];
+        if (req.session && req.session.currentLocale) {
+            locale = req.session.currentLocale;
+        }
+        var sku = req.params.sku;
+        if (!sku || typeof sku !== 'string' || !sku.match(/^[A-Za-z0-9_\-\.]{1,64}$/)) {
+            return next();
+        }
+        // Find item by SKU
+        const data = await db.collection('warehouse').findOne({ sku: sku });
+        if (!data) {
+            return next();
+        }
+        // Load filters
+        let filters = app.get('templateFilters');
+        renderRoot.setFilters(filters);
+        // Load data
+        const settings = await _loadSettings(locale);
+        const tree = await _loadTree();
+        const breadcrumbs = _getTreeBreadcrumbs(tree, data.folder, locale, true);
+        // Images
+        // Render
+        let catalogItemHTML = await renderAuth.file('catalog_item.html', {
+            i18n: i18n.get(),
+            locale: locale,
+            lang: JSON.stringify(i18n.get().locales[locale]),
+            configModule: configModule,
+            config: config,
+            settings: settings,
+            breadcrumbs: breadcrumbs,
+            data: data
+        });
+        let html = await renderRoot.template(req, i18n, locale, data[locale].title, {
+            content: catalogItemHTML,
+            extraCSS: config.production ? ['/warehouse/static/css/catalog_item.min.css'] : ['/warehouse/static/css/catalog_item.css'],
+            extraJS: config.production ? ['/warehouse/static/js/catalog_item.min.js'] : ['/warehouse/static/js/catalog_item.js']
+        });
+        res.send(html);
+    };
+
     app.use(configModule.prefix + '/static', app.get('express').static(path.join(__dirname, 'static')));
     let router = Router();
+    router.get('/item/:sku', item);
     router.get(/^(.*)?$/, list);
     return {
         routes: router
