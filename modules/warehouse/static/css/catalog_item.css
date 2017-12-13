@@ -1,4 +1,50 @@
 .za-catalog-item-tn {
-	width: 50px;
-	height: 50px;
+    width: 50px;
+    height: 50px;
+}
+
+.za-catalog-item-wrap {
+    background: #fff;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#zoia_item_info {
+    padding: 20px;
+    padding-left: 30px;
+}
+
+.za-catalog-item-price {
+    color: #666;
+}
+
+.za-catalog-item-tn {
+    width: 58px;
+    height: 58px;
+    margin: 1px;
+    cursor: pointer;
+}
+
+.za-catalog-item-tn-wrap {
+    width: 100%;
+    max-width: 300px;
+    margin-top: 10px;
+}
+
+@media (min-width: 960px) {
+    #zoia_item_content {
+        margin-right: 20px;
+    }
+    .za-catalog-item-wrap {
+        margin-right: 20px;
+    }
+}
+
+@media (max-width: 959px) {
+    #zoia_item_content,
+    #zoia_item_info {
+        margin-top: 20px;
+    }
 }

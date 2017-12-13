@@ -1,3 +1,4 @@
+<h1>{{ data[locale].title }}</h1>
 <div>
     <ul class="za-breadcrumb">
         {% for c in breadcrumbs %} {% if c.url %}
@@ -9,19 +10,30 @@
 </div>
 <div class="za-grid-collapse" za-grid>
     {% if data.images.length %}
-    <div>
-        <div class="za-flex za-flex-column">
-            {% for image in data.images %}
-            <img src="/warehouse/static/images/{{ data._id }}/tn_{{ image.id }}.{{ image.ext }}" class="za-catalog-item-tn">
-            {% endfor %}
+    <div class="za-width-auto@m" id="zoia_item_images">
+        <div class="za-flex za-flex-center za-box-shadow-medium za-catalog-item-wrap">
+            <div za-slideshow="animation:push;ratio:1:1">
+                <div class="za-position-relative za-visible-toggle za-light">
+                    <ul class="za-slideshow-items">
+                        {% for image in data.images %}
+                        <li><a href="/warehouse/static/images/{{ data._id }}/{{ image.id }}.{{ image.ext }}" target="_blank"><img src="/warehouse/static/images/{{ data._id }}/tn_{{ image.id }}.{{ image.ext }}" alt=""></a></li>{% endfor %}
+                    </ul>
+                    <a class="za-position-center-left za-position-small za-hidden-hover" href="#" za-slidenav-previous za-slideshow-item="previous"></a>
+                    <a class="za-position-center-right za-position-small za-hidden-hover" href="#" za-slidenav-next za-slideshow-item="next"></a>
+                </div>
+                <div class="za-flex za-flex-wrap za-catalog-item-tn-wrap">
+                    {% for image in data.images %}<span za-slideshow-item="{{ loop.index0 }}"><img src="/warehouse/static/images/{{ data._id }}/tn_{{ image.id }}.{{ image.ext }}" alt="" class="za-catalog-item-tn"></span>{% endfor %}
+                </div>
+            </div>
         </div>
     </div>
     {% endif %}
-    <div>
-        {% if data.images.length %}
-        <img src="/warehouse/static/images/{{ data._id }}/tn_{{ data.images[0].id }}.{{ data.images[0].ext }}"> {% else %} zhopa {% endif %}
+    <div class="za-width-expand@m" id="zoia_item_content">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam at volutpat urna. Nullam vel augue id nunc mattis condimentum. In rutrum turpis in posuere dapibus. Vestibulum varius tempor est, ac aliquam ante pharetra et. Quisque eget bibendum nisi. Fusce vitae lorem scelerisque nulla dignissim mattis nec vel massa. Phasellus varius convallis vehicula. Mauris nec ipsum a odio finibus lacinia. Integer metus justo, ullamcorper suscipit eros eget, vestibulum ornare quam. In vitae tristique nulla, eu pretium metus. Vivamus sapien ipsum, lobortis laoreet lectus non, eleifend iaculis metus.
     </div>
-    <div class="za-width-expand">
-        <div class="za-heading-line">{{ data[locale].title }}</div>
+    <div class="za-width-medium@m">
+        <div class="za-border-rounded za-box-shadow-medium" id="zoia_item_info">
+            <div class="za-text-large za-catalog-item-price">{{ data.price }}&nbsp;{{ settings.currency }}</div>
+        </div>
     </div>
 </div>
