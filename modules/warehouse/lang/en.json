@@ -127,5 +127,10 @@
 	"Address lines": "Address lines",
 	"Add Field": "Add Field",
 	"Import Collections from CSV": "Import Collections from CSV",
-	"Catalog": "Catalog"
+	"Catalog": "Catalog",
+	"Details": "Details",
+	"Add to Cart": "Add to Cart",
+	"Added to your cart": "Added to your cart",
+	"Could not add item to the cart": "Could not add item to the cart",
+	"Cart": "Cart"
 }

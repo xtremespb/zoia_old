@@ -18,7 +18,7 @@ try {
     configModule = require(path.join(__dirname, 'config', 'catalog.json'));
 } catch (e) {
     configModule = require(path.join(__dirname, 'config', 'catalog.dist.json'));
-} 
+}
 
 module.exports = function(app) {
     const log = app.get('log');
@@ -468,7 +468,7 @@ module.exports = function(app) {
                         data: []
                     }
                 }));
-            }            
+            }
             return res.send(JSON.stringify({
                 status: 1,
                 item: item
@@ -2008,6 +2008,34 @@ module.exports = function(app) {
         }
     };
 
+    const cartAdd = async(req, res) => {
+        res.contentType('application/json');
+        const locale = req.session.currentLocale;
+        const id = req.body.id;
+        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let cart = req.session.catalog_cart || {};
+        const item = await db.collection('warehouse').findOne({ _id: new ObjectID(id) });
+        if (!item) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        cart[id] = cart[id] ? cart[id] + 1 : 1;
+        req.session.catalog_cart = cart;
+        let cartCount = 0;
+        for (let i in cart) {
+            cartCount += cart[i];
+        }
+        return res.send(JSON.stringify({
+            status: 1,
+            count: cartCount
+        }));
+    };
+
     let router = Router();
     router.get('/list', list);
     router.get('/list/properties', listProperties);
@@ -2046,7 +2074,8 @@ module.exports = function(app) {
     router.all('/browse/delete', browseDelete);
     router.all('/browse/paste', browsePaste);
     router.all('/browse/upload', browseUpload);
-
+    // Frontend routes
+    router.post('/cart/add', cartAdd);
     return {
         routes: router
     };

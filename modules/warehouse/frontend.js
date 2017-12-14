@@ -8,6 +8,7 @@ try {
 }
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
+const ObjectID = require('mongodb').ObjectID;
 
 module.exports = function(app) {
     const db = app.get('db');
@@ -256,6 +257,13 @@ module.exports = function(app) {
                 catalogItems[item].firstImage = catalogItems[item].images[0].id + '.' + catalogItems[item].images[0].ext;
             }
         }
+        // Cart
+        const cart = req.session.catalog_cart || {};
+        let cartCount = 0;
+        for (let i in cart) {
+            cartCount += cart[i];
+        }
+        // Render
         let catalogHTML = await renderAuth.file('catalog.html', {
             i18n: i18n.get(),
             locale: locale,
@@ -267,7 +275,8 @@ module.exports = function(app) {
             breadcrumbs: breadcrumbs,
             page: page,
             items: catalogItems,
-            count: catalogItemsCount
+            count: catalogItemsCount,
+            cartCount: cartCount
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Catalog'), {
             content: catalogHTML,
@@ -298,7 +307,28 @@ module.exports = function(app) {
         const settings = await _loadSettings(locale);
         const tree = await _loadTree();
         const breadcrumbs = _getTreeBreadcrumbs(tree, data.folder, locale, true);
-        // Images
+        // Properties
+        let propsQuery = [];
+        let props = {};
+        if (data[locale]) {
+            for (let i in data[locale].properties) {
+                propsQuery.push({ pid: data[locale].properties[i].d });
+            }
+        }
+        if (propsQuery.length) {
+            const dataProps = await db.collection('warehouse_properties').find({ $or: propsQuery }).toArray();
+            if (dataProps && dataProps.length) {
+                for (let i in dataProps) {
+                    props[dataProps[i].pid] = dataProps[i].title[locale];
+                }
+            }
+        }
+        // Cart
+        const cart = req.session.catalog_cart || {};
+        let cartCount = 0;
+        for (let i in cart) {
+            cartCount += cart[i];
+        }
         // Render
         let catalogItemHTML = await renderAuth.file('catalog_item.html', {
             i18n: i18n.get(),
@@ -308,7 +338,9 @@ module.exports = function(app) {
             config: config,
             settings: settings,
             breadcrumbs: breadcrumbs,
-            data: data
+            data: data,
+            props: props,
+            cartCount: cartCount
         });
         let html = await renderRoot.template(req, i18n, locale, data[locale].title, {
             content: catalogItemHTML,
@@ -318,10 +350,52 @@ module.exports = function(app) {
         res.send(html);
     };
 
+    const cart = async(req, res, next) => {
+        let locale = config.i18n.locales[0];
+        if (req.session && req.session.currentLocale) {
+            locale = req.session.currentLocale;
+        }
+        // Load filters
+        let filters = app.get('templateFilters');
+        renderRoot.setFilters(filters);
+        // Load data
+        const settings = await _loadSettings(locale);
+        // Cart
+        const cart = req.session.catalog_cart || {};
+        const cartData = {};
+        if (Object.keys(cart).length > 0) {
+            let query = [];
+            for (let i in cart) {
+                query.push({
+                    _id: new ObjectID(i)
+                });
+            }
+            let ffields = { _id: 1 };
+            ffields[locale + '.title'] = 1;
+            const cartDB = await db.collection('warehouse').find({ $or: query }, ffields).toArray();
+        }
+        // Render
+        let catalogCartHTML = await renderAuth.file('catalog_cart.html', {
+            i18n: i18n.get(),
+            locale: locale,
+            lang: JSON.stringify(i18n.get().locales[locale]),
+            configModule: configModule,
+            config: config,
+            settings: settings
+        });
+        let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Cart'), {
+            content: catalogCartHTML,
+            extraCSS: config.production ? ['/warehouse/static/css/catalog_cart.min.css'] : ['/warehouse/static/css/catalog_cart.css'],
+            extraJS: config.production ? ['/warehouse/static/js/catalog_cart.min.js'] : ['/warehouse/static/js/catalog_cart.js']
+        });
+        res.send(html);
+    };
+
     app.use(configModule.prefix + '/static', app.get('express').static(path.join(__dirname, 'static')));
     let router = Router();
     router.get('/item/:sku', item);
     router.get(/^(.*)?$/, list);
+    router.get('/cart', cart);
     return {
         routes: router
     };
