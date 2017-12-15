@@ -259,10 +259,7 @@ module.exports = function(app) {
         }
         // Cart
         const cart = req.session.catalog_cart || {};
-        let cartCount = 0;
-        for (let i in cart) {
-            cartCount += cart[i];
-        }
+        let cartCount = Object.keys(cart).length;
         // Render
         let catalogHTML = await renderAuth.file('catalog.html', {
             i18n: i18n.get(),
@@ -325,10 +322,7 @@ module.exports = function(app) {
         }
         // Cart
         const cart = req.session.catalog_cart || {};
-        let cartCount = 0;
-        for (let i in cart) {
-            cartCount += cart[i];
-        }
+        let cartCount = Object.keys(cart).length;
         // Render
         let catalogItemHTML = await renderAuth.file('catalog_item.html', {
             i18n: i18n.get(),
@@ -362,7 +356,7 @@ module.exports = function(app) {
         const settings = await _loadSettings(locale);
         // Cart
         const cart = req.session.catalog_cart || {};
-        const cartData = {};
+        let cartArr = [];
         if (Object.keys(cart).length > 0) {
             let query = [];
             for (let i in cart) {
@@ -373,6 +367,15 @@ module.exports = function(app) {
             let ffields = { _id: 1 };
             ffields[locale + '.title'] = 1;
             const cartDB = await db.collection('warehouse').find({ $or: query }, ffields).toArray();
+            if (cartDB && cartDB.length) {
+                for (let i in cartDB) {
+                    cartArr.push({
+                        id: cartDB[i]._id,
+                        text: cartDB[i][locale] ?cartDB[i][locale].title : '',
+                        count: cart[cartDB[i]._id]
+                    });
+                }
+            }
         }
         // Render
         let catalogCartHTML = await renderAuth.file('catalog_cart.html', {
@@ -381,7 +384,8 @@ module.exports = function(app) {
             lang: JSON.stringify(i18n.get().locales[locale]),
             configModule: configModule,
             config: config,
-            settings: settings
+            settings: settings,
+            cart: cartArr
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Cart'), {
             content: catalogCartHTML,

@@ -2024,15 +2024,66 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        cart[id] = cart[id] ? cart[id] + 1 : 1;
+        cart[id] = cart[id] ? parseInt(cart[id]) + 1 : 1;
         req.session.catalog_cart = cart;
-        let cartCount = 0;
-        for (let i in cart) {
-            cartCount += cart[i];
-        }
+        let cartCount = Object.keys(cart).length;
         return res.send(JSON.stringify({
             status: 1,
             count: cartCount
+        }));
+    };
+
+    const cartCount = async(req, res) => {
+        res.contentType('application/json');
+        const locale = req.session.currentLocale;
+        const id = req.body.id;
+        let count = req.body.count;
+        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/) ||
+            !count || typeof count !== 'string' || !count.match(/^[0-9]+$/) ||
+            parseInt(count) === 0 || parseInt(count) > 99999) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let cart = req.session.catalog_cart || {};
+        const item = await db.collection('warehouse').findOne({ _id: new ObjectID(id) });
+        if (!item) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        if (item.amount && item.amount < count) {
+            count = item.amount;
+        }
+        cart[id] = count;
+        req.session.catalog_cart = cart;
+        return res.send(JSON.stringify({
+            status: 1,
+            count: count
+        }));
+    };
+
+    const cartDelete = async(req, res) => {
+        res.contentType('application/json');
+        const locale = req.session.currentLocale;
+        const id = req.body.id;
+        const count = req.body.count;
+        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let cart = req.session.catalog_cart || {};
+        if (!cart[id]) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        delete cart[id];
+        req.session.catalog_cart = cart;
+        return res.send(JSON.stringify({
+            status: 1,
+            count: count
         }));
     };
 
@@ -2076,6 +2127,8 @@ module.exports = function(app) {
     router.all('/browse/upload', browseUpload);
     // Frontend routes
     router.post('/cart/add', cartAdd);
+    router.post('/cart/count', cartCount);
+    router.post('/cart/delete', cartDelete);
     return {
         routes: router
     };
