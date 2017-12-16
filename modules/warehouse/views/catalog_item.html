@@ -21,7 +21,7 @@
         <div class="za-flex za-flex-center za-box-shadow-medium za-catalog-item-wrap">
             <div za-slideshow="animation:push;ratio:1:1">
                 <div class="za-position-relative za-visible-toggle za-light">
-                    <ul class="za-slideshow-items">
+                    <ul class="za-slideshow-items za-catalog-slideshow-items">
                         {% for image in data.images %}
                         <li><a href="/warehouse/static/images/{{ data._id }}/{{ image.id }}.{{ image.ext }}" target="_blank"><img src="/warehouse/static/images/{{ data._id }}/tn_{{ image.id }}.{{ image.ext }}" alt=""></a></li>{% endfor %}
                     </ul>

@@ -133,5 +133,6 @@
 	"Added to your cart": "Added to your cart",
 	"Could not add item to the cart": "Could not add item to the cart",
 	"Cart": "Cart",
-	"Could not delete item from your cart": "Could not delete item from your cart"
+	"Could not delete item from your cart": "Could not delete item from your cart",
+	"There are no items in cart yet.": "There are no items in cart yet."
 }

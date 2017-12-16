@@ -71,6 +71,10 @@ $(document).ready(() => {
             }, 300);
             if (res.status === 1) {
                 $(that).parent().parent().remove();
+                if ($('#catalog_cart_tr').length === 0) {
+                    $('#catalog_cart_table').hide();
+                    $('#catalog_cart_empty').show();
+                }
             } else {
                 $zUI.notification(lang['Could not delete item from your cart'], {
                     status: 'danger',
