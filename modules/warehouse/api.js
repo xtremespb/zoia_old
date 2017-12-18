@@ -2055,11 +2055,14 @@ module.exports = function(app) {
         if (item.amount && item.amount < count) {
             count = item.amount;
         }
+        const subtotal = parseFloat(item.price * count).toFixed(2);
         cart[id] = count;
         req.session.catalog_cart = cart;
         return res.send(JSON.stringify({
             status: 1,
-            count: count
+            id: item._id,
+            count: count,
+            subtotal: subtotal
         }));
     };
 

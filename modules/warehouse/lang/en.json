@@ -134,5 +134,10 @@
 	"Could not add item to the cart": "Could not add item to the cart",
 	"Cart": "Cart",
 	"Could not delete item from your cart": "Could not delete item from your cart",
-	"There are no items in cart yet.": "There are no items in cart yet."
+	"There are no items in cart yet.": "There are no items in cart yet.",
+	"Order": "Order",
+	"Item": "Item",
+	"Order Summary": "Order Summary",
+	"Please check your order details below.": "Please check your order details below.",
+	"Choose the appropriate shipping method anf provide your contact details if necessary.": "Choose the appropriate shipping method anf provide your contact details if necessary."
 }

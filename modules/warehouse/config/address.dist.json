@@ -1,4 +1,5 @@
- [{
+ [
+ {
      "id": "name",
      "title":
      {
@@ -19,7 +20,8 @@
  },
  {
      "id": "zip",
-     "title": {
+     "title":
+     {
          "en": "ZIP (mandatory)",
          "ru": "Индекс (обяз.)"
      },
@@ -35,4 +37,38 @@
          "ru": "Индекс"
      },
      "regex": "^[A-Za-z0-9_\\-]+$"
+ },
+ {
+     "id": "state",
+     "title":
+     {
+         "en": "State (optional)",
+         "ru": "Штат (необяз.)"
+     },
+     "mandatory": false,
+     "type": "select",
+     "label":
+     {
+         "en": "State",
+         "ru": "Штат"
+     },
+    "values": [
+        {
+            "value": "IL",
+            "lang": {
+                "en": "Illinois",
+                "ru": "Иллинойс"
+            },
+            "addFixed": 0,
+            "addPrc": 8.4
+        }, {
+            "value": "DE",
+            "lang": {
+                "en": "Delaware",
+                "ru": "Делавэр"
+            },
+            "addFixed": 0,
+            "addPrc": 0
+        }
+     ]
  }]

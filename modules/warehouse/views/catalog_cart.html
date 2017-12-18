@@ -3,25 +3,38 @@
     <li><a href="{{ configModule.prefix }}">{{ i18n.__(locale, 'Catalog')}}</a></li>
 </ul>
 {% if cart.length %}
-<table class="za-table za-table-small za-table-striped za-table-middle za-table-responsive" id="za-catalog-cart-table" id="catalog_cart_table">
-    <div id="za-catalog-cart-table-spinner" class="za-flex za-flex-center za-flex-middle" style="display:none">
-        <span za-spinner></span>
+<div id="za_catalog_cart_wrap">
+    <table class="za-table za-table-small za-table-striped za-table-middle za-table-responsive" id="za-catalog-cart-table">
+        <div id="za-catalog-cart-table-spinner" class="za-flex za-flex-center za-flex-middle" style="display:none">
+            <span za-spinner></span>
+        </div>
+        <tfoot>
+            <tr>
+                <td colspan="3"></td>
+                <td class="za-catalog-cart-total">{{ total }}&nbsp;{{ settings.currency }}</td>
+            </tr>
+        </tfoot>
+        <tbody>
+            {% for item in cart %}
+            <tr id="za_catalog_cart_tr">
+                <td class="za-table-expand">{{ item.text }}</td>
+                <td class="za-table-shrink">{{ item.price }}&nbsp;{{ settings.currency }}</td>
+                <td class="za-table-shrink">
+                    <input class="za-input za-form-width-xsmall za-catalog-cart-count" type="text" data="{{ item.id }}" data-prev="{{ item.count }}" value="{{ item.count }}">
+                </td>
+                <td class="za-table-shrink za-catalog-cart-subtotal" data="{{ item.id }}" data-val="{{ item.subtotal }}">{{ item.subtotal }}&nbsp;{{ settings.currency }}</td>
+                <td class="za-table-shrink"><span data="{{ item.id }}" class="za-icon-button za-button-danger za-catalog-cart-btn-del" za-icon="icon:trash"></span></span>
+                </td>
+            </tr>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div>
+        <a href="{{ configModule.prefix }}/order" class="za-button za-button-primary">{{ i18n.__(locale, 'Order')}}</a>
     </div>
-    <tbody>
-        {% for item in cart %}
-        <tr id="catalog_cart_tr">
-            <td class="za-table-expand">{{ item.text }}</td>
-            <td class="za-table-shrink">
-                <input class="za-input za-form-width-xsmall za-catalog-cart-count" type="text" data="{{ item.id }}" data-prev="{{ item.count }}" value="{{ item.count }}">
-            </td>
-            <td class="za-table-shrink"><span data="{{ item.id }}" class="za-icon-button za-button-danger za-catalog-cart-btn-del" za-icon="icon:trash"></span></span>
-            </td>
-        </tr>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<div style="display:none" id="catalog_cart_empty">
+</div>
+<div style="display:none" id="za_catalog_cart_empty">
     {{ i18n.__(locale, 'There are no items in cart yet.')}}
 </div>
 {% else %}
@@ -29,4 +42,5 @@
 {% endif %}
 <script type="text/javascript">
 var lang = {{ lang }};
+var settings = {{ settingsJSON }};
 </script>

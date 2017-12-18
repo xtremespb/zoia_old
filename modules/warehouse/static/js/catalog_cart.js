@@ -47,6 +47,13 @@ $(document).ready(() => {
                 if (res.count !== val) {
                     $(that).val(res.count);
                 }
+                $('.za-catalog-cart-subtotal[data="' + res.id + '"]').html(res.subtotal + '&nbsp;' + settings.currency).attr('data-val', res.subtotal);
+                let total = 0;
+                $('.za-catalog-cart-subtotal').each(function() {
+                    total += parseFloat($(this).attr('data-val'));
+                    console.log(parseFloat($(this).attr('data-val')));
+                });
+                $('.za-catalog-cart-total').html(parseFloat(total).toFixed(2) + '&nbsp;' + settings.currency);
             }
         }).fail(() => {
             setTimeout(() => {
@@ -71,10 +78,16 @@ $(document).ready(() => {
             }, 300);
             if (res.status === 1) {
                 $(that).parent().parent().remove();
-                if ($('#catalog_cart_tr').length === 0) {
-                    $('#catalog_cart_table').hide();
-                    $('#catalog_cart_empty').show();
+                if ($('#za_catalog_cart_tr').length === 0) {
+                    $('#za_catalog_cart_wrap').hide();
+                    $('#za_catalog_cart_empty').show();
                 }
+                let total = 0;
+                $('.za-catalog-cart-subtotal').each(function() {
+                    total += parseFloat($(this).attr('data-val'));
+                    console.log(parseFloat($(this).attr('data-val')));
+                });
+                $('.za-catalog-cart-total').html(parseFloat(total).toFixed(2) + '&nbsp;' + settings.currency);
             } else {
                 $zUI.notification(lang['Could not delete item from your cart'], {
                     status: 'danger',

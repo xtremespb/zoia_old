@@ -1,0 +1,49 @@
+<h1>{{ i18n.__(locale, 'Order')}}</h1>
+<ul class="za-breadcrumb">
+    <li><a href="{{ configModule.prefix }}">{{ i18n.__(locale, 'Catalog')}}</a></li>
+</ul>
+<p>{{ i18n.__(locale, 'Please check your order details below.')}}&nbsp;{{ i18n.__(locale, 'Choose the appropriate shipping method anf provide your contact details if necessary.')}}</p>
+<table class="za-table za-table-small za-table-striped za-table-middle za-table-responsive" id="za-catalog-cart-table">
+    <div id="za-catalog-cart-table-spinner" class="za-flex za-flex-center za-flex-middle" style="display:none">
+        <span za-spinner></span>
+    </div>
+    <thead>
+        <tr>
+            <th>{{ i18n.__(locale, 'Item')}}</th>
+            <th>{{ i18n.__(locale, 'Price')}}</th>
+            <th>{{ i18n.__(locale, 'Amount')}}</th>
+            <th>{{ i18n.__(locale, 'Cost')}}</th>
+        </tr>
+    </thead>
+    <tfoot>
+        <tr>
+            <td colspan="3"></td>
+            <td class="za-catalog-cart-total">{{ total }}&nbsp;{{ settings.currency }}</td>
+        </tr>
+    </tfoot>
+    <tbody>
+        {% for item in cart %}
+        <tr id="za_catalog_cart_tr">
+            <td class="za-table-expand">{{ item.text }}</td>
+            <td class="za-table-shrink">{{ item.price }}&nbsp;{{ settings.currency }}</td>
+            <td class="za-table-shrink za-text-center">{{ item.count }}</td>
+            <td class="za-table-shrink za-catalog-order-subtotal" data="{{ item.id }}" data-val="{{ item.subtotal }}">{{ item.subtotal }}&nbsp;{{ settings.currency }}</td>
+        </tr>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<div class="za-margin">
+    <label class="za-form-label" for="form-stacked-select">{{ i18n.__(locale, 'Delivery')}}</label>
+    <div class="za-form-controls">
+        <select class="za-select za-form-width-medium" id="za_catalog_order_delivery">
+            {% for item in delivery %}
+            <option value="{{ item.pid }}" data-type="{{ item.delivery }}" data-cost="{{ item.cost }}" data-weight="{{ item.weight }}">{{ item.title[locale] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+<script type="text/javascript">
+var lang = {{ lang }};
+var settings = {{ settingsJSON }};
+</script>

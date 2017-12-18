@@ -12,6 +12,30 @@ const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validat
 const registerConfirmFields = require(path.join(__dirname, 'schemas', 'registerConfirmFields.js'));
 const resetConfirmFields = require(path.join(__dirname, 'schemas', 'resetConfirmFields.js'));
 
+const fs = require('fs');
+
+let templateLogin = 'login.html';
+let templateRegister = 'register.html';
+let templateRegisterConfirm = 'registerConfirm.html';
+let templateReset = 'registerReset.html';
+let templateResetConfirm = 'registerResetConfirm.html';
+
+if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateLogin))) {
+    templateLogin = 'custom_' + templateLogin;
+}
+if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateRegister))) {
+    templateRegister = 'custom_' + templateRegister;
+}
+if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateRegisterConfirm))) {
+    templateRegisterConfirm = 'custom_' + templateRegisterConfirm;
+}
+if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateReset))) {
+    templateReset = 'custom_' + templateReset;
+}
+if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateResetConfirm))) {
+    templateResetConfirm = 'custom_' + templateResetConfirm;
+}
+
 module.exports = function(app) {
     const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
     const renderAuth = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
@@ -33,7 +57,7 @@ module.exports = function(app) {
         if (!url || !url.match(/^[A-Za-z0-9-_.~\:\/\?#\[\]\@\!\$\&\'\(\)\*\+,;=]*$/) || url.length > 100) {
             url = '/';
         }
-        let html = await renderAuth.file('login.html', {
+        let html = await renderAuth.file(templateLogin, {
             i18n: i18n.get(),
             locale: locale,
             lang: JSON.stringify(i18n.get().locales[locale]),
@@ -66,7 +90,7 @@ module.exports = function(app) {
         }
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
-        let registerHTML = await renderAuth.file('register.html', {
+        let registerHTML = await renderAuth.file(templateRegister, {
             i18n: i18n.get(),
             locale: locale,
             lang: JSON.stringify(i18n.get().locales[locale]),
@@ -97,7 +121,7 @@ module.exports = function(app) {
         if (fieldsFailed.length > 0) {
             return res.redirect(303, '/');
         }
-        let confirmHTML = await renderAuth.file('registerConfirm.html', {
+        let confirmHTML = await renderAuth.file(templateRegisterConfirm, {
             i18n: i18n.get(),
             locale: locale,
             lang: JSON.stringify(i18n.get().locales[locale]),
@@ -123,7 +147,7 @@ module.exports = function(app) {
         }
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
-        let resetHTML = await renderAuth.file('reset.html', {
+        let resetHTML = await renderAuth.file(templateReset, {
             i18n: i18n.get(),
             locale: locale,
             lang: JSON.stringify(i18n.get().locales[locale]),
@@ -154,7 +178,7 @@ module.exports = function(app) {
         if (fieldsFailed.length > 0) {
             return res.redirect(303, '/');
         }
-        let resetConfirmHTML = await renderAuth.file('resetConfirm.html', {
+        let resetConfirmHTML = await renderAuth.file(templateResetConfirm, {
             i18n: i18n.get(),
             locale: locale,
             lang: JSON.stringify(i18n.get().locales[locale]),
