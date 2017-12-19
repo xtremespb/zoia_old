@@ -6,6 +6,12 @@ try {
 } catch (e) {
     configModule = require(path.join(__dirname, 'config', 'catalog.dist.json'));
 }
+let jsonAddress;
+try {
+    jsonAddress = require(path.join(__dirname, 'config', 'address.json'));
+} catch (e) {
+    jsonAddress = require(path.join(__dirname, 'config', 'address.dist.json'));
+}
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
 const ObjectID = require('mongodb').ObjectID;
@@ -468,7 +474,8 @@ module.exports = function(app) {
             settingsJSON: JSON.stringify(settings),
             cart: cartArr,
             total: total,
-            delivery: delivery
+            delivery: delivery,
+            addressJSON: JSON.stringify(jsonAddress)
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Order'), {
             content: catalogCartHTML,

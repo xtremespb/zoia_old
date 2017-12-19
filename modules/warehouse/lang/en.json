@@ -139,5 +139,6 @@
 	"Item": "Item",
 	"Order Summary": "Order Summary",
 	"Please check your order details below.": "Please check your order details below.",
-	"Choose the appropriate shipping method anf provide your contact details if necessary.": "Choose the appropriate shipping method anf provide your contact details if necessary."
+	"Choose the appropriate shipping method anf provide your contact details if necessary.": "Choose the appropriate shipping method anf provide your contact details if necessary.",
+	"Form contains errors. Please check it and re-submit your order.": "Form contains errors. Please check it and re-submit your order."
 }

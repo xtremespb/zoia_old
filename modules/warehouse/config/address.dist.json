@@ -6,11 +6,9 @@
          "en": "Last name, first name (mandatory)",
          "ru": "Фамилия, имя (обяз.)"
      },
-     "length":
-     {
-         "min": 1,
-         "max": 80
-     },
+     "maxlength": 80,
+     "mandatory": true,
+     "width": "large",
      "type": "text",
      "label":
      {
@@ -25,18 +23,16 @@
          "en": "ZIP (mandatory)",
          "ru": "Индекс (обяз.)"
      },
-     "length":
-     {
-         "min": 1,
-         "max": 6
-     },
-     "type": "integer",
+     "mandatory": false,
+     "maxlength": 6,
+     "width": "small",
+     "type": "text",
      "label":
      {
          "en": "ZIP",
          "ru": "Индекс"
      },
-     "regex": "^[A-Za-z0-9_\\-]+$"
+     "regex": "^[0-9_\\-]+$"
  },
  {
      "id": "state",
@@ -45,7 +41,7 @@
          "en": "State (optional)",
          "ru": "Штат (необяз.)"
      },
-     "mandatory": false,
+     "width": "medium",
      "type": "select",
      "label":
      {
@@ -59,6 +55,7 @@
                 "en": "Illinois",
                 "ru": "Иллинойс"
             },
+            "cost": 0,
             "addFixed": 0,
             "addPrc": 8.4
         }, {
@@ -67,6 +64,7 @@
                 "en": "Delaware",
                 "ru": "Делавэр"
             },
+            "cost": 100,
             "addFixed": 0,
             "addPrc": 0
         }
