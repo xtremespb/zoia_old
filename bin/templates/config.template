@@ -58,5 +58,10 @@
             "user": "",
             "pass": ""
         }
+    },
+    "core": {
+        "prefix": {
+            "auth": "/auth"
+        }
     }
 }

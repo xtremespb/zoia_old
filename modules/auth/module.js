@@ -1,16 +1,11 @@
 module.exports = function(app) {
     const path = require('path');
-    let configModule;
-    try {
-        configModule = require(path.join(__dirname, 'config', 'auth.json'));
-    } catch (e) {
-        configModule = require(path.join(__dirname, 'config', 'auth.dist.json'));
-    }
+    const config = require(path.join(__dirname, '..', '..', 'core', 'config.js')); 
     const api = require(path.join(__dirname, 'api.js'))(app);
     const frontend = require(path.join(__dirname, 'frontend.js'))(app);
     return {
         frontend: {
-            prefix: configModule.prefix,
+            prefix: config.core.prefix.auth,
             routes: frontend.routes
         },
         api: {

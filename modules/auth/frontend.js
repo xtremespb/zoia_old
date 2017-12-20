@@ -1,11 +1,5 @@
 const path = require('path');
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
-let configModule;
-try {
-    configModule = require(path.join(__dirname, 'config', 'auth.json'));
-} catch (e) {
-    configModule = require(path.join(__dirname, 'config', 'auth.dist.json'));
-}
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
 const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js')))();
@@ -62,7 +56,7 @@ module.exports = function(app) {
             locale: locale,
             lang: JSON.stringify(i18n.get().locales[locale]),
             config: config,
-            prefix: configModule.prefix,
+            prefix: config.core.prefix.auth,
             redirect: url
         });
         res.send(html);
@@ -70,7 +64,7 @@ module.exports = function(app) {
 
     const logout = async(req, res) => {
         if (!Module.isAuthorized(req)) {
-            return res.redirect(303, configModule.prefix + '/?rnd=' + Math.random().toString().replace('.', ''));
+            return res.redirect(303, config.core.prefix.auth + '/?rnd=' + Math.random().toString().replace('.', ''));
         }
         let url = req.query.redirect;
         if (!url || !url.match(/^[A-Za-z0-9-_.~\:\/\?#\[\]\@\!\$\&\'\(\)\*\+,;=]*$/) || url.length > 100) {
@@ -94,7 +88,7 @@ module.exports = function(app) {
             i18n: i18n.get(),
             locale: locale,
             lang: JSON.stringify(i18n.get().locales[locale]),
-            prefix: configModule.prefix,
+            prefix: config.core.prefix.auth,
             config: config
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Register'), {
@@ -126,7 +120,7 @@ module.exports = function(app) {
             locale: locale,
             lang: JSON.stringify(i18n.get().locales[locale]),
             config: config,
-            prefix: configModule.prefix,
+            prefix: config.core.prefix.auth,
             fields: fields
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Confirm registraton'), {
@@ -151,7 +145,7 @@ module.exports = function(app) {
             i18n: i18n.get(),
             locale: locale,
             lang: JSON.stringify(i18n.get().locales[locale]),
-            prefix: configModule.prefix,
+            prefix: config.core.prefix.auth,
             config: config
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Reset password'), {
@@ -184,7 +178,7 @@ module.exports = function(app) {
             lang: JSON.stringify(i18n.get().locales[locale]),
             config: config,
             username: fields.username.value,
-            prefix: configModule.prefix,
+            prefix: config.core.prefix.auth,
             code: fields.code.value
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Set new password'), {
@@ -195,7 +189,7 @@ module.exports = function(app) {
         res.send(html);
     };
 
-    app.use(configModule.prefix + '/static', app.get('express').static(path.join(__dirname, 'static')));
+    app.use(config.core.prefix.auth + '/static', app.get('express').static(path.join(__dirname, 'static')));
     let router = Router();
     router.get('/', login);
     router.get('/logout', logout);
