@@ -16,7 +16,7 @@
         </tfoot>
         <tbody>
             {% for item in cart %}
-            <tr id="za_catalog_cart_tr">
+            <tr>
                 <td class="za-table-expand">{{ item.text }}</td>
                 <td class="za-table-shrink">{{ item.price }}&nbsp;{{ settings.currency }}</td>
                 <td class="za-table-shrink">
@@ -25,7 +25,6 @@
                 <td class="za-table-shrink za-catalog-cart-subtotal" data="{{ item.id }}" data-val="{{ item.subtotal }}">{{ item.subtotal }}&nbsp;{{ settings.currency }}</td>
                 <td class="za-table-shrink"><span data="{{ item.id }}" class="za-icon-button za-button-danger za-catalog-cart-btn-del" za-icon="icon:trash"></span></span>
                 </td>
-            </tr>
             </tr>
             {% endfor %}
         </tbody>

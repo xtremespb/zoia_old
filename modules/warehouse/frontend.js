@@ -438,6 +438,7 @@ module.exports = function(app) {
         const cart = req.session.catalog_cart || {};
         let cartArr = [];
         let total = 0;
+        let weight = 0;
         if (Object.keys(cart).length > 0) {
             let query = [];
             for (let i in cart) {
@@ -445,7 +446,7 @@ module.exports = function(app) {
                     _id: new ObjectID(i)
                 });
             }
-            let ffields = { _id: 1, price: 1 };
+            let ffields = { _id: 1, price: 1, weight: 1 };
             ffields[locale + '.title'] = 1;
             const cartDB = await db.collection('warehouse').find({ $or: query }, ffields).toArray();
             if (cartDB && cartDB.length) {
@@ -458,6 +459,7 @@ module.exports = function(app) {
                         subtotal: parseFloat(cart[cartDB[i]._id] * cartDB[i].price).toFixed(2)
                     });
                     total += cart[cartDB[i]._id] * cartDB[i].price;
+                    weight += cart[cartDB[i]._id] * cartDB[i].weight;
                 }
                 total = parseFloat(total).toFixed(2);
             }
@@ -475,6 +477,8 @@ module.exports = function(app) {
             cart: cartArr,
             total: total,
             delivery: delivery,
+            weight: weight,
+            auth: req.session.auth,
             addressJSON: JSON.stringify(jsonAddress)
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Order'), {

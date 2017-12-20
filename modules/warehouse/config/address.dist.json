@@ -56,7 +56,6 @@
                 "ru": "Иллинойс"
             },
             "cost": 0,
-            "addFixed": 0,
             "addPrc": 8.4
         }, {
             "value": "DE",
@@ -65,7 +64,6 @@
                 "ru": "Делавэр"
             },
             "cost": 100,
-            "addFixed": 0,
             "addPrc": 0
         }
      ]
