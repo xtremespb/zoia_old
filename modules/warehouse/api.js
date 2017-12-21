@@ -19,6 +19,20 @@ try {
 } catch (e) {
     configModule = require(path.join(__dirname, 'config', 'catalog.dist.json'));
 }
+let jsonAddress;
+try {
+    jsonAddress = require(path.join(__dirname, 'config', 'address.json'));
+} catch (e) {
+    jsonAddress = require(path.join(__dirname, 'config', 'address.dist.json'));
+}
+
+const _getJsonAddressById = (id) => {
+    for (let i in jsonAddress) {
+        if (jsonAddress[i].id === id) {
+            return jsonAddress[i];
+        }
+    }
+};
 
 module.exports = function(app) {
     const log = app.get('log');
@@ -2090,6 +2104,108 @@ module.exports = function(app) {
         }));
     };
 
+    const order = async(req, res) => {
+        res.contentType('application/json');
+        const locale = req.session.currentLocale;
+        let errorFields = [];
+        if (!req.session || req.body.captcha !== req.session.captcha) {
+            return res.send(JSON.stringify({
+                status: 0,
+                fields: ['captcha']
+            }));
+        }
+        let orderData = {};
+        if (!req.body.delivery || typeof req.body.delivery !== 'string') {
+            return res.send(JSON.stringify({
+                status: 0,
+                fields: ['delivery']
+            }));
+        }
+        const delivery = req.body.delivery;
+        const deliveryData = await db.collection('warehouse_delivery').find({ status: '1' }).toArray();
+        if (!deliveryData || !deliveryData.length) {
+            return res.send(JSON.stringify({
+                status: 0,
+                fields: ['delivery']
+            }));
+        }
+        let deliveryRec;
+        for (let i in deliveryData) {
+            if (deliveryData[i].pid === delivery) {
+                deliveryRec = deliveryData[i];
+            }
+        }
+        if (!deliveryRec) {
+            return res.send(JSON.stringify({
+                status: 0,
+                fields: ['delivery']
+            }));
+        }
+        orderData.delivery = deliveryRec.pid;
+        const addressData = await db.collection('registry').findOne({ name: 'warehouse_address' }) || [];
+        if (addressData && addressData.data && deliveryRec.delivery === 'delivery') {
+            for (let i in addressData.data) {
+                const field = addressData.data[i];
+                const ai = _getJsonAddressById(field);
+                if (ai.mandatory && (!req.body[field] || typeof req.body[field] !== 'string')) {
+                    errorFields.push(field);
+                    continue;
+                }
+                const val = req.body[field];
+                if (val && typeof val === 'string') {
+                    if (ai.maxlength && val.length > ai.maxlength) {
+                        errorFields.push(field);
+                        continue;
+                    }
+                    if (ai.regex && !val.match(new RegEx(ai.regex))) {
+                        errorFields.push(field);
+                        continue;
+                    }
+                    orderData[field] = val;
+                }
+            }
+        }
+        console.log(orderData);
+        if (errorFields.length) {
+            return res.send(JSON.stringify({
+                status: 0,
+                fields: errorFields
+            }));
+        }
+        const cart = req.session.catalog_cart || {};
+        let cartArr = [];
+        let total = 0;
+        let weight = 0;
+        if (Object.keys(cart).length > 0) {
+            let query = [];
+            for (let i in cart) {
+                query.push({
+                    _id: new ObjectID(i)
+                });
+            }
+            let ffields = { _id: 1, price: 1, weight: 1 };
+            ffields[locale + '.title'] = 1;
+            const cartDB = await db.collection('warehouse').find({ $or: query }, ffields).toArray();
+            if (cartDB && cartDB.length) {
+                for (let i in cartDB) {
+                    cartArr.push({
+                        id: cartDB[i]._id,
+                        text: cartDB[i][locale] ? cartDB[i][locale].title : '',
+                        count: cart[cartDB[i]._id],
+                        price: parseFloat(cartDB[i].price).toFixed(2),
+                        subtotal: parseFloat(cart[cartDB[i]._id] * cartDB[i].price).toFixed(2)
+                    });
+                    total += cart[cartDB[i]._id] * cartDB[i].price;
+                    weight += cart[cartDB[i]._id] * cartDB[i].weight;
+                }
+                total = parseFloat(total).toFixed(2);
+            }
+        }        
+        return res.send(JSON.stringify({
+            status: 1
+        }));
+    };
+
     let router = Router();
     router.get('/list', list);
     router.get('/list/properties', listProperties);
@@ -2132,6 +2248,7 @@ module.exports = function(app) {
     router.post('/cart/add', cartAdd);
     router.post('/cart/count', cartCount);
     router.post('/cart/delete', cartDelete);
+    router.post('/order', order);
     return {
         routes: router
     };

@@ -6,7 +6,7 @@
 <div class="za-margin za-margin-large-top za-form-horizontal">
     <label class="za-form-label" for="form-stacked-select">{{ i18n.__(locale, 'Delivery')}}:</label>
     <div class="za-form-controls">
-        <select class="za-select za-form-width-medium za-catalog-order-form-rx" id="za_catalog_order_delivery">
+        <select class="za-select za-form-width-medium za-catalog-order-form-rx za-catalog-form-input" id="za_catalog_order_delivery">
             {% for item in delivery %}
             <option value="{{ item.pid }}" data-type="{{ item.delivery }}" data-cost="{{ item.cost }}" data-weight="{{ item.cost_weight }}">{{ item.title[locale] }}</option>
             {% endfor %}
@@ -41,15 +41,27 @@
 </table>
 {% if not auth %}
 <div class="za-alert-warning" za-alert>
-    <a class="za-alert-close" za-close></a>
     <p>{{ i18n.__(locale, 'You are not authorized. To check your order status and make the next order faster, please')}}&nbsp;<a href="{{ config.core.prefix.auth }}">{{ i18n.__(locale, 'authorize')}}</a>&nbsp;{{ i18n.__(locale, 'or')}}&nbsp;<a href="{{ config.core.prefix.auth }}/register">{{ i18n.__(locale, 'register')}}</a>.</p>
+    <div class="za-margin">
+        <label class="za-form-label" for="za_catalog_form_captcha">{{ i18n.__(locale, 'Captcha')}}:</label>
+        <div class="za-grid za-grid-small">
+            <div>
+                <input class="za-input za-catalog-form-input" type="text" id="za_catalog_form_captcha" data-mandatory="true" data-mask="^[0-9]+$" maxlength="4">
+            </div>
+            <div>
+                <div class="za-form-controls"><img class="za-catalog-order-captcha-img za-box-shadow-small"></div>
+            </div>
+        </div>
+        <div id="za_catalog_form_captcha_error_text" style="display:none"><span class="za-label-danger">{{ i18n.__(locale, 'Invalid code')}}</span></div>
+    </div>
 </div>
 {% endif %}
 <div class="za-catalog-cart-total-wrap">
     {{ i18n.__(locale, 'Total sum')}}:&nbsp;<span class="za-catalog-cart-total" data-total="{{ total }}">{{ total }}&nbsp;{{ settings.currency }}&nbsp;{{ i18n.__(locale, 'Order')}}</span>
 </div>
 <div class="za-margin-top">
-    <button class="za-button za-button-primary" id="za_catalog_order_submit"><div za-spinner class="za_catalog_order_submit_spinner" style="display:none"></div>{{ i18n.__(locale, 'Order')}}</button>
+    <button class="za-button za-button-primary" id="za_catalog_order_submit">
+        <div za-spinner class="za_catalog_order_submit_spinner" style="display:none"></div>{{ i18n.__(locale, 'Order')}}</button>
 </div>
 <script type="text/javascript">
 var lang = {{ lang }};
@@ -57,4 +69,5 @@ var settings = {{ settingsJSON }};
 var addressJSON = {{ addressJSON }};
 var locale = '{{ locale }}';
 var weight = {{ weight }};
+var isAuth = {{ isAuth }};
 </script>

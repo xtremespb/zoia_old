@@ -145,5 +145,7 @@
 	"You are not authorized. To check your order status and make the next order faster, please": "You are not authorized. To check your order status and make the next order faster, please",
 	"authorize": "authorize",
 	"or": "or",
-	"register": "register"
+	"register": "register",
+	"Captcha": "Captcha",
+	"Invalid code": "Invalid code"
 }

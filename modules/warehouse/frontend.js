@@ -479,6 +479,7 @@ module.exports = function(app) {
             delivery: delivery,
             weight: weight,
             auth: req.session.auth,
+            isAuth: req.session.auth ? 'true' : 'false',
             addressJSON: JSON.stringify(jsonAddress)
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Order'), {

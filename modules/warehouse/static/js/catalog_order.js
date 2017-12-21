@@ -23,7 +23,12 @@ const filterInput = function(event) {
 
 const submitOrder = function(event) {
     event.preventDefault();
+    if (loading) {
+        return;
+    }
     $('#za_catalog_order_form_error').hide();
+    $('#za_catalog_form_captcha_error_text').hide();
+    $('.za-catalog-form-input').removeClass('za-form-danger');
     let errors;
     let focus;
     let fields = {
@@ -59,11 +64,51 @@ const submitOrder = function(event) {
             }
             fields[$(this).attr('id').replace('za_catalog_form_', '')] = val;
         });
-        if (errors) {
-            $('#za_catalog_order_form_error').show();
-            return;
+    }
+    if (!isAuth) {
+        fields.captcha = $('#za_catalog_form_captcha').val().trim();
+        if (!fields.captcha || !fields.captcha.match(/^([0-9]+){4}$/)) {
+            errors = true;
+            $('#za_catalog_form_captcha_error_text').show();
         }
     }
+    if (errors) {
+        $('#za_catalog_order_form_error').show();
+        return;
+    }
+    loading = true;
+    $('.za_catalog_order_submit_spinner').show();
+    $.ajax({
+        type: 'POST',
+        url: '/api/warehouse/order',
+        data: fields,
+        cache: false
+    }).done((res) => {
+        loading = false;
+        captchaRefresh();
+        $('.za_catalog_order_submit_spinner').hide();
+        if (res.status !== 1) {
+            if (res.fields) {
+                let focus = false;
+                for (let i in res.fields) {
+                    $('#za_catalog_form_' + res.fields[i]).addClass('za-form-danger');;
+                    if (res.fields[i] === 'captcha') {
+                        $('#za_catalog_form_captcha_error_text').show();
+                    }
+                    if (!focus) {
+                        focus = true;
+                        $('#za_catalog_form_' + res.fields[i]).focus();
+                    }
+                }
+            }
+        } else {
+            
+        }
+    }).fail(() => {
+        loading = false;
+        $('.za_catalog_order_submit_spinner').hide();
+        captchaRefresh();
+    });
 };
 
 const getAddressLabel = (id) => {
@@ -77,6 +122,19 @@ const getAddressLabel = (id) => {
         }
     }
     return '';
+};
+
+const captchaRefresh = () => {
+    $('.za-catalog-order-captcha-img').show();
+    $('.za-catalog-order-captcha-img').attr('src', '/api/captcha?' + new Date().getTime());
+    $('#za_catalog_form_captcha').val('');
+};
+
+const captchaInit = () => {
+    captchaRefresh();
+    $('.za-catalog-order-captcha-img').click(() => {
+        captchaRefresh();
+    });
 };
 
 const calculateFields = function(event) {
@@ -127,7 +185,7 @@ $(document).ready(() => {
         let item = addressJSON[i];
         switch (item.type) {
             case 'text':
-                formHTML += '<div class="za-margin"><label class="za-form-label" for="za_catalog_form_' + item.id + '">' + item.label[locale] + ': ' + (item.mandatory ? '<span class="za-text-danger za-text-bold">&nbsp;*</span>' : '') + '</label><div class="za-form-controls"><input class="za-catalog-order-form-rx za-input za-width-' + item.width + '" id="za_catalog_form_' + item.id + '" type="text" maxlength="' + item.maxlength + '" data-mask="' + (item.regex ? item.regex : '') + '" data-mandatory="' + (item.mandatory ? 'true' : '') + '"></div></div>';
+                formHTML += '<div class="za-margin"><label class="za-form-label" for="za_catalog_form_' + item.id + '">' + item.label[locale] + ': ' + (item.mandatory ? '<span class="za-text-danger za-text-bold">&nbsp;*</span>' : '') + '</label><div class="za-form-controls"><input class="za-catalog-order-form-rx za-catalog-form-input za-input za-width-' + item.width + '" id="za_catalog_form_' + item.id + '" type="text" maxlength="' + item.maxlength + '" data-mask="' + (item.regex ? item.regex : '') + '" data-mandatory="' + (item.mandatory ? 'true' : '') + '"></div></div>';
                 break;
             case 'select':
                 let opts = '';
@@ -135,16 +193,18 @@ $(document).ready(() => {
                     const iv = item.values[v];
                     opts += '<option value="' + iv.value + '" data-addprc="' + iv.addPrc + '" data-cost="' + iv.cost + '">' + iv.lang[locale] + '</option>';
                 }
-                formHTML += '<div class="za-margin"><label class="za-form-label" for="za_catalog_form_' + item.id + '">' + item.label[locale] + ':&nbsp;</label><div class="za-form-controls"><select class="za-catalog-order-form-rx za-select za-width-' + item.width + '" id="za_catalog_form_' + item.id + '">' + opts + '</select></div></div>';
+                formHTML += '<div class="za-margin"><label class="za-form-label" for="za_catalog_form_' + item.id + '">' + item.label[locale] + ':&nbsp;</label><div class="za-form-controls"><select class="za-catalog-form-input za-catalog-order-form-rx za-select za-width-' + item.width + '" id="za_catalog_form_' + item.id + '">' + opts + '</select></div></div>';
                 break;
         }
     }
     $('#za_catalog_order_form').html(formHTML);
     $('.za-catalog-order-form-rx').on('input', filterInput);
+    $('#za_catalog_form_captcha').on('input', filterInput);
     $('.za-catalog-order-form-rx').on('input', calculateFields);
     $('#za_catalog_order_submit').click(submitOrder);
     $('#za_catalog_order_delivery').on('input', onDeliveryChange);
     totalWares = parseFloat($('.za-catalog-cart-total').attr('data-total'));
     calculateFields();
     onDeliveryChange();
+    captchaInit();
 });
