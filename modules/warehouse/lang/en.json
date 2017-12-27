@@ -150,5 +150,7 @@
 	"Invalid code": "Invalid code",
 	"Could not place your order. Please try again later or contact website support.": "Could not place your order. Please try again later or contact website support.",
 	"Your order has been placed and it is being processed.": "Your order has been placed and it is being processed.",
-	"Order ID": "Order ID"
+	"Order ID": "Order ID",
+	"Place Order": "Place Order",
+	"There are no items in your cart yet. Please place something to your cart first.": "There are no items in your cart yet. Please place something to your cart first."
 }

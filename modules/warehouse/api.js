@@ -2245,6 +2245,7 @@ module.exports = function(app) {
             orderData.costs.delivery = parseFloat(orderData.costs.delivery).toFixed(2);
             orderData.costs.total = parseFloat(orderData.costs.total).toFixed(2);
             orderData.costs.totalWares = parseFloat(orderData.costs.totalWares).toFixed(2);
+            orderData.status = 1;
             const incr = await db.collection('counters').findAndModify({ _id: 'warehouse_orders' }, [], { $inc: { seq: 1 } }, { new: true, upsert: true });
             if (!incr || !incr.value || !incr.value.seq) {
                 return res.send(JSON.stringify({
@@ -2264,7 +2265,7 @@ module.exports = function(app) {
             // 
             // Clean up the Cart
             //
-            /*req.session.catalog_cart = {};*/
+            req.session.catalog_cart = {};
             // 
             // End
             // 

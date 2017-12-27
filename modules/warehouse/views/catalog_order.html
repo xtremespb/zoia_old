@@ -2,6 +2,7 @@
 <ul class="za-breadcrumb">
     <li><a href="{{ configModule.prefix }}">{{ i18n.__(locale, 'Catalog')}}</a></li>
 </ul>
+{% if cartCount > 0 %}
 <div id="za_catalog_order_wrap">
     <p>{{ i18n.__(locale, 'Please check your order details below.')}}&nbsp;{{ i18n.__(locale, 'Choose the appropriate shipping method and provide your contact details if necessary.')}}</p>
     <div class="za-margin za-margin-large-top za-form-horizontal">
@@ -62,7 +63,7 @@
     </div>
     <div class="za-margin-top">
         <button class="za-button za-button-primary" id="za_catalog_order_submit">
-            <div za-spinner class="za_catalog_order_submit_spinner" style="display:none"></div>{{ i18n.__(locale, 'Order')}}</button>
+            <div za-spinner class="za_catalog_order_submit_spinner" style="display:none"></div>{{ i18n.__(locale, 'Place Order')}}</button>
     </div>
 </div>
 <div za-alert id="za_catalog_order_success" style="display:none">
@@ -77,3 +78,8 @@ var locale = '{{ locale }}';
 var weight = {{ weight }};
 var isAuth = {{ isAuth }};
 </script>
+{% else %}
+<div class="uk-alert-danger" uk-alert>
+    <p>{{ i18n.__(locale, 'There are no items in your cart yet. Please place something to your cart first.')}}</p>
+</div>
+{% endif %}

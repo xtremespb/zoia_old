@@ -475,6 +475,7 @@ module.exports = function(app) {
             settings: settings,
             settingsJSON: JSON.stringify(settings),
             cart: cartArr,
+            cartCount: cartArr.length,
             total: total,
             delivery: delivery,
             weight: weight,
