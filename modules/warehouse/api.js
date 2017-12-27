@@ -2141,69 +2141,143 @@ module.exports = function(app) {
                 fields: ['delivery']
             }));
         }
-        orderData.delivery = deliveryRec.pid;
-        const addressData = await db.collection('registry').findOne({ name: 'warehouse_address' }) || [];
-        if (addressData && addressData.data && deliveryRec.delivery === 'delivery') {
-            for (let i in addressData.data) {
-                const field = addressData.data[i];
-                const ai = _getJsonAddressById(field);
-                if (ai.mandatory && (!req.body[field] || typeof req.body[field] !== 'string')) {
-                    errorFields.push(field);
-                    continue;
+        try {
+            //
+            // Build orderData hash
+            // 
+            orderData.costs = {};
+            orderData.costs.delivery = 0;
+            orderData.costs.total = 0;
+            orderData.costs.extra = {};
+            orderData.address = {};
+            orderData.delivery = deliveryRec.pid;
+            orderData.cart = {};
+            const addressData = await db.collection('registry').findOne({ name: 'warehouse_address' }) || [];
+            const cart = req.session.catalog_cart || {};
+            let weight = 0;
+            if (Object.keys(cart).length > 0) {
+                let query = [];
+                for (let i in cart) {
+                    query.push({
+                        _id: new ObjectID(i)
+                    });
                 }
-                const val = req.body[field];
-                if (val && typeof val === 'string') {
-                    if (ai.maxlength && val.length > ai.maxlength) {
-                        errorFields.push(field);
-                        continue;
+                let ffields = { _id: 1, price: 1, weight: 1, sku: 1 };
+                ffields[locale + '.title'] = 1;
+                const cartDB = await db.collection('warehouse').find({ $or: query }, ffields).toArray();
+                if (cartDB && cartDB.length) {
+                    for (let i in cartDB) {
+                        orderData.cart[cartDB[i].sku] = cart[cartDB[i]._id];
+                        orderData.costs.total += parseFloat(cart[cartDB[i]._id]) * parseFloat(cartDB[i].price);
+                        weight += parseFloat(cart[cartDB[i]._id]) * parseFloat(cartDB[i].weight);
                     }
-                    if (ai.regex && !val.match(new RegEx(ai.regex))) {
-                        errorFields.push(field);
-                        continue;
-                    }
-                    orderData[field] = val;
                 }
             }
-        }
-        console.log(orderData);
-        if (errorFields.length) {
+            orderData.costs.totalWares = orderData.costs.total;
+            if (weight && deliveryRec.cost_weight) {
+                orderData.costs.delivery = parseFloat(weight) * parseFloat(deliveryRec.cost_weight);
+                orderData.costs.total += parseFloat(weight) * parseFloat(deliveryRec.cost_weight);
+            }
+            if (deliveryRec.cost) {
+                orderData.costs.delivery += parseFloat(deliveryRec.cost);
+                orderData.costs.total += parseFloat(deliveryRec.cost);
+            }
+            if (orderData.costs.delivery) {
+                orderData.costs.delivery = parseFloat(orderData.costs.delivery).toFixed(2);
+            }
+            if (addressData && addressData.data && deliveryRec.delivery === 'delivery') {
+                for (let i in addressData.data) {
+                    const field = addressData.data[i];
+                    const ai = _getJsonAddressById(field);
+                    if (ai.mandatory && (!req.body[field] || typeof req.body[field] !== 'string')) {
+                        errorFields.push(field);
+                        continue;
+                    }
+                    const val = req.body[field];
+                    if (val && typeof val === 'string') {
+                        if (ai.maxlength && val.length > ai.maxlength) {
+                            errorFields.push(field);
+                            continue;
+                        }
+                        if (ai.regex && !val.match(new RegEx(ai.regex))) {
+                            errorFields.push(field);
+                            continue;
+                        }
+                        if (ai.type === 'select') {
+                            for (let s in ai.values) {
+                                let item = ai.values[s];
+                                if (item.value === val) {
+                                    orderData.address[field] = val;
+                                    if (item.cost) {
+                                        orderData.costs.total += parseFloat(item.cost);
+                                        orderData.costs.extra[ai.id] = parseFloat(item.cost);
+                                    }
+                                    if (item.addPrc) {
+                                        orderData.costs.total += parseFloat(orderData.costs.totalWares) / 100 * parseFloat(item.addPrc);
+                                        if (!orderData.costs.extra[ai.id]) {
+                                            orderData.costs.extra[ai.id] = 0;
+                                        }
+                                        orderData.costs.extra[ai.id] += parseFloat(orderData.costs.totalWares) / 100 * parseFloat(item.addPrc);
+                                    }
+                                    if (orderData.costs.extra[ai.id]) {
+                                        orderData.costs.extra[ai.id] = parseFloat(orderData.costs.extra[ai.id]).toFixed(2);
+                                    }
+                                    break;
+                                }
+                            }
+                            if (!orderData.address[field]) {
+                                errorFields.push(field);
+                                continue;
+                            }
+                        }
+                        if (ai.type === 'text') {
+                            orderData.address[field] = val;
+                        }
+                    }
+                }
+            }
+            if (errorFields.length) {
+                return res.send(JSON.stringify({
+                    status: 0,
+                    fields: errorFields
+                }));
+            }
+            orderData.costs.delivery = parseFloat(orderData.costs.delivery).toFixed(2);
+            orderData.costs.total = parseFloat(orderData.costs.total).toFixed(2);
+            orderData.costs.totalWares = parseFloat(orderData.costs.totalWares).toFixed(2);
+            const incr = await db.collection('counters').findAndModify({ _id: 'warehouse_orders' }, [], { $inc: { seq: 1 } }, { new: true, upsert: true });
+            if (!incr || !incr.value || !incr.value.seq) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            orderData._id = incr.value.seq;
+            //
+            // Insert order to the database
+            // 
+            const insResult = await db.collection('warehouse_orders').insertOne(orderData);
+            if (!insResult || !insResult.result || !insResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            // 
+            // Clean up the Cart
+            //
+            /*req.session.catalog_cart = {};*/
+            // 
+            // End
+            // 
+            return res.send(JSON.stringify({
+                status: 1,
+                order: orderData
+            }));
+        } catch (e) {
             return res.send(JSON.stringify({
                 status: 0,
-                fields: errorFields
+                error: e
             }));
         }
-        const cart = req.session.catalog_cart || {};
-        let cartArr = [];
-        let total = 0;
-        let weight = 0;
-        if (Object.keys(cart).length > 0) {
-            let query = [];
-            for (let i in cart) {
-                query.push({
-                    _id: new ObjectID(i)
-                });
-            }
-            let ffields = { _id: 1, price: 1, weight: 1 };
-            ffields[locale + '.title'] = 1;
-            const cartDB = await db.collection('warehouse').find({ $or: query }, ffields).toArray();
-            if (cartDB && cartDB.length) {
-                for (let i in cartDB) {
-                    cartArr.push({
-                        id: cartDB[i]._id,
-                        text: cartDB[i][locale] ? cartDB[i][locale].title : '',
-                        count: cart[cartDB[i]._id],
-                        price: parseFloat(cartDB[i].price).toFixed(2),
-                        subtotal: parseFloat(cart[cartDB[i]._id] * cartDB[i].price).toFixed(2)
-                    });
-                    total += cart[cartDB[i]._id] * cartDB[i].price;
-                    weight += cart[cartDB[i]._id] * cartDB[i].weight;
-                }
-                total = parseFloat(total).toFixed(2);
-            }
-        }        
-        return res.send(JSON.stringify({
-            status: 1
-        }));
     };
 
     let router = Router();

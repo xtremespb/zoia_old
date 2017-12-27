@@ -1,6 +1,5 @@
 .za-catalog-cart-total-wrap {
     padding-top: 20px;
-    text-align: right;
     font-size: 120%;
 }
 
@@ -10,7 +9,7 @@
 
 .za_catalog_order_submit_spinner>svg {
     width: 15px;
-    margin-top:-3px;
+    margin-top: -3px;
     margin-right: 5px
 }
 
@@ -26,7 +25,13 @@
 }
 
 @media (max-width: 959px) {
-    .za-catalog-cart-total-wrap {
-        text-align: left;
-    }
+}
+
+.za-notification-message {
+    opacity: 1;
+    background-color: #fff;
+    -webkit-box-shadow: -1px 2px 5px 0px rgba(0, 0, 0, 0.34);
+    -moz-box-shadow: -1px 2px 5px 0px rgba(0, 0, 0, 0.34);
+    box-shadow: -1px 2px 5px 0px rgba(0, 0, 0, 0.34);
+    text-align: center;
 }

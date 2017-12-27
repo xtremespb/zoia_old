@@ -84,10 +84,10 @@ const submitOrder = function(event) {
         data: fields,
         cache: false
     }).done((res) => {
-        loading = false;
-        captchaRefresh();
+        loading = false;        
         $('.za_catalog_order_submit_spinner').hide();
-        if (res.status !== 1) {
+        if (res.status !== 1 || !res.order) {
+            captchaRefresh();
             if (res.fields) {
                 let focus = false;
                 for (let i in res.fields) {
@@ -100,9 +100,16 @@ const submitOrder = function(event) {
                         $('#za_catalog_form_' + res.fields[i]).focus();
                     }
                 }
+            } else {
+                $zUI.notification(lang['Could not place your order. Please try again later or contact website support.'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
             }
         } else {
-            
+            $('#za_catalog_order_wrap').hide();
+            $('#za_catalog_order_success_id').html(res.order._id)
+            $('#za_catalog_order_success').show();
         }
     }).fail(() => {
         loading = false;
@@ -140,26 +147,28 @@ const captchaInit = () => {
 const calculateFields = function(event) {
     let total = totalWares;
     let costs = {};
-    $('.za-catalog-order-form-rx').each(function() {
-        const id = $(this).attr('id').replace('za_catalog_form_', '');
-        const cost = $(this).attr('data-cost') || $(this).find(':selected').attr('data-cost') || 0;
-        const addPrc = $(this).attr('data-addprc') || $(this).find(':selected').attr('data-addprc') || 0;
-        const costWeight = $(this).attr('data-weight') || $(this).find(':selected').attr('data-weight') || 0;
-        if (cost || addPrc || costWeight) {
-            let subtotal = 0;
-            if (cost) {
-                subtotal += cost;
+    if ($('#za_catalog_order_delivery').find(':selected').attr('data-type') === 'delivery') {
+        $('.za-catalog-order-form-rx').each(function() {
+            const id = $(this).attr('id').replace('za_catalog_form_', '');
+            const cost = $(this).attr('data-cost') || parseFloat($(this).find(':selected').attr('data-cost')) || 0;
+            const addPrc = $(this).attr('data-addprc') || parseFloat($(this).find(':selected').attr('data-addprc')) || 0;
+            const costWeight = $(this).attr('data-weight') || parseFloat($(this).find(':selected').attr('data-weight')) || 0;
+            if (cost || addPrc || costWeight) {
+                let subtotal = 0;
+                if (cost) {
+                    subtotal += cost;
+                }
+                if (addPrc) {
+                    subtotal += (totalWares / 100) * addPrc;
+                }
+                if (costWeight) {
+                    subtotal += costWeight * weight;
+                }
+                total += parseFloat(subtotal);
+                costs[getAddressLabel(id)] = parseFloat(subtotal).toFixed(2) + '&nbsp;' + settings.currency;
             }
-            if (addPrc) {
-                subtotal += (totalWares / 100) * addPrc;
-            }
-            if (costWeight) {
-                subtotal += costWeight * weight;
-            }
-            total += parseFloat(subtotal);
-            costs[getAddressLabel(id)] = parseFloat(subtotal).toFixed(2) + '&nbsp;' + settings.currency;
-        }
-    });
+        });
+    }
     total = parseFloat(total).toFixed(2);
     $('.za-catalog-cart-extra').remove();
     let extraHTML = '';

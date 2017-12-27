@@ -139,7 +139,7 @@
 	"Item": "Item",
 	"Order Summary": "Order Summary",
 	"Please check your order details below.": "Please check your order details below.",
-	"Choose the appropriate shipping method and provide your contact details if necessary.": "Choose the appropriate shipping method anf provide your contact details if necessary.",
+	"Choose the appropriate shipping method and provide your contact details if necessary.": "Choose the appropriate shipping method and provide your contact details if necessary.",
 	"Form contains errors. Please check it and re-submit your order.": "Form contains errors. Please check it and re-submit your order.",
 	"Total sum": "Total sum",
 	"You are not authorized. To check your order status and make the next order faster, please": "You are not authorized. To check your order status and make the next order faster, please",
@@ -147,5 +147,8 @@
 	"or": "or",
 	"register": "register",
 	"Captcha": "Captcha",
-	"Invalid code": "Invalid code"
+	"Invalid code": "Invalid code",
+	"Could not place your order. Please try again later or contact website support.": "Could not place your order. Please try again later or contact website support.",
+	"Your order has been placed and it is being processed.": "Your order has been placed and it is being processed.",
+	"Order ID": "Order ID"
 }
