@@ -59,7 +59,8 @@
 #warehouse_actions,
 #properties_actions,
 #collections_actions,
-#delivery_actions {
+#delivery_actions,
+#orders_actions {
     width: 90px;
 }
 
@@ -133,7 +134,9 @@
 
 .warehouseBtnSettings,
 .warehouseBtnSelectAll,
-.warehouseBtnSelectNone {
+.warehouseBtnSelectNone,
+.ordersBtnSelectAll,
+.ordersBtnSelectNone {
     padding: 9px;
 }
 
@@ -215,4 +218,8 @@
 #editForm_properties_wrap:empty,
 .addressFormDataItems:empty {
     display: none;
+}
+
+.za-catalog-cart-del {
+    cursor: pointer;
 }

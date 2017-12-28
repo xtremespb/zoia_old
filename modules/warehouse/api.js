@@ -38,6 +38,7 @@ module.exports = function(app) {
     const log = app.get('log');
     const db = app.get('db');
     const sortFields = ['sku', 'folder', 'title', 'status', 'price'];
+    const sortOrderFields = ['_id', 'date', 'username', 'status', 'cost'];
     const sortPropertyFields = ['pid', 'title'];
 
     const list = async(req, res) => {
@@ -2108,7 +2109,7 @@ module.exports = function(app) {
         res.contentType('application/json');
         const locale = req.session.currentLocale;
         let errorFields = [];
-        if (!req.session || req.body.captcha !== req.session.captcha) {
+        if (!Module.isAuthorized(req) && (!req.session || req.body.captcha !== req.session.captcha)) {
             return res.send(JSON.stringify({
                 status: 0,
                 fields: ['captcha']
@@ -2246,6 +2247,10 @@ module.exports = function(app) {
             orderData.costs.total = parseFloat(orderData.costs.total).toFixed(2);
             orderData.costs.totalWares = parseFloat(orderData.costs.totalWares).toFixed(2);
             orderData.status = 1;
+            orderData.date = Date.now() / 1000 | 0;
+            if (req.session.auth && req.session.auth.username) {
+                orderData.username = req.session.auth.username;
+            }
             const incr = await db.collection('counters').findAndModify({ _id: 'warehouse_orders' }, [], { $inc: { seq: 1 } }, { new: true, upsert: true });
             if (!incr || !incr.value || !incr.value.seq) {
                 return res.send(JSON.stringify({
@@ -2274,9 +2279,173 @@ module.exports = function(app) {
                 order: orderData
             }));
         } catch (e) {
+            log.error(e);
             return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
+    const ordersList = async(req, res) => {
+        const locale = req.session.currentLocale;
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const sortField = req.query.sortField || 'date';
+        const sortDirection = (req.query.sortDirection === 'asc') ? 1 : -1;
+        const sort = {};
+        sort[sortField] = sortDirection;
+        let skip = req.query.skip || 0;
+        let limit = req.query.limit || 10;
+        let search = req.query.search || '';
+        if (typeof sortField !== 'string' || typeof skip !== 'string' || typeof limit !== 'string' || typeof search !== 'string') {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        skip = parseInt(skip, 10) || 0;
+        limit = parseInt(limit, 10) || 0;
+        search = search.trim();
+        if (search.length < 3) {
+            search = null;
+        }
+        let result = {
+            status: 0
+        };
+        if (sortOrderFields.indexOf(sortField) === -1) {
+            result.failedField = 'sortField';
+            return res.send(result);
+        }
+        let fquery = {};
+        try {
+            if (search) {
+                fquery = {
+                    $or: [
+                        { _id: parseInt(search) },
+                        { username: { $regex: search, $options: 'i' } }
+                    ]
+                };
+            }
+            let ffields = { _id: 1, date: 1, username: 1, costs: 1, status: 1 };
+            const total = await db.collection('warehouse_orders').find(fquery, ffields, { skip: skip, limit: limit }).count();
+            const items = await db.collection('warehouse_orders').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
+            for (let i in items) {
+                if (items[i][locale]) {
+                    items[i].title = items[i][locale].title;
+                    delete items[i][locale].title;
+                    delete items[i][locale];
+                }
+            }
+            let data = {
+                status: 1,
+                count: items.length,
+                total: total,
+                items: items
+            };
+            res.send(JSON.stringify(data));
+        } catch (e) {
+            res.send(JSON.stringify({
                 status: 0,
-                error: e
+                error: e.message
+            }));
+        }
+    };
+
+    const delOrder = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let output = {};
+        let ids = req.body['id'];
+        if (!ids || (typeof ids !== 'object' && typeof ids !== 'string') || !ids.length) {
+            output.status = -1;
+            return res.send(JSON.stringify(output));
+        }
+        if (typeof ids === 'string') {
+            const id = ids;
+            ids = [];
+            ids.push(id);
+        }
+        let did = [];
+        for (let i in ids) {
+            const id = ids[i];
+            if (!id.match(/^[0-9]+$/)) {
+                output.status = -2;
+                return res.send(JSON.stringify(output));
+            }
+            did.push({ _id: parseInt(id) });
+        }
+        try {
+            const delResult = await db.collection('warehouse_orders').deleteMany({
+                $or: did
+            });
+            if (!delResult || !delResult.result || !delResult.result.ok || delResult.result.n !== ids.length) {
+                output.status = -3;
+                return res.send(JSON.stringify(output));
+            }
+            output.status = 1;
+            res.send(JSON.stringify(output));
+        } catch (e) {
+            output.status = 0;
+            log.error(e);
+            res.send(JSON.stringify(output));
+        }
+    };
+
+    const loadOrder = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const locale = req.session.currentLocale;
+        const id = req.body.id;
+        if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const item = await db.collection('warehouse_orders').findOne({ _id: parseInt(id) });
+            if (!item) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            let querySKU = [];
+            for (let i in item.cart) {
+                querySKU.push({
+                    sku: { $eq: i }
+                });
+            }
+            let ffields = { _id: 1, sku: 1 };
+            ffields[locale + '.title'] = 1;
+            const cartDB = await db.collection('warehouse').find({ $or: querySKU }, ffields).toArray();
+            let cartData = {};
+            if (cartDB) {
+                for (let i in cartDB) {
+                    if (cartDB[i][locale]) {
+                        cartData[cartDB[i].sku] = cartDB[i][locale].title;
+                    }
+                }
+            }
+            return res.send(JSON.stringify({
+                status: 1,
+                item: item,
+                cartData: cartData
+            }));
+        } catch (e) {
+            log.error(e);
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
             }));
         }
     };
@@ -2319,6 +2488,10 @@ module.exports = function(app) {
     router.all('/browse/delete', browseDelete);
     router.all('/browse/paste', browsePaste);
     router.all('/browse/upload', browseUpload);
+    // Orders routes
+    router.all('/orders/list', ordersList);
+    router.post('/orders/delete', delOrder);
+    router.post('/orders/load', loadOrder);
     // Frontend routes
     router.post('/cart/add', cartAdd);
     router.post('/cart/count', cartCount);

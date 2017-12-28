@@ -3,6 +3,7 @@
 /* eslint max-len: 0 */
 let deleteDialog;
 let deletePropertyDialog;
+let deleteOrderDialog;
 let deleteCollectionDialog;
 let foldersDialog;
 let folderEditDialog;
@@ -22,6 +23,7 @@ let addressAddEditDialog;
 let addressEditDialog;
 let deliveryEditDialog;
 let deliveryDialog;
+let orderDialog;
 let currentEditID;
 let currentDeleteID;
 let foldersTree;
@@ -224,6 +226,16 @@ const deletePropertyDialogSpinner = (show) => {
     }
 };
 
+const deleteOrderDialogSpinner = (show) => {
+    if (show) {
+        $('.zoia-deleteorder-dialog-button').hide();
+        $('#zoiaDeleteOrderDialogSpinner').show();
+    } else {
+        $('.zoia-deleteorder-dialog-button').show();
+        $('#zoiaDeleteOrderDialogSpinner').hide();
+    }
+};
+
 const deleteCollectionDialogSpinner = (show) => {
     if (show) {
         $('.zoia-deletecollection-dialog-button').hide();
@@ -319,6 +331,60 @@ const editItem = (id) => {
     markZoiaLanguagesTab(editLanguage);
     $('#zoiaSpinnerMain').show();
     $('#editForm').zoiaFormBuilder().loadData({ id: id });
+};
+
+const editOrder = (id) => {
+    editMode = true;
+    if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/)) {
+        return;
+    }
+    currentEditID = id;
+    $('#zoiaOrderDialogBody').hide();
+    $('#zoiaOrderDialogBodySpinner').show();
+    $('#zoiaOrderDialogButtons').hide();
+    $('.za-catalog-order-id').html(id);
+    orderDialog.show();
+    $.ajax({
+        type: 'POST',
+        url: '/api/warehouse/orders/load',
+        data: {
+            id: id
+        },
+        cache: false
+    }).done((res) => {
+        $('#zoiaSpinnerMain').hide();
+        if (res && res.status === 1 && res.item) {
+            $('#zoiaOrderDialogButtons').show();
+            $('#za_catalog_order_tabs').find('li:first').click();
+            // Clean up data
+            $('#za_catalog_order_cart_wrap').html('');
+            // Fill data
+            const date = parseInt(res.item.date) * 1000;
+            $('#za_catalog_order_date').html(new Date(date).toLocaleString());
+            $('#za_catalog_order_username').val(res.item.username || '');
+            let cartHTML = '<table class="za-table za-table-striped za-table-hover za-table-small za-table-middle za-table-responsive"><tbody>';
+            for (let i in res.item.cart) {
+                cartHTML += '<tr><td class="za-table-shrink">' + i + '</td><td class="za-table-expand">' + res.cartData[i] + '</td><td class="za-table-shrink"><input class="za-input za-form-width-xsmall" value="' + res.item.cart[i] + '"></td><td class="za-table-shrink"><div style="height:20px"><span za-icon="icon:trash;ratio:0.8" class="za-catalog-cart-del"></span></div></td></tr>';
+            }
+            cartHTML += '</tbody></table>'
+            $('#za_catalog_order_cart_wrap').html(cartHTML);
+            // Show form
+            $('#zoiaOrderDialogBodySpinner').hide();
+            $('#zoiaOrderDialogBody').show();
+        } else {
+            orderDialog.hide();
+            $zUI.notification(lang['Could not load information from database'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        }
+    }).fail(() => {
+        orderDialog.hide();
+        $zUI.notification(lang['Could not load information from database'], {
+            status: 'danger',
+            timeout: 1500
+        });
+    }, 200);
 };
 
 const createProperty = () => {
@@ -447,6 +513,32 @@ const deleteProperty = (id) => {
     deletePropertyDialog.show();
 };
 
+const deleteOrder = (id) => {
+    if (!id) {
+        return;
+    }
+    let items = [];
+    let ids = [];
+    currentDeleteID = [];
+    if (typeof id === 'object') {
+        items = id;
+        currentDeleteID = id;
+        for (let i in id) {
+            ids.push($('#orders').zoiaTable().getCurrentData()[id[i]]._id);
+        }
+    } else {
+        items.push(id);
+        currentDeleteID.push(id);
+        ids.push($('#orders').zoiaTable().getCurrentData()[id]._id);
+    }
+    $('#zoiaDeleteOrderDialogList').html('');
+    for (let n in ids) {
+        $('#zoiaDeleteOrderDialogList').append('<li>' + ids[n] + '</li>');
+    }
+    deleteOrderDialogSpinner(false);
+    deleteOrderDialog.show();
+};
+
 const deleteCollection = (id) => {
     if (!id) {
         return;
@@ -504,6 +596,40 @@ const ajaxDeleteItem = () => {
             timeout: 1500
         });
         deleteDialogSpinner(false);
+    });
+};
+
+const ajaxDeleteOrder = () => {
+    deleteOrderDialogSpinner(true);
+    $.ajax({
+        type: 'POST',
+        url: '/api/warehouse/orders/delete',
+        data: {
+            id: currentDeleteID
+        },
+        cache: false
+    }).done((res) => {
+        $('#orders').zoiaTable().load();
+        if (res && res.status === 1) {
+            deleteOrderDialog.hide();
+            $zUI.notification(lang['Operation was successful'], {
+                status: 'success',
+                timeout: 1500
+            });
+        } else {
+            $zUI.notification(lang['Cannot delete one or more items'], {
+                status: 'danger',
+                timeout: 1500
+            });
+            deleteOrderDialogSpinner(false);
+        }
+    }).fail(() => {
+        $('#orders').zoiaTable().load();
+        $zUI.notification(lang['Cannot delete one or more items'], {
+            status: 'danger',
+            timeout: 1500
+        });
+        deleteOrderDialogSpinner(false);
     });
 };
 
@@ -922,6 +1048,15 @@ const deletePropertyButtonHanlder = () => {
     }
 };
 
+const deleteOrderButtonHanlder = () => {
+    const checked = $('.ordersCheckbox:checkbox:checked').map(function() {
+        return this.id;
+    }).get();
+    if (checked && checked.length > 0) {
+        deleteOrder(checked);
+    }
+};
+
 const deleteCollectionButtonHanlder = () => {
     const checked = $('.collectionsCheckbox:checkbox:checked').map(function() {
         return this.id;
@@ -1161,6 +1296,7 @@ const editFormData = {
                 $(this).parent().parent().remove();
             });
             $('#zoiaSpinnerMain').hide();
+
         },
         onLoadError: () => {
             $('#zoiaSpinnerMain').hide();
@@ -2161,6 +2297,68 @@ const warehouseTableData = {
     }
 };
 
+const ordersTableData = {
+    url: '/api/warehouse/orders/list',
+    limit: 20,
+    sort: {
+        field: 'date',
+        direction: 'desc'
+    },
+    fields: {
+        _id: {
+            sortable: true,
+            process: (id, item, value) => {
+                return value;
+            }
+        },
+        date: {
+            sortable: true,
+            process: (id, item, value) => {
+                const date = new Date(value * 1000);
+                return date.toLocaleString();
+            }
+        },
+        username: {
+            sortable: true,
+            process: (id, item, value) => {
+                return value || '&ndash;';
+            }
+        },
+        costs: {
+            sortable: true,
+            process: (id, item, value) => {
+                return value.total || '&ndash;';
+            }
+        },
+        status: {
+            sortable: true,
+            process: (id, item, value) => {
+                return lang.orderStatuses[value] || '&ndash;';
+            }
+        },
+        actions: {
+            sortable: false,
+            process: (id, item) => {
+                return '<button class="za-icon-button zoia-orders-action-edit-btn" za-icon="icon: pencil" data="' + item._id +
+                    '" style="margin-right:5px"></button><button class="za-icon-button zoia-orders-action-del-btn" za-icon="icon: trash" data="' + item._id +
+                    '"></button><div style="margin-bottom:17px" class="za-hidden@m">&nbsp;</div>';
+            }
+        }
+    },
+    onLoad: () => {
+        $('.zoia-orders-action-edit-btn').click(function() {
+            editOrder($(this).attr('data'));
+        });
+        $('.zoia-orders-action-del-btn').click(function() {
+            deleteOrder($(this).attr('data'));
+        });
+    },
+    lang: {
+        error: lang['Could not load data from server. Please try to refresh page in a few moments.'],
+        noitems: lang['No items to display']
+    }
+};
+
 const propertiesTableData = {
     url: '/api/warehouse/list/properties',
     limit: 7,
@@ -2496,6 +2694,16 @@ const initDialogs = () => {
         stack: true
     });
     addressAddEditDialog = $zUI.modal('#zoiaAddressAddEditDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    deleteOrderDialog = $zUI.modal('#zoiaDeleteOrderDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    orderDialog = $zUI.modal('#zoiaOrderDialog', {
         bgClose: false,
         escClose: false,
         stack: true
@@ -3003,6 +3211,62 @@ const initAddressSelect = () => {
     }
 };
 
+const zoiaAddPropertyBtnClick = () => {
+    $('#propertiesselect').zoiaTable().load();
+    propertiesSelectDialog.show();
+};
+
+const zoiaPropertiesSelectDialogCloseBtnClick = () => {
+    propertiesSelectDialog.hide().then(() => {
+        $(window).scrollTop($('#editForm_properties_widget').offset().top - 100);
+    });
+};
+
+const zoiaAddCollectionBtnClick = () => {
+    $('#collectionselect').zoiaTable().load();
+    collectionSelectDialog.show();
+};
+
+const zoiaPropertiesImportButtonClick = () => {
+    $('#zoiaPropertiesImportDialogBody').show();
+    $('#zoiaPropertiesImportDialogSpinner').hide();
+    $('#zoiaPropertiesImportDialogFooter').show();
+    propertiesImportDialog.show();
+};
+
+const zoiaCollectionsImportButtonClick = () => {
+    $('#zoiaCollectionsImportDialogBody').show();
+    $('#zoiaCollectionsImportDialogSpinner').hide();
+    $('#zoiaCollectionsImportDialogFooter').show();
+    collectionsImportDialog.show();
+};
+
+const warehouseBtnDeliveryDialogClick = () => {
+    $('#delivery').zoiaTable().load();
+    deliveryDialog.show();
+};
+
+const warehouseBtnAddressDialogClick = () => {
+    addressEditDialog.show();
+    $('.zoiaAddressEditDialogSpinner').show();
+    $('.zoiaAddressEditDialogWrap').hide();
+    $('#editAddressForm').zoiaFormBuilder().loadData();
+};
+
+const editAddressForm_properties_btnClick = () => {
+    $("#zoiaAddressSelect").prop("selectedIndex", 0);
+    addressAddEditDialog.show();
+};
+
+const btnAddressAddClick = () => {
+    addressAddEditDialog.hide();
+    $('.addressFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + $('#zoiaAddressSelect').val() + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + $('#zoiaAddressSelect option:selected').text() + '<button type="button" class="addressItemClose" za-close style="float:right"></button></div>');
+    $('.addressItemClose').unbind();
+    $('.addressItemClose').click(function() {
+        $(this).parent().remove();
+    });
+};
+
 $(document).ready(() => {
     // Init section
     initDialogs();
@@ -3022,6 +3286,7 @@ $(document).ready(() => {
     $('#editCollectionForm').zoiaFormBuilder(editCollectionFormData);
     $('#editAddressForm').zoiaFormBuilder(editAddressFormData);
     $('#warehouse').zoiaTable(warehouseTableData);
+    $('#orders').zoiaTable(ordersTableData);
     $('#properties').zoiaTable(propertiesTableData);
     $('#collections').zoiaTable(collectionsTableData);
     $('#propertyselect').zoiaTable(propertyselectTableData);
@@ -3031,9 +3296,11 @@ $(document).ready(() => {
     // Handlers    
     $('.zoiaDeleteButton').click(deleteButtonHanlder);
     $('.zoiaPropertyDeleteButton').click(deletePropertyButtonHanlder);
+    $('.zoiaOrderDeleteButton').click(deleteOrderButtonHanlder);
     $('.zoiaCollectionDeleteButton').click(deleteCollectionButtonHanlder);
     $('#zoiaDeleteDialogButton').click(ajaxDeleteItem);
     $('#zoiaDeletePropertyDialogButton').click(ajaxDeleteProperty);
+    $('#zoiaDeleteOrderDialogButton').click(ajaxDeleteOrder);
     $('#zoiaDeleteCollectionDialogButton').click(ajaxDeleteCollection);
     $('#zoiaRepairDialogButton').click(ajaxRepairDatabase);
     $('.zoiaAdd').click(addHandler);
@@ -3062,54 +3329,16 @@ $(document).ready(() => {
     $('#editCollectionForm_properties_btn').click(editCollectionForm_properties_btnHandler);
     $('.zoiaPropertySelect').click(zoiaPropertySelectHandler);
     $('.zoiaSelectedPropertyAdd').click(zoiaSelectedPropertyAddHandler);
-    $('.zoiaAddPropertyBtn').click(() => {
-        $('#propertiesselect').zoiaTable().load();
-        propertiesSelectDialog.show();
-    });
-    $('#zoiaPropertiesSelectDialogCloseBtn').click(() => {
-        propertiesSelectDialog.hide().then(() => {
-            $(window).scrollTop($('#editForm_properties_widget').offset().top - 100);
-        });
-    });
-    $('.zoiaAddCollectionBtn').click(() => {
-        $('#collectionselect').zoiaTable().load();
-        collectionSelectDialog.show();
-    });
+    $('.zoiaAddPropertyBtn').click(zoiaAddPropertyBtnClick);
+    $('#zoiaPropertiesSelectDialogCloseBtn').click(zoiaPropertiesSelectDialogCloseBtnClick);
+    $('.zoiaAddCollectionBtn').click(zoiaAddCollectionBtnClick);
     $('.zoiaRemoveAllProperties').click(() => {
         $('#editForm_properties_wrap').empty();
     });
-    $('.zoiaPropertiesImportButton').click(() => {
-        $('#zoiaPropertiesImportDialogBody').show();
-        $('#zoiaPropertiesImportDialogSpinner').hide();
-        $('#zoiaPropertiesImportDialogFooter').show();
-        propertiesImportDialog.show();
-    });
-    $('.zoiaCollectionsImportButton').click(() => {
-        $('#zoiaCollectionsImportDialogBody').show();
-        $('#zoiaCollectionsImportDialogSpinner').hide();
-        $('#zoiaCollectionsImportDialogFooter').show();
-        collectionsImportDialog.show();
-    });
-    $('.warehouseBtnDeliveryDialog').click(() => {
-        $('#delivery').zoiaTable().load();
-        deliveryDialog.show();
-    });
-    $('.warehouseBtnAddressDialog').click(() => {
-        addressEditDialog.show();
-        $('.zoiaAddressEditDialogSpinner').show();
-        $('.zoiaAddressEditDialogWrap').hide();
-        $('#editAddressForm').zoiaFormBuilder().loadData();
-    });
-    $('#editAddressForm_properties_btn').click(() => {
-        $("#zoiaAddressSelect").prop("selectedIndex", 0);
-        addressAddEditDialog.show();
-    });
-    $('#btnAddressAdd').click(() => {
-        addressAddEditDialog.hide();
-        $('.addressFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + $('#zoiaAddressSelect').val() + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + $('#zoiaAddressSelect option:selected').text() + '<button type="button" class="addressItemClose" za-close style="float:right"></button></div>');
-        $('.addressItemClose').unbind();
-        $('.addressItemClose').click(function() {
-            $(this).parent().remove();
-        });
-    });
+    $('.zoiaPropertiesImportButton').click(zoiaPropertiesImportButtonClick);
+    $('.zoiaCollectionsImportButton').click(zoiaCollectionsImportButtonClick);
+    $('.warehouseBtnDeliveryDialog').click(warehouseBtnDeliveryDialogClick);
+    $('.warehouseBtnAddressDialog').click(warehouseBtnAddressDialogClick);
+    $('#editAddressForm_properties_btn').click(editAddressForm_properties_btnClick);
+    $('#btnAddressAdd').click(btnAddressAddClick);
 });

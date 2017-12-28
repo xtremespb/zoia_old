@@ -12,6 +12,13 @@
 		"Disabled",
 		"Active"
 	],
+	"orderStatuses": [
+		"Cancelled",
+		"New",
+		"Processing",
+		"Sent",
+		"Delivered"
+	],
 	"fieldErrors": {
 		"Saved successfully": "Saved successfully",
 		"Page already exists in database": "Page already exists in database",
@@ -152,5 +159,16 @@
 	"Your order has been placed and it is being processed.": "Your order has been placed and it is being processed.",
 	"Order ID": "Order ID",
 	"Place Order": "Place Order",
-	"There are no items in your cart yet. Please place something to your cart first.": "There are no items in your cart yet. Please place something to your cart first."
+	"Warehouse": "Warehouse",
+	"Orders": "Orders",
+	"Items": "Items",
+	"Date": "Date",
+	"Username": "Username",
+	"Total": "Total",
+	"The following properties(s) will be removed from the database": "The following properties(s) will be removed from the database",
+	"The following collection(s) will be removed from the database": "The following collection(s) will be removed from the database",
+	"The following order(s) will be removed from the database": "The following order(s) will be removed from the database",
+	"Info": "Info",
+	"Costs": "Costs",
+	"Address": "Address"
 }

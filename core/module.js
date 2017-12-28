@@ -13,7 +13,7 @@ module.exports = class Module {
         return titles;
     }
     static isAuthorized(req) {
-        if (req && req.session && req.session.auth && req.session.auth._id && req.session.auth.status && String(req.session.auth.status) === '1') {
+        if (req && req.session && req.session.auth && req.session.auth._id && req.session.auth.status && parseInt(req.session.auth.status) >= '1') {
             return true;
         }
         return false;
