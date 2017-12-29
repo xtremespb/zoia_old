@@ -2450,6 +2450,43 @@ module.exports = function(app) {
         }
     };
 
+    const addCartOrder = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const locale = req.session.currentLocale;
+        const sku = req.body.sku;
+        if (!sku || typeof sku !== 'string' || !sku.match(/^[A-Za-z0-9_\-]+$/)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let ffields = { _id: 1, sku: 1 };
+        ffields[locale + '.title'] = 1;
+        try {
+            const item = await db.collection('warehouse').findOne({ sku: sku }, ffields);
+            if (!item) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            return res.send(JSON.stringify({
+                status: 1,
+                sku: item.sku,
+                title: item[locale] ? item[locale].title : ''
+            }));
+        } catch (e) {
+            log.error(e);
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
     let router = Router();
     router.get('/list', list);
     router.get('/list/properties', listProperties);
@@ -2492,6 +2529,7 @@ module.exports = function(app) {
     router.all('/orders/list', ordersList);
     router.post('/orders/delete', delOrder);
     router.post('/orders/load', loadOrder);
+    router.post('/orders/cart/add', addCartOrder);
     // Frontend routes
     router.post('/cart/add', cartAdd);
     router.post('/cart/count', cartCount);

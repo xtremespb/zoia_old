@@ -362,12 +362,15 @@ const editOrder = (id) => {
             const date = parseInt(res.item.date) * 1000;
             $('#za_catalog_order_date').html(new Date(date).toLocaleString());
             $('#za_catalog_order_username').val(res.item.username || '');
-            let cartHTML = '<table class="za-table za-table-striped za-table-hover za-table-small za-table-middle za-table-responsive"><tbody>';
+            let cartHTML = '<table class="za-table za-table-striped za-table-hover za-table-small za-table-middle za-table-responsive" id="za_catalog_order_cart_table"><tbody>';
             for (let i in res.item.cart) {
                 cartHTML += '<tr><td class="za-table-shrink">' + i + '</td><td class="za-table-expand">' + res.cartData[i] + '</td><td class="za-table-shrink"><input class="za-input za-form-width-xsmall" value="' + res.item.cart[i] + '"></td><td class="za-table-shrink"><div style="height:20px"><span za-icon="icon:trash;ratio:0.8" class="za-catalog-cart-del"></span></div></td></tr>';
             }
             cartHTML += '</tbody></table>'
             $('#za_catalog_order_cart_wrap').html(cartHTML);
+            $('.za-catalog-cart-del').unbind().click(function() {
+                $(this).parent().parent().parent().remove();
+            });
             // Show form
             $('#zoiaOrderDialogBodySpinner').hide();
             $('#zoiaOrderDialogBody').show();
@@ -3267,6 +3270,46 @@ const btnAddressAddClick = () => {
     });
 };
 
+const za_catalog_order_btn_addClick = () => {
+    if ($('#za_catalog_order_btn_add_spinner').is(':visible')) {
+        return;
+    }    
+    const val = $('#za_catalog_order_sku').val().trim();
+    if (!val || !val.match(/^[A-Za-z0-9_\-]+$/)) {
+        $('#za_catalog_order_sku').addClass('za-form-danger');
+        return;
+    }
+    $('#za_catalog_order_btn_add_spinner').show();
+    $('#za_catalog_order_sku').removeClass('za-form-danger');
+    $.ajax({
+        type: 'POST',
+        url: '/api/warehouse/orders/cart/add',
+        data: {
+            sku: val
+        },
+        cache: false
+    }).done((res) => {
+        $('#za_catalog_order_btn_add_spinner').hide();
+        if (res && res.status === 1 && res.sku) {
+            $('#za_catalog_order_cart_table').append('<tr><td class="za-table-shrink">' + res.sku + '</td><td class="za-table-expand">' + res.title + '</td><td class="za-table-shrink"><input class="za-input za-form-width-xsmall" value="1"></td><td class="za-table-shrink"><div style="height:20px"><span za-icon="icon:trash;ratio:0.8" class="za-catalog-cart-del"></span></div></td></tr>');
+            $('.za-catalog-cart-del').unbind().click(function() {
+                $(this).parent().parent().parent().remove();
+            });
+        } else {
+            $zUI.notification(lang['Could not create new item'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        }
+    }).fail(() => {
+        $('#za_catalog_order_btn_add_spinner').hide();
+        $zUI.notification(lang['Could not create new item'], {
+            status: 'danger',
+            timeout: 1500
+        });
+    }, 200);
+};
+
 $(document).ready(() => {
     // Init section
     initDialogs();
@@ -3341,4 +3384,9 @@ $(document).ready(() => {
     $('.warehouseBtnAddressDialog').click(warehouseBtnAddressDialogClick);
     $('#editAddressForm_properties_btn').click(editAddressForm_properties_btnClick);
     $('#btnAddressAdd').click(btnAddressAddClick);
+    $('#za_catalog_order_btn_add').click(za_catalog_order_btn_addClick);
+    $('#za_catalog_order_add_form').submit(function(e) {
+        e.preventDefault();
+        za_catalog_order_btn_addClick();
+    });
 });

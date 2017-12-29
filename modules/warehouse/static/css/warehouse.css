@@ -223,3 +223,9 @@
 .za-catalog-cart-del {
     cursor: pointer;
 }
+
+#za_catalog_order_btn_add_spinner>svg {
+    width: 15px;
+    margin-top: 4px;
+    margin-right: 5px
+}

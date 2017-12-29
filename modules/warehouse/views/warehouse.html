@@ -819,7 +819,19 @@
                         </div>
                     </div>
                 </li>
-                <li id="za_catalog_order_cart_wrap">                    
+                <li>
+                    <form id="za_catalog_order_add_form">
+                        <div class="za-margin">
+                            <label class="za-form-label" for="za_catalog_order_sku">{{ i18n.__(locale, 'SKU')}}:</label>
+                            <div class="za-form-controls">
+                                <input class="za-input za-form-width-small" id="za_catalog_order_sku" type="text">&nbsp;
+                                <button class="za-button za-button-secondary" type="submit" id="za_catalog_order_btn_add">
+                                    <div za-spinner id="za_catalog_order_btn_add_spinner" style="display:none"></div>{{ i18n.__(locale, 'Add')}}</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="za_catalog_order_cart_wrap" class="za-margin-top">
+                    </div>
                 </li>
                 <li>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur, sed do eiusmod.</li>
                 <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</li>
