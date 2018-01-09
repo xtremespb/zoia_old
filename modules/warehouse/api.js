@@ -844,12 +844,6 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        const id = req.body.id;
-        if (id && (typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/))) {
-            return res.send(JSON.stringify({
-                status: 0
-            }));
-        }
         const properties = req.body.properties;
         if (properties && (typeof properties !== 'object' || !(properties instanceof Array))) {
             return res.send(JSON.stringify({

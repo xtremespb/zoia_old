@@ -465,6 +465,18 @@ module.exports = function(app) {
             }
         }
         const delivery = await db.collection('warehouse_delivery').find({ status: '1' }).toArray();
+        const addressDB = await db.collection('registry').findOne({ name: 'warehouse_address' });
+        let addressData = {};
+        if (addressDB && addressDB.data && addressDB.data.length) {
+            for (let i in addressDB.data) {
+                let id = addressDB.data[i];
+                for (let j in jsonAddress) {
+                    if (jsonAddress[j].id === id) {
+                        addressData[id] = jsonAddress[j];
+                    }
+                }
+            }
+        }
         // Render
         let catalogCartHTML = await renderAuth.file(templateCatalogOrder, {
             i18n: i18n.get(),
@@ -481,7 +493,7 @@ module.exports = function(app) {
             weight: weight,
             auth: req.session.auth,
             isAuth: req.session.auth ? 'true' : 'false',
-            addressJSON: JSON.stringify(jsonAddress)
+            addressJSON: JSON.stringify(addressData)
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Order'), {
             content: catalogCartHTML,

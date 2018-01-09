@@ -170,5 +170,6 @@
 	"The following order(s) will be removed from the database": "The following order(s) will be removed from the database",
 	"Info": "Info",
 	"Costs": "Costs",
-	"Address": "Address"
+	"Address": "Address",
+	"Form contains errors": "Form contains errors"
 }

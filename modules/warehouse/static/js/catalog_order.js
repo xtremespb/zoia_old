@@ -84,7 +84,7 @@ const submitOrder = function(event) {
         data: fields,
         cache: false
     }).done((res) => {
-        loading = false;        
+        loading = false;
         $('.za_catalog_order_submit_spinner').hide();
         if (res.status !== 1 || !res.order) {
             captchaRefresh();
@@ -100,6 +100,10 @@ const submitOrder = function(event) {
                         $('#za_catalog_form_' + res.fields[i]).focus();
                     }
                 }
+                $zUI.notification(lang['Form contains errors'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
             } else {
                 $zUI.notification(lang['Could not place your order. Please try again later or contact website support.'], {
                     status: 'danger',

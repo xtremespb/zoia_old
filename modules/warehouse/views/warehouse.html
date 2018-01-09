@@ -161,8 +161,8 @@
                 <tr>
                     <th id="ordersID" class="za-table-shrink"></th>
                     <th id="orders__id" class="za-table-shrink">{{ i18n.__(locale, 'ID')}}</th>
-                    <th id="orders_date" class="za-table-shrink">{{ i18n.__(locale, 'Date')}}</th>
-                    <th id="orders_username">{{ i18n.__(locale, 'Username')}}</th>
+                    <th id="orders_date" nowrap="nowrap" class="za-width-medium">{{ i18n.__(locale, 'Date')}}</th>
+                    <th id="orders_username" class="za-table-expand">{{ i18n.__(locale, 'Username')}}</th>
                     <th id="orders_costs" class="za-table-shrink">{{ i18n.__(locale, 'Total')}}</th>
                     <th id="orders_status" class="za-table-shrink">{{ i18n.__(locale, 'Status')}}</th>
                     <th id="orders_actions" class="za-table-shrink">{{ i18n.__(locale, 'Actions')}}</th>
@@ -810,6 +810,16 @@
                         <label class="za-form-label">{{ i18n.__(locale, 'Date')}}:</label>
                         <div class="za-form-controls">
                             <div class="za-catalog-order-ro" id="za_catalog_order_date"></div>
+                        </div>
+                    </div>
+                    <div class="za-margin">
+                        <label class="za-form-label" for="za_catalog_order_status">{{ i18n.__(locale, 'Status')}}:</label>
+                        <div class="za-form-controls">{{ lang.orderStatuses }}
+                            <select class="za-select za-width-medium" id="za_catalog_order_status">                            
+                                {% for s in lang.orderStatuses %}
+                                <option value="">{{ s }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                     </div>
                     <div class="za-margin">
