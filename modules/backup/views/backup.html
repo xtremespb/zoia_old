@@ -1,0 +1,10 @@
+<h1>{{ i18n.__(locale, 'title') }}</h1>
+<p>{{ i18n.__(locale, 'You can backup and restore your website data. The backup contains database collections, modules and static folders.') }}</p>
+<p za-margin>
+    <button class="za-button za-button-default" id="zoia_btn_backup">{{ i18n.__(locale, 'Backup') }}</button>
+    <button class="za-button za-button-default" id="zoia_btn_restore">{{ i18n.__(locale, 'Restore') }}</button>
+</p>
+<div id="zoiaSpinnerMain" style="display:none" class="za-flex za-flex-middle za-flex-center"><span za-spinner style="color:#000"></span></div>
+<script type="text/javascript ">
+var lang = {{ lang }};
+</script>

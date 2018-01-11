@@ -1,0 +1,7 @@
+{
+	"title": "Backup",
+	"You can backup and restore your website data. The backup contains database collections, modules and static folders.": "You can backup and restore your website data. The backup contains database collections, modules and static folders.",
+	"Backup": "Backup",
+	"Restore": "Restore",
+	"Could not create backup file": "Could not create backup file"
+}
