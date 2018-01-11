@@ -220,7 +220,8 @@
     display: none;
 }
 
-.za-catalog-cart-del {
+.za-catalog-cart-del,
+.za-catalog-cost-del {
     cursor: pointer;
 }
 

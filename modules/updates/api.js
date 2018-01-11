@@ -6,7 +6,7 @@ const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const rp = require('request-promise');
 const fs = require('fs-extra');
 const md5File = require('md5-file/promise');
-const targz = require('tar.gz');
+const targz = require('tar');
 /*const npm = require('npm');*/
 
 module.exports = function(app) {
@@ -111,7 +111,10 @@ module.exports = function(app) {
         try {
             const response = await rp('https://xtremespb.github.io/zoia/version.json');
             const data = JSON.parse(response);
-            await targz().extract(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'), path.join(__dirname, '..', '..'));
+            await targz.x({
+                file: path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'),
+                C: path.join(__dirname, '..', '..')
+            });
             await fs.access(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'), fs.constants.F_OK);
             await fs.remove(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'));
             // await _npmUpdate();

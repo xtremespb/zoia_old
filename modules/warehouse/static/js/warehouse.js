@@ -33,6 +33,7 @@ let foldersEditMode = false;
 let editShadow = {};
 let editLanguage;
 let editMode;
+let currentAddressData;
 
 const getUrlParam = (sParam) => {
     let sPageURL = decodeURIComponent(window.location.search.substring(1));
@@ -354,10 +355,12 @@ const editOrder = (id) => {
     }).done((res) => {
         $('#zoiaSpinnerMain').hide();
         if (res && res.status === 1 && res.item) {
+            currentAddressData = res.addressData;
             $('#zoiaOrderDialogButtons').show();
             $('#za_catalog_order_tabs').find('li:first').click();
             // Clean up data
             $('#za_catalog_order_cart_wrap').html('');
+            $('#za_catalog_order_costs_wrap').html('');
             // Fill data
             const date = parseInt(res.item.date) * 1000;
             $('#za_catalog_order_date').html(new Date(date).toLocaleString());
@@ -368,7 +371,16 @@ const editOrder = (id) => {
             }
             cartHTML += '</tbody></table>'
             $('#za_catalog_order_cart_wrap').html(cartHTML);
+            let costsHTML = '<table class="za-table za-table-striped za-table-hover za-table-small za-table-middle za-table-responsive" id="za_catalog_order_costs_table"><tbody>';
+            for (let i in res.item.costs.extra) {
+                costsHTML += '<tr><td class="za-table-expand" data="' + i + '">' + res.addressData[i] + '</td><td class="za-table-shrink"><input class="za-input za-form-width-xsmall" value="' + res.item.costs.extra[i] + '" style="width:100px"></td><td class="za-table-shrink"><div style="height:20px"><span za-icon="icon:trash;ratio:0.8" class="za-catalog-cost-del"></span></div></td></tr>';
+            }
+            costsHTML += '</tbody></table>'
+            $('#za_catalog_order_costs_wrap').html(costsHTML);
             $('.za-catalog-cart-del').unbind().click(function() {
+                $(this).parent().parent().parent().remove();
+            });
+            $('.za-catalog-cost-del').unbind().click(function() {
                 $(this).parent().parent().parent().remove();
             });
             // Show form
@@ -3214,6 +3226,12 @@ const initAddressSelect = () => {
     }
 };
 
+const initOrderStatuses = () => {
+    for (let i in lang.orderStatuses) {
+        $('#za_catalog_order_status').append('<option value="' + i + '">' + lang.orderStatuses[i] + '</option>');
+    }
+};
+
 const zoiaAddPropertyBtnClick = () => {
     $('#propertiesselect').zoiaTable().load();
     propertiesSelectDialog.show();
@@ -3273,7 +3291,7 @@ const btnAddressAddClick = () => {
 const za_catalog_order_btn_addClick = () => {
     if ($('#za_catalog_order_btn_add_spinner').is(':visible')) {
         return;
-    }    
+    }
     const val = $('#za_catalog_order_sku').val().trim();
     if (!val || !val.match(/^[A-Za-z0-9_\-]+$/)) {
         $('#za_catalog_order_sku').addClass('za-form-danger');
@@ -3310,6 +3328,19 @@ const za_catalog_order_btn_addClick = () => {
     }, 200);
 };
 
+const za_catalog_order_btn_addCostClick = () => {
+    const val = $('#za_catalog_order_costid').val().trim();
+    if (!val || !val.match(/^[A-Za-z0-9_\-]+$/) || !currentAddressData[val]) {
+        $('#za_catalog_order_costid').addClass('za-form-danger');
+        return;
+    }
+    $('#za_catalog_order_costid').removeClass('za-form-danger');
+    $('#za_catalog_order_costs_table').append('<tr><td class="za-table-expand" data="' + val + '">' + currentAddressData[val] + '</td><td class="za-table-shrink"><input class="za-input za-form-width-xsmall" value="0" style="width:100px"></td><td class="za-table-shrink"><div style="height:20px"><span za-icon="icon:trash;ratio:0.8" class="za-catalog-cost-del"></span></div></td></tr>');
+    $('.za-catalog-cost-del').unbind().click(function() {
+        $(this).parent().parent().parent().remove();
+    });
+};
+
 $(document).ready(() => {
     // Init section
     initDialogs();
@@ -3320,6 +3351,7 @@ $(document).ready(() => {
     initImportPropertiesUploader();
     initImportCollectionsUploader();
     initAddressSelect();
+    initOrderStatuses();
     // Forms and tables
     $('#editForm').zoiaFormBuilder(editFormData);
     $('#editFolderForm').zoiaFormBuilder(editFolderFormData);
@@ -3388,5 +3420,9 @@ $(document).ready(() => {
     $('#za_catalog_order_add_form').submit(function(e) {
         e.preventDefault();
         za_catalog_order_btn_addClick();
+    });
+    $('#za_catalog_order_btn_cost_add').click(za_catalog_order_btn_addCostClick);
+    $('#za_catalog_order_add_cost_form').submit(function(e) {
+        e.preventDefault();
     });
 });

@@ -13,12 +13,14 @@ const fs = require('fs-extra');
 const Jimp = require('jimp');
 const imageType = require('image-type');
 const csv = require('csvtojson');
+
 let configModule;
 try {
     configModule = require(path.join(__dirname, 'config', 'catalog.json'));
 } catch (e) {
     configModule = require(path.join(__dirname, 'config', 'catalog.dist.json'));
 }
+
 let jsonAddress;
 try {
     jsonAddress = require(path.join(__dirname, 'config', 'address.json'));
@@ -2430,10 +2432,16 @@ module.exports = function(app) {
                     }
                 }
             }
+            let addressData = {};
+            for (let i in jsonAddress) {
+                const item = jsonAddress[i];
+                addressData[item.id] = item.label[locale] || '';
+            }
             return res.send(JSON.stringify({
                 status: 1,
                 item: item,
-                cartData: cartData
+                cartData: cartData,
+                addressData: addressData
             }));
         } catch (e) {
             log.error(e);

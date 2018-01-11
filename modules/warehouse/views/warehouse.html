@@ -814,11 +814,8 @@
                     </div>
                     <div class="za-margin">
                         <label class="za-form-label" for="za_catalog_order_status">{{ i18n.__(locale, 'Status')}}:</label>
-                        <div class="za-form-controls">{{ lang.orderStatuses }}
-                            <select class="za-select za-width-medium" id="za_catalog_order_status">                            
-                                {% for s in lang.orderStatuses %}
-                                <option value="">{{ s }}</option>
-                                {% endfor %}
+                        <div class="za-form-controls">
+                            <select class="za-select za-width-medium" id="za_catalog_order_status">
                             </select>
                         </div>
                     </div>
@@ -843,7 +840,40 @@
                     <div id="za_catalog_order_cart_wrap" class="za-margin-top">
                     </div>
                 </li>
-                <li>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur, sed do eiusmod.</li>
+                <li>
+                    <div za-grid>
+                    <div>
+                        <label class="za-form-label" for="za_catalog_order_cost_delivery">{{ i18n.__(locale, 'Delivery cost')}}:</label>
+                        <div class="za-form-controls">
+                            <input class="za-input za-catalog-order-input za-form-width-small" id="za_catalog_order_cost_delivery" type="text">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="za-form-label" for="za_catalog_order_cost_wares">{{ i18n.__(locale, 'Wares cost')}}:</label>
+                        <div class="za-form-controls">
+                            <input class="za-input za-catalog-order-input za-form-width-small" id="za_catalog_order_cost_wares" type="text">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="za-form-label" for="za_catalog_order_cost_total">{{ i18n.__(locale, 'Total cost')}}:</label>
+                        <div class="za-form-controls">
+                            <input class="za-input za-catalog-order-input za-form-width-small" id="za_catalog_order_cost_total" type="text">
+                        </div>
+                    </div>                    
+                    </div>
+                    <form id="za_catalog_order_add_cost_form" class="za-margin-top">
+                        <div class="za-margin">
+                            <label class="za-form-label" for="za_catalog_order_costid">{{ i18n.__(locale, 'Cost ID')}}:</label>
+                            <div class="za-form-controls">
+                                <input class="za-input za-form-width-small" id="za_catalog_order_costid" type="text">&nbsp;
+                                <button class="za-button za-button-secondary" type="submit" id="za_catalog_order_btn_cost_add">
+                                    {{ i18n.__(locale, 'Add')}}</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="za_catalog_order_costs_wrap" class="za-margin-top">
+                    </div>
+                </li>
                 <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</li>
             </ul>
         </div>

@@ -171,5 +171,9 @@
 	"Info": "Info",
 	"Costs": "Costs",
 	"Address": "Address",
-	"Form contains errors": "Form contains errors"
+	"Form contains errors": "Form contains errors",
+	"Delivery cost": "Delivery cost",
+	"Wares cost": "Wares cost",
+	"Total cost": "Total cost",
+	"Cost ID": "Cost ID"
 }
