@@ -2489,6 +2489,41 @@ module.exports = function(app) {
         }
     };
 
+    const saveOrder = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let id = req.body.id;
+        const data = req.body.data;
+        if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/) ||
+            !data || typeof data !== 'object') {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        id = parseInt(id);        
+        try {
+            const updResult = await db.collection('warehouse_orders').update({ _id: id }, { $set: data }, { upsert: true });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            log.error(e);
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
     let router = Router();
     router.get('/list', list);
     router.get('/list/properties', listProperties);
@@ -2532,6 +2567,7 @@ module.exports = function(app) {
     router.post('/orders/delete', delOrder);
     router.post('/orders/load', loadOrder);
     router.post('/orders/cart/add', addCartOrder);
+    router.post('/orders/save', saveOrder);
     // Frontend routes
     router.post('/cart/add', cartAdd);
     router.post('/cart/count', cartCount);

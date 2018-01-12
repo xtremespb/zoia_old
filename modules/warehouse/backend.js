@@ -24,8 +24,21 @@ module.exports = function(app) {
                 return res.redirect(303, (config.website.authPrefix || '/auth') + '?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
             }
             const locale = req.session.currentLocale;
-            let folders = await db.collection('registry').findOne({ name: 'warehouseFolders' });
-            let settings = await db.collection('registry').findOne({ name: 'warehouseSettings' });
+            const folders = await db.collection('registry').findOne({ name: 'warehouseFolders' });
+            const settings = await db.collection('registry').findOne({ name: 'warehouseSettings' });
+            const addressDB = await db.collection('registry').findOne({ name: 'warehouse_address' });
+            let addressData = {};
+            if (addressDB && addressDB.data && addressDB.data.length) {
+                for (let i in addressDB.data) {
+                    let id = addressDB.data[i];
+                    for (let j in jsonAddress) {
+                        if (jsonAddress[j].id === id) {
+                            addressData[id] = jsonAddress[j];
+                        }
+                    }
+                }
+            }
+            const delivery = await db.collection('warehouse_delivery').find({ status: '1' }).toArray();
             let html = await render.file('warehouse.html', {
                 i18n: i18n.get(),
                 config: config,
@@ -34,7 +47,9 @@ module.exports = function(app) {
                 langs: JSON.stringify(config.i18n.localeNames),
                 address: JSON.stringify(jsonAddress),
                 folders: folders ? folders.data : JSON.stringify([{ 'id': '1', 'text': '/', 'parent': '#', 'type': 'root' }]),
-                settings: settings ? settings.data : JSON.stringify({})
+                settings: settings ? settings.data : JSON.stringify({}),
+                addressJSON: JSON.stringify(addressData),
+                delivery: delivery
             });
             res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, config.production ? ['/warehouse/static/css/warehouse.min.css'] : ['/zoia/3rdparty/jstree/themes/default/style.min.css', '/warehouse/static/css/warehouse.css'],
                 config.production ? ['/zoia/3rdparty/ckeditor/ckeditor.js', '/zoia/3rdparty/ckeditor/adapters/jquery.js', '/warehouse/static/js/warehouse.min.js'] : ['/zoia/3rdparty/ckeditor/ckeditor.js', '/zoia/3rdparty/ckeditor/adapters/jquery.js',

@@ -820,6 +820,16 @@
                         </div>
                     </div>
                     <div class="za-margin">
+                        <label class="za-form-label" for="za_catalog_order_delivery">{{ i18n.__(locale, 'Delivery')}}:</label>
+                        <div class="za-form-controls">
+                            <select class="za-select za-width-medium" id="za_catalog_order_delivery">
+                                {% for item in delivery %}
+                                <option value="{{ item.pid }}" data-type="{{ item.delivery }}" data-cost="{{ item.cost }}" data-weight="{{ item.cost_weight }}">{{ item.title[locale] }}</option>
+                                {% endfor %} 
+                            </select>
+                        </div>
+                    </div>
+                    <div class="za-margin">
                         <label class="za-form-label" for="za_catalog_order_username">{{ i18n.__(locale, 'Username')}}:</label>
                         <div class="za-form-controls">
                             <input class="za-input za-catalog-order-input" id="za_catalog_order_username" type="text">
@@ -874,7 +884,10 @@
                     <div id="za_catalog_order_costs_wrap" class="za-margin-top">
                     </div>
                 </li>
-                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</li>
+                <li>
+                    <div id="za_catalog_order_address_form">
+                    </div>
+                </li>
             </ul>
         </div>
         <div class="za-modal-footer za-text-right" id="zoiaOrderDialogButtons">
@@ -892,5 +905,6 @@ var foldersData = {{ folders }};
 var testMode = {{ config.testMode }};
 var settings = {{ settings }};
 var addressData = {{ address }};
+var addressJSON = {{ addressJSON }};
 var locale = "{{ locale }}";
 </script>

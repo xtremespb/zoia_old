@@ -361,10 +361,18 @@ const editOrder = (id) => {
             // Clean up data
             $('#za_catalog_order_cart_wrap').html('');
             $('#za_catalog_order_costs_wrap').html('');
+            $('.za-catalog-order-form-rx').val('');
+            $('.za-catalog-order-form-rx').prop("selectedIndex", 0);
             // Fill data
             const date = parseInt(res.item.date) * 1000;
             $('#za_catalog_order_date').html(new Date(date).toLocaleString());
+            $('#za_catalog_order_date').attr('data', res.item.date);
+            $('#za_catalog_order_status').val(res.item.status);
+            $('#za_catalog_order_cost_delivery').val(res.item.costs.delivery);
+            $('#za_catalog_order_cost_wares').val(res.item.costs.totalWares);
+            $('#za_catalog_order_cost_total').val(res.item.costs.total);
             $('#za_catalog_order_username').val(res.item.username || '');
+            $('#za_catalog_order_delivery').val(res.item.delivery);
             let cartHTML = '<table class="za-table za-table-striped za-table-hover za-table-small za-table-middle za-table-responsive" id="za_catalog_order_cart_table"><tbody>';
             for (let i in res.item.cart) {
                 cartHTML += '<tr><td class="za-table-shrink">' + i + '</td><td class="za-table-expand">' + res.cartData[i] + '</td><td class="za-table-shrink"><input class="za-input za-form-width-xsmall" value="' + res.item.cart[i] + '"></td><td class="za-table-shrink"><div style="height:20px"><span za-icon="icon:trash;ratio:0.8" class="za-catalog-cart-del"></span></div></td></tr>';
@@ -383,6 +391,9 @@ const editOrder = (id) => {
             $('.za-catalog-cost-del').unbind().click(function() {
                 $(this).parent().parent().parent().remove();
             });
+            for (let i in res.item.address) {
+                $('#za_catalog_order_form_' + i).val(res.item.address[i]);
+            }
             // Show form
             $('#zoiaOrderDialogBodySpinner').hide();
             $('#zoiaOrderDialogBody').show();
@@ -3226,10 +3237,30 @@ const initAddressSelect = () => {
     }
 };
 
-const initOrderStatuses = () => {
+const initOrderDialogFields = () => {
+    // Statuses
     for (let i in lang.orderStatuses) {
         $('#za_catalog_order_status').append('<option value="' + i + '">' + lang.orderStatuses[i] + '</option>');
     }
+    // Address fields
+    let formHTML = '';
+    for (let i in addressJSON) {
+        let item = addressJSON[i];
+        switch (item.type) {
+            case 'text':
+                formHTML += '<div class="za-margin"><label class="za-form-label" for="za_catalog_order_form_' + item.id + '">' + item.label[locale] + ': ' + '</label><div class="za-form-controls"><input class="za-catalog-order-form-rx za-catalog-form-input za-input za-width-' + item.width + '" id="za_catalog_order_form_' + item.id + '" type="text" maxlength="' + item.maxlength + '" data-mask="' + (item.regex ? item.regex : '') + '" data-mandatory="' + (item.mandatory ? 'true' : '') + '"></div></div>';
+                break;
+            case 'select':
+                let opts = '<option value=""></option>';
+                for (let v in item.values) {
+                    const iv = item.values[v];
+                    opts += '<option value="' + iv.value + '" data-addprc="' + iv.addPrc + '" data-cost="' + iv.cost + '">' + iv.lang[locale] + '</option>';
+                }
+                formHTML += '<div class="za-margin"><label class="za-form-label" for="za_catalog_order_form_' + item.id + '">' + item.label[locale] + ':&nbsp;</label><div class="za-form-controls"><select class="za-catalog-form-input za-catalog-order-form-rx za-select za-width-' + item.width + '" id="za_catalog_order_form_' + item.id + '">' + opts + '</select></div></div>';
+                break;
+        }
+    }
+    $('#za_catalog_order_address_form').html(formHTML);
 };
 
 const zoiaAddPropertyBtnClick = () => {
@@ -3341,6 +3372,71 @@ const za_catalog_order_btn_addCostClick = () => {
     });
 };
 
+const zoiaOrderDialogButtonClick = () => {
+    let data = {
+        costs: {
+            extra: {}
+        },
+        address: {},
+        cart: {}
+    };
+    data.date = parseInt($('#za_catalog_order_date').attr('data'));
+    data.username = $('#za_catalog_order_username').val().trim();
+    data.status = $('#za_catalog_order_status').val();
+    data.delivery = $('#za_catalog_order_delivery').val();
+    data.costs.delivery = $('#za_catalog_order_cost_delivery').val().trim();
+    data.costs.total = $('#za_catalog_order_cost_total').val().trim();
+    data.costs.totalWares = $('#za_catalog_order_cost_wares').val().trim();
+    $('#za_catalog_order_cart_table>tbody>tr').each(function() {
+        data.cart[$(this).children().eq(0).html()] = parseInt($(this).children().eq(2).find('input').val()) || 0;
+    });
+    $('#za_catalog_order_costs_table>tbody>tr').each(function() {
+        data.costs.extra[$(this).children().eq(0).attr('data')] = parseFloat($(this).children().eq(1).find('input').val()) || 0;
+        data.costs.extra[$(this).children().eq(0).attr('data')] = parseFloat(data.costs.extra[$(this).children().eq(0).attr('data')]).toFixed(2);
+    });
+    for (let i in addressJSON) {
+        data.address[addressJSON[i].id] = $('#za_catalog_order_form_' + addressJSON[i].id).val().trim();
+    }
+    $('#zoiaOrderDialogBody').hide();
+    $('#zoiaOrderDialogButtons').hide();
+    $('#zoiaOrderDialogBodySpinner').show();
+    $.ajax({
+        type: 'POST',
+        url: '/api/warehouse/orders/save',
+        data: {
+            id: currentEditID,
+            data: data
+        },
+        cache: false
+    }).done((res) => {
+        $('#zoiaOrderDialogBody').show();
+        $('#zoiaOrderDialogButtons').show();
+        $('#zoiaOrderDialogBodySpinner').hide();
+        if (res && res.status === 1) {
+            orderDialog.hide();
+            $('#orders').zoiaTable().load();
+            $zUI.notification(lang.fieldErrors['Saved successfully'], {
+                status: 'success',
+                timeout: 1500
+            });
+        } else {
+            $zUI.notification(lang.fieldErrors['Could not save to the database'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        }
+    }).fail(() => {
+        $('#zoiaOrderDialogBody').show();
+        $('#zoiaOrderDialogButtons').show();
+        $('#zoiaOrderDialogBodySpinner').hide();
+        $zUI.notification(lang.fieldErrors['Could not save to the database'], {
+            status: 'danger',
+            timeout: 1500
+        });
+    }, 200);
+    console.log(data);
+};
+
 $(document).ready(() => {
     // Init section
     initDialogs();
@@ -3351,7 +3447,7 @@ $(document).ready(() => {
     initImportPropertiesUploader();
     initImportCollectionsUploader();
     initAddressSelect();
-    initOrderStatuses();
+    initOrderDialogFields();
     // Forms and tables
     $('#editForm').zoiaFormBuilder(editFormData);
     $('#editFolderForm').zoiaFormBuilder(editFolderFormData);
@@ -3425,4 +3521,5 @@ $(document).ready(() => {
     $('#za_catalog_order_add_cost_form').submit(function(e) {
         e.preventDefault();
     });
+    $('#zoiaOrderDialogButton').click(zoiaOrderDialogButtonClick);
 });
