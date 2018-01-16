@@ -10,9 +10,6 @@ $(document).ready(() => {
     $('#za_catalog_sort_order').change(() => {
         location.href = '?p=' + queryPage + '&s=' + $('#za_catalog_sort_order').val() + '&t=' + queryText;
     });
-    $('#zoia_catalog_folders_toggle').click(() => {
-        $('#zoia_catalog_folders').toggleClass('za-visible@m');
-    });
     if (za_catalog_cart_count) {
         $('.za-catalog-cart-count').html(za_catalog_cart_count).show();
     }

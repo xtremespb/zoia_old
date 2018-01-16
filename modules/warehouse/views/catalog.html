@@ -16,6 +16,15 @@
     </div>
 </div>
 <a class="za-icon-button za-margin-small-right za-margin-bottom za-hidden@s" za-icon="icon:chevron-down" type="button" id="zoia_catalog_folders_toggle"></a>
+<div za-drop="mode:click" style="display:none">
+    <div class="za-card za-card-default za-card-small za-card-body">
+        <ul class="za-nav za-nav-default">
+            {% for folder in folders %}
+            <li class="{{ folder.active }}"><a href="{{ folder.path }}?&s={{ sort }}">{{ folder.title }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
 <div class="za-grid-small za-child-width-expand" za-grid>
     <div class="za-width-medium@s za-visible@m za-margin-bottom" id="zoia_catalog_folders">
         <div class="za-card za-card-default za-card-small za-card-body">
