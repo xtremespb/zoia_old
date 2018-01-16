@@ -175,5 +175,15 @@
 	"Delivery cost": "Delivery cost",
 	"Wares cost": "Wares cost",
 	"Total cost": "Total cost",
-	"Cost ID": "Cost ID"
+	"Cost ID": "Cost ID",
+	"My orders": "My orders",
+	"There are currently no items available.": "There are currently no items available.",
+	"Add to cart": "Add to cart",
+	"Sort by": "Sort by",
+	"Lowest price": "Lowest price",
+	"Highest price": "Highest price",
+	"Find text": "Find text",
+	"No items found.": "No items found.",
+	"My Orders": "My Orders",
+	"Order date": "Order date"
 }

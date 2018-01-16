@@ -37,22 +37,12 @@
     margin-right: 10px;
 }
 
-.za-catalog-cart {
-	background: #86d2a2;
-	padding: 0px;
-	color: #fff;
-	font-size: 90%;
-	padding: 3px;
-	border-radius: 5px;
-	z-index: 90;
-	margin-left: 15px;
-}
-
 .za-catalog-cart-count {
-	position: absolute;
-	margin-left: -15px;
-	z-index: 100;
-	opacity: .8;
+    position: absolute;
+    margin-left: -26px;
+    margin-top: 3px;
+    z-index: 100;
+    opacity: .95;
 }
 
 .za-catalog-slideshow-items {

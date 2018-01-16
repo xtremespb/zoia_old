@@ -41,6 +41,7 @@ module.exports = function(app) {
     const db = app.get('db');
     const sortFields = ['sku', 'folder', 'title', 'status', 'price'];
     const sortOrderFields = ['_id', 'date', 'username', 'status', 'cost'];
+    const sortOrdersFields = ['_id', 'date', 'status'];
     const sortPropertyFields = ['pid', 'title'];
 
     const list = async(req, res) => {
@@ -2524,6 +2525,64 @@ module.exports = function(app) {
         }
     };
 
+    const orders = async(req, res) => {
+        const locale = req.session.currentLocale;
+        res.contentType('application/json');
+        if (!Module.isAuthorized(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let result = {
+            status: 0
+        };
+        const sortField = req.query.sortField || '_id';
+        const sortDirection = (req.query.sortDirection === 'asc') ? 1 : -1;
+        const sort = {};
+        sort[sortField] = sortDirection;
+        let skip = req.query.skip || 0;
+        let limit = req.query.limit || 10;
+        let search = req.query.search || '';
+        if (typeof sortField !== 'string' || typeof skip !== 'string' || typeof limit !== 'string') {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        skip = parseInt(skip, 10) || 0;
+        limit = parseInt(limit, 10) || 0;
+        if (sortOrdersFields.indexOf(sortField) === -1) {
+            result.failedField = 'sortField';
+            return res.send(result);
+        }
+        let fquery = {
+            username: req.session.auth.username
+        };
+        try {
+            let ffields = { _id: 1, date: 1, costs: 1, status: 1 };
+            const total = await db.collection('warehouse_orders').find(fquery, ffields, { skip: skip, limit: limit }).count();
+            const items = await db.collection('warehouse_orders').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
+            for (let i in items) {
+                if (items[i][locale]) {
+                    items[i].title = items[i][locale].title;
+                    delete items[i][locale].title;
+                    delete items[i][locale];
+                }
+            }
+            let data = {
+                status: 1,
+                count: items.length,
+                total: total,
+                items: items
+            };
+            res.send(JSON.stringify(data));
+        } catch (e) {
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
     let router = Router();
     router.get('/list', list);
     router.get('/list/properties', listProperties);
@@ -2573,6 +2632,7 @@ module.exports = function(app) {
     router.post('/cart/count', cartCount);
     router.post('/cart/delete', cartDelete);
     router.post('/order', order);
+    router.get('/orders', orders);
     return {
         routes: router
     };
