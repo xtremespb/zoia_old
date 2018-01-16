@@ -1,5 +1,6 @@
 const path = require('path');
 const config = require(path.join(__dirname, 'config.js'));
+const natural = require('natural');
 
 module.exports = class Module {
     constructor(app) {
@@ -31,5 +32,41 @@ module.exports = class Module {
         if (req && req.session) {
             req.session.auth = undefined;
         }
+    }
+    static stem(str, locale) {
+        natural.PorterStemmer.attach();
+        let words = str.tokenizeAndStem();
+        if (locale != 'en') {
+            let stop = false;
+            switch (locale) {
+                case 'ru':
+                    natural.PorterStemmerRu.attach();
+                    break;
+                case 'es':
+                    natural.PorterStemmerEs.attach();
+                    break;
+                case 'fr':
+                    natural.PorterStemmerFr.attach();
+                    break;
+                case 'it':
+                    natural.PorterStemmerIt.attach();
+                    break;
+                case 'no':
+                    natural.PorterStemmerNo.attach();
+                    break;
+                case 'pt':
+                    natural.PorterStemmerPt.attach();
+                    break;
+                case 'sv':
+                    natural.PorterStemmerSv.attach();
+                    break;
+                default:
+                    stop = true;
+            }
+            if (!stop) {
+                words = words.concat(str.tokenizeAndStem());
+            }
+        }
+        return words;
     }
 };
