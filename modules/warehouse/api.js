@@ -478,18 +478,24 @@ module.exports = function(app) {
         }
         try {
             const item = await db.collection('registry').findOne({ name: 'warehouse_address' });
+            const template = await db.collection('registry').findOne({ name: 'warehouse_address_template' });
             if (!item || !item.data) {
                 return res.send(JSON.stringify({
                     status: 1,
                     item: {
                         name: 'warehouse_address',
                         data: []
+                    },
+                    template: {
+                        name: 'warehouse_address_template',
+                        data: ''
                     }
                 }));
             }
             return res.send(JSON.stringify({
                 status: 1,
-                item: item
+                item: item,
+                template: template
             }));
         } catch (e) {
             log.error(e);
@@ -848,14 +854,18 @@ module.exports = function(app) {
             }));
         }
         const properties = req.body.properties;
-        if (properties && (typeof properties !== 'object' || !(properties instanceof Array))) {
+        const template = req.body.template;
+        if (properties && (typeof properties !== 'object' || !(properties instanceof Array)) ||
+            (template && typeof template !== 'string')) {
             return res.send(JSON.stringify({
                 status: 0
             }));
         }
         try {
-            let updResult = await db.collection('registry').update({ name: 'warehouse_address' }, { $set: { data: properties } }, { upsert: true });
-            if (!updResult || !updResult.result || !updResult.result.ok) {
+            let updResult1 = await db.collection('registry').update({ name: 'warehouse_address' }, { $set: { data: properties } }, { upsert: true });
+            let updResult2 = await db.collection('registry').update({ name: 'warehouse_address_template' }, { $set: { data: template } }, { upsert: true });
+            if (!updResult1 || !updResult1.result || !updResult1.result.ok ||
+                !updResult2 || !updResult2.result || !updResult2.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0,
                     fields: fieldsFailed
@@ -2191,8 +2201,12 @@ module.exports = function(app) {
                         errorFields.push(field);
                         continue;
                     }
-                    const val = req.body[field];
+                    let val = req.body[field];
                     if (val && typeof val === 'string') {
+                        val = val.replace(/&/gm, '&amp;');
+                        val = val.replace(/\"/gm, '&quot;');
+                        val = val.replace(/\</gm, '&lt;');
+                        val = val.replace(/\>/gm, '&gt;');
                         if (ai.maxlength && val.length > ai.maxlength) {
                             errorFields.push(field);
                             continue;
@@ -2200,7 +2214,7 @@ module.exports = function(app) {
                         if (ai.regex && !val.match(new RegEx(ai.regex))) {
                             errorFields.push(field);
                             continue;
-                        }
+                        }                        
                         if (ai.type === 'select') {
                             for (let s in ai.values) {
                                 let item = ai.values[s];
@@ -2397,11 +2411,6 @@ module.exports = function(app) {
 
     const loadOrder = async(req, res) => {
         res.contentType('application/json');
-        if (!Module.isAuthorizedAdmin(req)) {
-            return res.send(JSON.stringify({
-                status: 0
-            }));
-        }
         const locale = req.session.currentLocale;
         const id = req.body.id;
         if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/)) {
@@ -2415,6 +2424,13 @@ module.exports = function(app) {
                 return res.send(JSON.stringify({
                     status: 0
                 }));
+            }
+            if (!Module.isAuthorizedAdmin(req)) {
+                if (!Module.isAuthorized(req) || req.session.auth.username !== item.username) {
+                    return res.send(JSON.stringify({
+                        status: 0
+                    }));
+                }
             }
             let querySKU = [];
             for (let i in item.cart) {
@@ -2505,7 +2521,7 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        id = parseInt(id);        
+        id = parseInt(id);
         try {
             const updResult = await db.collection('warehouse_orders').update({ _id: id }, { $set: data }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
@@ -2567,14 +2583,13 @@ module.exports = function(app) {
                     delete items[i][locale].title;
                     delete items[i][locale];
                 }
-            }
-            let data = {
+            }            
+            res.send(JSON.stringify({
                 status: 1,
                 count: items.length,
                 total: total,
                 items: items
-            };
-            res.send(JSON.stringify(data));
+            }));
         } catch (e) {
             res.send(JSON.stringify({
                 status: 0,
@@ -2622,6 +2637,7 @@ module.exports = function(app) {
     router.all('/browse/paste', browsePaste);
     router.all('/browse/upload', browseUpload);
     // Orders routes
+    router.get('/orders', orders);
     router.all('/orders/list', ordersList);
     router.post('/orders/delete', delOrder);
     router.post('/orders/load', loadOrder);
@@ -2631,8 +2647,7 @@ module.exports = function(app) {
     router.post('/cart/add', cartAdd);
     router.post('/cart/count', cartCount);
     router.post('/cart/delete', cartDelete);
-    router.post('/order', order);
-    router.get('/orders', orders);
+    router.post('/order', order);    
     return {
         routes: router
     };

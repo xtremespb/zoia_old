@@ -294,7 +294,7 @@ module.exports = function(app) {
         let children = foldersData.children;
         let what = {
             status: '1',
-        };        
+        };
         if (children.length) {
             what.$or = children;
         }
@@ -633,6 +633,22 @@ module.exports = function(app) {
         renderRoot.setFilters(filters);
         // Load settings
         const settings = await _loadSettings(locale);
+        // Delivery
+        const deliveryData = await db.collection('warehouse_delivery').find({ status: '1' }).toArray();
+        let delivery = {};
+        for (let i in deliveryData) {
+            delivery[deliveryData[i].pid] = deliveryData[i].title[locale];
+        }        
+        // Address template
+        const template = await db.collection('registry').findOne({ name: 'warehouse_address_template' });
+        if (!template) {
+            template = {
+                data: ''
+            }
+        } else {
+            delete template._id;
+            delete template.name;
+        }
         // Render
         let catalogOrdersHTML = await renderAuth.file(templateCatalogOrders, {
             i18n: i18n.get(),
@@ -640,7 +656,9 @@ module.exports = function(app) {
             lang: JSON.stringify(i18n.get().locales[locale]),
             configModule: configModule,
             settings: JSON.stringify(settings),
-            config: config
+            config: config,
+            delivery: JSON.stringify(delivery),
+            template: JSON.stringify(template)
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'My Orders'), {
             content: catalogOrdersHTML,

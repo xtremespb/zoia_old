@@ -2166,6 +2166,7 @@ const editAddressFormData = {
                 properties.push($(this).attr('data-pid'));
             });
             data.properties = properties;
+            data.template = $('#editAddressForm_template').val().trim();
             data.id = currentEditID;
             return data;
         },
@@ -2200,8 +2201,9 @@ const editAddressFormData = {
                             break;
                         }
                     }
-                    $('.addressFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + item + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + title + '<button type="button" class="addressItemClose" za-close style="float:right"></button></div>');
+                    $('.addressFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + item + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + title + '&nbsp;&ndash;&nbsp;' + item + '<button type="button" class="addressItemClose" za-close style="float:right"></button></div>');
                 }
+                $('#editAddressForm_template').val(data.template.data);
             }
             $('.addressItemClose').unbind();
             $('.addressItemClose').click(function() {
@@ -2229,6 +2231,12 @@ const editAddressFormData = {
             value: '',
             html: '<div class="addressFormDataItems za-margin-top" za-sortable="handle: .za-sortable-handle"></div>',
             data: 1
+        },
+        template: {
+            type: 'textarea',
+            label: lang['Address Template'],
+            css: 'za-address-textarea',
+            value: ''
         },
         buttons: {
             type: 'buttons',
@@ -3312,7 +3320,7 @@ const editAddressForm_properties_btnClick = () => {
 
 const btnAddressAddClick = () => {
     addressAddEditDialog.hide();
-    $('.addressFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + $('#zoiaAddressSelect').val() + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + $('#zoiaAddressSelect option:selected').text() + '<button type="button" class="addressItemClose" za-close style="float:right"></button></div>');
+    $('.addressFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + $('#zoiaAddressSelect').val() + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + $('#zoiaAddressSelect option:selected').text() + '&nbsp;&ndash;&nbsp;' + $('#zoiaAddressSelect').val() + '<button type="button" class="addressItemClose" za-close style="float:right"></button></div>');
     $('.addressItemClose').unbind();
     $('.addressItemClose').click(function() {
         $(this).parent().remove();
