@@ -42,6 +42,8 @@ const onError = (error) => {
     }
 };
 
-server.listen(config.port, config.ip);
-server.on('listening', onListening);
-server.on('error', onError);
+app.on('zoiaStarted', () => {
+    server.listen(config.port, config.ip);
+    server.on('listening', onListening);
+    server.on('error', onError);
+});

@@ -9,7 +9,7 @@ const dookie = require('dookie');
 
 module.exports = function(app) {
     const log = app.get('log');
-    const db = app.get('db');
+    const db = app.get('db');    
 
     const create = async(req, res) => {
         const locale = req.session.currentLocale;

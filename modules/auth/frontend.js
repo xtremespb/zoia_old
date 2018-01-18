@@ -47,7 +47,7 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
-        let url = req.query.redirect;
+        let url = req.query.redirect || req.headers.referer;
         if (!url || !url.match(/^[A-Za-z0-9-_.~\:\/\?#\[\]\@\!\$\&\'\(\)\*\+,;=]*$/) || url.length > 100) {
             url = '/';
         }

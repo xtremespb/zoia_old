@@ -10,6 +10,13 @@ const fs = require('fs');
 const winston = require('winston');
 
 ((async function init() {
+    console.log('\n          (_)     (_)');
+    console.log('  _______  _  __ _   _ ___');
+    console.log(' |_  / _ \\| |/ _` | | / __|');
+    console.log('  / / (_) | | (_| |_| \\__ \\');
+    console.log(' /___\\___/|_|\\__,_(_) |___/');
+    console.log('                   _/ |');
+    console.log('                  |__/\n');
     const config = require(path.join(__dirname, 'config.js'));
     if (!config.log) {
         config.log = {};
@@ -32,7 +39,7 @@ const winston = require('winston');
                 json: config.log.json || false
             })
         ]
-    });
+    });    
     if (!config.production) {
         log.add(new winston.transports.Console({ colorize: true }));
     }
@@ -51,9 +58,11 @@ const winston = require('winston');
             app.use(preroutes[key]);
         }
         // Load modules
-        let modules = fs.readdirSync(path.join(__dirname, '..', 'modules'));
+        const modules = fs.readdirSync(path.join(__dirname, '..', 'modules'));
+        app.set('modules', modules);
         let templateFilters = {};
         let backendModules = [];
+        log.info('Loading ' + modules.length + ' module(s)...');
         for (let m in modules) {
             let moduleLoaded = require(path.join(__dirname, '..', 'modules', modules[m], 'module'))(app);
             if (moduleLoaded) {
@@ -77,12 +86,13 @@ const winston = require('winston');
                     app.use('/api' + moduleLoaded.api.prefix, moduleLoaded.api.routes);
                 }
             }
-        }
+        }        
         app.set('backendModules', backendModules);
         app.set('templateFilters', templateFilters);
         const errors = new(require(path.join(__dirname, 'errors.js')))(app);
         app.use(errors.notFound, errors.errorHandler);
         app.emit('zoiaStarted');
+        log.info('Starting...');
     } catch (e) {
         // That's error
         log.error(e.stack || e.message);

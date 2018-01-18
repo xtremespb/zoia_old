@@ -10,8 +10,8 @@
     <p>{{ i18n.__(locale, 'Password change was successful. You may login to the website using your new password right now.') }}</p>
     <p><a class="za-button za-button-default" href="/auth">{{ i18n.__(locale, 'Login') }}</a></p>
 </div>
+<script src="/api/lang/auth/{{ locale }}.js" type="text/javascript"></script>
 <script type="text/javascript">
-const lang = {{ lang }};
 const usernameConfirm = "{{ username }}";
 const codeConfirm = "{{ code }}";
 </script>

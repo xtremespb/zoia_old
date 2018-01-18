@@ -3,6 +3,7 @@ module.exports = function(app) {
     const api = require(path.join(__dirname, 'api.js'))(app);
     const frontend = require(path.join(__dirname, 'frontend.js'))(app);
     const backend = require(path.join(__dirname, 'backend.js'))(app);
+    app.get('log').info('[navigation] module loaded');
     return {
         frontend: {
             prefix: '/',
