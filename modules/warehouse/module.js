@@ -3,6 +3,7 @@ module.exports = function(app) {
     const api = require(path.join(__dirname, 'api.js'))(app);
     const backend = require(path.join(__dirname, 'backend.js'))(app);
     const frontend = require(path.join(__dirname, 'frontend.js'))(app);
+    app.get('log').info('[warehouse] module loaded');
     let configModule;
     try {
         configModule = require(path.join(__dirname, 'config', 'catalog.json'));

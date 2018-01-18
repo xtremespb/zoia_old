@@ -39,7 +39,7 @@
 {% else %}
 <p>{{ i18n.__(locale, 'There are no items in cart yet.')}}</p>
 {% endif %}
+<script src="/api/lang/warehouse/{{ locale }}.js" type="text/javascript"></script>
 <script type="text/javascript">
-var lang = {{ lang }};
 var settings = {{ settingsJSON }};
 </script>
