@@ -43,6 +43,9 @@ module.exports = function(app) {
     const sortOrderFields = ['_id', 'date', 'username', 'status', 'cost'];
     const sortOrdersFields = ['_id', 'date', 'status'];
     const sortPropertyFields = ['pid', 'title'];
+    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
+    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
+    const mailer = new(require(path.join(__dirname, '..', '..', 'core', 'mailer.js')))(app);
 
     const list = async(req, res) => {
         const locale = req.session.currentLocale;
@@ -2281,12 +2284,19 @@ module.exports = function(app) {
             // 
             // Clean up the Cart
             //
-            req.session.catalog_cart = {};
+            // req.session.catalog_cart = {};
             // 
             // End
             // 
+            let mailHTML = await render.file('mail_neworder_user.html', {
+                i18n: i18n.get(),
+                locale: locale,
+                lang: JSON.stringify(i18n.get().locales[locale]),
+                config: config
+            });
+            await mailer.send(req, req.session.auth.email, i18n.get().__(locale, 'Your order confirmation'), mailHTML);
             return res.send(JSON.stringify({
-                status: 1,
+                status: 0,
                 order: orderData
             }));
         } catch (e) {

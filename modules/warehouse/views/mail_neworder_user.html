@@ -1,0 +1,11 @@
+<tr>
+    <td align="left" style="padding: 20px 0 0 0; font-size: 16px; line-height: 25px; font-family: Helvetica, Arial, sans-serif; color: #666666;" class="padding-copy">
+        <p style="text-align:center">{{ i18n.__(locale, 'Thank you for placing your order.') }}</p>
+        <table style="padding:18px 0 0 0"></table>
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="font-family: Helvetica, Arial, sans-serif; color: #333333; padding:5px;">
+        <tr style="font-weight:bold;background:#f5f5f5"><td><p>{{ i18n.__(locale, 'Item') }}</p></td><td>{{ i18n.__(locale, 'Cost') }}</td><td>{{ i18n.__(locale, 'Amount') }}</td><td>{{ i18n.__(locale, 'Total') }}</td></tr>
+        {% for item in cart %}
+        {% endfor %}
+    	</table>
+    </td>
+</tr>

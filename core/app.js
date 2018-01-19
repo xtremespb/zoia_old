@@ -17,34 +17,35 @@ const winston = require('winston');
     console.log(' /___\\___/|_|\\__,_(_) |___/');
     console.log('                   _/ |');
     console.log('                  |__/\n');
-    const config = require(path.join(__dirname, 'config.js'));
-    if (!config.log) {
-        config.log = {};
-    }
-    const log = winston.createLogger({
-        level: config.logLevel,
-        format: winston.format.printf(info => {
-            return new Date().toISOString() + ` [${info.level}] ${info.message}`;
-        }),
-        transports: [
-            new winston.transports.File({
-                dirname: config.log.dirname || path.join(__dirname, '..', 'logs'),
-                filename: config.log.filename || 'main.log',
-                maxsize: config.log.maxsize || 1048576,
-                maxFiles: config.log.maxFiles || 10,
-                tailable: config.log.tailable || true,
-                timestamp: config.log.timestamp || false,
-                showLevel: config.log.showLevel || false,
-                meta: config.log.meta || false,
-                json: config.log.json || false
-            })
-        ]
-    });    
-    if (!config.production) {
-        log.add(new winston.transports.Console({ colorize: true }));
-    }
-    app.set('log', log);
-    try {        
+    try {
+        const config = require(path.join(__dirname, 'config.js'));
+        if (!config.log) {
+            config.log = {};
+        }
+        const log = winston.createLogger({
+            level: config.logLevel,
+            format: winston.format.printf(info => {
+                return new Date().toISOString() + ` [${info.level}] ${info.message}`;
+            }),
+            transports: [
+                new winston.transports.File({
+                    dirname: config.log.dirname || path.join(__dirname, '..', 'logs'),
+                    filename: config.log.filename || 'main.log',
+                    maxsize: config.log.maxsize || 1048576,
+                    maxFiles: config.log.maxFiles || 10,
+                    tailable: config.log.tailable || true,
+                    timestamp: config.log.timestamp || false,
+                    showLevel: config.log.showLevel || false,
+                    meta: config.log.meta || false,
+                    json: config.log.json || false
+                })
+            ]
+        });
+        if (!config.production) {
+            log.add(new winston.transports.Console({ colorize: true }));
+        }
+        app.set('log', log);
+        log.info('Starting Zoia version ' + config.version);
         app.set('trust proxy', config.trustProxy);
         // Init database
         const db = new(require(path.join(__dirname, 'database.js')))(app, config.mongo, config.session);
@@ -86,7 +87,7 @@ const winston = require('winston');
                     app.use('/api' + moduleLoaded.api.prefix, moduleLoaded.api.routes);
                 }
             }
-        }        
+        }
         app.set('backendModules', backendModules);
         app.set('templateFilters', templateFilters);
         const errors = new(require(path.join(__dirname, 'errors.js')))(app);
@@ -95,7 +96,7 @@ const winston = require('winston');
         log.info('Starting...');
     } catch (e) {
         // That's error
-        log.error(e.stack || e.message);
+        console.log(e.stack || e.message);
         process.exit(1);
     }
 })());

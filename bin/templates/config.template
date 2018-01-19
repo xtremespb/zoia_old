@@ -21,6 +21,7 @@
     "testMode": false,
     "mongo": {
         "url": "mongodb://127.0.0.1:27017/zoia",
+        "database": "zoia",
         "options": {},
         "sessionCollection": "sessions"
     },

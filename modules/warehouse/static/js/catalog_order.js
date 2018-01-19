@@ -119,6 +119,10 @@ const submitOrder = function(event) {
         loading = false;
         $('.za_catalog_order_submit_spinner').hide();
         captchaRefresh();
+        $zUI.notification(lang['Could not place your order. Please try again later or contact website support.'], {
+            status: 'danger',
+            timeout: 1500
+        });
     });
 };
 

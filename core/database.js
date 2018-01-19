@@ -7,18 +7,20 @@ module.exports = class Database {
         this.app = app;
         this.mongo = mongo;
         this.session = _session;
-        this.log = app ? app.get('log') : undefined;        
+        this.log = app ? app.get('log') : undefined;
         if (process.env.MONGO_PORT_27017_TCP_ADDR && process.env.MONGO_PORT_27017_TCP_PORT) {
             this.mongo.url = this.mongo.url.replace(/127\.0\.0\.1/, process.env.MONGO_PORT_27017_TCP_ADDR)
-                                            .replace(/27017/, process.env.MONGO_PORT_27017_TCP_PORT);
+                .replace(/27017/, process.env.MONGO_PORT_27017_TCP_PORT);
         }
     }
     async connect() {
+        let dbObj;
         try {
-        this.db = await MongoClient.connect(this.mongo.url, this.mongo.options);
+            dbObj = await MongoClient.connect(this.mongo.url, this.mongo.options);
         } catch (e) {
             throw new Error('Could not connect to the MongoDB. Check your settings.');
         }
+        this.db = dbObj.db(this.mongo.database);
         if (this.app && this.session) {
             this.app.use(session({
                 saveUninitialized: false,

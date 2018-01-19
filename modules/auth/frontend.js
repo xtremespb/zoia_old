@@ -11,8 +11,8 @@ const fs = require('fs');
 let templateLogin = 'login.html';
 let templateRegister = 'register.html';
 let templateRegisterConfirm = 'registerConfirm.html';
-let templateReset = 'registerReset.html';
-let templateResetConfirm = 'registerResetConfirm.html';
+let templateReset = 'reset.html';
+let templateResetConfirm = 'resetConfirm.html';
 
 if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateLogin))) {
     templateLogin = 'custom_' + templateLogin;
