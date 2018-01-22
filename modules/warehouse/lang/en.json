@@ -187,5 +187,9 @@
 	"My Orders": "My Orders",
 	"Order date": "Order date",
 	"Thank you for placing your order.": "Thank you for placing your order.",
-	"Your order confirmation": "Your order confirmation"
+	"Your order confirmation": "Your order confirmation",
+	"Items cost": "Items cost",
+	"Delivery address": "Delivery address",
+	"A new order on your website has been placed.": "A new order on your website has been placed.",
+	"New order on your website": "New order on your website"
 }

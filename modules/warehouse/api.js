@@ -36,6 +36,14 @@ const _getJsonAddressById = (id) => {
     }
 };
 
+const processTemplate = (s, d) => {
+    for (let p in d) {
+        s = s.replace(new RegExp('{' + p + '}', 'g'), d[p]);
+    }
+    s = s.replace(new RegExp('({([^}]+)})', 'ig'), '');
+    return s;
+};
+
 module.exports = function(app) {
     const log = app.get('log');
     const db = app.get('db');
@@ -46,6 +54,29 @@ module.exports = function(app) {
     const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
     const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
     const mailer = new(require(path.join(__dirname, '..', '..', 'core', 'mailer.js')))(app);
+
+    const _loadSettings = async(locale) => {
+        const dataSettings = await db.collection('registry').findOne({ name: 'warehouseSettings' });
+        let settings = {
+            currency: '',
+            weight: ''
+        };
+        if (dataSettings && dataSettings.data) {
+            try {
+                settingsParsed = JSON.parse(dataSettings.data);
+                for (let i in settingsParsed) {
+                    for (let p in settingsParsed[i]) {
+                        if (settingsParsed[i][p].p === locale) {
+                            settings[i] = settingsParsed[i][p].v;
+                        }
+                    }
+                }
+            } catch (e) {
+                // Ignore
+            }
+        }
+        return settings;
+    };
 
     const list = async(req, res) => {
         const locale = req.session.currentLocale;
@@ -2134,6 +2165,10 @@ module.exports = function(app) {
         }
         const delivery = req.body.delivery;
         const deliveryData = await db.collection('warehouse_delivery').find({ status: '1' }).toArray();
+        let deliveryDB = {};
+        for (let i in deliveryData) {
+            deliveryDB[deliveryData[i].pid] = deliveryData[i].delivery;
+        }
         if (!deliveryData || !deliveryData.length) {
             return res.send(JSON.stringify({
                 status: 0,
@@ -2152,6 +2187,15 @@ module.exports = function(app) {
                 fields: ['delivery']
             }));
         }
+        const template = await db.collection('registry').findOne({ name: 'warehouse_address_template' });
+        if (!template) {
+            template = {
+                data: ''
+            }
+        } else {
+            delete template._id;
+            delete template.name;
+        }
         try {
             //
             // Build orderData hash
@@ -2164,8 +2208,10 @@ module.exports = function(app) {
             orderData.delivery = deliveryRec.pid;
             orderData.cart = {};
             const addressData = await db.collection('registry').findOne({ name: 'warehouse_address' }) || [];
+            const settings = await _loadSettings(locale);
             const cart = req.session.catalog_cart || {};
             let weight = 0;
+            let cartArr = [];
             if (Object.keys(cart).length > 0) {
                 let query = [];
                 for (let i in cart) {
@@ -2181,6 +2227,12 @@ module.exports = function(app) {
                         orderData.cart[cartDB[i].sku] = cart[cartDB[i]._id];
                         orderData.costs.total += parseFloat(cart[cartDB[i]._id]) * parseFloat(cartDB[i].price);
                         weight += parseFloat(cart[cartDB[i]._id]) * parseFloat(cartDB[i].weight);
+                        cartArr.push({
+                            text: cartDB[i][locale] ? cartDB[i][locale].title : '',
+                            count: cart[cartDB[i]._id],
+                            price: parseFloat(cartDB[i].price).toFixed(2),
+                            subtotal: parseFloat(cart[cartDB[i]._id] * cartDB[i].price).toFixed(2)
+                        });
                     }
                 }
             }
@@ -2217,7 +2269,7 @@ module.exports = function(app) {
                         if (ai.regex && !val.match(new RegEx(ai.regex))) {
                             errorFields.push(field);
                             continue;
-                        }                        
+                        }
                         if (ai.type === 'select') {
                             for (let s in ai.values) {
                                 let item = ai.values[s];
@@ -2286,15 +2338,52 @@ module.exports = function(app) {
             //
             // req.session.catalog_cart = {};
             // 
-            // End
-            // 
-            let mailHTML = await render.file('mail_neworder_user.html', {
+            // Send mail
+            //
+            let deliveryArr = [];
+            for (let i in orderData.costs.extra) {
+                let item = _getJsonAddressById(i);
+                if (item) {
+                    deliveryArr.push({
+                        title: item.label[locale] || '',
+                        cost: orderData.costs.extra[i]
+                    })
+                }
+            }
+            let addressHTML = '';
+            if (deliveryDB[orderData.delivery] === 'delivery') {
+                addressHTML = processTemplate(template.data, orderData.address);
+            }            
+            let mailUserHTML = await render.file('mail_neworder_user.html', {
                 i18n: i18n.get(),
                 locale: locale,
                 lang: JSON.stringify(i18n.get().locales[locale]),
-                config: config
+                config: config,
+                cart: cartArr,
+                settings: settings,
+                orderData: orderData,
+                delivery: deliveryArr,
+                addressHTML: addressHTML,
+                orderStatus: i18n.get().__(locale, 'orderStatuses')[orderData.status]
             });
-            await mailer.send(req, req.session.auth.email, i18n.get().__(locale, 'Your order confirmation'), mailHTML);
+            let mailAdminHTML = await render.file('mail_neworder_admin.html', {
+                i18n: i18n.get(),
+                locale: locale,
+                lang: JSON.stringify(i18n.get().locales[locale]),
+                config: config,
+                cart: cartArr,
+                settings: settings,
+                orderData: orderData,
+                delivery: deliveryArr,
+                addressHTML: addressHTML,
+                orderStatus: i18n.get().__(locale, 'orderStatuses')[orderData.status]
+            });
+            if (req.session.auth.email) {
+                await mailer.send(req, req.session.auth.email, i18n.get().__(locale, 'Your order confirmation'), mailUserHTML);
+            }
+            if (config.website.email.feedback) {
+                await mailer.send(req, config.website.email.feedback, i18n.get().__(locale, 'New order on your website'), mailAdminHTML);
+            }
             return res.send(JSON.stringify({
                 status: 0,
                 order: orderData
@@ -2593,7 +2682,7 @@ module.exports = function(app) {
                     delete items[i][locale].title;
                     delete items[i][locale];
                 }
-            }            
+            }
             res.send(JSON.stringify({
                 status: 1,
                 count: items.length,
@@ -2657,7 +2746,7 @@ module.exports = function(app) {
     router.post('/cart/add', cartAdd);
     router.post('/cart/count', cartCount);
     router.post('/cart/delete', cartDelete);
-    router.post('/order', order);    
+    router.post('/order', order);
     return {
         routes: router
     };

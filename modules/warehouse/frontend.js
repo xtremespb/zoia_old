@@ -638,7 +638,7 @@ module.exports = function(app) {
         let delivery = {};
         for (let i in deliveryData) {
             delivery[deliveryData[i].pid] = deliveryData[i].title[locale];
-        }        
+        }
         // Address template
         const template = await db.collection('registry').findOne({ name: 'warehouse_address_template' });
         if (!template) {
