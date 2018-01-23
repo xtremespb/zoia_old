@@ -73,7 +73,8 @@ const install = async() => {
         }
         console.log('\nUse http://' + config.ip + ':' + config.port + '/admin (admin/admin) to access your Admin panel.');
         console.log('Installation finished. Have a nice day!');
-        db.close();
+        process.exit(0);
+        //db.close();
     } catch (e) {
         console.log('\nInstallation failed: ' + e);
         process.exit(1);

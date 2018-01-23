@@ -7,6 +7,7 @@ module.exports = class Mailer {
     constructor(app) {
         this.transporter = nodemailer.createTransport(config.mailer);
         this.log = app.get('log');
+        this.db = app.get('db');
         this.render = new(require(path.join(__dirname, 'render.js')))(path.join(__dirname, '..', 'views'));
         this.i18n = new(require(path.join(__dirname, 'i18n.js')))(path.join(__dirname, 'lang'), app);
     }
@@ -52,12 +53,21 @@ module.exports = class Mailer {
                 cid: 'ztSj5GyXAdxeH6VS'
             }]
         };
-        let result;
-        try {
-            result = await this._send(mailOptions);
-        } catch (e) {
-            this.log.error(e);
+        if (config.mailer.delayed) {
+            const insResult = await this.db.collection('mail').insertOne(mailOptions);
+            if (!insResult || !insResult.result || !insResult.result.ok) {
+                this.log.error(insResult.result);
+            } else {
+            	return insResult.insertedId;
+            }
+        } else {
+        	let result;
+            try {
+                result = await this._send(mailOptions);
+            } catch (e) {
+                this.log.error(e);
+            }
+            return result;
         }
-        return result;
     }
 };

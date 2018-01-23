@@ -36,6 +36,7 @@ const configs = async() => {
         let tplNginx = String(await fs.readFile(path.join(__dirname, 'templates', 'nginx.template')));
         let tplMonit = String(await fs.readFile(path.join(__dirname, 'templates', 'monit.template')));
         let tplZoia = String(await fs.readFile(path.join(__dirname, 'templates', 'zoia.template')));
+        let tplMailer = String(await fs.readFile(path.join(__dirname, 'templates', 'mailer.template')));
         let zConfig = await fs.readJSON(path.join(__dirname, 'templates', 'config.template'));
         let zConfigWebsite = await fs.readJSON(path.join(__dirname, 'templates', 'website.template'));
         let zoiaIP = {};
@@ -139,6 +140,7 @@ const configs = async() => {
         let nginx;
         let monit;
         let zoia;
+        let mailer;
         if (!options.docker) {
             name = serverName.val.replace(/[\.\-]/gm, '_');
             nginx = tpl(tplNginx, {
@@ -156,6 +158,11 @@ const configs = async() => {
                 root: path.join(__dirname, '..').replace(/\\/gm, '/')
             });
             zoia = tpl(tplZoia, {
+                serverName: serverName.val,
+                name: name,
+                root: path.join(__dirname, '..').replace(/\\/gm, '/')
+            });
+            mailer = tpl(tplMailer, {
                 serverName: serverName.val,
                 name: name,
                 root: path.join(__dirname, '..').replace(/\\/gm, '/')
@@ -180,6 +187,7 @@ const configs = async() => {
             await fs.writeFile(path.join(__dirname, 'config', name + '_nginx.conf'), nginx);
             await fs.writeFile(path.join(__dirname, 'config', name + '_monit.conf'), monit);
             await fs.writeFile(path.join(__dirname, 'zoia.sh'), zoia);
+            await fs.writeFile(path.join(__dirname, 'mailer.sh'), mailer);
         }
         await fs.writeFile(path.join(__dirname, '..', 'etc', 'config.json'), JSON.stringify(zConfig, null, "\t").replace(/\"true\"/gm, 'true').replace(/\"false\"/gm, 'false'));
         await fs.writeFile(path.join(__dirname, '..', 'etc', 'website.json'), JSON.stringify(zConfigWebsite, null, "\t"));
