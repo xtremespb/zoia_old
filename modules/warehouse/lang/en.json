@@ -191,5 +191,13 @@
 	"Items cost": "Items cost",
 	"Delivery address": "Delivery address",
 	"A new order on your website has been placed.": "A new order on your website has been placed.",
-	"New order on your website": "New order on your website"
+	"New order on your website": "New order on your website",
+	"Price variants": "Price variants",
+	"Variants List": "Variants List",
+	"Import Variants from CSV": "Import Variants from CSV",
+	"The following variant(s) will be removed from the database": "The following variant(s) will be removed from the database",
+	"Properties Collections": "Properties Collections",
+	"Variants Collections": "Variants Collections",
+	"Import VariantsCollections from CSV": "Import Variants Collections from CSV",
+	"Import Variants Collections from CSV": "Import Variants Collections from CSV"
 }

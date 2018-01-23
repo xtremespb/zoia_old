@@ -224,6 +224,77 @@ module.exports = function(app) {
         }
     };
 
+    const listVariants = async(req, res) => {
+        const locale = req.session.currentLocale;
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const sortField = req.query.sortField || 'title';
+        const sortDirection = (req.query.sortDirection === 'asc') ? 1 : -1;
+        const sort = {};
+        sort[sortField] = sortDirection;
+        let skip = req.query.skip || 0;
+        let limit = req.query.limit || 10;
+        let search = req.query.search || '';
+        if (typeof sortField !== 'string' || typeof skip !== 'string' || typeof limit !== 'string' || typeof search !== 'string') {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        skip = parseInt(skip, 10) || 0;
+        limit = parseInt(limit, 10) || 0;
+        search = search.trim();
+        if (search.length < 3) {
+            search = null;
+        }
+        let result = {
+            status: 0
+        };
+        if (sortPropertyFields.indexOf(sortField) === -1) {
+            result.failedField = 'sortField';
+            return res.send(result);
+        }
+        let fquery = {};
+        try {
+            if (search) {
+                fquery = {
+                    $or: [
+                        { pid: { $regex: search, $options: 'i' } }
+                    ]
+                };
+                let tfq = {};
+                tfq['title.' + locale] = { $regex: search, $options: 'i' };
+                fquery.$or.push(tfq);
+            }
+
+            let ffields = { _id: 1, pid: 1, title: 1 };
+            const total = await db.collection('warehouse_variants').find(fquery, ffields, { skip: skip, limit: limit }).count();
+            const items = await db.collection('warehouse_variants').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
+            for (let i in items) {
+                if (items[i].title[locale]) {
+                    items[i].title = items[i].title[locale];
+                } else {
+                    items[i].title = '';
+                }
+            }
+            let data = {
+                status: 1,
+                count: items.length,
+                total: total,
+                items: items
+            };
+            res.send(JSON.stringify(data));
+        } catch (e) {
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
     const listDelivery = async(req, res) => {
         const locale = req.session.currentLocale;
         res.contentType('application/json');
@@ -362,6 +433,73 @@ module.exports = function(app) {
         }
     };
 
+    const listVariantsCollections = async(req, res) => {
+        const locale = req.session.currentLocale;
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const sortField = req.query.sortField || 'title';
+        const sortDirection = (req.query.sortDirection === 'asc') ? 1 : -1;
+        const sort = {};
+        sort[sortField] = sortDirection;
+        let skip = req.query.skip || 0;
+        let limit = req.query.limit || 10;
+        let search = req.query.search || '';
+        if (typeof sortField !== 'string' || typeof skip !== 'string' || typeof limit !== 'string' || typeof search !== 'string') {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        skip = parseInt(skip, 10) || 0;
+        limit = parseInt(limit, 10) || 0;
+        search = search.trim();
+        if (search.length < 3) {
+            search = null;
+        }
+        let result = {
+            status: 0
+        };
+        if (sortPropertyFields.indexOf(sortField) === -1) {
+            result.failedField = 'sortField';
+            return res.send(result);
+        }
+        let fquery = {};
+        try {
+            if (search) {
+                fquery = {};
+                let tfq = {};
+                tfq['title.' + locale] = { $regex: search, $options: 'i' };
+                fquery.$or = [];
+                fquery.$or.push(tfq);
+            }
+            let ffields = { _id: 1, title: 1 };
+            const total = await db.collection('warehouse_variants_collections').find(fquery, ffields, { skip: skip, limit: limit }).count();
+            const items = await db.collection('warehouse_variants_collections').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
+            for (let i in items) {
+                if (items[i].title[locale]) {
+                    items[i].title = items[i].title[locale];
+                } else {
+                    items[i].title = '';
+                }
+            }
+            let data = {
+                status: 1,
+                count: items.length,
+                total: total,
+                items: items
+            };
+            res.send(JSON.stringify(data));
+        } catch (e) {
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
     const load = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
@@ -437,6 +575,46 @@ module.exports = function(app) {
         }
         try {
             const item = await db.collection('warehouse_properties').findOne({ _id: new ObjectID(id) });
+            if (!item) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            let title = [];
+            for (let i in item.title) {
+                title.push({
+                    p: i,
+                    v: item.title[i]
+                });
+            }
+            item.title = title;
+            return res.send(JSON.stringify({
+                status: 1,
+                item: item
+            }));
+        } catch (e) {
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
+    const loadVariant = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const id = req.query.id;
+        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const item = await db.collection('warehouse_variants').findOne({ _id: new ObjectID(id) });
             if (!item) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -799,6 +977,82 @@ module.exports = function(app) {
         }
     };
 
+    const saveVariant = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const id = req.body.id;
+        if (id && (typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/))) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const fieldList = propertyFields.getPropertyFields();
+            let fields = validation.checkRequest(req.body, fieldList);
+            let fieldsFailed = validation.getCheckRequestFailedFields(fields);
+            if (fieldsFailed.length > 0) {
+                return res.send(JSON.stringify({
+                    status: 0,
+                    fields: fieldsFailed
+                }));
+            }
+            if (fields.title && fields.title.value === '') {
+                fields.title.value = [];
+            }
+            const data = {
+                pid: fields.pid.value,
+                title: {}
+            };
+            for (let i in fields.title.value) {
+                let item = fields.title.value[i];
+                data.title[item.p] = item.v;
+            }
+            if (id) {
+                let item = await db.collection('warehouse_variants').findOne({ _id: new ObjectID(id) });
+                if (!item) {
+                    return res.send(JSON.stringify({
+                        status: -1,
+                        fields: fieldsFailed
+                    }));
+                }
+                let duplicate = await db.collection('warehouse_variants').findOne({ pid: data.pid });
+                if (duplicate && JSON.stringify(duplicate._id) !== JSON.stringify(item._id)) {
+                    return res.send(JSON.stringify({
+                        status: -2,
+                        fields: fieldsFailed
+                    }));
+                }
+            } else {
+                let duplicate = await db.collection('warehouse_variants').findOne({ pid: data.pid });
+                if (duplicate) {
+                    return res.send(JSON.stringify({
+                        status: -2,
+                        fields: fieldsFailed
+                    }));
+                }
+            }
+            let what = id ? { _id: new ObjectID(id) } : { pid: data.pid };
+            let updResult = await db.collection('warehouse_variants').update(what, { $set: data }, { upsert: true });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0,
+                    fields: fieldsFailed
+                }));
+            }
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
     const saveDelivery = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
@@ -1030,7 +1284,7 @@ module.exports = function(app) {
                     data.weight = fields.weight.value;
                     data.amount = fields.amount.value;
                     data.price = parseFloat(fields.price.value);
-                    data.status = fields.status.value;
+                    data.status = fields.status.value;                    
                 }
             }
             if (id) {
@@ -1222,6 +1476,54 @@ module.exports = function(app) {
         }
         try {
             const delResult = await db.collection('warehouse_properties').deleteMany({
+                $or: did
+            });
+            if (!delResult || !delResult.result || !delResult.result.ok || delResult.result.n !== ids.length) {
+                output.status = -3;
+                return res.send(JSON.stringify(output));
+            }
+            output.status = 1;
+            res.send(JSON.stringify(output));
+        } catch (e) {
+            output.status = 0;
+            log.error(e);
+            res.send(JSON.stringify(output));
+        }
+    };
+
+    const delVariant = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let output = {};
+        let ids = req.body['id'];
+        if (!ids || (typeof ids !== 'object' && typeof ids !== 'string') || !ids.length) {
+            output.status = -1;
+            return res.send(JSON.stringify(output));
+        }
+        if (typeof ids === 'string') {
+            const id = ids;
+            ids = [];
+            ids.push(id);
+        }
+        let did = [];
+        for (let i in ids) {
+            const id = ids[i];
+            if (!id.match(/^[a-f0-9]{24}$/)) {
+                output.status = -2;
+                return res.send(JSON.stringify(output));
+            }
+            if (config.demo) {
+                did.push({ _id: new ObjectID(id), url: { $ne: '' } });
+            } else {
+                did.push({ _id: new ObjectID(id) });
+            }
+        }
+        try {
+            const delResult = await db.collection('warehouse_variants').deleteMany({
                 $or: did
             });
             if (!delResult || !delResult.result || !delResult.result.ok || delResult.result.n !== ids.length) {
@@ -1915,6 +2217,64 @@ module.exports = function(app) {
         }
     };
 
+    const importVariants = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        if (!req.files || typeof req.files !== 'object' || !req.files['files[]'] || !req.files['files[]'].name || !req.files['files[]'].data ||
+            !req.files['files[]'].data.length || req.files['files[]'].data.length > config.maxUploadSizeMB * 1048576) {
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+        try {
+            const fid = String(Date.now());
+            const tempFile = path.join(__dirname, '..', '..', 'temp', 'vimport_' + fid + '.csv');
+            await fs.writeFile(tempFile, req.files['files[]'].data);
+            const insResult = await db.collection('warehouse_tasks').insertOne({
+                state: 1,
+                fid: fid
+            });
+            if (!insResult || !insResult.result || !insResult.result.ok || !insResult.insertedId) {
+                return res.send(JSON.stringify({
+                    status: -1
+                }));
+            }
+            const uid = insResult.insertedId;
+            setTimeout(function() {
+                csv().fromFile(tempFile)
+                    .on('json', async(json) => {
+                        if (!json || typeof json !== 'object' || !json.pid) {
+                            return;
+                        }
+                        let prop = {
+                            pid: json.pid,
+                            title: {}
+                        };
+                        for (let i in config.i18n.locales) {
+                            let lng = config.i18n.locales[i];
+                            prop.title[lng] = json[lng] || '';
+                        }
+                        await db.collection('warehouse_variants').insertOne(prop);
+                    }).on('done', async(error) => {
+                        await db.collection('warehouse_tasks').update({ _id: new ObjectID(uid) }, { $set: { state: 3 } }, { upsert: true });
+                    });
+            }, 0);
+            return res.send(JSON.stringify({
+                status: 1,
+                uid: uid
+            }));
+        } catch (e) {
+            log.error(e);
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
     const importPropertiesState = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
@@ -1940,6 +2300,48 @@ module.exports = function(app) {
                 try {
                     await db.collection('warehouse_tasks').remove({ _id: new ObjectID(id) });
                     await fs.remove(path.join(__dirname, '..', '..', 'temp', 'pimport_' + item.fid + '.csv'));
+                } catch (e) {
+                    log.error(e);
+                    // Ignore
+                }
+            }
+            return res.send(JSON.stringify({
+                status: 1,
+                state: item.state
+            }));
+        } catch (e) {
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
+    const importVariantsState = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const locale = req.session.currentLocale;
+        const id = req.query.id;
+        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const item = await db.collection('warehouse_tasks').findOne({ _id: new ObjectID(id) });
+            if (!item || !item.state) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            if (item.state === 3 && item.fid) {
+                try {
+                    await db.collection('warehouse_tasks').remove({ _id: new ObjectID(id) });
+                    await fs.remove(path.join(__dirname, '..', '..', 'temp', 'vimport_' + item.fid + '.csv'));
                 } catch (e) {
                     log.error(e);
                     // Ignore
@@ -2701,22 +3103,27 @@ module.exports = function(app) {
     router.get('/list', list);
     router.get('/list/properties', listProperties);
     router.get('/list/collections', listCollections);
+    router.get('/list/variantscollections', listVariantsCollections);
+    router.get('/list/variants', listVariants);
     router.get('/list/delivery', listDelivery);
     router.get('/load', load);
     router.get('/load/property', loadProperty);
+    router.get('/load/variant', loadVariant);
     router.get('/load/collection', loadCollection);
     router.get('/load/collection/data', loadCollectionData);
     router.get('/load/delivery', loadDelivery);
     router.get('/load/address', loadAddress);
     router.post('/save', save);
-    router.post('/save/property', saveProperty);
+    router.post('/save/property', saveProperty);    
     router.post('/save/collection', saveCollection);
+    router.post('/save/variant', saveVariant);
     router.post('/save/delivery', saveDelivery);
     router.post('/save/address', saveAddress);
     router.get('/create', create);
     router.post('/delete', del);
     router.post('/delete/property', delProperty);
     router.post('/delete/collection', delCollection);
+    router.post('/delete/variant', delVariant);
     router.post('/folders', folders);
     router.post('/settings', settings);
     router.post('/repair', repair);
@@ -2728,6 +3135,8 @@ module.exports = function(app) {
     router.get('/import/properties/state', importPropertiesState);
     router.post('/import/collections', importCollections);
     router.get('/import/collections/state', importCollectionsState);
+    router.post('/import/variants', importVariants);
+    router.get('/import/variants/state', importVariantsState);
     // Browser routes
     router.all('/browse/list', browseList);
     router.all('/browse/folder/create', browseFolderCreate);

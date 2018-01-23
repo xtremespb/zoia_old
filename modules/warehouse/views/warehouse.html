@@ -29,7 +29,9 @@
                                         <ul class="za-nav za-nav-default zoia-nav-default">
                                             <li><a href="#" class="warehouseBtnSettingsDialog">{{ i18n.__(locale, 'Warehouse Settings')}}</a></li>
                                             <li><a href="#" class="warehouseBtnPropertiesListDialog">{{ i18n.__(locale, 'Properties List')}}</a></li>
-                                            <li><a href="#" class="warehouseBtnCollectionsListDialog">{{ i18n.__(locale, 'Collections')}}</a></li>
+                                            <li><a href="#" class="warehouseBtnCollectionsListDialog">{{ i18n.__(locale, 'Properties Collections')}}</a></li>
+                                            <li><a href="#" class="warehouseBtnVariantsListDialog">{{ i18n.__(locale, 'Variants List')}}</a></li>
+                                            <li><a href="#" class="warehouseBtnVariantsCollectionsListDialog">{{ i18n.__(locale, 'Variants Collections')}}</a></li>
                                             <li><a href="#" class="warehouseBtnDeliveryDialog">{{ i18n.__(locale, 'Delivery')}}</a></li>
                                             <li><a href="#" class="warehouseBtnAddressDialog">{{ i18n.__(locale, 'Address Template')}}</a></li>
                                             <li class="za-nav-divider"></li>
@@ -57,7 +59,9 @@
                                     <ul class="za-nav za-nav-default zoia-nav-default">
                                         <li><a href="#" class="warehouseBtnSettingsDialog">{{ i18n.__(locale, 'Warehouse Settings')}}</a></li>
                                         <li><a href="#" class="warehouseBtnPropertiesListDialog">{{ i18n.__(locale, 'Properties List')}}</a></li>
-                                        <li><a href="#" class="warehouseBtnCollectionsListDialog">{{ i18n.__(locale, 'Collections')}}</a></li>
+                                        <li><a href="#" class="warehouseBtnCollectionsListDialog">{{ i18n.__(locale, 'Properties Collections')}}</a></li>
+                                        <li><a href="#" class="warehouseBtnVariantsListDialog">{{ i18n.__(locale, 'Variants List')}}</a></li>
+                                        <li><a href="#" class="warehouseBtnVariantsCollectionsListDialog">{{ i18n.__(locale, 'Variants Collections')}}</a></li>
                                         <li><a href="#" class="warehouseBtnDeliveryDialog">{{ i18n.__(locale, 'Delivery')}}</a></li>
                                         <li><a href="#" class="warehouseBtnAddressDialog">{{ i18n.__(locale, 'Address Template')}}</a></li>
                                         <li class="za-nav-divider"></li>
@@ -262,6 +266,22 @@
         </div>
     </div>
 </div>
+<div id="zoiaDeleteVariantDialog" style="display:none">
+    <div class="za-modal-dialog" za-overflow-auto>
+        <div class="za-modal-header">
+            <h2>{{ i18n.__(locale, 'Delete')}}</h2>
+        </div>
+        <div class="za-modal-body">
+            <p>{{ i18n.__(locale, 'The following variant(s) will be removed from the database')}}:</p>
+            <ul class="za-list za-list-striped" id="zoiaDeleteVariantDialogList"></ul>
+        </div>
+        <div class="za-modal-footer za-text-right">
+            <button class="za-button za-button-default za-modal-close zoia-deletevariant-dialog-button" type="button">{{ i18n.__(locale, 'Cancel')}}</button>
+            <button class="za-button za-button-primary zoia-deletevariant-dialog-button" id="zoiaDeleteVariantDialogButton" type="button">{{ i18n.__(locale, 'Delete')}}</button>
+            <div za-spinner style="float:right;display:none" id="zoiaDeleteVariantDialogSpinner"></div>
+        </div>
+    </div>
+</div>
 <div id="zoiaDeleteCollectionDialog" style="display:none">
     <div class="za-modal-dialog" za-overflow-auto>
         <div class="za-modal-header">
@@ -370,6 +390,67 @@
             <div class="propertiesPagination za-margin noselect"></div>
         </div>
         <div class="za-modal-body za-flex za-flex-center za-flex-middle" id="zoiaPropertiesListDialogSpinner" style="display:none">
+            <div za-spinner></div>
+        </div>
+        <div class="za-modal-footer za-text-right">
+            <button class="za-button za-button-default zoia-images-dialog-button za-modal-close" type="button">{{ i18n.__(locale, 'Done')}}</button>
+        </div>
+    </div>
+</div>
+<div id="zoiaVariantsListDialog" style="display:none" class="za-modal-container">
+    <div class="za-modal-dialog">
+        <div class="za-modal-header">
+            <h2>{{ i18n.__(locale, 'Variants List')}}</h2>
+        </div>
+        <div class="za-modal-body" id="zoiaVariantsListDialogBody" za-overflow-auto>
+            <div class="za-grid za-grid-small">
+                <div>
+                    <ul class="za-iconnav">
+                        <li>
+                            <button za-icon="icon:plus" class="za-icon-button zoiaVariantAdd" title="{{ i18n.__(locale, 'Add')}}" za-tooltip="pos: bottom-right"></button>
+                        </li>
+                        <li>
+                            <button za-icon="icon:trash" class="za-icon-button zoiaVariantDeleteButton" title="{{ i18n.__(locale, 'Delete')}}" za-tooltip="pos:bottom-right"></button>
+                        </li>
+                        <li>
+                            <button za-icon="icon:upload" class="za-icon-button zoiaVariantsImportButton" title="{{ i18n.__(locale, 'Import Variants from CSV')}}" za-tooltip="pos:bottom-right"></button>
+                        </li>
+                        <li>
+                            <button za-icon="icon:check" class="za-icon-button variantsBtnSelectAll" title="{{ i18n.__(locale, 'Select all')}}" za-tooltip="pos:bottom-right"></button>
+                        </li>
+                        <li>
+                            <button za-icon="icon:close" class="za-icon-button variantsBtnSelectNone" title="{{ i18n.__(locale, 'Select none')}}" za-tooltip="pos:bottom-right"></button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="za-width-expand">
+                    <div class="za-inline za-float-right">
+                        <a class="za-form-icon za-form-icon-flip variantsSearchInputClear" za-icon="icon: close"></a>
+                        <input type="text" class="variantsSearchInput za-input za-width-medium" placeholder="{{ i18n.__(locale, 'Search')}}">
+                    </div>
+                </div>
+            </div>
+            <div class="variantsPagination za-margin-top noselect"></div>
+            <table class="za-table za-table-divider za-table-striped za-table-hover za-table-responsive za-table-middle" id="variants">
+                <thead class="noselect" style="display:none">
+                    <tr>
+                        <th id="variantsID" class="za-table-shrink"></th>
+                        <th id="variants_pid" class="za-table-shrink">{{ i18n.__(locale, 'ID')}}</th>
+                        <th id="variants_title">{{ i18n.__(locale, 'Title')}}</th>
+                        <th id="variants_actions" class="za-table-shrink">{{ i18n.__(locale, 'Actions')}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="100%">
+                            <div za-spinner style="margin:-2px 5px 0 0"></div>&nbsp;{{ i18n.__(locale, 'Loading data, please wait')}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="variantsPagination za-margin noselect"></div>
+        </div>
+        <div class="za-modal-body za-flex za-flex-center za-flex-middle" id="zoiaVariantsListDialogSpinner" style="display:none">
             <div za-spinner></div>
         </div>
         <div class="za-modal-footer za-text-right">
@@ -492,6 +573,66 @@
         </div>
     </div>
 </div>
+<div id="zoiaVariantsCollectionsListDialog" style="display:none" class="za-modal-container">
+    <div class="za-modal-dialog">
+        <div class="za-modal-header">
+            <h2>{{ i18n.__(locale, 'Variants Collections')}}</h2>
+        </div>
+        <div class="za-modal-body" id="zoiaVariantsCollectionsDialogBody" za-overflow-auto>
+            <div class="za-grid za-grid-small">
+                <div>
+                    <ul class="za-iconnav">
+                        <li>
+                            <button za-icon="icon:plus" class="za-icon-button zoiaVariantCollectionAdd" title="{{ i18n.__(locale, 'Add')}}" za-tooltip="pos: bottom-right"></button>
+                        </li>
+                        <li>
+                            <button za-icon="icon:trash" class="za-icon-button zoiaVariantCollectionDeleteButton" title="{{ i18n.__(locale, 'Delete')}}" za-tooltip="pos:bottom-right"></button>
+                        </li>
+                        <li>
+                            <button za-icon="icon:upload" class="za-icon-button zoiaVariantsCollectionsImportButton" title="{{ i18n.__(locale, 'Import Variants Collections from CSV')}}" za-tooltip="pos:bottom-right"></button>
+                        </li>
+                        <li>
+                            <button za-icon="icon:check" class="za-icon-button variantscollectionsBtnSelectAll" title="{{ i18n.__(locale, 'Select all')}}" za-tooltip="pos:bottom-right"></button>
+                        </li>
+                        <li>
+                            <button za-icon="icon:close" class="za-icon-button variantscollectionsBtnSelectNone" title="{{ i18n.__(locale, 'Select none')}}" za-tooltip="pos:bottom-right"></button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="za-width-expand">
+                    <div class="za-inline za-float-right">
+                        <a class="za-form-icon za-form-icon-flip variantscollectionsSearchInputClear" za-icon="icon: close"></a>
+                        <input type="text" class="variantscollectionsSearchInput za-input za-width-medium" placeholder="{{ i18n.__(locale, 'Search')}}">
+                    </div>
+                </div>
+            </div>
+            <div class="variantscollectionsPagination za-margin-top noselect"></div>
+            <table class="za-table za-table-divider za-table-striped za-table-hover za-table-responsive za-table-middle" id="variantscollections">
+                <thead class="noselect" style="display:none">
+                    <tr>
+                        <th id="variantscollectionsID" class="za-table-shrink"></th>
+                        <th id="variantscollections_title">{{ i18n.__(locale, 'Title')}}</th>
+                        <th id="variantscollections_actions" class="za-table-shrink">{{ i18n.__(locale, 'Actions')}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="100%">
+                            <div za-spinner style="margin:-2px 5px 0 0"></div>&nbsp;{{ i18n.__(locale, 'Loading data, please wait')}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="variantscollectionsPagination za-margin noselect"></div>
+        </div>
+        <div class="za-modal-body za-flex za-flex-center za-flex-middle" id="zoiaVariantsCollectionsDialogSpinner" style="display:none">
+            <div za-spinner></div>
+        </div>
+        <div class="za-modal-footer za-text-right">
+            <button class="za-button za-button-default zoia-images-dialog-button za-modal-close" type="button">{{ i18n.__(locale, 'Done')}}</button>
+        </div>
+    </div>
+</div>
 <div id="zoiaCollectionSelectDialog" style="display:none" class="za-modal-container">
     <div class="za-modal-dialog">
         <div class="za-modal-header">
@@ -554,6 +695,23 @@
                 <h2 id="zoiaPropertyEditDialogHeader"></h2>
             </div>
             <form id="editPropertyForm">
+                <div class="za-flex za-flex-center za-margin-top">
+                    <div za-spinner class="za-margin-bottom"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="zoiaVariantEditDialog" style="display:none">
+    <div class="za-modal-dialog">
+        <div class="za-margin-top za-margin-bottom za-modal-header za-flex za-flex-center za-flex-middle zoiaVariantEditDialogSpinner" style="display:none">
+            <span za-spinner></span>
+        </div>
+        <div class="zoiaVariantEditDialogWrap">
+            <div class="za-modal-header">
+                <h2 id="zoiaVariantEditDialogHeader"></h2>
+            </div>
+            <form id="editVariantForm">
                 <div class="za-flex za-flex-center za-margin-top">
                     <div za-spinner class="za-margin-bottom"></div>
                 </div>
@@ -675,6 +833,29 @@
             <div za-spinner></div>
         </div>
         <div class="za-modal-footer za-text-right" id="zoiaCollectionsImportDialogFooter">
+            <button class="za-button za-button-default zoia-images-dialog-button za-modal-close" type="button">{{ i18n.__(locale, 'Cancel')}}</button>
+        </div>
+    </div>
+</div>
+<div id="zoiaVariantsImportDialog" style="display:none">
+    <div class="za-modal-dialog">
+        <div class="za-modal-header">
+            <h2>{{ i18n.__(locale, 'Import Variants from CSV')}}</h2>
+        </div>
+        <div class="za-modal-body" id="zoiaVariantsImportDialogBody">
+            <div class="vimport-upload za-placeholder za-text-center">
+                <span class="za-text-middle">{{ i18n.__(locale, 'Attach CSV file by dropping it here or')}}</span>
+                <div za-form-custom>
+                    <input type="file" multiple>
+                    <span class="za-link" style="cursor:pointer">{{ i18n.__(locale, 'selecting one')}}</span>
+                </div>
+            </div>
+            <progress id="vimport_progressbar" class="za-progress" value="0" max="100" hidden></progress>
+        </div>
+        <div class="za-modal-body za-flex za-flex-center za-flex-middle" id="zoiaVariantsImportDialogSpinner" style="display:none">
+            <div za-spinner></div>
+        </div>
+        <div class="za-modal-footer za-text-right" id="zoiaVariantsImportDialogFooter">
             <button class="za-button za-button-default zoia-images-dialog-button za-modal-close" type="button">{{ i18n.__(locale, 'Cancel')}}</button>
         </div>
     </div>
