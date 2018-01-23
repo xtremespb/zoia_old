@@ -19,6 +19,12 @@ module.exports = function(data) {
         console.log('      Creating indexes...');
         await db.collection('registry').createIndex({ name: 1 });
         await db.collection('registry').createIndex({ name: -1 });
+        console.log('  └── Creating collection: mail...');
+        try {
+            await db.createCollection('mail');
+        } catch (e) {
+            console.log('      [ ] Collection is not created');
+        }
         console.log('      Module is installed!');
     };
 };
