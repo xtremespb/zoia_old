@@ -198,6 +198,11 @@
 	"The following variant(s) will be removed from the database": "The following variant(s) will be removed from the database",
 	"Properties Collections": "Properties Collections",
 	"Variants Collections": "Variants Collections",
-	"Import VariantsCollections from CSV": "Import Variants Collections from CSV",
-	"Import Variants Collections from CSV": "Import Variants Collections from CSV"
+	"Import Variants Collections from CSV": "Import Variants Collections from CSV",
+	"The following variants collection(s) will be removed from the database": "The following variants collection(s) will be removed from the database",
+	"Insert variant": "Insert variant",
+	"Insert variants collection": "Insert variants collection",
+	"Remove all variants": "Remove all variants",
+	"Variants": "Variants",
+	"Use drag-and-drop to arrange variants order": "Use drag-and-drop to arrange variants order"
 }

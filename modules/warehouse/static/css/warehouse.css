@@ -218,6 +218,7 @@
 }
 
 #editForm_properties_wrap:empty,
+#editForm_variants_wrap:empty,
 .addressFormDataItems:empty {
     display: none;
 }

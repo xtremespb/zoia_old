@@ -6,6 +6,7 @@ let deletePropertyDialog;
 let deleteVariantDialog;
 let deleteOrderDialog;
 let deleteCollectionDialog;
+let deleteVariantCollectionDialog;
 let foldersDialog;
 let folderEditDialog;
 let repairDialog;
@@ -19,7 +20,10 @@ let variantsCollectionsListDialog;
 let propertyEditDialog;
 let variantEditDialog;
 let collectionEditDialog;
+let variantCollectionEditDialog;
 let propertySelectDialog;
+let variantSelectDialog;
+let variantsSelectDialog;
 let collectionSelectDialog;
 let propertiesImportDialog;
 let collectionsImportDialog;
@@ -262,6 +266,16 @@ const deleteCollectionDialogSpinner = (show) => {
     }
 };
 
+const deleteVariantCollectionDialogSpinner = (show) => {
+    if (show) {
+        $('.zoia-deletevariantcollection-dialog-button').hide();
+        $('#zoiaDeleteVariantCollectionDialogSpinner').show();
+    } else {
+        $('.zoia-deletevariantcollection-dialog-button').show();
+        $('#zoiaDeleteVariantCollectionDialogSpinner').hide();
+    }
+};
+
 const foldersDialogSpinner = (show) => {
     if (show) {
         $('.zoia-folders-dialog-button').hide();
@@ -494,6 +508,16 @@ const editDelivery = (id) => {
     $('#editDeliveryForm').zoiaFormBuilder().loadData({ id: id });
 };
 
+const createVariantCollection = () => {
+    editMode = false;
+    variantCollectionEditDialog.show();
+    currentEditID = null;
+    $('#editVariantCollectionForm').zoiaFormBuilder().resetForm();
+    $('.variantCollectionFormDataItems').html('');
+    $('#zoiaVariantCollectionEditDialogHeader').html(lang.addItem);
+    $('.editVariantCollectionForm-title-item-val').first().focus();
+};
+
 const createCollection = () => {
     editMode = false;
     collectionEditDialog.show();
@@ -517,6 +541,21 @@ const editCollection = (id) => {
     $('.collectionFormDataItems').html('');
     $('#zoiaCollectionEditDialogHeader').html(lang.editItem);
     $('#editCollectionForm').zoiaFormBuilder().loadData({ id: id });
+};
+
+const editVariantCollection = (id) => {
+    editMode = true;
+    if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+        return;
+    }
+    currentEditID = id;
+    $('.zoiaVariantCollectionEditDialogSpinner').show();
+    $('.zoiaVariantCollectionEditDialogWrap').hide();
+    variantCollectionEditDialog.show();
+    $('#editVariantCollectionForm').zoiaFormBuilder().resetForm();
+    $('.variantCollectionFormDataItems').html('');
+    $('#zoiaVariantCollectionEditDialogHeader').html(lang.editItem);
+    $('#editVariantCollectionForm').zoiaFormBuilder().loadData({ id: id });
 };
 
 const showTable = () => {
@@ -652,6 +691,32 @@ const deleteCollection = (id) => {
     }
     deleteCollectionDialogSpinner(false);
     deleteCollectionDialog.show();
+};
+
+const deleteVariantCollection = (id) => {
+    if (!id) {
+        return;
+    }
+    let items = [];
+    let ids = [];
+    currentDeleteID = [];
+    if (typeof id === 'object') {
+        items = id;
+        currentDeleteID = id;
+        for (let i in id) {
+            ids.push($('#variantscollections').zoiaTable().getCurrentData()[id[i]].title);
+        }
+    } else {
+        items.push(id);
+        currentDeleteID.push(id);
+        ids.push($('#variantscollections').zoiaTable().getCurrentData()[id].title);
+    }
+    $('#zoiaDeleteVariantCollectionDialogList').html('');
+    for (let n in ids) {
+        $('#zoiaDeleteVariantCollectionDialogList').append('<li>' + ids[n] + '</li>');
+    }
+    deleteVariantCollectionDialogSpinner(false);
+    deleteVariantCollectionDialog.show();
 };
 
 const ajaxDeleteItem = () => {
@@ -824,6 +889,40 @@ const ajaxDeleteCollection = () => {
     });
 };
 
+const ajaxDeleteVariantCollection = () => {
+    deleteVariantCollectionDialogSpinner(true);
+    $.ajax({
+        type: 'POST',
+        url: '/api/warehouse/delete/variantcollection',
+        data: {
+            id: currentDeleteID
+        },
+        cache: false
+    }).done((res) => {
+        $('#variantscollections').zoiaTable().load();
+        if (res && res.status === 1) {
+            deleteVariantCollectionDialog.hide();
+            $zUI.notification(lang['Operation was successful'], {
+                status: 'success',
+                timeout: 1500
+            });
+        } else {
+            $zUI.notification(lang['Cannot delete one or more items'], {
+                status: 'danger',
+                timeout: 1500
+            });
+            deleteVariantCollectionDialogSpinner(false);
+        }
+    }).fail(() => {
+        $('#variantscollections').zoiaTable().load();
+        $zUI.notification(lang['Cannot delete one or more items'], {
+            status: 'danger',
+            timeout: 1500
+        });
+        deleteVariantCollectionDialogSpinner(false);
+    });
+};
+
 const ajaxRepairDatabase = () => {
     repairDialogSpinner(true);
     $.ajax({
@@ -923,6 +1022,22 @@ const syncEditFormProperties = (clng) => {
             }
         }
     }
+    dolly = editShadow[clng].data.variants.value || {};
+    for (let lng in langs) {
+        if (lng !== clng && editShadow[lng].enabled) {
+            let save = {};
+            if (!editShadow[lng].data.variants) {
+                editShadow[lng].data.variants = {};
+            }
+            for (let i in editShadow[lng].data.variants.value) {
+                save[editShadow[lng].data.variants.value[i].d] = editShadow[lng].data.variants.value[i].v;
+            }
+            editShadow[lng].data.variants.value = jQuery.extend(true, {}, dolly);
+            for (let i in editShadow[lng].data.variants.value) {
+                editShadow[lng].data.variants.value[i].v = save[editShadow[lng].data.variants.value[i].d] || '';
+            }
+        }
+    }
 };
 
 const syncEditFormPropertiesFirst = () => {
@@ -943,6 +1058,14 @@ const syncEditFormPropertiesFirst = () => {
     editShadow[editLanguage].data.properties.value = jQuery.extend(true, {}, dolly);
     for (let i in editShadow[editLanguage].data.properties.value) {
         editShadow[editLanguage].data.properties.value[i].v = '';
+    }
+    dolly = editShadow[clng].data.variants.value || {};
+    editShadow[editLanguage].data.variants = {
+        type: 'valueslisteditable'
+    };
+    editShadow[editLanguage].data.variants.value = jQuery.extend(true, {}, dolly);
+    for (let i in editShadow[editLanguage].data.variants.value) {
+        editShadow[editLanguage].data.variants.value[i].v = '';
     }
 };
 
@@ -973,6 +1096,7 @@ const onEditLanguageCheckboxClickEvent = () => {
         editShadow[editLanguage].data = {};
         syncEditFormPropertiesFirst();
         $('#editForm').zoiaFormBuilder().deserializePart('properties', editShadow[editLanguage].data.properties);
+        $('#editForm').zoiaFormBuilder().deserializePart('variants', editShadow[editLanguage].data.variants);
         for (let lng in langs) {
             if (editShadow[lng].data) {
                 if (editShadow[lng].data.folder) {
@@ -997,6 +1121,9 @@ const onEditLanguageCheckboxClickEvent = () => {
                 }
                 if (editShadow[lng].data.status) {
                     $('#editForm_status').val(editShadow[lng].data.status.value);
+                }
+                if (editShadow[lng].data.variants) {
+                    $('#editForm').zoiaFormBuilder().deserializePart('variants', editShadow[lng].data.variants);
                 }
             }
         }
@@ -1035,8 +1162,9 @@ const onZoiaEditLanguagesClick = (lng) => {
         let saveSKU = editShadow[editLanguage].data.sku;
         let saveWeight = editShadow[editLanguage].data.weight;
         let saveAmount = editShadow[editLanguage].data.amount;
-        let savePrice = editShadow[editLanguage].data.price;
+        let savePrice = editShadow[editLanguage].data.price;        
         let saveStatus = editShadow[editLanguage].data.status;
+        let saveVariants = editShadow[editLanguage].data.variants;
         editShadow[lng].data.folder = saveFolder;
         editShadow[lng].data.images = saveImages;
         editShadow[lng].data.sku = saveSKU;
@@ -1044,12 +1172,13 @@ const onZoiaEditLanguagesClick = (lng) => {
         editShadow[lng].data.amount = saveAmount;
         editShadow[lng].data.price = savePrice;
         editShadow[lng].data.status = saveStatus;
+        editShadow[lng].data.variants = saveVariants;
     }
-    syncEditFormProperties(editLanguage);
+    syncEditFormProperties(editLanguage);    
     $('#editForm').zoiaFormBuilder().resetForm();
     $('#editForm').zoiaFormBuilder().deserialize(editShadow[lng].data);
-    $('.selectProperyItemClose').unbind();
-    $('.selectProperyItemClose').click(function() {
+    $('.selectPropertyItemClose').unbind();
+    $('.selectPropertyItemClose').click(function() {
         $(this).parent().parent().remove();
     });
     editLanguage = lng;
@@ -1198,6 +1327,15 @@ const deleteCollectionButtonHanlder = () => {
     }
 };
 
+const deleteVariantCollectionButtonHanlder = () => {
+    const checked = $('.variantscollectionsCheckbox:checkbox:checked').map(function() {
+        return this.id;
+    }).get();
+    if (checked && checked.length > 0) {
+        deleteVariantCollection(checked);
+    }
+};
+
 const formBuilderHTML = {
     helpText: '<div class="za-text-meta">{text}</div>',
     text: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><div class="za-form-controls"><input class="za-input {prefix}-form-field{css}" id="{prefix}_{name}" type="{type}" placeholder=""{autofocus}><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>',
@@ -1212,7 +1350,7 @@ const formBuilderHTML = {
     checkboxlist: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-panel za-panel-scrollable{css}" id="{prefix}_{name}_wrap"><ul class="za-list">{items}</ul></div>{helpText}</div>',
     valueslistItem: '<div class="za-flex za-margin-top {prefix}-{name}-item"><div class="za-margin-right"><input placeholder="{langParameter}" type="text" class="za-input formBuilder-valueslist-par" value="{key}"></div><div class="za-margin-right"><input placeholder="{langValue}" type="text" class="za-input formBuilder-valueslist-val" value="{value}"></div><div style="padding-top:3px"><button class="za-icon-button za-button-danger formBuilder-valueslist-btnDel" za-icon="icon:minus"></button></div></div>',
     valueslistItemFixed: '<div class="za-flex za-margin-top {prefix}-{name}-item"><div class="za-margin-right" style="margin-top:10px;min-width:100px;font-size:80%">{value}:</div><div class="za-margin-right"><input placeholder="{langValue}" type="text" class="za-input formBuilder-valueslist-val {prefix}-{name}-item-val" value="{data}" data="{key}"></div></div>',
-    valueslistItemEditable: '<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body {prefix}-{name}-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectProperyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">{key}</label><input placeholder="{langValue}" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="{value}" data="{data}"></div></div>',
+    valueslistItemEditable: '<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body {prefix}-{name}-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectPropertyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">{key}</label><input placeholder="{langValue}" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="{value}" data="{data}"></div></div>',
     valueslist: '<div class="za-flex za-flex-column"><div class="za-margin-bottom"><label class="za-form-label">{label}:</label></div><div><button type="button" class="za-icon-button za-button-primary formBuilder-valueslist-btnAdd" id="{prefix}_{name}_btnAdd" za-icon="icon:plus" data-prefix="{prefix}" data-name="{name}"></button></div><div id="{prefix}_{name}_wrap" class="za-margin-bottom {prefix}-formBuilder-valueslist-wrap">{items}</div>',
     valueslistFixed: '<div class="za-flex za-flex-column"><div><label class="za-form-label">{label}:</label></div><div id="{prefix}_{name}_wrap" class="za-margin-bottom formBuilder-valueslist-wrap">{items}</div></div>',
     valueslistEditable: '<div class="za-flex za-flex-column" id="{prefix}_{name}_widget"><div class="za-margin-bottom"><label class="za-form-label">{label}:</label></div>{buttons}<div id="{prefix}_{name}_wrap" class="za-margin-bottom {prefix}-formBuilder-valueslist-wrap" za-sortable="handle:.za-sortable-handle">{items}</div><div class="za-margin-bottom">{helpText}</div></div>',
@@ -1256,6 +1394,7 @@ const editFormData = {
             let saveAmount = editShadow[editLanguage].data.amount.value;
             let savePrice = editShadow[editLanguage].data.price.value;
             let saveStatus = editShadow[editLanguage].data.status.value;
+            let saveVariants = editShadow[editLanguage].data.variants.value;
             for (let n in editShadow) {
                 if (!editShadow[n].enabled) {
                     continue;
@@ -1269,7 +1408,9 @@ const editFormData = {
                     vr = $('#editForm').zoiaFormBuilder().validate($('#editForm').zoiaFormBuilder().serialize());
                     if ($('#editForm').zoiaFormBuilder().errors(vr.errors)) {
                         editShadow[editLanguage].data.properties.type = 'valueslisteditable';
+                        editShadow[editLanguage].data.variants.type = 'valueslisteditable';
                         $('#editForm').zoiaFormBuilder().deserializePart("properties", editShadow[editLanguage].data.properties);
+                        $('#editForm').zoiaFormBuilder().deserializePart("variants", editShadow[editLanguage].data.variants);
                         return '__stop';
                     }
                 }
@@ -1281,6 +1422,7 @@ const editFormData = {
                 vr.data.price = savePrice;
                 vr.data.status = saveStatus;
                 vr.data.images = saveImages;
+                vr.data.variants = saveVariants;
                 data[n] = vr.data;
             }
             data.id = currentEditID;
@@ -1397,6 +1539,10 @@ const editFormData = {
                     type: 'valueslisteditable',
                     value: data.item[n].properties
                 };
+                editShadow[n].data.variants = {
+                    type: 'valueslisteditable',
+                    value: data.item[n].variants
+                };
                 editShadow[n].data.status = {
                     type: 'select',
                     value: data.item.status
@@ -1415,7 +1561,7 @@ const editFormData = {
                 };
             }
             $('#zoiaEditLanguageCheckbox').prop('checked', editShadow[editLanguage].enabled);
-            $('.selectProperyItemClose').unbind();
+            $('.selectPropertyItemClose').unbind();
             for (let n in langs) {
                 if (editShadow[n].enabled) {
                     $('#zoiaEditLanguages > li[data=' + n + ']').click();
@@ -1423,8 +1569,8 @@ const editFormData = {
                     break;
                 }
             }
-            $('.selectProperyItemClose').unbind();
-            $('.selectProperyItemClose').click(function() {
+            $('.selectPropertyItemClose').unbind();
+            $('.selectPropertyItemClose').click(function() {
                 $(this).parent().parent().remove();
             });
             $('#zoiaSpinnerMain').hide();
@@ -1505,6 +1651,12 @@ const editFormData = {
             },
             helpText: lang['Example: 123.45']
         },
+        variants: {
+            type: 'valueslisteditable',
+            buttons: '<div class="za-margin-bottom"><ul class="za-iconnav"><li><button type="button" class="za-icon-button zoiaAddVariantBtn" za-icon="icon:file" title="' + lang['Insert variant'] + '" za-tooltip="pos: bottom-right"></button></li><li><button type="button" class="za-icon-button zoiaAddVariantCollectionBtn"za-icon="icon:album" title="' + lang['Insert variants collection'] + '" za-tooltip="pos: bottom-right"></button></li><li><button type="button" class="za-icon-button zoiaRemoveAllVariants"za-icon="icon:trash" title="' + lang['Remove all variants'] + '" za-tooltip="pos: bottom-right"></button></li></ul></div>',
+            helpText: lang['Use drag-and-drop to arrange variants order'],
+            label: lang['Variants']
+        },        
         weight: {
             type: 'text',
             label: lang['Weight'],
@@ -1576,7 +1728,7 @@ const editFormData = {
             buttons: '<div class="za-margin-bottom"><ul class="za-iconnav"><li><button type="button" class="za-icon-button zoiaAddPropertyBtn" za-icon="icon:file" title="' + lang['Insert property'] + '" za-tooltip="pos: bottom-right"></button></li><li><button type="button" class="za-icon-button zoiaAddCollectionBtn"za-icon="icon:album" title="' + lang['Insert collection'] + '" za-tooltip="pos: bottom-right"></button></li><li><button type="button" class="za-icon-button zoiaRemoveAllProperties"za-icon="icon:trash" title="' + lang['Remove all properties'] + '" za-tooltip="pos: bottom-right"></button></li></ul></div>',
             helpText: lang['Use drag-and-drop to arrange properties order'],
             label: lang['Properties']
-        },        
+        },
         keywords: {
             type: 'text',
             label: lang['Keywords'],
@@ -2316,9 +2468,9 @@ const editCollectionFormData = {
             $('.zoiaCollectionEditDialogWrap').show();
             $('.collectionFormDataItems').html('');
             for (let i in data.item.properties) {
-                $('.collectionFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + i + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + data.item.properties[i] + '<button type="button" class="collectionProperyItemClose" za-close style="float:right"></button></div>');
+                $('.collectionFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + i + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + data.item.properties[i] + '<button type="button" class="collectionPropertyItemClose" za-close style="float:right"></button></div>');
             }
-            $('.collectionProperyItemClose').click(function() {
+            $('.collectionPropertyItemClose').click(function() {
                 $(this).parent().remove();
             });
             $('.editCollectionForm-title-item-val').first().focus();
@@ -2362,6 +2514,109 @@ const editCollectionFormData = {
                 type: 'submit'
             }],
             html: '<div za-spinner style="display:none;float:right" id="zoiaCollectionFormSpinner"></div>'
+        }
+    }
+};
+
+const editVariantCollectionFormData = {
+    template: {
+        fields: '<div class="za-modal-body" za-overflow-auto>{fields}</div>',
+        buttons: '{buttons}'
+    },
+    save: {
+        url: '/api/warehouse/save/variantcollection',
+        method: 'POST'
+    },
+    load: {
+        url: '/api/warehouse/load/variantcollection',
+        method: 'GET'
+    },
+    formDangerClass: 'za-form-danger',
+    html: formBuilderHTML,
+    events: {
+        onSaveValidate: (data, errors) => {
+            if ($('#editVariantCollectionForm').zoiaFormBuilder().errors(errors)) {
+                return '__stop';
+            }
+            $('.editVariantCollectionForm-form-button').hide();
+            $('#zoiaVariantCollectionFormSpinner').show();
+            const properties = [];
+            $('.variantCollectionFormDataItems').children().each(function() {
+                properties.push($(this).attr('data-pid'));
+            });
+            data.properties = properties;
+            data.id = currentEditID;
+            return data;
+        },
+        onSaveSuccess: () => {
+            $('.editVariantCollectionForm-form-button').show();
+            $('#zoiaVariantCollectionFormSpinner').hide();
+            variantCollectionEditDialog.hide();
+            $('#variantscollections').zoiaTable().load();
+            $zUI.notification(lang.fieldErrors['Saved successfully'], {
+                status: 'success',
+                timeout: 1500
+            });
+        },
+        onSaveError: (res) => {
+            $('.editVariantCollectionForm-form-button').show();
+            $('#zoiaVariantCollectionFormSpinner').hide();
+            $zUI.notification(lang.fieldErrors['Could not save to the database'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        },
+        onLoadSuccess: (data) => {
+            $('.zoiaVariantCollectionEditDialogSpinner').hide();
+            $('.zoiaVariantCollectionEditDialogWrap').show();
+            $('.variantCollectionFormDataItems').html('');
+            for (let i in data.item.properties) {
+                $('.variantCollectionFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + i + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + data.item.properties[i] + '<button type="button" class="variantCollectionPropertyItemClose" za-close style="float:right"></button></div>');
+            }
+            $('.variantCollectionPropertyItemClose').click(function() {
+                $(this).parent().remove();
+            });
+            $('.editVariantCollectionForm-title-item-val').first().focus();
+        },
+        onLoadError: () => {
+            variantCollectionEditDialog.hide().then(() => {
+                $('.zoiaVariantCollectionEditDialogSpinner').hide();
+                $('.zoiaVariantCollectionEditDialogWrap').show();
+                $zUI.notification(lang['Could not load information from database'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            });
+        }
+    },
+    lang: formBuilderLang,
+    items: {
+        title: {
+            type: 'valueslistfixed',
+            values: getFormLangData(),
+            label: lang['Title']
+        },
+        properties: {
+            type: 'launcher',
+            label: lang['Properties'],
+            labelBtn: lang['Add'],
+            value: '',
+            html: '<div class="variantCollectionFormDataItems za-margin-top" za-sortable="handle: .za-sortable-handle"></div>',
+            data: 1
+        },
+        buttons: {
+            type: 'buttons',
+            css: 'za-modal-footer za-text-right',
+            buttons: [{
+                label: lang['Cancel'],
+                css: 'za-button-default za-modal-close'
+            }, {
+                name: 'btnSave',
+                label: lang['Save'],
+                css: 'za-button-primary',
+                type: 'submit'
+            }],
+            html: '<div za-spinner style="display:none;float:right" id="zoiaVariantCollectionFormSpinner"></div>'
         }
     }
 };
@@ -2811,10 +3066,10 @@ const variantsCollectionsTableData = {
     },
     onLoad: () => {
         $('.zoia-variantscollections-action-edit-btn').click(function() {
-            editCollection($(this).attr('data'));
+            editVariantCollection($(this).attr('data'));
         });
         $('.zoia-variantscollections-action-del-btn').click(function() {
-            deleteCollection($(this).attr('data'));
+            deleteVariantCollection($(this).attr('data'));
         });
     },
     lang: {
@@ -2848,6 +3103,72 @@ const collectionselectTableData = {
     onLoad: () => {
         $('.zoia-collectionselect-action-check-btn').click(function() {
             selectCheckedCollection($(this).attr('data'));
+        });
+    },
+    lang: {
+        error: lang['Could not load data from server. Please try to refresh page in a few moments.'],
+        noitems: lang['No items to display']
+    }
+};
+
+const variantselectTableData = {
+    url: '/api/warehouse/list/variants',
+    limit: 7,
+    sort: {
+        field: 'title',
+        direction: 'asc'
+    },
+    fields: {
+        title: {
+            sortable: true,
+            process: (id, item, value) => {
+                return value || '&ndash;';
+            }
+        },
+        actions: {
+            sortable: false,
+            process: (id, item) => {
+                return '<button class="za-icon-button zoia-variantselect-action-check-btn" za-icon="icon: check" data="' + item._id +
+                    '"></button><div style="margin-bottom:17px" class="za-hidden@m">&nbsp;</div>';
+            }
+        }
+    },
+    onLoad: () => {
+        $('.zoia-variantselect-action-check-btn').click(function() {
+            addCheckedVariants($(this).attr('data'));
+        });
+    },
+    lang: {
+        error: lang['Could not load data from server. Please try to refresh page in a few moments.'],
+        noitems: lang['No items to display']
+    }
+};
+
+const variantsselectTableData = {
+    url: '/api/warehouse/list/variants',
+    limit: 7,
+    sort: {
+        field: 'title',
+        direction: 'asc'
+    },
+    fields: {
+        title: {
+            sortable: true,
+            process: (id, item, value) => {
+                return value || '&ndash;';
+            }
+        },
+        actions: {
+            sortable: false,
+            process: (id, item) => {
+                return '<button class="za-icon-button zoia-variantsselect-action-check-btn" za-icon="icon: check" data="' + item._id +
+                    '"></button><div style="margin-bottom:17px" class="za-hidden@m">&nbsp;</div>';
+            }
+        }
+    },
+    onLoad: () => {
+        $('.zoia-variantsselect-action-check-btn').click(function() {
+            selectCheckedVariants($(this).attr('data'));
         });
     },
     lang: {
@@ -2954,6 +3275,11 @@ const initDialogs = () => {
         escClose: false,
         stack: true
     });
+    deleteVariantCollectionDialog = $zUI.modal('#zoiaDeleteVariantCollectionDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
     foldersDialog = $zUI.modal('#zoiaFoldersDialog', {
         bgClose: false,
         escClose: false,
@@ -2994,6 +3320,11 @@ const initDialogs = () => {
         escClose: false,
         stack: true
     });
+    variantsSelectDialog = $zUI.modal('#zoiaVariantsSelectDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
     propertyEditDialog = $zUI.modal('#zoiaPropertyEditDialog', {
         bgClose: false,
         escClose: false,
@@ -3019,7 +3350,17 @@ const initDialogs = () => {
         escClose: false,
         stack: true
     });
+    variantCollectionEditDialog = $zUI.modal('#zoiaVariantCollectionEditDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
     propertySelectDialog = $zUI.modal('#zoiaPropertySelectDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    variantSelectDialog = $zUI.modal('#zoiaVariantSelectDialog', {
         bgClose: false,
         escClose: false,
         stack: true
@@ -3035,6 +3376,11 @@ const initDialogs = () => {
         stack: true
     });
     collectionsImportDialog = $zUI.modal('#zoiaCollectionsImportDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    variantsCollectionsImportDialog = $zUI.modal('#zoiaVariantsCollectionsImportDialog', {
         bgClose: false,
         escClose: false,
         stack: true
@@ -3246,6 +3592,10 @@ const addCollectionHandler = () => {
     createCollection();
 };
 
+const addVariantCollectionHandler = () => {
+    createVariantCollection();
+};
+
 const addDeliveryHandler = () => {
     createDelivery();
 };
@@ -3288,6 +3638,11 @@ const editCollectionForm_properties_btnHandler = () => {
     propertySelectDialog.show();
 };
 
+const editVariantCollectionForm_properties_btnHandler = () => {
+    $('#variantselect').zoiaTable().load();
+    variantSelectDialog.show();
+};
+
 const addCheckedProperties = (ids) => {
     const data = $('#propertyselect').zoiaTable().getCurrentData();
     let duplicate = false;
@@ -3301,11 +3656,38 @@ const addCheckedProperties = (ids) => {
         });
         if (!duplicate) {
             const title = data[id].title;
-            $('.collectionFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + pid + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + title + '<button type="button" class="collectionProperyItemClose" za-close style="float:right"></button></div>');
+            $('.collectionFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + pid + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + title + '<button type="button" class="collectionPropertyItemClose" za-close style="float:right"></button></div>');
         }
     }
-    $('.collectionProperyItemClose').unbind();
-    $('.collectionProperyItemClose').click(function() {
+    $('.collectionPropertyItemClose').unbind();
+    $('.collectionPropertyItemClose').click(function() {
+        $(this).parent().remove();
+    });
+    $zUI.notification.closeAll();
+    $zUI.notification({ message: duplicate ? lang['One or more items are duplicated'] : lang['Added'], status: duplicate ? 'danger' : 'success', timeout: 1000 })
+};
+
+const addCheckedVariants = (ids) => {
+    const data = $('#variantselect').zoiaTable().getCurrentData();
+    let duplicate = false;
+    if (typeof ids === 'string') {
+        ids = [ids];
+    }
+    for (let i in ids) {
+        const id = ids[i];
+        const pid = data[id].pid;
+        $('.variantFormDataItems').children().each(function() {
+            if ($(this).attr('data-pid') === pid) {
+                duplicate = true;
+            }
+        });
+        if (!duplicate) {
+            const title = data[id].title;
+            $('.variantCollectionFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + pid + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + title + '<button type="button" class="variantItemClose" za-close style="float:right"></button></div>');
+        }
+    }
+    $('.variantItemClose').unbind();
+    $('.variantItemClose').click(function() {
         $(this).parent().remove();
     });
     $zUI.notification.closeAll();
@@ -3319,10 +3701,29 @@ const selectCheckedProperties = (ids) => {
         const id = ids[i];
         const pid = data[id].pid;
         const title = data[id].title;
-        $('#editForm_properties_wrap').append('<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body editForm-properties-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectProperyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">' + title + '</label><input placeholder="' + lang['Value'] + '" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="" data="' + pid + '"></div></div>');
+        $('#editForm_properties_wrap').append('<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body editForm-properties-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectPropertyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">' + title + '</label><input placeholder="' + lang['Value'] + '" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="" data="' + pid + '"></div></div>');
     }
-    $('.selectProperyItemClose').unbind();
-    $('.selectProperyItemClose').click(function() {
+    $('.selectPropertyItemClose').unbind();
+    $('.selectPropertyItemClose').click(function() {
+        $(this).parent().parent().remove();
+    });
+    $zUI.notification.closeAll();
+    $zUI.notification({ message: lang['Added'], status: 'success', timeout: 1000 });
+};
+
+const selectCheckedVariants = (ids) => {
+    const data = $('#variantsselect').zoiaTable().getCurrentData();
+    if (typeof ids === 'string') {
+        ids = [ids];
+    }
+    for (let i in ids) {
+        const id = ids[i];
+        const pid = data[id].pid;
+        const title = data[id].title;
+        $('#editForm_variants_wrap').append('<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body editForm-variants-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectVariantItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">' + title + '</label><input placeholder="' + lang['Value'] + '" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="" data="' + pid + '"></div></div>');
+    }
+    $('.selectVariantItemClose').unbind();
+    $('.selectVariantItemClose').click(function() {
         $(this).parent().parent().remove();
     });
     $zUI.notification.closeAll();
@@ -3336,8 +3737,21 @@ const zoiaPropertySelectHandler = () => {
     if (checked && checked.length > 0) {
         addCheckedProperties(checked);
     }
-    $('.collectionProperyItemClose').unbind();
-    $('.collectionProperyItemClose').click(function() {
+    $('.collectionPropertyItemClose').unbind();
+    $('.collectionPropertyItemClose').click(function() {
+        $(this).parent().remove();
+    });
+};
+
+const zoiaVariantSelectHandler = () => {
+    const checked = $('.variantselectCheckbox:checkbox:checked').map(function() {
+        return this.id;
+    }).get();
+    if (checked && checked.length > 0) {
+        addCheckedVariant(checked);
+    }
+    $('.collectionVariantItemClose').unbind();
+    $('.collectionVariantItemClose').click(function() {
         $(this).parent().remove();
     });
 };
@@ -3349,8 +3763,21 @@ const zoiaSelectedPropertyAddHandler = () => {
     if (checked && checked.length > 0) {
         selectCheckedProperties(checked);
     }
-    $('.selectProperyItemClose').unbind();
-    $('.selectProperyItemClose').click(function() {
+    $('.selectPropertyItemClose').unbind();
+    $('.selectPropertyItemClose').click(function() {
+        $(this).parent().parent().remove();
+    });
+};
+
+const zoiaSelectedVariantAddHandler = () => {
+    const checked = $('.variantsselectCheckbox:checkbox:checked').map(function() {
+        return this.id;
+    }).get();
+    if (checked && checked.length > 0) {
+        selectCheckedVariants(checked);
+    }
+    $('.selectVariantsItemClose').unbind();
+    $('.selectVariantsItemClose').click(function() {
         $(this).parent().parent().remove();
     });
 };
@@ -3369,10 +3796,10 @@ const selectCheckedCollection = (id) => {
             $('#zoiaSpinnerMain').hide();
             if (res && res.status === 1 && res.items) {
                 for (let pid in res.items) {
-                    $('#editForm_properties_wrap').append('<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body editForm-properties-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectProperyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">' + res.items[pid] + '</label><input placeholder="' + lang['Value'] + '" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="" data="' + pid + '"></div></div>');
+                    $('#editForm_properties_wrap').append('<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body editForm-properties-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectPropertyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">' + res.items[pid] + '</label><input placeholder="' + lang['Value'] + '" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="" data="' + pid + '"></div></div>');
                 }
-                $('.selectProperyItemClose').unbind();
-                $('.selectProperyItemClose').click(function() {
+                $('.selectPropertyItemClose').unbind();
+                $('.selectPropertyItemClose').click(function() {
                     $(this).parent().parent().remove();
                 });
                 $(window).scrollTop($('#editForm_properties_widget').offset().top - 100);
@@ -3518,6 +3945,51 @@ const variantsImportTaskStateCheck = (id) => {
         $('#zoiaVariantsImportDialogBody').show();
         $('#zoiaVariantsImportDialogSpinner').hide();
         $('#zoiaVariantsImportDialogFooter').show();
+        $zUI.notification(lang['Could not load information from database'], {
+            status: 'danger',
+            timeout: 1500
+        });
+    });
+};
+
+const variantsCollectionsImportTaskStateCheck = (id) => {
+    $.ajax({
+        type: 'GET',
+        url: '/api/warehouse/import/variantscollections/state',
+        data: {
+            id: id
+        },
+        cache: false
+    }).done((res) => {
+        if (res && res.status === 1 && res.state) {
+            if (res.state === 3 || res.state === 0) {
+                variantsCollectionsImportDialog.hide();
+                $('#variantscollections').zoiaTable().load();
+                // TODO
+                /*$('#propertyselect').zoiaTable().load();
+                $('#variantsselect').zoiaTable().load();*/
+                $zUI.notification(res.state === 0 ? lang['Could not import'] : lang['Import complete'], {
+                    status: res.state === 0 ? 'danger' : 'success',
+                    timeout: 1500
+                });
+            } else {
+                setTimeout(() => {
+                    variantsCollectionsImportTaskStateCheck(id);
+                }, 5000);
+            }
+        } else {
+            $('#zoiaVariantsCollectionsImportDialogBody').show();
+            $('#zoiaVariantsCollectionsImportDialogSpinner').hide();
+            $('#zoiaVariantsCollectionsImportDialogFooter').show();
+            $zUI.notification(lang['Could not load information from database'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        }
+    }).fail(() => {
+        $('#zoiaVariantsCollectionsImportDialogBody').show();
+        $('#zoiaVariantsCollectionsImportDialogSpinner').hide();
+        $('#zoiaVariantsCollectionsImportDialogFooter').show();
         $zUI.notification(lang['Could not load information from database'], {
             status: 'danger',
             timeout: 1500
@@ -3678,6 +4150,57 @@ const initImportVariantsUploader = () => {
     });
 };
 
+const initImportVariantsCollectionsUploader = () => {
+    const vcimport_bar = document.getElementById('vcimport_progressbar');
+    $zUI.upload('.vcimport-upload', {
+        url: '/api/warehouse/import/variantscollections',
+        multiple: false,
+        error: function() {
+            $zUI.notification(lang['Could not upload file'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        },
+        loadStart: function(e) {
+            vcimport_bar.removeAttribute('hidden');
+            vcimport_bar.max = e.total;
+            vcimport_bar.value = e.loaded;
+        },
+        progress: function(e) {
+            vcimport_bar.max = e.total;
+            vcimport_bar.value = e.loaded;
+        },
+        loadEnd: function(e) {
+            vcimport_bar.max = e.total;
+            vcimport_bar.value = e.loaded;
+        },
+        completeAll: function() {
+            setTimeout(function() {
+                vcimport_bar.setAttribute('hidden', 'hidden');
+            }, 1000);
+            let response = {};
+            try {
+                response = JSON.parse(arguments[0].response);
+            } catch (e) {
+                // Ignore
+            }
+            if (response.uid) {
+                $('#zoiaVariantsCollectionsImportDialogBody').hide();
+                $('#zoiaVariantsCollectionsImportDialogSpinner').show();
+                $('#zoiaVariantsCollectionsImportDialogFooter').hide();
+                setTimeout(() => {
+                    variantsCollectionsImportTaskStateCheck(response.uid);
+                }, 5000);
+            } else {
+                $zUI.notification(lang['Could not upload file'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            }
+        }
+    });
+};
+
 const initAddressSelect = () => {
     for (let i in addressData) {
         const item = addressData[i];
@@ -3716,9 +4239,20 @@ const zoiaAddPropertyBtnClick = () => {
     propertiesSelectDialog.show();
 };
 
+const zoiaAddVariantBtnClick = () => {
+    $('#variantsselect').zoiaTable().load();
+    variantsSelectDialog.show();
+};
+
 const zoiaPropertiesSelectDialogCloseBtnClick = () => {
     propertiesSelectDialog.hide().then(() => {
         $(window).scrollTop($('#editForm_properties_widget').offset().top - 100);
+    });
+};
+
+const zoiaVariantsSelectDialogCloseBtnClick = () => {
+    variantsSelectDialog.hide().then(() => {
+        $(window).scrollTop($('#editForm_variants_widget').offset().top - 100);
     });
 };
 
@@ -3739,6 +4273,13 @@ const zoiaVariantsImportButtonClick = () => {
     $('#zoiaVariantsImportDialogSpinner').hide();
     $('#zoiaVariantsImportDialogFooter').show();
     variantsImportDialog.show();
+};
+
+const zoiaVariantsCollectionsImportButtonClick = () => {
+    $('#zoiaVariantsCollectionsImportDialogBody').show();
+    $('#zoiaVariantsCollectionsImportDialogSpinner').hide();
+    $('#zoiaVariantsCollectionsImportDialogFooter').show();
+    variantsCollectionsImportDialog.show();
 };
 
 const zoiaCollectionsImportButtonClick = () => {
@@ -3902,6 +4443,7 @@ $(document).ready(() => {
     initImportPropertiesUploader();
     initImportCollectionsUploader();
     initImportVariantsUploader();
+    initImportVariantsCollectionsUploader();
     initAddressSelect();
     initOrderDialogFields();
     // Forms and tables
@@ -3912,6 +4454,7 @@ $(document).ready(() => {
     $('#editVariantForm').zoiaFormBuilder(editVariantFormData);
     $('#editDeliveryForm').zoiaFormBuilder(editDeliveryFormData);
     $('#editCollectionForm').zoiaFormBuilder(editCollectionFormData);
+    $('#editVariantCollectionForm').zoiaFormBuilder(editVariantCollectionFormData);
     $('#editAddressForm').zoiaFormBuilder(editAddressFormData);
     $('#warehouse').zoiaTable(warehouseTableData);
     $('#orders').zoiaTable(ordersTableData);
@@ -3920,8 +4463,10 @@ $(document).ready(() => {
     $('#collections').zoiaTable(collectionsTableData);
     $('#variantscollections').zoiaTable(variantsCollectionsTableData);
     $('#propertyselect').zoiaTable(propertyselectTableData);
+    $('#variantselect').zoiaTable(variantselectTableData);
     $('#propertiesselect').zoiaTable(propertiesselectTableData);
     $('#collectionselect').zoiaTable(collectionselectTableData);
+    $('#variantsselect').zoiaTable(variantsselectTableData);
     $('#delivery').zoiaTable(deliveryTableData);
     // Handlers    
     $('.zoiaDeleteButton').click(deleteButtonHanlder);
@@ -3929,16 +4474,19 @@ $(document).ready(() => {
     $('.zoiaVariantDeleteButton').click(deleteVariantButtonHanlder);
     $('.zoiaOrderDeleteButton').click(deleteOrderButtonHanlder);
     $('.zoiaCollectionDeleteButton').click(deleteCollectionButtonHanlder);
+    $('.zoiaVariantCollectionDeleteButton').click(deleteVariantCollectionButtonHanlder);
     $('#zoiaDeleteDialogButton').click(ajaxDeleteItem);
     $('#zoiaDeletePropertyDialogButton').click(ajaxDeleteProperty);
     $('#zoiaDeleteVariantDialogButton').click(ajaxDeleteVariant);
     $('#zoiaDeleteOrderDialogButton').click(ajaxDeleteOrder);
     $('#zoiaDeleteCollectionDialogButton').click(ajaxDeleteCollection);
+    $('#zoiaDeleteVariantCollectionDialogButton').click(ajaxDeleteVariantCollection);
     $('#zoiaRepairDialogButton').click(ajaxRepairDatabase);
     $('.zoiaAdd').click(addHandler);
     $('.zoiaPropertyAdd').click(addPropertyHandler);
     $('.zoiaVariantAdd').click(addVariantHandler);
     $('.zoiaCollectionAdd').click(addCollectionHandler);
+    $('.zoiaVariantCollectionAdd').click(addVariantCollectionHandler);
     $('.zoiaDeliveryAdd').click(addDeliveryHandler);
     $('#editForm_folder_btn').click(editFormFolderBtnHandler);
     $('#zoiaFoldersAdd').click(foldersAddHandler);
@@ -3962,16 +4510,21 @@ $(document).ready(() => {
         onZoiaEditLanguagesClick($(this).attr('data'));
     });
     $('#editCollectionForm_properties_btn').click(editCollectionForm_properties_btnHandler);
+    $('#editVariantCollectionForm_properties_btn').click(editVariantCollectionForm_properties_btnHandler);
     $('.zoiaPropertySelect').click(zoiaPropertySelectHandler);
     $('.zoiaSelectedPropertyAdd').click(zoiaSelectedPropertyAddHandler);
+    $('.zoiaSelectedVariantAdd').click(zoiaSelectedVariantAddHandler);
     $('.zoiaAddPropertyBtn').click(zoiaAddPropertyBtnClick);
+    $('.zoiaAddVariantBtn').click(zoiaAddVariantBtnClick);
     $('#zoiaPropertiesSelectDialogCloseBtn').click(zoiaPropertiesSelectDialogCloseBtnClick);
+    $('#zoiaVariantsSelectDialogCloseBtn').click(zoiaVariantsSelectDialogCloseBtnClick);
     $('.zoiaAddCollectionBtn').click(zoiaAddCollectionBtnClick);
     $('.zoiaRemoveAllProperties').click(() => {
         $('#editForm_properties_wrap').empty();
     });
     $('.zoiaPropertiesImportButton').click(zoiaPropertiesImportButtonClick);
     $('.zoiaVariantsImportButton').click(zoiaVariantsImportButtonClick);
+    $('.zoiaVariantsCollectionsImportButton').click(zoiaVariantsCollectionsImportButtonClick);
     $('.zoiaCollectionsImportButton').click(zoiaCollectionsImportButtonClick);
     $('.warehouseBtnDeliveryDialog').click(warehouseBtnDeliveryDialogClick);
     $('.warehouseBtnAddressDialog').click(warehouseBtnAddressDialogClick);
