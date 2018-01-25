@@ -1138,7 +1138,6 @@ const markZoiaLanguagesTab = (n) => {
 };
 
 const onZoiaEditLanguagesClick = (lng) => {
-    console.log(editShadow);
     if (!editShadow[lng].enabled) {
         editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
         editLanguage = lng;
@@ -1539,7 +1538,7 @@ const editFormData = {
                 };
                 editShadow[n].data.variants = {
                     type: 'valueslisteditable',
-                    value: data.item[n].variants
+                    value: data.item.variants
                 };
                 editShadow[n].data.status = {
                     type: 'select',
@@ -3993,9 +3992,8 @@ const variantsImportTaskStateCheck = (id) => {
             if (res.state === 3 || res.state === 0) {
                 variantsImportDialog.hide();
                 $('#variants').zoiaTable().load();
-                // TODO
-                /*$('#propertyselect').zoiaTable().load();
-                $('#variantsselect').zoiaTable().load();*/
+                $('#variantselect').zoiaTable().load();
+                $('#variantcollectionselect').zoiaTable().load();
                 $zUI.notification(res.state === 0 ? lang['Could not import'] : lang['Import complete'], {
                     status: res.state === 0 ? 'danger' : 'success',
                     timeout: 1500
@@ -4038,9 +4036,8 @@ const variantsCollectionsImportTaskStateCheck = (id) => {
             if (res.state === 3 || res.state === 0) {
                 variantsCollectionsImportDialog.hide();
                 $('#variantscollections').zoiaTable().load();
-                // TODO
-                /*$('#propertyselect').zoiaTable().load();
-                $('#variantsselect').zoiaTable().load();*/
+                $('#variantselect').zoiaTable().load();
+                $('#variantcollectionselect').zoiaTable().load();
                 $zUI.notification(res.state === 0 ? lang['Could not import'] : lang['Import complete'], {
                     status: res.state === 0 ? 'danger' : 'success',
                     timeout: 1500
@@ -4508,7 +4505,6 @@ const zoiaOrderDialogButtonClick = () => {
             timeout: 1500
         });
     }, 200);
-    console.log(data);
 };
 
 $(document).ready(() => {
@@ -4601,6 +4597,9 @@ $(document).ready(() => {
     $('.zoiaAddVariantCollectionBtn').click(zoiaAddVariantCollectionBtnClick);
     $('.zoiaRemoveAllProperties').click(() => {
         $('#editForm_properties_wrap').empty();
+    });
+    $('.zoiaRemoveAllVariants').click(() => {
+        $('#editForm_variants_wrap').empty();
     });
     $('.zoiaPropertiesImportButton').click(zoiaPropertiesImportButtonClick);
     $('.zoiaVariantsImportButton').click(zoiaVariantsImportButtonClick);

@@ -2,13 +2,19 @@ $(document).ready(() => {
 	if (za_catalog_cart_count) {
 		$('.za-catalog-cart-count').html(za_catalog_cart_count).show();
 	}
+    $('.za-catalog-item-variant').click(function() {
+        const price = $(this).attr('data-price');
+        $('#za_catalog_item_price').html(price);
+    });
     $('.za-catalog-cart-add-btn').click(() => {
+        const variantId = $('input[name="za_item_variants"]:checked').attr('data-id');
         $('.za-catalog-cart-add-spinner').show();
         $.ajax({
             type: 'POST',
             url: '/api/warehouse/cart/add',
             data: {
-                id: za_catalog_item_id
+                id: za_catalog_item_id,
+                variant: variantId
             },
             cache: false
         }).done((res) => {

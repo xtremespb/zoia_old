@@ -456,6 +456,20 @@ module.exports = function(app) {
                 }
             }
         }
+        // Variants
+        let variantsQuery = [];
+        let variants = {};
+        for (let i in data.variants) {
+            variantsQuery.push({ pid: data.variants[i].d });
+        }
+        if (variantsQuery.length) {
+            const dataVariants = await db.collection('warehouse_variants').find({ $or: variantsQuery }).toArray();
+            if (dataVariants && dataVariants.length) {
+                for (let i in dataVariants) {
+                    variants[dataVariants[i].pid] = dataVariants[i].title[locale];
+                }
+            }
+        }
         // Cart
         const cart = req.session.catalog_cart || {};
         let cartCount = Object.keys(cart).length;
@@ -470,6 +484,7 @@ module.exports = function(app) {
             breadcrumbs: breadcrumbs,
             data: data,
             props: props,
+            variants: variants,
             cartCount: cartCount,
             auth: req.session.auth
         });
@@ -497,15 +512,20 @@ module.exports = function(app) {
         let total = 0;
         if (Object.keys(cart).length > 0) {
             let query = [];
+            let filter = {};
             for (let i in cart) {
-                query.push({
-                    _id: new ObjectID(i)
-                });
+                const [id, variant] = i.split('|');
+                if (!filter[id]) {
+                    query.push({
+                        _id: new ObjectID(id)
+                    });
+                    filter[id] = true;
+                }
             }
-            let ffields = { _id: 1, price: 1 };
+            let ffields = { _id: 1, price: 1, variants: 1 };
             ffields[locale + '.title'] = 1;
             const cartDB = await db.collection('warehouse').find({ $or: query }, ffields).toArray();
-            if (cartDB && cartDB.length) {
+            /*if (cartDB && cartDB.length) {
                 for (let i in cartDB) {
                     cartArr.push({
                         id: cartDB[i]._id,
@@ -515,6 +535,53 @@ module.exports = function(app) {
                         subtotal: parseFloat(cart[cartDB[i]._id] * cartDB[i].price).toFixed(2)
                     });
                     total += cart[cartDB[i]._id] * cartDB[i].price;
+                }
+                total = parseFloat(total).toFixed(2);
+            }*/            
+            if (cartDB && cartDB.length) {
+                let cartData = {};
+                let variantsQuery = [];
+                for (let i in cartDB) {
+                    let variants = {};
+                    for (let j in cartDB[i].variants) {
+                        variants[cartDB[i].variants[j].d] = cartDB[i].variants[j].v;
+                        if (variantsQuery.indexOf({ pid: cartDB[i].variants[j].d }) === -1) {
+                            variantsQuery.push({ pid: cartDB[i].variants[j].d });
+                        }
+                    }
+                    cartData[cartDB[i]._id] = {
+                        text: cartDB[i][locale] ? cartDB[i][locale].title : '',
+                        price: parseFloat(cartDB[i].price),
+                        variants: variants
+                    }
+                }
+                let variantsData = {};
+                if (variantsQuery.length) {
+                    const dataVariants = await db.collection('warehouse_variants').find({ $or: variantsQuery }).toArray();
+                    if (dataVariants) {
+                        for (let i in dataVariants) {
+                            variantsData[dataVariants[i].pid] = dataVariants[i].title[locale] || '';
+                        }
+                    }
+                }
+                // Build cartArr
+                for (let i in cart) {
+                    const [id, variant] = i.split('|');
+                    const item = cart[i];
+                    let price = cartData[id].price;
+                    if (variant && cartData[id].variants[variant]) {
+                        price = cartData[id].variants[variant];
+                    }
+                    cartArr.push({
+                        id: id,
+                        variant: variant,
+                        variantTitle: variantsData[variant],
+                        text: cartData[id].text,
+                        count: item.count,
+                        price: parseFloat(price).toFixed(2),
+                        subtotal: parseFloat(price * item.count).toFixed(2)
+                    });
+                    total += price * item.count;
                 }
                 total = parseFloat(total).toFixed(2);
             }

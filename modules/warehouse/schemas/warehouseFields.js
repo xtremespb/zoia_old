@@ -71,6 +71,12 @@
                     return item;
                 }
             },
+            variants: {
+                mandatoryCreate: false,
+                process: function(item) {
+                    return item;
+                }
+            },
             weight: {
                 mandatoryCreate: false,
                 length: {

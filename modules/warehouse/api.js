@@ -548,6 +548,33 @@ module.exports = function(app) {
                     }
                 }
             }
+            let variantsQuery = [];
+            for (let i in item.variants) {
+                variantsQuery.push({
+                    pid: { $eq: item.variants[i].d }
+                });
+            }
+            let variantsData = {};
+            if (variantsQuery.length > 0) {
+                const variants = await db.collection('warehouse_variants').find({ $or: variantsQuery }).toArray();
+                for (let p in variants) {
+                    for (let i in item.variants) {
+                        if (item.variants[i].d === variants[p].pid) {
+                            variantsData[variants[p].pid] = variants[p].title[locale];
+                        }
+                    }
+                }
+            }
+            for (let i in config.i18n.locales) {
+                let lng = config.i18n.locales[i];
+                for (let p in variantsData) {
+                    for (let i in item.variants) {
+                        if (p === item.variants[i].d) {
+                            item.variants[i].p = variantsData[p];
+                        }
+                    }
+                }
+            }
             return res.send(JSON.stringify({
                 status: 1,
                 item: item
@@ -950,7 +977,6 @@ module.exports = function(app) {
                 status: -1
             }));
         }
-        console.log(id);
         try {
             const item = await db.collection('warehouse_variants').findOne({ _id: new ObjectID(id) });
             if (!item) {
@@ -1516,7 +1542,7 @@ module.exports = function(app) {
                     data.weight = fields.weight.value;
                     data.amount = fields.amount.value;
                     data.price = parseFloat(fields.price.value);
-                    data.status = fields.status.value;    
+                    data.status = fields.status.value;
                     data.variants = fields.variants.value;
                 }
             }
@@ -2858,7 +2884,9 @@ module.exports = function(app) {
         res.contentType('application/json');
         const locale = req.session.currentLocale;
         const id = req.body.id;
-        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+        let variant = req.body.variant;
+        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/) ||
+            (variant && (typeof variant !== 'string' || !variant.match(/^[a-zA-Z0-9_]+$/) || variant.length > 64))) {
             return res.send(JSON.stringify({
                 status: 0
             }));
@@ -2870,7 +2898,17 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        cart[id] = cart[id] ? parseInt(cart[id]) + 1 : 1;
+        variant = variant || '';
+        const uid = id + '|' + variant;
+        // Old code
+        /*cart[uid] = cart[uid] ? parseInt(cart[uid]) + 1 : 1;*/
+        if (!cart[uid]) {
+            cart[uid] = {
+                count: 1
+            };
+        } else {
+            cart[uid].count++;
+        }
         req.session.catalog_cart = cart;
         let cartCount = Object.keys(cart).length;
         return res.send(JSON.stringify({
@@ -2883,15 +2921,24 @@ module.exports = function(app) {
         res.contentType('application/json');
         const locale = req.session.currentLocale;
         const id = req.body.id;
+        let variant = req.body.variant;
         let count = req.body.count;
         if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/) ||
             !count || typeof count !== 'string' || !count.match(/^[0-9]+$/) ||
-            parseInt(count) === 0 || parseInt(count) > 99999) {
+            parseInt(count) === 0 || parseInt(count) > 99999 ||
+            (variant && (typeof variant !== 'string' || !variant.match(/^[a-zA-Z0-9_]+$/) || variant.length > 64))) {
             return res.send(JSON.stringify({
                 status: 0
             }));
         }
+        variant = variant || '';
         let cart = req.session.catalog_cart || {};
+        const uid = id + '|' + variant;
+        if (!cart[uid]) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
         const item = await db.collection('warehouse').findOne({ _id: new ObjectID(id) });
         if (!item) {
             return res.send(JSON.stringify({
@@ -2901,8 +2948,15 @@ module.exports = function(app) {
         if (item.amount && item.amount < count) {
             count = item.amount;
         }
-        const subtotal = parseFloat(item.price * count).toFixed(2);
-        cart[id] = count;
+        let variants = {};
+        for (let j in cartDB[i].variants) {
+            variants[cartDB[i].variants[j].d] = cartDB[i].variants[j].v;
+            if (variantsQuery.indexOf({ pid: cartDB[i].variants[j].d }) === -1) {
+                variantsQuery.push({ pid: cartDB[i].variants[j].d });
+            }
+        }
+        const subtotal = variants[variant] ? parseFloat(variants[variant] * count).toFixed(2) : parseFloat(item.price * count).toFixed(2);
+        cart[uid].count = count;
         req.session.catalog_cart = cart;
         return res.send(JSON.stringify({
             status: 1,
@@ -3143,7 +3197,7 @@ module.exports = function(app) {
             let addressHTML = '';
             if (deliveryDB[orderData.delivery] === 'delivery') {
                 addressHTML = processTemplate(template.data, orderData.address);
-            }            
+            }
             let mailUserHTML = await render.file('mail_neworder_user.html', {
                 i18n: i18n.get(),
                 locale: locale,
@@ -3505,7 +3559,7 @@ module.exports = function(app) {
     router.get('/load/delivery', loadDelivery);
     router.get('/load/address', loadAddress);
     router.post('/save', save);
-    router.post('/save/property', saveProperty);    
+    router.post('/save/property', saveProperty);
     router.post('/save/collection', saveCollection);
     router.post('/save/variantcollection', saveVariantCollection);
     router.post('/save/variant', saveVariant);
@@ -3514,7 +3568,7 @@ module.exports = function(app) {
     router.get('/create', create);
     router.post('/delete', del);
     router.post('/delete/property', delProperty);
-    router.post('/delete/collection', delCollection);    
+    router.post('/delete/collection', delCollection);
     router.post('/delete/variant', delVariant);
     router.post('/delete/variantcollection', delVariantCollection);
     router.post('/folders', folders);

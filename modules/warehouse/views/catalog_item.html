@@ -11,7 +11,7 @@
     </div>
     <div class="za-width-auto">
         <div class="za-catalog-cart">
-        	<a href="{{ configModule.prefix }}/cart" class="za-button za-button-default za-button-small"><span class="za-badge za-catalog-cart-count za-box-shadow" style="display:none">0</span>&nbsp;{{ i18n.__(locale, 'Cart')}}</a>
+            <a href="{{ configModule.prefix }}/cart" class="za-button za-button-default za-button-small"><span class="za-badge za-catalog-cart-count za-box-shadow" style="display:none">0</span>&nbsp;{{ i18n.__(locale, 'Cart')}}</a>
         </div>
     </div>
 </div>
@@ -57,7 +57,20 @@
     </div>
     <div class="za-width-medium@m">
         <div class="za-border-rounded za-box-shadow-medium" id="zoia_item_info">
-            <div class="za-text-large za-catalog-item-price">{{ data.price }}&nbsp;{{ settings.currency }}</div>
+            <div class="za-text-large za-catalog-item-price"><span id="za_catalog_item_price">{{ data.price }}</span>&nbsp;{{ settings.currency }}</div>
+            {% if data.variants.length %}
+            <div class="za-margin">
+                <div class="za-form-label">{{ i18n.__(locale, 'Options')}}:</div>
+                <div class="za-form-controls za-margin-top">
+                    {% for var in data.variants %}
+                    <label>
+                        <input class="za-radio za-catalog-item-variant" type="radio" name="za_item_variants" data-id="{{ var.d }}" data-price="{{ var.v }}">&nbsp;{{ variants[var.d] }}&nbsp;&ndash;&nbsp;{{ var.v }}&nbsp;{{ settings.currency }}
+                    </label>
+                    <br>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
             <div class="za-margin-top">
                 <button class="za-button za-button-primary za-catalog-cart-add-btn">
                     <div za-spinner="ratio:0.5" class="za-catalog-cart-add-spinner" style="display:none"></div>{{ i18n.__(locale, 'Add to Cart')}}</button>

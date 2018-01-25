@@ -34,6 +34,7 @@ $(document).ready(() => {
             url: '/api/warehouse/cart/count',
             data: {
                 id: $(that).attr('data'),
+                variant: $(that).attr('data-variant'),
                 count: val
             },
             cache: false
