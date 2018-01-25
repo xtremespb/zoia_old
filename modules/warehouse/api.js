@@ -886,6 +886,56 @@ module.exports = function(app) {
         }
     };
 
+    const loadVariantCollectionData = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const locale = req.session.currentLocale;
+        const id = req.query.id;
+        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+        try {
+            const item = await db.collection('warehouse_variants_collections').findOne({ _id: new ObjectID(id) });
+            if (!item) {
+                return res.send(JSON.stringify({
+                    status: -2
+                }));
+            }
+            let propertiesQuery = [];
+            for (let i in item.properties) {
+                propertiesQuery.push({
+                    pid: { $eq: item.properties[i] }
+                });
+            }
+            let propertiesData = {};
+            if (propertiesQuery.length > 0) {
+                const properties = await db.collection('warehouse_variants').find({ $or: propertiesQuery }).toArray();
+                for (let i in item.properties) {
+                    for (let p in properties) {
+                        if (properties[p].pid === item.properties[i]) {
+                            propertiesData[properties[p].pid] = properties[p].title[locale];
+                        }
+                    }
+                }
+            }
+            return res.send(JSON.stringify({
+                status: 1,
+                items: propertiesData
+            }));
+        } catch (e) {
+            res.send(JSON.stringify({
+                status: -3,
+                error: e.message
+            }));
+        }
+    };
+
     const loadVariantData = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
@@ -1440,6 +1490,18 @@ module.exports = function(app) {
                             fields.properties.value[p].v = fields.properties.value[p].v.replace(/\&/gm, '&amp;').replace(/\"/gm, '&quot;').replace(/\'/gm, '&apos;').replace(/\</gm, '&lt;').replace(/\>/gm, '&gt;')
                         }
                     }
+                    if (fields.variants && fields.variants.value === '') {
+                        fields.variants.value = [];
+                    }
+                    for (let p in fields.variants.value) {
+                        delete fields.variants.value[p].p;
+                        if (!fields.variants.value[p].d || typeof fields.variants.value[p].d !== 'string' || !fields.variants.value[p].d.match(/^[A-Za-z0-9_\-]+$/)) {
+                            throw new Error('Invalid property ID');
+                        }
+                        if (fields.variants.value[p].v && typeof fields.variants.value[p].v === 'string') {
+                            fields.variants.value[p].v = fields.variants.value[p].v.replace(/\&/gm, '&amp;').replace(/\"/gm, '&quot;').replace(/\'/gm, '&apos;').replace(/\</gm, '&lt;').replace(/\>/gm, '&gt;')
+                        }
+                    }
                     data[lng] = {
                         title: fields.title.value,
                         keywords: (fields.keywords ? fields.keywords.value : ''),
@@ -1454,7 +1516,8 @@ module.exports = function(app) {
                     data.weight = fields.weight.value;
                     data.amount = fields.amount.value;
                     data.price = parseFloat(fields.price.value);
-                    data.status = fields.status.value;                    
+                    data.status = fields.status.value;    
+                    data.variants = fields.variants.value;
                 }
             }
             if (id) {
@@ -3437,6 +3500,7 @@ module.exports = function(app) {
     router.get('/load/collection', loadCollection);
     router.get('/load/variantcollection', loadVariantCollection);
     router.get('/load/collection/data', loadCollectionData);
+    router.get('/load/variantcollection/data', loadVariantCollectionData);
     router.get('/load/variant/data', loadVariantData);
     router.get('/load/delivery', loadDelivery);
     router.get('/load/address', loadAddress);

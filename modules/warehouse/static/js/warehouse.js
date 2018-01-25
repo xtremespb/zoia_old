@@ -14,6 +14,7 @@ let imagesDialog;
 let settingsDialog;
 let propertiesListDialog;
 let variantsListDialog;
+let variantCollectionSelectDialog;
 let propertiesSelectDialog;
 let collectionsListDialog;
 let variantsCollectionsListDialog;
@@ -1064,9 +1065,6 @@ const syncEditFormPropertiesFirst = () => {
         type: 'valueslisteditable'
     };
     editShadow[editLanguage].data.variants.value = jQuery.extend(true, {}, dolly);
-    for (let i in editShadow[editLanguage].data.variants.value) {
-        editShadow[editLanguage].data.variants.value[i].v = '';
-    }
 };
 
 const foldersChangedHandler = (e, data) => {
@@ -1093,10 +1091,9 @@ const onEditLanguageCheckboxClickEvent = () => {
     if ($('#zoiaEditLanguageCheckbox').prop('checked')) {
         $('#editForm').zoiaFormBuilder().resetForm();
         editShadow[editLanguage].enabled = true;
-        editShadow[editLanguage].data = {};
+        editShadow[editLanguage].data = {};        
         syncEditFormPropertiesFirst();
         $('#editForm').zoiaFormBuilder().deserializePart('properties', editShadow[editLanguage].data.properties);
-        $('#editForm').zoiaFormBuilder().deserializePart('variants', editShadow[editLanguage].data.variants);
         for (let lng in langs) {
             if (editShadow[lng].data) {
                 if (editShadow[lng].data.folder) {
@@ -1122,7 +1119,7 @@ const onEditLanguageCheckboxClickEvent = () => {
                 if (editShadow[lng].data.status) {
                     $('#editForm_status').val(editShadow[lng].data.status.value);
                 }
-                if (editShadow[lng].data.variants) {
+                if (editShadow[lng].data.variants) {                    
                     $('#editForm').zoiaFormBuilder().deserializePart('variants', editShadow[lng].data.variants);
                 }
             }
@@ -1141,6 +1138,7 @@ const markZoiaLanguagesTab = (n) => {
 };
 
 const onZoiaEditLanguagesClick = (lng) => {
+    console.log(editShadow);
     if (!editShadow[lng].enabled) {
         editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
         editLanguage = lng;
@@ -1655,7 +1653,7 @@ const editFormData = {
             type: 'valueslisteditable',
             buttons: '<div class="za-margin-bottom"><ul class="za-iconnav"><li><button type="button" class="za-icon-button zoiaAddVariantBtn" za-icon="icon:file" title="' + lang['Insert variant'] + '" za-tooltip="pos: bottom-right"></button></li><li><button type="button" class="za-icon-button zoiaAddVariantCollectionBtn"za-icon="icon:album" title="' + lang['Insert variants collection'] + '" za-tooltip="pos: bottom-right"></button></li><li><button type="button" class="za-icon-button zoiaRemoveAllVariants"za-icon="icon:trash" title="' + lang['Remove all variants'] + '" za-tooltip="pos: bottom-right"></button></li></ul></div>',
             helpText: lang['Use drag-and-drop to arrange variants order'],
-            label: lang['Variants']
+            label: lang['Price Variants']
         },        
         weight: {
             type: 'text',
@@ -3111,6 +3109,39 @@ const collectionselectTableData = {
     }
 };
 
+const variantcollectionselectTableData = {
+    url: '/api/warehouse/list/variantscollections',
+    limit: 7,
+    sort: {
+        field: 'title',
+        direction: 'asc'
+    },
+    fields: {
+        title: {
+            sortable: true,
+            process: (id, item, value) => {
+                return value || '&ndash;';
+            }
+        },
+        actions: {
+            sortable: false,
+            process: (id, item) => {
+                return '<button class="za-icon-button zoia-variantcollectionselect-action-check-btn" za-icon="icon: check" data="' + item._id +
+                    '"></button><div style="margin-bottom:17px" class="za-hidden@m">&nbsp;</div>';
+            }
+        }
+    },
+    onLoad: () => {
+        $('.zoia-variantcollectionselect-action-check-btn').click(function() {
+            selectCheckedVariantCollection($(this).attr('data'));
+        });
+    },
+    lang: {
+        error: lang['Could not load data from server. Please try to refresh page in a few moments.'],
+        noitems: lang['No items to display']
+    }
+};
+
 const variantselectTableData = {
     url: '/api/warehouse/list/variants',
     limit: 7,
@@ -3366,6 +3397,11 @@ const initDialogs = () => {
         stack: true
     });
     collectionSelectDialog = $zUI.modal('#zoiaCollectionSelectDialog', {
+        bgClose: false,
+        escClose: false,
+        stack: true
+    });
+    variantCollectionSelectDialog = $zUI.modal('#zoiaVariantCollectionSelectDialog', {
         bgClose: false,
         escClose: false,
         stack: true
@@ -3803,6 +3839,43 @@ const selectCheckedCollection = (id) => {
                     $(this).parent().parent().remove();
                 });
                 $(window).scrollTop($('#editForm_properties_widget').offset().top - 100);
+            } else {
+                $zUI.notification(lang['Could not load information from database'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            }
+        }).fail(() => {
+            $('#zoiaSpinnerMain').hide();
+            $zUI.notification(lang['Could not load information from database'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        });
+    });
+};
+
+const selectCheckedVariantCollection = (id) => {
+    variantCollectionSelectDialog.hide().then(() => {
+        $('#zoiaSpinnerMain').show();
+        $.ajax({
+            type: 'GET',
+            url: '/api/warehouse/load/variantcollection/data',
+            data: {
+                id: id
+            },
+            cache: false
+        }).done((res) => {
+            $('#zoiaSpinnerMain').hide();
+            if (res && res.status === 1 && res.items) {
+                for (let pid in res.items) {
+                    $('#editForm_variants_wrap').append('<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body editForm-variants-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectVariantItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">' + res.items[pid] + '</label><input placeholder="' + lang['Value'] + '" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="" data="' + pid + '"></div></div>');
+                }
+                $('.selectVariantItemClose').unbind();
+                $('.selectVariantItemClose').click(function() {
+                    $(this).parent().parent().remove();
+                });
+                $(window).scrollTop($('#editForm_variants_widget').offset().top - 100);
             } else {
                 $zUI.notification(lang['Could not load information from database'], {
                     status: 'danger',
@@ -4261,6 +4334,11 @@ const zoiaAddCollectionBtnClick = () => {
     collectionSelectDialog.show();
 };
 
+const zoiaAddVariantCollectionBtnClick = () => {
+    $('#variantcollectionselect').zoiaTable().load();
+    variantCollectionSelectDialog.show();
+};
+
 const zoiaPropertiesImportButtonClick = () => {
     $('#zoiaPropertiesImportDialogBody').show();
     $('#zoiaPropertiesImportDialogSpinner').hide();
@@ -4466,6 +4544,7 @@ $(document).ready(() => {
     $('#variantselect').zoiaTable(variantselectTableData);
     $('#propertiesselect').zoiaTable(propertiesselectTableData);
     $('#collectionselect').zoiaTable(collectionselectTableData);
+    $('#variantcollectionselect').zoiaTable(variantcollectionselectTableData);
     $('#variantsselect').zoiaTable(variantsselectTableData);
     $('#delivery').zoiaTable(deliveryTableData);
     // Handlers    
@@ -4519,6 +4598,7 @@ $(document).ready(() => {
     $('#zoiaPropertiesSelectDialogCloseBtn').click(zoiaPropertiesSelectDialogCloseBtnClick);
     $('#zoiaVariantsSelectDialogCloseBtn').click(zoiaVariantsSelectDialogCloseBtnClick);
     $('.zoiaAddCollectionBtn').click(zoiaAddCollectionBtnClick);
+    $('.zoiaAddVariantCollectionBtn').click(zoiaAddVariantCollectionBtnClick);
     $('.zoiaRemoveAllProperties').click(() => {
         $('#editForm_properties_wrap').empty();
     });

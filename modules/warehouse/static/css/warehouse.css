@@ -237,3 +237,9 @@
 .za-address-textarea {
     height: 150px;
 }
+
+@media (min-width: 641px) {
+    .editForm-variants-item {
+        width: 200px;
+    }
+}
