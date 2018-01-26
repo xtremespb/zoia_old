@@ -2079,6 +2079,27 @@ const editPropertyFormData = {
             },
             helpText: lang['Latin characters and numbers only (1-64 chars)']
         },
+        type: {
+            type: 'select',
+            label: lang['Type'],
+            css: 'za-form-width-small',
+            values: {
+                0: lang.types[0],
+                1: lang.types[1],
+                2: lang.types[2],
+                3: lang.types[3],
+            },
+            default: '0',
+            validation: {
+                mandatoryCreate: true,
+                mandatoryEdit: true,
+                length: {
+                    min: 1,
+                    max: 1
+                },
+                regexp: /^(0|1|2|3)$/
+            }
+        },
         title: {
             type: 'valueslistfixed',
             values: getFormLangData(),

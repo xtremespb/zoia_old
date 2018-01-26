@@ -41,13 +41,34 @@
             {% if data[locale] %}
             <!-- -->
             {% if data[locale].properties.length %}
-            <h3>{{ i18n.__(locale, 'Details')}}</h3>
             <!-- -->
             {% for p in data[locale].properties %}
+            <!-- -->
+            {% if propsType[p.d] == null %}            
             <div class="za-grid-small" za-grid>
                 <div class="za-width-expand" za-leader>{{ props[p.d] }}</div>
                 <div>{{ p.v }}</div>
             </div>
+            {% endif %}            
+            <!-- -->
+            {% if propsType[p.d] == 1 %}            
+            <div class="za-catalog-item-header za-margin-top za-margin-bottom">{{ p.v }}</div>
+            {% endif %}
+            <!-- -->
+            {% if propsType[p.d] == 2 %}            
+            <div class="za-margin-top za-margin-bottom za-grid-small" za-grid>
+                <div class="za-width-expand" za-leader><label><input class="za-checkbox za-catalog-item-checkbox" type="checkbox" data-id="{{ p.d }}" data-price="{{ p.v }}">&nbsp;{{ props[p.d] }}</label></div>
+                <div>{{ p.v }}&nbsp;{{ settings.currency }}</div>
+            </div>
+            {% endif %}
+            <!-- -->
+            {% if propsType[p.d] == 3 %}            
+            <div class="za-margin-top za-margin-bottom za-grid-small" za-grid>
+                <div class="za-width-expand" za-leader><label><input class="za-checkbox za-catalog-item-integer" type="checkbox" data-id="{{ p.d }}" data-price="{{ p.v }}">&nbsp;{{ props[p.d] }}&nbsp;<input class="za-input za-form-width-xsmall za-catalog-item-integer-field za-form-small" value="1" type="number" min="1" step="1" id="za_catalog_item_integer_{{ p.d }}"></label></div>
+                <div><span id="za_catalog_item_integer_val_{{ p.d }}">{{ p.v }}</span>&nbsp;{{ settings.currency }}</div>
+            </div>
+            {% endif %}
+            <!-- -->
             {% endfor %}
             <!-- -->
             {% endif %}

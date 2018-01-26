@@ -39,7 +39,7 @@
             {% for item in delivery %}
             <tr>
                 <td style="width:100%">
-                    <p>{{ item.title }}</p>
+                    <p>{{ item.title }} {% if item.variant %}&nbsp;({{ item.variantTitle }}){% endif %}</p>
                 </td>
                 <td nowrap="">{{ item.cost }} {{ settings.currency }}</td>
             </tr>

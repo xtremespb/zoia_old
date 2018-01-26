@@ -12,6 +12,12 @@
 		"Disabled",
 		"Active"
 	],
+	"types": [
+		"Normal",
+		"Header",
+		"Checkbox",
+		"Integer"
+	],
 	"orderStatuses": [
 		"Cancelled",
 		"New",
@@ -205,5 +211,6 @@
 	"Remove all variants": "Remove all variants",
 	"Price Variants": "Price Variants",
 	"Use drag-and-drop to arrange variants order": "Use drag-and-drop to arrange variants order",
-	"Options": "Options"
+	"Options": "Options",
+	"Type": "Type"
 }

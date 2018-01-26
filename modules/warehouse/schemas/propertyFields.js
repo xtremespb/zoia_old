@@ -22,6 +22,17 @@
                 process: function(item) {
                     return item;
                 }
+            },
+            type: {
+                mandatoryCreate: true,
+                length: {
+                    min: 1,
+                    max: 1
+                },
+                regexp: /^(0|1|2|3)$/,
+                process: function(item) {
+                    return item;
+                }
             }
         };
     }

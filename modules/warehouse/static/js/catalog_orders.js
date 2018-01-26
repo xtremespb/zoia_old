@@ -57,7 +57,8 @@ const viewOrder = (id) => {
             $('#za_order_delivery').html(deliveryData[order.delivery]);
             let cartHTML = '<table class="za-table za-table-striped za-table-small za-table-middle za-table-responsive"><tbody>';
             for (let i in order.cart) {
-                cartHTML += '<tr><td class="za-table-shrink">' + i + '</td><td class="za-table-expand">' + res.cartData[i] + '</td><td class="za-table-shrink">' + order.cart[i] + '</td><td class="za-table-shrink"></td></tr>';
+                const [id, variant] = i.split('|');
+                cartHTML += '<tr><td class="za-table-shrink">' + id + '</td><td class="za-table-expand">' + res.cartData[id] + (variant ? '&nbsp;(' + res.variants[variant] + ')' : '') + '</td><td class="za-table-shrink">' + order.cart[i].count + '</td><td class="za-table-shrink"></td></tr>';
             }
             cartHTML += '</tbody></table>';
             $('#za_order_cart').html(cartHTML);

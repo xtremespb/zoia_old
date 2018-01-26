@@ -443,6 +443,7 @@ module.exports = function(app) {
         // Properties
         let propsQuery = [];
         let props = {};
+        let propsType = {};
         if (data[locale]) {
             for (let i in data[locale].properties) {
                 propsQuery.push({ pid: data[locale].properties[i].d });
@@ -453,6 +454,7 @@ module.exports = function(app) {
             if (dataProps && dataProps.length) {
                 for (let i in dataProps) {
                     props[dataProps[i].pid] = dataProps[i].title[locale];
+                    propsType[dataProps[i].pid] = dataProps[i].type;
                 }
             }
         }
@@ -484,6 +486,7 @@ module.exports = function(app) {
             breadcrumbs: breadcrumbs,
             data: data,
             props: props,
+            propsType: propsType,
             variants: variants,
             cartCount: cartCount,
             auth: req.session.auth
@@ -525,19 +528,6 @@ module.exports = function(app) {
             let ffields = { _id: 1, price: 1, variants: 1 };
             ffields[locale + '.title'] = 1;
             const cartDB = await db.collection('warehouse').find({ $or: query }, ffields).toArray();
-            /*if (cartDB && cartDB.length) {
-                for (let i in cartDB) {
-                    cartArr.push({
-                        id: cartDB[i]._id,
-                        text: cartDB[i][locale] ? cartDB[i][locale].title : '',
-                        count: cart[cartDB[i]._id],
-                        price: parseFloat(cartDB[i].price).toFixed(2),
-                        subtotal: parseFloat(cart[cartDB[i]._id] * cartDB[i].price).toFixed(2)
-                    });
-                    total += cart[cartDB[i]._id] * cartDB[i].price;
-                }
-                total = parseFloat(total).toFixed(2);
-            }*/            
             if (cartDB && cartDB.length) {
                 let cartData = {};
                 let variantsQuery = [];
@@ -621,11 +611,12 @@ module.exports = function(app) {
         let cartArr = [];
         let total = 0;
         let weight = 0;
-        if (Object.keys(cart).length > 0) {
+        /*if (Object.keys(cart).length > 0) {
             let query = [];
             for (let i in cart) {
+                const [id, variant] = i.split('|');
                 query.push({
-                    _id: new ObjectID(i)
+                    _id: new ObjectID(id)
                 });
             }
             let ffields = { _id: 1, price: 1, weight: 1 };
@@ -642,6 +633,71 @@ module.exports = function(app) {
                     });
                     total += cart[cartDB[i]._id] * cartDB[i].price;
                     weight += cart[cartDB[i]._id] * cartDB[i].weight;
+                }
+                total = parseFloat(total).toFixed(2);
+            }
+        }*/
+        if (Object.keys(cart).length > 0) {
+            let query = [];
+            let filter = {};
+            for (let i in cart) {
+                const [id, variant] = i.split('|');
+                if (!filter[id]) {
+                    query.push({
+                        _id: new ObjectID(id)
+                    });
+                    filter[id] = true;
+                }
+            }
+            let ffields = { _id: 1, price: 1, variants: 1 };
+            ffields[locale + '.title'] = 1;
+            const cartDB = await db.collection('warehouse').find({ $or: query }, ffields).toArray();
+            if (cartDB && cartDB.length) {
+                let cartData = {};
+                let variantsQuery = [];
+                for (let i in cartDB) {
+                    let variants = {};
+                    for (let j in cartDB[i].variants) {
+                        variants[cartDB[i].variants[j].d] = cartDB[i].variants[j].v;
+                        if (variantsQuery.indexOf({ pid: cartDB[i].variants[j].d }) === -1) {
+                            variantsQuery.push({ pid: cartDB[i].variants[j].d });
+                        }
+                    }
+                    cartData[cartDB[i]._id] = {
+                        text: cartDB[i][locale] ? cartDB[i][locale].title : '',
+                        price: parseFloat(cartDB[i].price),
+                        weight: cartDB[i].weight,
+                        variants: variants
+                    }
+                }
+                let variantsData = {};
+                if (variantsQuery.length) {
+                    const dataVariants = await db.collection('warehouse_variants').find({ $or: variantsQuery }).toArray();
+                    if (dataVariants) {
+                        for (let i in dataVariants) {
+                            variantsData[dataVariants[i].pid] = dataVariants[i].title[locale] || '';
+                        }
+                    }
+                }
+                // Build cartArr
+                for (let i in cart) {
+                    const [id, variant] = i.split('|');
+                    const item = cart[i];
+                    let price = cartData[id].price;
+                    if (variant && cartData[id].variants[variant]) {
+                        price = cartData[id].variants[variant];
+                    }
+                    cartArr.push({
+                        id: id,
+                        variant: variant,
+                        variantTitle: variantsData[variant],
+                        text: cartData[id].text,
+                        count: item.count,
+                        price: parseFloat(price).toFixed(2),
+                        subtotal: parseFloat(price * item.count).toFixed(2)
+                    });
+                    total += price * item.count;
+                    weight += item.count * cartData[id].weight; 
                 }
                 total = parseFloat(total).toFixed(2);
             }

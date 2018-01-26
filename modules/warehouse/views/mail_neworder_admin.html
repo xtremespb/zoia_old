@@ -20,7 +20,7 @@
             {% for item in cart %}
             <tr>
                 <td style="width:100%">
-                    <p>{{ item.text }}</p>
+                    <p>{{ item.text }}{% if item.variant %} ({{ item.variantTitle }}){% endif %}</p>
                 </td>
                 <td nowrap="">{{ item.price }} {{ settings.currency }}</td>
                 <td nowrap="" style="text-align:center;">{{ item.count }}</td>

@@ -1115,6 +1115,7 @@ module.exports = function(app) {
             }
             const data = {
                 pid: fields.pid.value,
+                type: fields.type.value,
                 title: {}
             };
             for (let i in fields.title.value) {
@@ -2949,11 +2950,8 @@ module.exports = function(app) {
             count = item.amount;
         }
         let variants = {};
-        for (let j in cartDB[i].variants) {
-            variants[cartDB[i].variants[j].d] = cartDB[i].variants[j].v;
-            if (variantsQuery.indexOf({ pid: cartDB[i].variants[j].d }) === -1) {
-                variantsQuery.push({ pid: cartDB[i].variants[j].d });
-            }
+        for (let j in item.variants) {
+            variants[item.variants[j].d] = item.variants[j].v;
         }
         const subtotal = variants[variant] ? parseFloat(variants[variant] * count).toFixed(2) : parseFloat(item.price * count).toFixed(2);
         cart[uid].count = count;
@@ -3056,7 +3054,7 @@ module.exports = function(app) {
             const cart = req.session.catalog_cart || {};
             let weight = 0;
             let cartArr = [];
-            if (Object.keys(cart).length > 0) {
+            /*if (Object.keys(cart).length > 0) {
                 let query = [];
                 for (let i in cart) {
                     query.push({
@@ -3077,6 +3075,75 @@ module.exports = function(app) {
                             price: parseFloat(cartDB[i].price).toFixed(2),
                             subtotal: parseFloat(cart[cartDB[i]._id] * cartDB[i].price).toFixed(2)
                         });
+                    }
+                }
+            }*/
+            if (Object.keys(cart).length > 0) {
+                let query = [];
+                let filter = {};
+                for (let i in cart) {
+                    const [id, variant] = i.split('|');
+                    if (!filter[id]) {
+                        query.push({
+                            _id: new ObjectID(id)
+                        });
+                        filter[id] = true;
+                    }
+                }
+                let ffields = { _id: 1, price: 1, variants: 1 };
+                ffields[locale + '.title'] = 1;
+                const cartDB = await db.collection('warehouse').find({ $or: query }, ffields).toArray();
+                if (cartDB && cartDB.length) {
+                    let cartData = {};
+                    let variantsQuery = [];
+                    for (let i in cartDB) {
+                        let variants = {};
+                        for (let j in cartDB[i].variants) {
+                            variants[cartDB[i].variants[j].d] = cartDB[i].variants[j].v;
+                            if (variantsQuery.indexOf({ pid: cartDB[i].variants[j].d }) === -1) {
+                                variantsQuery.push({ pid: cartDB[i].variants[j].d });
+                            }
+                        }
+                        cartData[cartDB[i]._id] = {
+                            text: cartDB[i][locale] ? cartDB[i][locale].title : '',
+                            price: parseFloat(cartDB[i].price),
+                            weight: cartDB[i].weight,
+                            sku: cartDB[i].sku,
+                            variants: variants
+                        }
+                    }
+                    let variantsData = {};
+                    if (variantsQuery.length) {
+                        const dataVariants = await db.collection('warehouse_variants').find({ $or: variantsQuery }).toArray();
+                        if (dataVariants) {
+                            for (let i in dataVariants) {
+                                variantsData[dataVariants[i].pid] = dataVariants[i].title[locale] || '';
+                            }
+                        }
+                    }
+                    // Build cartArr
+                    for (let i in cart) {
+                        const [id, variant] = i.split('|');
+                        const item = cart[i];
+                        let price = cartData[id].price;
+                        if (variant && cartData[id].variants[variant]) {
+                            price = cartData[id].variants[variant];
+                        }
+                        cartArr.push({
+                            id: id,
+                            variant: variant,
+                            variantTitle: variantsData[variant],
+                            text: cartData[id].text,
+                            count: item.count,
+                            price: parseFloat(price).toFixed(2),
+                            subtotal: parseFloat(price * item.count).toFixed(2)
+                        });
+                        // total += price * item.count;
+                        orderData.cart[cartData[id].sku + '|' + variant] = {
+                            count: item.count
+                        };
+                        orderData.costs.total += price * item.count;
+                        weight += cartData[id].weight + item.count;
                     }
                 }
             }
@@ -3222,14 +3289,18 @@ module.exports = function(app) {
                 addressHTML: addressHTML,
                 orderStatus: i18n.get().__(locale, 'orderStatuses')[orderData.status]
             });
-            if (req.session.auth.email) {
-                await mailer.send(req, req.session.auth.email, i18n.get().__(locale, 'Your order confirmation'), mailUserHTML);
-            }
-            if (config.website.email.feedback) {
-                await mailer.send(req, config.website.email.feedback, i18n.get().__(locale, 'New order on your website'), mailAdminHTML);
+            try {
+                if (req.session.auth.email) {
+                    await mailer.send(req, req.session.auth.email, i18n.get().__(locale, 'Your order confirmation'), mailUserHTML);
+                }
+                if (config.website.email.feedback) {
+                    await mailer.send(req, config.website.email.feedback, i18n.get().__(locale, 'New order on your website'), mailAdminHTML);
+                }
+            } catch (e) {
+                log.error(e);
             }
             return res.send(JSON.stringify({
-                status: 0,
+                status: 1,
                 order: orderData
             }));
         } catch (e) {
@@ -3377,18 +3448,26 @@ module.exports = function(app) {
             }
             let querySKU = [];
             for (let i in item.cart) {
+                const [id, variant] = i.split('|');
                 querySKU.push({
-                    sku: { $eq: i }
+                    sku: { $eq: id }
                 });
             }
             let ffields = { _id: 1, sku: 1 };
             ffields[locale + '.title'] = 1;
             const cartDB = await db.collection('warehouse').find({ $or: querySKU }, ffields).toArray();
             let cartData = {};
+            let variantsQuery = [];
+            let variants = {};
             if (cartDB) {
                 for (let i in cartDB) {
                     if (cartDB[i][locale]) {
                         cartData[cartDB[i].sku] = cartDB[i][locale].title;
+                    }
+                    for (let j in cartDB[i].variants) {
+                        if (variantsQuery.indexOf({ pid: cartDB[i].variants[j].d }) === -1) {
+                            variantsQuery.push({ pid: cartDB[i].variants[j].d });
+                        }
                     }
                 }
             }
@@ -3397,11 +3476,21 @@ module.exports = function(app) {
                 const item = jsonAddress[i];
                 addressData[item.id] = item.label[locale] || '';
             }
+            // Variants                        
+            if (variantsQuery.length) {
+                const dataVariants = await db.collection('warehouse_variants').find({ $or: variantsQuery }).toArray();
+                if (dataVariants && dataVariants.length) {
+                    for (let i in dataVariants) {
+                        variants[dataVariants[i].pid] = dataVariants[i].title[locale];
+                    }
+                }
+            }
             return res.send(JSON.stringify({
                 status: 1,
                 item: item,
                 cartData: cartData,
-                addressData: addressData
+                addressData: addressData,
+                variants: variants
             }));
         } catch (e) {
             log.error(e);

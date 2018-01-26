@@ -45,5 +45,5 @@ $(document).ready(() => {
         });
     });
     $('#za_catalog_search_btn').click(filterQuery);
-    $('#za_catalog_search_form').submit(filterQuery);
+    $('#za_catalog_search_form').submit(filterQuery);    
 });

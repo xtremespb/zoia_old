@@ -33,7 +33,7 @@
         <tbody>
             {% for item in cart %}
             <tr>
-                <td class="za-table-expand">{{ item.text }}</td>
+                <td class="za-table-expand">{{ item.text }}{% if item.variant %}&nbsp;({{ item.variantTitle }}){% endif %}</td>
                 <td class="za-table-shrink">{{ item.price }}&nbsp;{{ settings.currency }}</td>
                 <td class="za-table-shrink">{{ item.count }}</td>
                 <td class="za-table-shrink za-catalog-order-subtotal" data="{{ item.id }}" data-val="{{ item.subtotal }}">{{ item.subtotal }}&nbsp;{{ settings.currency }}</td>
