@@ -44,13 +44,16 @@ $(document).ready(() => {
     $('.za-catalog-item-integer-field').change(calculatePrice).click(calculatePrice).keypress(calculatePrice);
     $('.za-catalog-cart-add-btn').click(() => {
         const variantId = $('input[name="za_item_variants"]:checked').attr('data-id');
+        const priceData = calculatePrice();
         $('.za-catalog-cart-add-spinner').show();
         $.ajax({
             type: 'POST',
             url: '/api/warehouse/cart/add',
             data: {
                 id: za_catalog_item_id,
-                variant: variantId
+                variant: variantId,
+                checkboxes: priceData.checkboxes,
+                integers: priceData.integers
             },
             cache: false
         }).done((res) => {

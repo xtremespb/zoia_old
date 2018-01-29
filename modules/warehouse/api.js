@@ -2886,8 +2886,12 @@ module.exports = function(app) {
         const locale = req.session.currentLocale;
         const id = req.body.id;
         let variant = req.body.variant;
+        const checkboxes = req.body.checkboxes;
+        const integers = req.body.integers;
         if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/) ||
-            (variant && (typeof variant !== 'string' || !variant.match(/^[a-zA-Z0-9_]+$/) || variant.length > 64))) {
+            (variant && (typeof variant !== 'string' || !variant.match(/^[a-zA-Z0-9_]+$/) || variant.length > 64)) ||
+            !checkboxes || typeof checkboxes !== 'object' || !(checkboxes instanceof Array) ||
+            !integers || typeof integers !== 'object' || !(integers instanceof Array)) {
             return res.send(JSON.stringify({
                 status: 0
             }));
@@ -2901,8 +2905,66 @@ module.exports = function(app) {
         }
         variant = variant || '';
         const uid = id + '|' + variant;
-        // Old code
-        /*cart[uid] = cart[uid] ? parseInt(cart[uid]) + 1 : 1;*/
+        let checkPropertiesType = [];
+        let typesForId = {};
+        for (let i in checkboxes) {
+            let found = false;
+            for (let v in item[locale].properties) {
+                if (item[locale].properties[v].d === checkboxes[i]) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            if (checkPropertiesType.indexOf(checkboxes[i]) === -1) {
+                checkPropertiesType.push({ pid: checkboxes[i] });
+                typesForId[checkboxes[i]] = "2";
+            }
+        }
+        for (let i in integers) {
+            let found = false;
+            let [id, cnt] = integers[i].split('|');
+            if (!cnt || !parseInt(cnt)) {
+                cnt = 1;
+            } else {
+                cnt = parseInt(cnt);
+            }
+            for (let v in item[locale].properties) {
+                if (item[locale].properties[v].d === id) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            if (checkPropertiesType.indexOf(id) === -1) {
+                checkPropertiesType.push({ pid: id });
+                typesForId[id] = "3";
+            }
+        }
+        if (checkPropertiesType.length) {
+            const propDB = await db.collection('warehouse_properties').find({ $or: checkPropertiesType }).toArray();
+            if (!propDB || propDB.length !== checkPropertiesType.length) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            } else {
+                for (let i in propDB) {
+                    if (propDB[i].type !== typesForId[propDB[i].pid]) {
+                        return res.send(JSON.stringify({
+                            status: 0
+                        }));
+                    }
+                }
+            }
+        }
         if (!cart[uid]) {
             cart[uid] = {
                 count: 1
@@ -2910,6 +2972,8 @@ module.exports = function(app) {
         } else {
             cart[uid].count++;
         }
+        cart[uid].integers = integers;
+        cart[uid].checkboxes = checkboxes;
         req.session.catalog_cart = cart;
         let cartCount = Object.keys(cart).length;
         return res.send(JSON.stringify({
