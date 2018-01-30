@@ -433,6 +433,7 @@ module.exports = function(app) {
         if (!data) {
             return next();
         }
+        data.price = parseFloat(data.price).toFixed(2);
         // Load filters
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
@@ -516,6 +517,7 @@ module.exports = function(app) {
         if (Object.keys(cart).length > 0) {
             let query = [];
             let filter = {};
+            let propertiesQuery = [];
             for (let i in cart) {
                 const [id, variant] = i.split('|');
                 if (!filter[id]) {
@@ -524,11 +526,27 @@ module.exports = function(app) {
                     });
                     filter[id] = true;
                 }
+                for (let p in cart[i].checkboxes) {
+                    propertiesQuery.push({ pid: cart[i].checkboxes[p] })
+                }
+                for (let p in cart[i].integers) {
+                    const [id, cnt] = cart[i].integers[p].split('|');
+                    propertiesQuery.push({ pid: id });
+                }
             }
             let ffields = { _id: 1, price: 1, variants: 1 };
             ffields[locale + '.title'] = 1;
             const cartDB = await db.collection('warehouse').find({ $or: query }, ffields).toArray();
             if (cartDB && cartDB.length) {
+                let propertiesData = {};
+                let propertiesCost = {};
+                let propertiesCount = {};
+                const propertiesDB = await db.collection('warehouse_properties').find({ $or: propertiesQuery }).toArray();
+                if (propertiesDB && propertiesDB.length) {
+                    for (let i in propertiesDB) {
+                        propertiesData[propertiesDB[i].pid] = propertiesDB[i].title[locale];
+                    }
+                }
                 let cartData = {};
                 let variantsQuery = [];
                 for (let i in cartDB) {
@@ -537,6 +555,13 @@ module.exports = function(app) {
                         variants[cartDB[i].variants[j].d] = cartDB[i].variants[j].v;
                         if (variantsQuery.indexOf({ pid: cartDB[i].variants[j].d }) === -1) {
                             variantsQuery.push({ pid: cartDB[i].variants[j].d });
+                        }
+                    }
+                    if (cartDB[i][locale]) {
+                        for (let p in cartDB[i][locale].properties) {
+                            if (propertiesData[cartDB[i][locale].properties[p].d]) {
+                                propertiesCost[cartDB[i][locale].properties[p].d] = parseFloat(cartDB[i][locale].properties[p].v) || 0;
+                            }
                         }
                     }
                     cartData[cartDB[i]._id] = {
@@ -560,7 +585,22 @@ module.exports = function(app) {
                     const item = cart[i];
                     let price = cartData[id].price;
                     if (variant && cartData[id].variants[variant]) {
-                        price = cartData[id].variants[variant];
+                        price = parseFloat(cartData[id].variants[variant]);
+                    }
+                    for (let p in item.checkboxes) {
+                        price += parseFloat(propertiesCost[item.checkboxes[p]]);
+                    }
+                    let integersID = [];
+                    for (let p in item.integers) {
+                        let [id, cnt] = item.integers[p].split('|');
+                        if (!cnt) {
+                            cnt = 1;
+                        }
+                        propertiesCount[id] = cnt;
+                        if (integersID.indexOf(id) === -1) {
+                            integersID.push(id);
+                        }
+                        price += parseFloat(propertiesCost[id]) * parseInt(cnt);
                     }
                     cartArr.push({
                         id: id,
@@ -569,7 +609,13 @@ module.exports = function(app) {
                         text: cartData[id].text,
                         count: item.count,
                         price: parseFloat(price).toFixed(2),
-                        subtotal: parseFloat(price * item.count).toFixed(2)
+                        subtotal: parseFloat(price * item.count).toFixed(2),
+                        checkboxes: item.checkboxes,
+                        integers: item.integers,
+                        integersID: integersID,
+                        propertiesData: propertiesData,
+                        propertiesCost: propertiesCost,
+                        propertiesCount: propertiesCount
                     });
                     total += price * item.count;
                 }
@@ -611,34 +657,9 @@ module.exports = function(app) {
         let cartArr = [];
         let total = 0;
         let weight = 0;
-        /*if (Object.keys(cart).length > 0) {
-            let query = [];
-            for (let i in cart) {
-                const [id, variant] = i.split('|');
-                query.push({
-                    _id: new ObjectID(id)
-                });
-            }
-            let ffields = { _id: 1, price: 1, weight: 1 };
-            ffields[locale + '.title'] = 1;
-            const cartDB = await db.collection('warehouse').find({ $or: query }, ffields).toArray();
-            if (cartDB && cartDB.length) {
-                for (let i in cartDB) {
-                    cartArr.push({
-                        id: cartDB[i]._id,
-                        text: cartDB[i][locale] ? cartDB[i][locale].title : '',
-                        count: cart[cartDB[i]._id],
-                        price: parseFloat(cartDB[i].price).toFixed(2),
-                        subtotal: parseFloat(cart[cartDB[i]._id] * cartDB[i].price).toFixed(2)
-                    });
-                    total += cart[cartDB[i]._id] * cartDB[i].price;
-                    weight += cart[cartDB[i]._id] * cartDB[i].weight;
-                }
-                total = parseFloat(total).toFixed(2);
-            }
-        }*/
         if (Object.keys(cart).length > 0) {
             let query = [];
+            let propertiesQuery = [];
             let filter = {};
             for (let i in cart) {
                 const [id, variant] = i.split('|');
@@ -648,11 +669,27 @@ module.exports = function(app) {
                     });
                     filter[id] = true;
                 }
+                for (let p in cart[i].checkboxes) {
+                    propertiesQuery.push({ pid: cart[i].checkboxes[p] })
+                }
+                for (let p in cart[i].integers) {
+                    const [id, cnt] = cart[i].integers[p].split('|');
+                    propertiesQuery.push({ pid: id });
+                }
             }
             let ffields = { _id: 1, price: 1, variants: 1 };
             ffields[locale + '.title'] = 1;
             const cartDB = await db.collection('warehouse').find({ $or: query }, ffields).toArray();
             if (cartDB && cartDB.length) {
+                let propertiesData = {};
+                let propertiesCost = {};
+                let propertiesCount = {};
+                const propertiesDB = await db.collection('warehouse_properties').find({ $or: propertiesQuery }).toArray();
+                if (propertiesDB && propertiesDB.length) {
+                    for (let i in propertiesDB) {
+                        propertiesData[propertiesDB[i].pid] = propertiesDB[i].title[locale];
+                    }
+                }
                 let cartData = {};
                 let variantsQuery = [];
                 for (let i in cartDB) {
@@ -661,6 +698,13 @@ module.exports = function(app) {
                         variants[cartDB[i].variants[j].d] = cartDB[i].variants[j].v;
                         if (variantsQuery.indexOf({ pid: cartDB[i].variants[j].d }) === -1) {
                             variantsQuery.push({ pid: cartDB[i].variants[j].d });
+                        }
+                    }
+                    if (cartDB[i][locale]) {
+                        for (let p in cartDB[i][locale].properties) {
+                            if (propertiesData[cartDB[i][locale].properties[p].d]) {
+                                propertiesCost[cartDB[i][locale].properties[p].d] = parseFloat(cartDB[i][locale].properties[p].v) || 0;
+                            }
                         }
                     }
                     cartData[cartDB[i]._id] = {
@@ -685,7 +729,22 @@ module.exports = function(app) {
                     const item = cart[i];
                     let price = cartData[id].price;
                     if (variant && cartData[id].variants[variant]) {
-                        price = cartData[id].variants[variant];
+                        price = parseFloat(cartData[id].variants[variant]);
+                    }
+                    for (let p in item.checkboxes) {
+                        price += parseFloat(propertiesCost[item.checkboxes[p]]);
+                    }
+                    let integersID = [];
+                    for (let p in item.integers) {
+                        let [id, cnt] = item.integers[p].split('|');
+                        if (!cnt) {
+                            cnt = 1;
+                        }
+                        propertiesCount[id] = cnt;
+                        if (integersID.indexOf(id) === -1) {
+                            integersID.push(id);
+                        }
+                        price += parseFloat(propertiesCost[id]) * parseInt(cnt);
                     }
                     cartArr.push({
                         id: id,
@@ -694,10 +753,16 @@ module.exports = function(app) {
                         text: cartData[id].text,
                         count: item.count,
                         price: parseFloat(price).toFixed(2),
-                        subtotal: parseFloat(price * item.count).toFixed(2)
+                        subtotal: parseFloat(price * item.count).toFixed(2),
+                        checkboxes: item.checkboxes,
+                        integers: item.integers,
+                        integersID: integersID,
+                        propertiesData: propertiesData,
+                        propertiesCost: propertiesCost,
+                        propertiesCount: propertiesCount
                     });
                     total += price * item.count;
-                    weight += item.count * cartData[id].weight; 
+                    weight += item.count * cartData[id].weight;
                 }
                 total = parseFloat(total).toFixed(2);
             }

@@ -2886,16 +2886,18 @@ module.exports = function(app) {
         const locale = req.session.currentLocale;
         const id = req.body.id;
         let variant = req.body.variant;
-        const checkboxes = req.body.checkboxes;
-        const integers = req.body.integers;
+        const checkboxes = req.body.checkboxes || [];
+        const integers = req.body.integers || [];
         if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/) ||
             (variant && (typeof variant !== 'string' || !variant.match(/^[a-zA-Z0-9_]+$/) || variant.length > 64)) ||
-            !checkboxes || typeof checkboxes !== 'object' || !(checkboxes instanceof Array) ||
-            !integers || typeof integers !== 'object' || !(integers instanceof Array)) {
+            typeof checkboxes !== 'object' || !(checkboxes instanceof Array) ||
+            typeof integers !== 'object' || !(integers instanceof Array)) {
             return res.send(JSON.stringify({
                 status: 0
             }));
         }
+        variant = variant || '';
+        const uid = id + '|' + variant;
         let cart = req.session.catalog_cart || {};
         const item = await db.collection('warehouse').findOne({ _id: new ObjectID(id) });
         if (!item) {
@@ -2903,8 +2905,6 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        variant = variant || '';
-        const uid = id + '|' + variant;
         let checkPropertiesType = [];
         let typesForId = {};
         for (let i in checkboxes) {
@@ -3017,13 +3017,30 @@ module.exports = function(app) {
         for (let j in item.variants) {
             variants[item.variants[j].d] = item.variants[j].v;
         }
-        const subtotal = variants[variant] ? parseFloat(variants[variant] * count).toFixed(2) : parseFloat(item.price * count).toFixed(2);
+        let subtotal = variants[variant] ? parseFloat(variants[variant] * count) : parseFloat(item.price * count);
+        for (let p in cart[uid].checkboxes) {
+            for (let i in item[locale].properties) {
+                if (item[locale].properties[i].d === cart[uid].checkboxes[p]) {
+                    subtotal += parseFloat(item[locale].properties[i].v) * count;
+                }
+            }
+        }
+        for (let p in cart[uid].integers) {
+            const [id, cnt] = cart[uid].integers[p].split('|');
+            for (let i in item[locale].properties) {
+                if (item[locale].properties[i].d === id) {
+                    subtotal += parseFloat(item[locale].properties[i].v) * parseInt(cnt) * count;
+                }
+            }
+        }
+        subtotal = parseFloat(subtotal).toFixed(2);
         cart[uid].count = count;
         req.session.catalog_cart = cart;
         return res.send(JSON.stringify({
             status: 1,
             id: item._id,
             count: count,
+            variant: variant,
             subtotal: subtotal
         }));
     };
@@ -3032,19 +3049,23 @@ module.exports = function(app) {
         res.contentType('application/json');
         const locale = req.session.currentLocale;
         const id = req.body.id;
+        let variant = req.body.variant;
         const count = req.body.count;
-        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/) ||
+            (variant && (typeof variant !== 'string' || !variant.match(/^[a-zA-Z0-9_]+$/) || variant.length > 64))) {
             return res.send(JSON.stringify({
                 status: 0
             }));
         }
+        variant = variant || '';
+        const uid = id + '|' + variant;
         let cart = req.session.catalog_cart || {};
-        if (!cart[id]) {
+        if (!cart[uid]) {
             return res.send(JSON.stringify({
                 status: 0
             }));
         }
-        delete cart[id];
+        delete cart[uid];
         req.session.catalog_cart = cart;
         return res.send(JSON.stringify({
             status: 1,
@@ -3118,32 +3139,9 @@ module.exports = function(app) {
             const cart = req.session.catalog_cart || {};
             let weight = 0;
             let cartArr = [];
-            /*if (Object.keys(cart).length > 0) {
-                let query = [];
-                for (let i in cart) {
-                    query.push({
-                        _id: new ObjectID(i)
-                    });
-                }
-                let ffields = { _id: 1, price: 1, weight: 1, sku: 1 };
-                ffields[locale + '.title'] = 1;
-                const cartDB = await db.collection('warehouse').find({ $or: query }, ffields).toArray();
-                if (cartDB && cartDB.length) {
-                    for (let i in cartDB) {
-                        orderData.cart[cartDB[i].sku] = cart[cartDB[i]._id];
-                        orderData.costs.total += parseFloat(cart[cartDB[i]._id]) * parseFloat(cartDB[i].price);
-                        weight += parseFloat(cart[cartDB[i]._id]) * parseFloat(cartDB[i].weight);
-                        cartArr.push({
-                            text: cartDB[i][locale] ? cartDB[i][locale].title : '',
-                            count: cart[cartDB[i]._id],
-                            price: parseFloat(cartDB[i].price).toFixed(2),
-                            subtotal: parseFloat(cart[cartDB[i]._id] * cartDB[i].price).toFixed(2)
-                        });
-                    }
-                }
-            }*/
             if (Object.keys(cart).length > 0) {
                 let query = [];
+                let propertiesQuery = [];
                 let filter = {};
                 for (let i in cart) {
                     const [id, variant] = i.split('|');
@@ -3153,11 +3151,27 @@ module.exports = function(app) {
                         });
                         filter[id] = true;
                     }
+                    for (let p in cart[i].checkboxes) {
+                        propertiesQuery.push({ pid: cart[i].checkboxes[p] })
+                    }
+                    for (let p in cart[i].integers) {
+                        const [id, cnt] = cart[i].integers[p].split('|');
+                        propertiesQuery.push({ pid: id });
+                    }
                 }
                 let ffields = { _id: 1, price: 1, variants: 1 };
                 ffields[locale + '.title'] = 1;
                 const cartDB = await db.collection('warehouse').find({ $or: query }, ffields).toArray();
                 if (cartDB && cartDB.length) {
+                    let propertiesData = {};
+                    let propertiesCost = {};
+                    let propertiesCount = {};
+                    const propertiesDB = await db.collection('warehouse_properties').find({ $or: propertiesQuery }).toArray();
+                    if (propertiesDB && propertiesDB.length) {
+                        for (let i in propertiesDB) {
+                            propertiesData[propertiesDB[i].pid] = propertiesDB[i].title[locale];
+                        }
+                    }
                     let cartData = {};
                     let variantsQuery = [];
                     for (let i in cartDB) {
@@ -3166,6 +3180,13 @@ module.exports = function(app) {
                             variants[cartDB[i].variants[j].d] = cartDB[i].variants[j].v;
                             if (variantsQuery.indexOf({ pid: cartDB[i].variants[j].d }) === -1) {
                                 variantsQuery.push({ pid: cartDB[i].variants[j].d });
+                            }
+                        }
+                        if (cartDB[i][locale]) {
+                            for (let p in cartDB[i][locale].properties) {
+                                if (propertiesData[cartDB[i][locale].properties[p].d]) {
+                                    propertiesCost[cartDB[i][locale].properties[p].d] = parseFloat(cartDB[i][locale].properties[p].v) || 0;
+                                }
                             }
                         }
                         cartData[cartDB[i]._id] = {
@@ -3191,7 +3212,22 @@ module.exports = function(app) {
                         const item = cart[i];
                         let price = cartData[id].price;
                         if (variant && cartData[id].variants[variant]) {
-                            price = cartData[id].variants[variant];
+                            price = parseFloat(cartData[id].variants[variant]);
+                        }
+                        for (let p in item.checkboxes) {
+                            price += parseFloat(propertiesCost[item.checkboxes[p]]);
+                        }
+                        let integersID = [];
+                        for (let p in item.integers) {
+                            let [id, cnt] = item.integers[p].split('|');
+                            if (!cnt) {
+                                cnt = 1;
+                            }
+                            propertiesCount[id] = cnt;
+                            if (integersID.indexOf(id) === -1) {
+                                integersID.push(id);
+                            }
+                            price += parseFloat(propertiesCost[id]) * parseInt(cnt);
                         }
                         cartArr.push({
                             id: id,
@@ -3200,11 +3236,19 @@ module.exports = function(app) {
                             text: cartData[id].text,
                             count: item.count,
                             price: parseFloat(price).toFixed(2),
-                            subtotal: parseFloat(price * item.count).toFixed(2)
+                            subtotal: parseFloat(price * item.count).toFixed(2),
+                            checkboxes: item.checkboxes,
+                            integers: item.integers,
+                            integersID: integersID,
+                            propertiesData: propertiesData,
+                            propertiesCost: propertiesCost,
+                            propertiesCount: propertiesCount
                         });
                         // total += price * item.count;
                         orderData.cart[cartData[id].sku + '|' + variant] = {
-                            count: item.count
+                            count: item.count,
+                            checkboxes: item.checkboxes,
+                            integers: item.integers
                         };
                         orderData.costs.total += price * item.count;
                         weight += cartData[id].weight + item.count;
@@ -3419,8 +3463,10 @@ module.exports = function(app) {
                 };
             }
             let ffields = { _id: 1, date: 1, username: 1, costs: 1, status: 1 };
-            const total = await db.collection('warehouse_orders').find(fquery, ffields, { skip: skip, limit: limit }).count();
-            const items = await db.collection('warehouse_orders').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
+            const total = await db.collection('warehouse_orders').find(fquery).count();
+            const items = await db.collection('warehouse_orders').find(fquery, { skip: skip, limit: limit, sort: sort, projection: ffields }).toArray();
+            console.log({ skip: skip, limit: limit });
+            console.log('\n\n\n items: ' + items.length + ', total: ' + total + '\n\n\n');
             for (let i in items) {
                 if (items[i][locale]) {
                     items[i].title = items[i][locale].title;

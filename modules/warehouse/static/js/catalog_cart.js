@@ -48,7 +48,7 @@ $(document).ready(() => {
                 if (res.count !== val) {
                     $(that).val(res.count);
                 }
-                $('.za-catalog-cart-subtotal[data="' + res.id + '"]').html(res.subtotal + '&nbsp;' + settings.currency).attr('data-val', res.subtotal);
+                $('.za-catalog-cart-subtotal[data="' + res.id + '"][data-variant="' + res.variant + '"]').html(res.subtotal + '&nbsp;' + settings.currency).attr('data-val', res.subtotal);
                 let total = 0;
                 $('.za-catalog-cart-subtotal').each(function() {
                     total += parseFloat($(this).attr('data-val'));
@@ -70,7 +70,8 @@ $(document).ready(() => {
             type: 'POST',
             url: '/api/warehouse/cart/delete',
             data: {
-                id: $(that).attr('data')
+                id: $(that).attr('data'),
+                variant: $(that).attr('data-variant')
             },
             cache: false
         }).done((res) => {

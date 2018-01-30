@@ -52,8 +52,8 @@ $(document).ready(() => {
             data: {
                 id: za_catalog_item_id,
                 variant: variantId,
-                checkboxes: priceData.checkboxes,
-                integers: priceData.integers
+                checkboxes: priceData.checkboxes || [],
+                integers: priceData.integers || []
             },
             cache: false
         }).done((res) => {

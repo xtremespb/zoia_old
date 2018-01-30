@@ -17,13 +17,20 @@
         <tbody>
             {% for item in cart %}
             <tr>
-                <td class="za-table-expand">{{ item.text }}{% if item.variant %}&nbsp;({{ item.variantTitle }}){% endif %}</td>
+                <td class="za-table-expand">{{ item.text }}{% if item.variant %}&nbsp;({{ item.variantTitle }}){% endif %}
+                {% for cbx in item.checkboxes %}
+                <br>{{ item.propertiesData[cbx] }}
+                {% endfor %}
+                {% for itg in item.integersID %}
+                <br>{{ item.propertiesData[itg] }}&nbsp;({{ item.propertiesCount[itg] }})
+                {% endfor %}
+                </td>
                 <td class="za-table-shrink">{{ item.price }}&nbsp;{{ settings.currency }}</td>
                 <td class="za-table-shrink">
                     <input class="za-input za-form-width-xsmall za-catalog-cart-count" type="text" data="{{ item.id }}" data-prev="{{ item.count }}" value="{{ item.count }}" data-variant="{{ item.variant }}">
                 </td>
-                <td class="za-table-shrink za-catalog-cart-subtotal" data="{{ item.id }}" data-val="{{ item.subtotal }}">{{ item.subtotal }}&nbsp;{{ settings.currency }}</td>
-                <td class="za-table-shrink"><span data="{{ item.id }}" class="za-icon-button za-button-danger za-catalog-cart-btn-del" za-icon="icon:trash"></span></span>
+                <td class="za-table-shrink za-catalog-cart-subtotal" data="{{ item.id }}" data-val="{{ item.subtotal }}" data-variant="{{ item.variant }}">{{ item.subtotal }}&nbsp;{{ settings.currency }}</td>
+                <td class="za-table-shrink"><span data="{{ item.id }}" data-variant="{{ item.variant }}" class="za-icon-button za-button-danger za-catalog-cart-btn-del" za-icon="icon:trash"></span></span>
                 </td>
             </tr>
             {% endfor %}
