@@ -405,7 +405,16 @@ const editOrder = (id) => {
             $('#za_catalog_order_delivery').val(res.item.delivery);
             let cartHTML = '<table class="za-table za-table-striped za-table-hover za-table-small za-table-middle za-table-responsive" id="za_catalog_order_cart_table"><tbody>';
             for (let i in res.item.cart) {
-                cartHTML += '<tr><td class="za-table-shrink">' + i + '</td><td class="za-table-expand">' + res.cartData[i] + '</td><td class="za-table-shrink"><input class="za-input za-form-width-xsmall" value="' + res.item.cart[i] + '"></td><td class="za-table-shrink"><div style="height:20px"><span za-icon="icon:trash;ratio:0.8" class="za-catalog-cart-del"></span></div></td></tr>';
+                const [id, variant] = i.split('|');
+                let extraHTML = '';
+                for (let c in res.item.cart[i].checkboxes) {
+                    extraHTML += '<br>' + res.propertiesData[res.item.cart[i].checkboxes[c]];
+                }
+                for (let c in res.item.cart[i].integers) {
+                    const [iid, cnt] = res.item.cart[i].integers[c].split('|');
+                    extraHTML += '<br>' + res.propertiesData[iid] + '&nbsp;(' + cnt + ')';
+                }
+                cartHTML += '<tr><td class="za-table-shrink" data-variant="' + i + '" data-checkboxes="' + res.item.cart[i].checkboxes + '" data-integers="' + res.item.cart[i].integers + '">' + id + '</td><td class="za-table-expand">' + res.cartData[id] + (variant ? '&nbsp;(' + res.variants[variant] + ')' : '') + extraHTML + '</td><td class="za-table-shrink"><input class="za-input za-form-width-xsmall" value="' + res.item.cart[i].count + '"></td><td class="za-table-shrink"><div style="height:20px"><span za-icon="icon:trash;ratio:0.8" class="za-catalog-cart-del"></span></div></td></tr>';
             }
             cartHTML += '</tbody></table>'
             $('#za_catalog_order_cart_wrap').html(cartHTML);
@@ -1091,7 +1100,7 @@ const onEditLanguageCheckboxClickEvent = () => {
     if ($('#zoiaEditLanguageCheckbox').prop('checked')) {
         $('#editForm').zoiaFormBuilder().resetForm();
         editShadow[editLanguage].enabled = true;
-        editShadow[editLanguage].data = {};        
+        editShadow[editLanguage].data = {};
         syncEditFormPropertiesFirst();
         $('#editForm').zoiaFormBuilder().deserializePart('properties', editShadow[editLanguage].data.properties);
         for (let lng in langs) {
@@ -1119,7 +1128,7 @@ const onEditLanguageCheckboxClickEvent = () => {
                 if (editShadow[lng].data.status) {
                     $('#editForm_status').val(editShadow[lng].data.status.value);
                 }
-                if (editShadow[lng].data.variants) {                    
+                if (editShadow[lng].data.variants) {
                     $('#editForm').zoiaFormBuilder().deserializePart('variants', editShadow[lng].data.variants);
                 }
             }
@@ -1159,7 +1168,7 @@ const onZoiaEditLanguagesClick = (lng) => {
         let saveSKU = editShadow[editLanguage].data.sku;
         let saveWeight = editShadow[editLanguage].data.weight;
         let saveAmount = editShadow[editLanguage].data.amount;
-        let savePrice = editShadow[editLanguage].data.price;        
+        let savePrice = editShadow[editLanguage].data.price;
         let saveStatus = editShadow[editLanguage].data.status;
         let saveVariants = editShadow[editLanguage].data.variants;
         editShadow[lng].data.folder = saveFolder;
@@ -1171,7 +1180,7 @@ const onZoiaEditLanguagesClick = (lng) => {
         editShadow[lng].data.status = saveStatus;
         editShadow[lng].data.variants = saveVariants;
     }
-    syncEditFormProperties(editLanguage);    
+    syncEditFormProperties(editLanguage);
     $('#editForm').zoiaFormBuilder().resetForm();
     $('#editForm').zoiaFormBuilder().deserialize(editShadow[lng].data);
     $('.selectPropertyItemClose').unbind();
@@ -1653,7 +1662,7 @@ const editFormData = {
             buttons: '<div class="za-margin-bottom"><ul class="za-iconnav"><li><button type="button" class="za-icon-button zoiaAddVariantBtn" za-icon="icon:file" title="' + lang['Insert variant'] + '" za-tooltip="pos: bottom-right"></button></li><li><button type="button" class="za-icon-button zoiaAddVariantCollectionBtn"za-icon="icon:album" title="' + lang['Insert variants collection'] + '" za-tooltip="pos: bottom-right"></button></li><li><button type="button" class="za-icon-button zoiaRemoveAllVariants"za-icon="icon:trash" title="' + lang['Remove all variants'] + '" za-tooltip="pos: bottom-right"></button></li></ul></div>',
             helpText: lang['Use drag-and-drop to arrange variants order'],
             label: lang['Price Variants']
-        },        
+        },
         weight: {
             type: 'text',
             label: lang['Weight'],
@@ -3751,7 +3760,7 @@ const addCheckedVariants = (ids) => {
 };
 
 const selectCheckedProperties = (ids) => {
-    const data = $('#propertyselect').zoiaTable().getCurrentData();
+    const data = $('#propertiesselect').zoiaTable().getCurrentData();
     let duplicate = false;
     for (let i in ids) {
         const id = ids[i];
@@ -4480,7 +4489,10 @@ const zoiaOrderDialogButtonClick = () => {
     data.costs.total = $('#za_catalog_order_cost_total').val().trim();
     data.costs.totalWares = $('#za_catalog_order_cost_wares').val().trim();
     $('#za_catalog_order_cart_table>tbody>tr').each(function() {
-        data.cart[$(this).children().eq(0).html()] = parseInt($(this).children().eq(2).find('input').val()) || 0;
+        data.cart[$(this).children().eq(0).attr('data-variant')] = {};
+        data.cart[$(this).children().eq(0).attr('data-variant')].count = parseInt($(this).children().eq(2).find('input').val()) || 0;
+        data.cart[$(this).children().eq(0).attr('data-variant')].checkboxes = $(this).children().eq(0).attr('data-checkboxes') ? $(this).children().eq(0).attr('data-checkboxes').split(',') : [];
+        data.cart[$(this).children().eq(0).attr('data-variant')].integers = $(this).children().eq(0).attr('data-integers') ? $(this).children().eq(0).attr('data-integers').split(',') : [];
     });
     $('#za_catalog_order_costs_table>tbody>tr').each(function() {
         data.costs.extra[$(this).children().eq(0).attr('data')] = parseFloat($(this).children().eq(1).find('input').val()) || 0;
@@ -4526,6 +4538,14 @@ const zoiaOrderDialogButtonClick = () => {
             timeout: 1500
         });
     }, 200);
+};
+
+const warehouseBtnRefreshClick = () => {
+    $('#warehouse').zoiaTable().load();
+};
+
+const ordersBtnRefreshClick = () => {
+    $('#orders').zoiaTable().load();
 };
 
 $(document).ready(() => {
@@ -4640,4 +4660,6 @@ $(document).ready(() => {
         e.preventDefault();
     });
     $('#zoiaOrderDialogButton').click(zoiaOrderDialogButtonClick);
+    $('.warehouseBtnRefresh').click(warehouseBtnRefreshClick);
+    $('.ordersBtnRefresh').click(ordersBtnRefreshClick);
 });

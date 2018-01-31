@@ -44,12 +44,14 @@
             <!-- -->
             {% for p in data[locale].properties %}
             <!-- -->
-            {% if propsType[p.d] == null %}            
+            {% if props[p.d] %}
+            {% if propsType[p.d] == null %}                       
             <div class="za-grid-small" za-grid>
                 <div class="za-width-expand" za-leader>{{ props[p.d] }}</div>
                 <div>{{ p.v }}</div>
             </div>
-            {% endif %}            
+            {% endif %}
+            {% endif %}
             <!-- -->
             {% if propsType[p.d] == 1 %}            
             <div class="za-catalog-item-header za-margin-top za-margin-bottom">{{ p.v }}</div>

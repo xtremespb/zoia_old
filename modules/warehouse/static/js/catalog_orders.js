@@ -20,12 +20,10 @@ const processTemplate = (s, d) => {
 }
 
 const processState = (eventState) => {
-    console.log(eventState);
     const state = eventState || {
         action: getUrlParam('action'),
         id: getUrlParam('id')
     };
-    console.log('Processing state');
     switch (state.action) {
         case 'view':
             viewOrder(state.id);
@@ -58,7 +56,15 @@ const viewOrder = (id) => {
             let cartHTML = '<table class="za-table za-table-striped za-table-small za-table-middle za-table-responsive"><tbody>';
             for (let i in order.cart) {
                 const [id, variant] = i.split('|');
-                cartHTML += '<tr><td class="za-table-shrink">' + id + '</td><td class="za-table-expand">' + res.cartData[id] + (variant ? '&nbsp;(' + res.variants[variant] + ')' : '') + '</td><td class="za-table-shrink">' + order.cart[i].count + '</td><td class="za-table-shrink"></td></tr>';
+                let extraHTML = '';
+                for (let c in order.cart[i].checkboxes) {
+                    extraHTML += '<br>' + res.propertiesData[order.cart[i].checkboxes[c]];
+                }
+                for (let c in order.cart[i].integers) {
+                    const [id, cnt] = order.cart[i].integers[c].split('|');
+                    extraHTML += '<br>' + res.propertiesData[id] + '&nbsp;(' + cnt + ')';
+                }
+                cartHTML += '<tr><td class="za-table-shrink">' + id + '</td><td class="za-table-expand">' + res.cartData[id] + (variant ? '&nbsp;(' + res.variants[variant] + ')' : '') + extraHTML + '</td><td class="za-table-shrink">' + order.cart[i].count + '</td><td class="za-table-shrink"></td></tr>';
             }
             cartHTML += '</tbody></table>';
             $('#za_order_cart').html(cartHTML);
@@ -71,11 +77,18 @@ const viewOrder = (id) => {
             costsHTML += '<tr><td class="za-table-expand">' + lang['Total'] + '</td><td class="za-table-shrink">' + order.costs.total + '&nbsp;' + settings.currency + '</td><td class="za-table-shrink"></td></tr>';
             costsHTML += '</tbody></table>';
             $('#za_order_costs').html(costsHTML);
-            let addressHTML = processTemplate(addressTemplate.data, order.address);
+            let addressHTML = '';
+            if (res.delivery.delivery !== 'pickup') {
+                $('.za-catalog-metadata-wrap').addClass('za-grid-divider');
+                addressHTML = processTemplate(addressTemplate.data, order.address);
+            } else {
+                $('.za-catalog-metadata-wrap').removeClass('za-grid-divider');
+            }
             $('#za_order_address').html(addressHTML);
             $('#wrapOrders').hide();
             $('#wrapOrder').show();
         } else {
+            window.history.go(-1);
             $zUI.notification(lang['Could not load information from database'], {
                 status: 'danger',
                 timeout: 1000
@@ -83,6 +96,7 @@ const viewOrder = (id) => {
         }
     }).fail(() => {
         $('#zoiaSpinnerMain').hide();
+        window.history.go(-1);
         $zUI.notification(lang['Could not load information from database'], {
             status: 'danger',
             timeout: 1000
@@ -145,7 +159,6 @@ const ordersTableData = {
 
 $(document).ready(() => {
     $('#orders').zoiaTable(ordersTableData);
-    console.log('Binding popstate');
     window.setTimeout(function() {
         $(window).bind('popstate',
             (event) => {

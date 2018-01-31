@@ -3159,9 +3159,10 @@ module.exports = function(app) {
                         propertiesQuery.push({ pid: id });
                     }
                 }
-                let ffields = { _id: 1, price: 1, variants: 1 };
+                let ffields = { _id: 1, price: 1, variants: 1, sku: 1 };
                 ffields[locale + '.title'] = 1;
-                const cartDB = await db.collection('warehouse').find({ $or: query }, ffields).toArray();
+                ffields[locale + '.properties'] = 1;
+                const cartDB = await db.collection('warehouse').find({ $or: query }, { projection: ffields }).toArray();
                 if (cartDB && cartDB.length) {
                     let propertiesData = {};
                     let propertiesCost = {};
@@ -3554,20 +3555,46 @@ module.exports = function(app) {
                     }));
                 }
             }
+            const deliveryDB = await db.collection('warehouse_delivery').findOne({ pid: item.delivery });
+            if (!deliveryDB) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
             let querySKU = [];
+            let propertiesQuery = [];
             for (let i in item.cart) {
                 const [id, variant] = i.split('|');
                 querySKU.push({
                     sku: { $eq: id }
                 });
+                for (let p in item.cart[i].checkboxes) {
+                    if (propertiesQuery.indexOf({ pid: item.cart[i].checkboxes[p] }) === -1) {
+                        propertiesQuery.push({ pid: item.cart[i].checkboxes[p] })
+                    }
+                }
+                for (let p in item.cart[i].integers) {
+                    const [id, cnt] = item.cart[i].integers[p].split('|');
+                    if (propertiesQuery.indexOf({ pid: id }) === -1) {
+                        propertiesQuery.push({ pid: id });
+                    }
+                }
             }
-            let ffields = { _id: 1, sku: 1 };
+            let ffields = { _id: 1, sku: 1, variants: 1 };
             ffields[locale + '.title'] = 1;
-            const cartDB = await db.collection('warehouse').find({ $or: querySKU }, ffields).toArray();
+            ffields[locale + '.properties'] = 1;
+            const cartDB = await db.collection('warehouse').find({ $or: querySKU }, { projection: ffields }).toArray();
             let cartData = {};
             let variantsQuery = [];
             let variants = {};
+            let propertiesData = {};
             if (cartDB) {
+                const propertiesDB = await db.collection('warehouse_properties').find({ $or: propertiesQuery }).toArray();
+                if (propertiesDB && propertiesDB.length) {
+                    for (let i in propertiesDB) {
+                        propertiesData[propertiesDB[i].pid] = propertiesDB[i].title[locale];
+                    }
+                }
                 for (let i in cartDB) {
                     if (cartDB[i][locale]) {
                         cartData[cartDB[i].sku] = cartDB[i][locale].title;
@@ -3598,7 +3625,9 @@ module.exports = function(app) {
                 item: item,
                 cartData: cartData,
                 addressData: addressData,
-                variants: variants
+                variants: variants,
+                propertiesData: propertiesData,
+                delivery: deliveryDB
             }));
         } catch (e) {
             log.error(e);
@@ -3626,7 +3655,7 @@ module.exports = function(app) {
         let ffields = { _id: 1, sku: 1 };
         ffields[locale + '.title'] = 1;
         try {
-            const item = await db.collection('warehouse').findOne({ sku: sku }, ffields);
+            const item = await db.collection('warehouse').findOne({ sku: sku }, { projection: ffields });
             if (!item) {
                 return res.send(JSON.stringify({
                     status: 0

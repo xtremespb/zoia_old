@@ -135,10 +135,12 @@
 }
 
 .warehouseBtnSettings,
+.warehouseBtnRefresh,
 .warehouseBtnSelectAll,
 .warehouseBtnSelectNone,
 .ordersBtnSelectAll,
-.ordersBtnSelectNone {
+.ordersBtnSelectNone,
+.ordersBtnRefresh {
     padding: 9px;
 }
 
