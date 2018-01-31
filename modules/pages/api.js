@@ -64,8 +64,8 @@ module.exports = function(app) {
             }
             let ffields = { _id: 1, folder: 1, name: 1, status: 1 };
             ffields[locale + '.title'] = 1;
-            const total = await db.collection('pages').find(fquery, ffields, { skip: skip, limit: limit }).count();
-            const items = await db.collection('pages').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
+            const total = await db.collection('pages').find(fquery).count();
+            const items = await db.collection('pages').find(fquery, { skip: skip, limit: limit, sort: sort, projection: ffields }).toArray();
             for (let i in items) {
                 if (items[i][locale]) {
                     items[i].title = items[i][locale].title;

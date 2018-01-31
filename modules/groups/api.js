@@ -55,8 +55,8 @@ module.exports = function(app) {
                     ]
                 };
             }
-            const total = await db.collection('groups').find(fquery, { skip: skip, limit: limit }).count();
-            const items = await db.collection('groups').find(fquery, { skip: skip, limit: limit }).sort(sort).toArray();
+            const total = await db.collection('groups').find(fquery).count();
+            const items = await db.collection('groups').find(fquery, { skip: skip, limit: limit, sort: sort }).toArray();
             let data = {
                 status: 1,
                 count: items.length,

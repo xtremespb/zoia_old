@@ -129,8 +129,8 @@ module.exports = function(app) {
             let ffields = { _id: 1, folder: 1, sku: 1, status: 1, price: 1 };
             ffields[locale + '.title'] = 1;
             fquery.status = { $ne: "temp" };
-            const total = await db.collection('warehouse').find(fquery, ffields, { skip: skip, limit: limit }).count();
-            const items = await db.collection('warehouse').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
+            const total = await db.collection('warehouse').find(fquery).count();
+            const items = await db.collection('warehouse').find(fquery, { skip: skip, limit: limit, sort: sort, projection: ffields }).toArray();
             for (let i in items) {
                 if (items[i][locale]) {
                     items[i].title = items[i][locale].title;
@@ -200,8 +200,8 @@ module.exports = function(app) {
             }
 
             let ffields = { _id: 1, pid: 1, title: 1 };
-            const total = await db.collection('warehouse_properties').find(fquery, ffields, { skip: skip, limit: limit }).count();
-            const items = await db.collection('warehouse_properties').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
+            const total = await db.collection('warehouse_properties').find(fquery).count();
+            const items = await db.collection('warehouse_properties').find(fquery, { skip: skip, limit: limit, sort: sort, projection: ffields }).toArray();
             for (let i in items) {
                 if (items[i].title[locale]) {
                     items[i].title = items[i].title[locale];
@@ -271,8 +271,8 @@ module.exports = function(app) {
             }
 
             let ffields = { _id: 1, pid: 1, title: 1 };
-            const total = await db.collection('warehouse_variants').find(fquery, ffields, { skip: skip, limit: limit }).count();
-            const items = await db.collection('warehouse_variants').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
+            const total = await db.collection('warehouse_variants').find(fquery).count();
+            const items = await db.collection('warehouse_variants').find(fquery, { skip: skip, limit: limit, sort: sort, projection: ffields }).toArray();
             for (let i in items) {
                 if (items[i].title[locale]) {
                     items[i].title = items[i].title[locale];
@@ -342,8 +342,8 @@ module.exports = function(app) {
             }
 
             let ffields = { _id: 1, pid: 1, title: 1 };
-            const total = await db.collection('warehouse_delivery').find(fquery, ffields, { skip: skip, limit: limit }).count();
-            const items = await db.collection('warehouse_delivery').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
+            const total = await db.collection('warehouse_delivery').find(fquery).count();
+            const items = await db.collection('warehouse_delivery').find(fquery, { skip: skip, limit: limit, sort: sort, projection: ffields }).toArray();
             for (let i in items) {
                 if (items[i].title[locale]) {
                     items[i].title = items[i].title[locale];
@@ -409,8 +409,8 @@ module.exports = function(app) {
                 fquery.$or.push(tfq);
             }
             let ffields = { _id: 1, title: 1 };
-            const total = await db.collection('warehouse_collections').find(fquery, ffields, { skip: skip, limit: limit }).count();
-            const items = await db.collection('warehouse_collections').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
+            const total = await db.collection('warehouse_collections').find(fquery).count();
+            const items = await db.collection('warehouse_collections').find(fquery, { skip: skip, limit: limit, sort: sort, projection: ffields }).toArray();
             for (let i in items) {
                 if (items[i].title[locale]) {
                     items[i].title = items[i].title[locale];
@@ -476,8 +476,8 @@ module.exports = function(app) {
                 fquery.$or.push(tfq);
             }
             let ffields = { _id: 1, title: 1 };
-            const total = await db.collection('warehouse_variants_collections').find(fquery, ffields, { skip: skip, limit: limit }).count();
-            const items = await db.collection('warehouse_variants_collections').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
+            const total = await db.collection('warehouse_variants_collections').find(fquery).count();
+            const items = await db.collection('warehouse_variants_collections').find(fquery, { skip: skip, limit: limit, sort: sort, projection: ffields }).toArray();
             for (let i in items) {
                 if (items[i].title[locale]) {
                     items[i].title = items[i].title[locale];
@@ -3465,8 +3465,6 @@ module.exports = function(app) {
             let ffields = { _id: 1, date: 1, username: 1, costs: 1, status: 1 };
             const total = await db.collection('warehouse_orders').find(fquery).count();
             const items = await db.collection('warehouse_orders').find(fquery, { skip: skip, limit: limit, sort: sort, projection: ffields }).toArray();
-            console.log({ skip: skip, limit: limit });
-            console.log('\n\n\n items: ' + items.length + ', total: ' + total + '\n\n\n');
             for (let i in items) {
                 if (items[i][locale]) {
                     items[i].title = items[i][locale].title;
@@ -3717,8 +3715,8 @@ module.exports = function(app) {
         };
         try {
             let ffields = { _id: 1, date: 1, costs: 1, status: 1 };
-            const total = await db.collection('warehouse_orders').find(fquery, ffields, { skip: skip, limit: limit }).count();
-            const items = await db.collection('warehouse_orders').find(fquery, ffields, { skip: skip, limit: limit }).sort(sort).toArray();
+            const total = await db.collection('warehouse_orders').find(fquery).count();
+            const items = await db.collection('warehouse_orders').find(fquery, { skip: skip, limit: limit, sort: sort, projection: ffields }).toArray();
             for (let i in items) {
                 if (items[i][locale]) {
                     items[i].title = items[i][locale].title;
