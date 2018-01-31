@@ -351,24 +351,26 @@
             });
         },
         _valueslisteditableAddFunc(prefix, name, key, value, data, nofocus) {
-            const valuesListItem = this._template(this.settings.html.valueslistItemEditable, {
-                prefix: prefix,
-                name: name,
-                key: key.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"),
-                value: value,
-                data: data,
-                langParameter: this.settings.lang.parameter,
-                langValue: this.settings.lang.value
-            });
-            $('#' + prefix + '_' + name + '_wrap').append(valuesListItem);
-            if (!nofocus) {
-                $('.' + prefix + '-' + name + '-item').last().find('div>input:first').focus();
+            if (key) {
+                const valuesListItem = this._template(this.settings.html.valueslistItemEditable, {
+                    prefix: prefix,
+                    name: name,
+                    key: key.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"),
+                    value: value,
+                    data: data,
+                    langParameter: this.settings.lang.parameter,
+                    langValue: this.settings.lang.value
+                });
+                $('#' + prefix + '_' + name + '_wrap').append(valuesListItem);
+                if (!nofocus) {
+                    $('.' + prefix + '-' + name + '-item').last().find('div>input:first').focus();
+                }
+                $('.formBuilder-valueslisteditable-btnDel').unbind();
+                $('.formBuilder-valueslisteditable-btnDel').click(function(e) {
+                    e.stopPropagation();
+                    $(this).parent().parent().remove();
+                });
             }
-            $('.formBuilder-valueslisteditable-btnDel').unbind();
-            $('.formBuilder-valueslisteditable-btnDel').click(function(e) {
-                e.stopPropagation();
-                $(this).parent().parent().remove();
-            });
         },
         _valueslistfixedAddFunc(prefix, name, key, value, nofocus) {
             const valuesListItem = this._template(this.settings.html.valueslistfixedItem, {
