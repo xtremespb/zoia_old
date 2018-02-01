@@ -164,7 +164,7 @@ module.exports = function(data) {
                 throw new Error('Could not run db.collection(\'pages\').update');
             }
         }
-        upd = await db.collection('registry').update({ name: 'pagesFolders' }, {
+        const upd = await db.collection('registry').update({ name: 'pagesFolders' }, {
             $set: {
                 name: 'pagesFolders',
                 data: '[{\"id\":\"1\",\"text\":\"/\",\"parent\":\"#\",\"type\":\"root\"},{\"id\":\"1502985623\",\"text\":\"manual\",\"data\":{\"lang\":{\"en\":\"Manual\",\"ru\":\"Руководство\"}},\"parent\":\"1\",\"type\":\"folder\"}]'

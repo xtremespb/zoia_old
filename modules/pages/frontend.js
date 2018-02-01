@@ -1,6 +1,5 @@
 const path = require('path');
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
 
 const templates = require(path.join(__dirname, 'templates.js'));
@@ -17,20 +16,20 @@ const _treePath = (tree, id, locale, text, _path) => {
     if (!node) {
         return '';
     }
-    let path = _path || [];
-    if (text) {
-        path.push(node.text);
-    } else {
+    let pathT = _path || [];
+    if (!text) {
         if (node.data && node.data.lang && node.data.lang[locale]) {
-            path.push(node.data.lang[locale]);
+            pathT.push(node.data.lang[locale]);
         } else {
-            path.push('');
+            pathT.push('');
         }
+    } else {
+        pathT.push(node.text);
     }
     if (node.parent !== '#') {
-        path = _treePath(tree, node.parent, locale, text, path);
+        pathT = _treePath(tree, node.parent, locale, text, pathT);
     }
-    return path;
+    return pathT;
 };
 
 module.exports = function(app) {
@@ -75,7 +74,6 @@ module.exports = function(app) {
                 let tagString = tag.trim().replace(/^\[\[/, '').replace(/\]\]$/, '');
                 let tagParts = tagString.split('|');
                 let fn = '';
-                let fp = [];
                 if (!tagParts || !tagParts.length) {
                     continue;
                 }
@@ -83,7 +81,6 @@ module.exports = function(app) {
                     fn = tagParts[0];
                 } else {
                     fn = tagParts.pop();
-                    fp = tagParts;
                 }
                 for (let p in tagParts) {
                     let par = tagParts[p];
@@ -112,30 +109,28 @@ module.exports = function(app) {
             return '';
         }
         let locale = _locale || config.i18n.locales[0];
-        let tree = [];
         try {
             let foldersData = await db.collection('registry').findOne({ name: 'pagesFolders' });
             if (!foldersData) {
                 return '';
             }
             let folders = JSON.parse(foldersData.data);
-            let path = _treePath(folders, data.folder, locale, false);
-            path = path.reverse();
-            path.shift();
-            let pathId = _treePath(folders, data.folder, locale, true);
-            pathId = pathId.reverse();
-            pathId.shift();
+            let pathT = _treePath(folders, data.folder, locale, false);
+            pathT = pathT.reverse();
+            pathT.shift();
+            let pathTId = _treePath(folders, data.folder, locale, true);
+            pathTId = pathTId.reverse();
+            pathTId.shift();
             let html = '';
-            let pathUrl = '/'
-            html += tpl(templates['item'], { url: pathUrl, title: config.website.titleShort[locale] });
-            for (let i in path) {
-                pathUrl += pathId[i] + '/';
-                html += tpl(templates['item'], { url: pathUrl, title: path[i] });
+            let pathTUrl = '/';
+            html += tpl(templates['item'], { url: pathTUrl, title: config.website.titleShort[locale] });
+            for (let i in pathT) {
+                pathTUrl += pathTId[i] + '/';
+                html += tpl(templates['item'], { url: pathTUrl, title: pathT[i] });
             }
             html += tpl(templates['itemActive'], { title: data[locale].title });
             html = tpl(templates['wrap'], { data: html });
             return html;
-
         } catch (e) {
             return '';
         }
