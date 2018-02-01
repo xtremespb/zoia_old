@@ -63,7 +63,7 @@ module.exports = function(app) {
         };
         if (dataSettings && dataSettings.data) {
             try {
-                settingsParsed = JSON.parse(dataSettings.data);
+                let settingsParsed = JSON.parse(dataSettings.data);
                 for (let i in settingsParsed) {
                     for (let p in settingsParsed[i]) {
                         if (settingsParsed[i][p].p === locale) {
@@ -128,7 +128,7 @@ module.exports = function(app) {
             }
             let ffields = { _id: 1, folder: 1, sku: 1, status: 1, price: 1 };
             ffields[locale + '.title'] = 1;
-            fquery.status = { $ne: "temp" };
+            fquery.status = { $ne: 'temp' };
             const total = await db.collection('warehouse').find(fquery).count();
             const items = await db.collection('warehouse').find(fquery, { skip: skip, limit: limit, sort: sort, projection: ffields }).toArray();
             for (let i in items) {
@@ -198,7 +198,6 @@ module.exports = function(app) {
                 tfq['title.' + locale] = { $regex: search, $options: 'i' };
                 fquery.$or.push(tfq);
             }
-
             let ffields = { _id: 1, pid: 1, title: 1 };
             const total = await db.collection('warehouse_properties').find(fquery).count();
             const items = await db.collection('warehouse_properties').find(fquery, { skip: skip, limit: limit, sort: sort, projection: ffields }).toArray();
@@ -541,9 +540,9 @@ module.exports = function(app) {
             for (let i in config.i18n.locales) {
                 let lng = config.i18n.locales[i];
                 for (let p in propertiesData) {
-                    for (let i in item[lng].properties) {
-                        if (p === item[lng].properties[i].d) {
-                            item[lng].properties[i].p = propertiesData[p];
+                    for (let j in item[lng].properties) {
+                        if (p === item[lng].properties[j].d) {
+                            item[lng].properties[j].p = propertiesData[p];
                         }
                     }
                 }
@@ -565,13 +564,10 @@ module.exports = function(app) {
                     }
                 }
             }
-            for (let i in config.i18n.locales) {
-                let lng = config.i18n.locales[i];
-                for (let p in variantsData) {
-                    for (let i in item.variants) {
-                        if (p === item.variants[i].d) {
-                            item.variants[i].p = variantsData[p];
-                        }
+            for (let p in variantsData) {
+                for (let j in item.variants) {
+                    if (p === item.variants[j].d) {
+                        item.variants[j].p = variantsData[p];
                     }
                 }
             }
@@ -1069,7 +1065,7 @@ module.exports = function(app) {
             const data = {
                 currency: fields.currency.value,
                 weight: fields.weight.value
-            }
+            };
             const json = JSON.stringify(data);
             const updResult = await db.collection('registry').update({ name: 'warehouseSettings' }, { name: 'warehouseSettings', data: json }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
@@ -1342,8 +1338,7 @@ module.exports = function(app) {
             if (!updResult1 || !updResult1.result || !updResult1.result.ok ||
                 !updResult2 || !updResult2.result || !updResult2.result.ok) {
                 return res.send(JSON.stringify({
-                    status: 0,
-                    fields: fieldsFailed
+                    status: 0
                 }));
             }
             return res.send(JSON.stringify({
@@ -1514,7 +1509,7 @@ module.exports = function(app) {
                             throw new Error('Invalid property ID');
                         }
                         if (fields.properties.value[p].v && typeof fields.properties.value[p].v === 'string') {
-                            fields.properties.value[p].v = fields.properties.value[p].v.replace(/\&/gm, '&amp;').replace(/\"/gm, '&quot;').replace(/\'/gm, '&apos;').replace(/\</gm, '&lt;').replace(/\>/gm, '&gt;')
+                            fields.properties.value[p].v = fields.properties.value[p].v.replace(/\&/gm, '&amp;').replace(/\"/gm, '&quot;').replace(/\'/gm, '&apos;').replace(/\</gm, '&lt;').replace(/\>/gm, '&gt;');
                         }
                     }
                     if (fields.variants && fields.variants.value === '') {
@@ -1526,7 +1521,7 @@ module.exports = function(app) {
                             throw new Error('Invalid property ID');
                         }
                         if (fields.variants.value[p].v && typeof fields.variants.value[p].v === 'string') {
-                            fields.variants.value[p].v = fields.variants.value[p].v.replace(/\&/gm, '&amp;').replace(/\"/gm, '&quot;').replace(/\'/gm, '&apos;').replace(/\</gm, '&lt;').replace(/\>/gm, '&gt;')
+                            fields.variants.value[p].v = fields.variants.value[p].v.replace(/\&/gm, '&amp;').replace(/\"/gm, '&quot;').replace(/\'/gm, '&apos;').replace(/\</gm, '&lt;').replace(/\>/gm, '&gt;');
                         }
                     }
                     data[lng] = {
@@ -1629,7 +1624,7 @@ module.exports = function(app) {
         }
         let output = {};
         let data = {
-            "status": "temp"
+            status: 'temp'
         };
         try {
             const insResult = await db.collection('warehouse').insertOne(data);
@@ -2255,12 +2250,12 @@ module.exports = function(app) {
         if (!node) {
             return '';
         }
-        let path = _path || [];
-        path.push(node.text);
+        let pathTree = _path || [];
+        pathTree.push(node.text);
         if (node.parent !== '#') {
-            path = _treePath(tree, node.parent, path);
+            pathTree = _treePath(tree, node.parent, pathTree);
         }
-        return path;
+        return pathTree;
     };
 
     const browseUpload = async(req, res) => {
@@ -2382,28 +2377,28 @@ module.exports = function(app) {
             }));
         }
         try {
-            const foldersString = await db.collection('registry').findOne({ name: 'warehouseFolders' });
-            if (!foldersString || !foldersString.data) {
+            const foldersRString = await db.collection('registry').findOne({ name: 'warehouseFolders' });
+            if (!foldersRString || !foldersRString.data) {
                 return res.send(JSON.stringify({
                     status: 0
                 }));
             }
-            const folders = JSON.parse(foldersString.data);
-            let path = _treePath(folders, folder);
-            path = path.reverse();
-            path.shift();
-            path = path.join('/');
+            const foldersR = JSON.parse(foldersRString.data);
+            let pathR = _treePath(foldersR, folder);
+            pathR = pathR.reverse();
+            pathR.shift();
+            pathR = pathR.join('/');
             let farr = [];
-            for (let i in folders) {
+            for (let i in foldersR) {
                 farr.push({
                     folder: {
-                        $ne: folders[i].id
+                        $ne: foldersR[i].id
                     }
-                })
+                });
             }
             const count = await db.collection('warehouse').find({ $and: farr }, { _id: 1 }).count();
             if (count) {
-                const updResult = await db.collection('warehouse').update({ $and: farr }, { $set: { folder: folder, folderVal: path } }, { upsert: true });
+                const updResult = await db.collection('warehouse').update({ $and: farr }, { $set: { folder: folder, folderVal: pathR } }, { upsert: true });
                 if (!updResult || !updResult.result || !updResult.result.ok) {
                     return res.send(JSON.stringify({
                         status: 0
@@ -2428,13 +2423,13 @@ module.exports = function(app) {
             }));
         }
         try {
-            const foldersString = await db.collection('registry').findOne({ name: 'warehouseFolders' });
-            if (!foldersString || !foldersString.data) {
+            const foldersRString = await db.collection('registry').findOne({ name: 'warehouseFolders' });
+            if (!foldersRString || !foldersRString.data) {
                 return res.send(JSON.stringify({
                     status: -1
                 }));
             }
-            const folders = JSON.parse(foldersString.data);
+            const foldersR = JSON.parse(foldersRString.data);
             const items = await db.collection('warehouse').find({}, { folder: 1, url: 1 }).toArray();
             if (items && items.length) {
                 for (let i in items) {
@@ -2442,12 +2437,12 @@ module.exports = function(app) {
                     if (!item.folder) {
                         continue;
                     }
-                    let path = _treePath(folders, item.folder);
-                    path = path.reverse();
-                    path.shift();
-                    path = path.join('/');
-                    if (item.url !== path) {
-                        const updResult = await db.collection('warehouse').update({ _id: item._id }, { $set: { url: path } }, { upsert: true });
+                    let pathR = _treePath(foldersR, item.folder);
+                    pathR = pathR.reverse();
+                    pathR.shift();
+                    pathR = pathR.join('/');
+                    if (item.url !== pathR) {
+                        const updResult = await db.collection('warehouse').update({ _id: item._id }, { $set: { url: pathR } }, { upsert: true });
                         if (!updResult || !updResult.result || !updResult.result.ok) {
                             return res.send(JSON.stringify({
                                 status: -2
@@ -2509,7 +2504,7 @@ module.exports = function(app) {
                             prop.title[lng] = json[lng] || '';
                         }
                         await db.collection('warehouse_properties').insertOne(prop);
-                    }).on('done', async(error) => {
+                    }).on('done', async() => {
                         await db.collection('warehouse_tasks').update({ _id: new ObjectID(uid) }, { $set: { state: 3 } }, { upsert: true });
                     });
             }, 0);
@@ -2567,7 +2562,7 @@ module.exports = function(app) {
                             prop.title[lng] = json[lng] || '';
                         }
                         await db.collection('warehouse_variants').insertOne(prop);
-                    }).on('done', async(error) => {
+                    }).on('done', async() => {
                         await db.collection('warehouse_tasks').update({ _id: new ObjectID(uid) }, { $set: { state: 3 } }, { upsert: true });
                     });
             }, 0);
@@ -2590,7 +2585,6 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        const locale = req.session.currentLocale;
         const id = req.query.id;
         if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
             return res.send(JSON.stringify({
@@ -2632,7 +2626,6 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        const locale = req.session.currentLocale;
         const id = req.query.id;
         if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
             return res.send(JSON.stringify({
@@ -2716,7 +2709,7 @@ module.exports = function(app) {
                             prop.title[lng] = json[lng] || '';
                         }
                         await db.collection('warehouse_collections').insertOne(prop);
-                    }).on('done', async(error) => {
+                    }).on('done', async() => {
                         await db.collection('warehouse_tasks').update({ _id: new ObjectID(uid) }, { $set: { state: 3 } }, { upsert: true });
                     });
             }, 0);
@@ -2781,7 +2774,7 @@ module.exports = function(app) {
                             prop.title[lng] = json[lng] || '';
                         }
                         await db.collection('warehouse_variants_collections').insertOne(prop);
-                    }).on('done', async(error) => {
+                    }).on('done', async() => {
                         await db.collection('warehouse_tasks').update({ _id: new ObjectID(uid) }, { $set: { state: 3 } }, { upsert: true });
                     });
             }, 0);
@@ -2804,7 +2797,6 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        const locale = req.session.currentLocale;
         const id = req.query.id;
         if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
             return res.send(JSON.stringify({
@@ -2846,7 +2838,6 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        const locale = req.session.currentLocale;
         const id = req.query.id;
         if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
             return res.send(JSON.stringify({
@@ -2922,19 +2913,19 @@ module.exports = function(app) {
             }
             if (checkPropertiesType.indexOf(checkboxes[i]) === -1) {
                 checkPropertiesType.push({ pid: checkboxes[i] });
-                typesForId[checkboxes[i]] = "2";
+                typesForId[checkboxes[i]] = '2';
             }
         }
         for (let i in integers) {
             let found = false;
-            let [id, cnt] = integers[i].split('|');
-            if (!cnt || !parseInt(cnt)) {
+            let [iid, cnt] = integers[i].split('|');
+            if (!cnt || !parseInt(cnt, 10)) {
                 cnt = 1;
             } else {
-                cnt = parseInt(cnt);
+                cnt = parseInt(cnt, 10);
             }
             for (let v in item[locale].properties) {
-                if (item[locale].properties[v].d === id) {
+                if (item[locale].properties[v].d === iid) {
                     found = true;
                     break;
                 }
@@ -2944,9 +2935,9 @@ module.exports = function(app) {
                     status: 0
                 }));
             }
-            if (checkPropertiesType.indexOf(id) === -1) {
-                checkPropertiesType.push({ pid: id });
-                typesForId[id] = "3";
+            if (checkPropertiesType.indexOf(iid) === -1) {
+                checkPropertiesType.push({ pid: iid });
+                typesForId[iid] = '3';
             }
         }
         if (checkPropertiesType.length) {
@@ -2955,13 +2946,12 @@ module.exports = function(app) {
                 return res.send(JSON.stringify({
                     status: 0
                 }));
-            } else {
-                for (let i in propDB) {
-                    if (propDB[i].type !== typesForId[propDB[i].pid]) {
-                        return res.send(JSON.stringify({
-                            status: 0
-                        }));
-                    }
+            }
+            for (let i in propDB) {
+                if (propDB[i].type !== typesForId[propDB[i].pid]) {
+                    return res.send(JSON.stringify({
+                        status: 0
+                    }));
                 }
             }
         }
@@ -2990,7 +2980,7 @@ module.exports = function(app) {
         let count = req.body.count;
         if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/) ||
             !count || typeof count !== 'string' || !count.match(/^[0-9]+$/) ||
-            parseInt(count) === 0 || parseInt(count) > 99999 ||
+            parseInt(count, 10) === 0 || parseInt(count, 10) > 99999 ||
             (variant && (typeof variant !== 'string' || !variant.match(/^[a-zA-Z0-9_]+$/) || variant.length > 64))) {
             return res.send(JSON.stringify({
                 status: 0
@@ -3026,10 +3016,10 @@ module.exports = function(app) {
             }
         }
         for (let p in cart[uid].integers) {
-            const [id, cnt] = cart[uid].integers[p].split('|');
+            const [iid, cnt] = cart[uid].integers[p].split('|');
             for (let i in item[locale].properties) {
-                if (item[locale].properties[i].d === id) {
-                    subtotal += parseFloat(item[locale].properties[i].v) * parseInt(cnt) * count;
+                if (item[locale].properties[i].d === iid) {
+                    subtotal += parseFloat(item[locale].properties[i].v) * parseInt(cnt, 10) * count;
                 }
             }
         }
@@ -3047,7 +3037,6 @@ module.exports = function(app) {
 
     const cartDelete = async(req, res) => {
         res.contentType('application/json');
-        const locale = req.session.currentLocale;
         const id = req.body.id;
         let variant = req.body.variant;
         const count = req.body.count;
@@ -3118,7 +3107,7 @@ module.exports = function(app) {
         if (!template) {
             template = {
                 data: ''
-            }
+            };
         } else {
             delete template._id;
             delete template.name;
@@ -3135,7 +3124,7 @@ module.exports = function(app) {
             orderData.delivery = deliveryRec.pid;
             orderData.cart = {};
             const addressData = await db.collection('registry').findOne({ name: 'warehouse_address' }) || [];
-            const settings = await _loadSettings(locale);
+            const settingsData = await _loadSettings(locale);
             const cart = req.session.catalog_cart || {};
             let weight = 0;
             let cartArr = [];
@@ -3144,7 +3133,7 @@ module.exports = function(app) {
                 let propertiesQuery = [];
                 let filter = {};
                 for (let i in cart) {
-                    const [id, variant] = i.split('|');
+                    const [id] = i.split('|');
                     if (!filter[id]) {
                         query.push({
                             _id: new ObjectID(id)
@@ -3152,11 +3141,11 @@ module.exports = function(app) {
                         filter[id] = true;
                     }
                     for (let p in cart[i].checkboxes) {
-                        propertiesQuery.push({ pid: cart[i].checkboxes[p] })
+                        propertiesQuery.push({ pid: cart[i].checkboxes[p] });
                     }
                     for (let p in cart[i].integers) {
-                        const [id, cnt] = cart[i].integers[p].split('|');
-                        propertiesQuery.push({ pid: id });
+                        const [iid] = cart[i].integers[p].split('|');
+                        propertiesQuery.push({ pid: iid });
                     }
                 }
                 let ffields = { _id: 1, price: 1, variants: 1, sku: 1 };
@@ -3196,7 +3185,7 @@ module.exports = function(app) {
                             weight: cartDB[i].weight,
                             sku: cartDB[i].sku,
                             variants: variants
-                        }
+                        };
                     }
                     let variantsData = {};
                     if (variantsQuery.length) {
@@ -3216,20 +3205,25 @@ module.exports = function(app) {
                             price = parseFloat(cartData[id].variants[variant]);
                         }
                         for (let p in item.checkboxes) {
-                            price += parseFloat(propertiesCost[item.checkboxes[p]]);
+                            if (propertiesCost[item.checkboxes[p]]) {
+                                price += parseFloat(propertiesCost[item.checkboxes[p]]);
+                            }
                         }
                         let integersID = [];
                         for (let p in item.integers) {
-                            let [id, cnt] = item.integers[p].split('|');
+                            let [iid, cnt] = item.integers[p].split('|');
                             if (!cnt) {
                                 cnt = 1;
                             }
-                            propertiesCount[id] = cnt;
-                            if (integersID.indexOf(id) === -1) {
-                                integersID.push(id);
+                            propertiesCount[iid] = cnt;
+                            if (integersID.indexOf(iid) === -1) {
+                                integersID.push(iid);
                             }
-                            price += parseFloat(propertiesCost[id]) * parseInt(cnt);
+                            if (propertiesCost[iid]) {
+                                price += parseFloat(propertiesCost[iid]) * parseInt(cnt, 10);
+                            }
                         }
+
                         cartArr.push({
                             id: id,
                             variant: variant,
@@ -3286,7 +3280,7 @@ module.exports = function(app) {
                             errorFields.push(field);
                             continue;
                         }
-                        if (ai.regex && !val.match(new RegEx(ai.regex))) {
+                        if (ai.regex && !val.match(new RegExp(ai.regex))) {
                             errorFields.push(field);
                             continue;
                         }
@@ -3367,7 +3361,7 @@ module.exports = function(app) {
                     deliveryArr.push({
                         title: item.label[locale] || '',
                         cost: orderData.costs.extra[i]
-                    })
+                    });
                 }
             }
             let addressHTML = '';
@@ -3380,7 +3374,7 @@ module.exports = function(app) {
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 config: config,
                 cart: cartArr,
-                settings: settings,
+                settingsData: settingsData,
                 orderData: orderData,
                 delivery: deliveryArr,
                 addressHTML: addressHTML,
@@ -3392,7 +3386,7 @@ module.exports = function(app) {
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 config: config,
                 cart: cartArr,
-                settings: settings,
+                settingsData: settingsData,
                 orderData: orderData,
                 delivery: deliveryArr,
                 addressHTML: addressHTML,
@@ -3428,7 +3422,7 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        const sortField = req.query.sortField || 'date';
+        const sortField = req.query.sortField || '_id';
         const sortDirection = (req.query.sortDirection === 'asc') ? 1 : -1;
         const sort = {};
         sort[sortField] = sortDirection;
@@ -3458,7 +3452,7 @@ module.exports = function(app) {
             if (search) {
                 fquery = {
                     $or: [
-                        { _id: parseInt(search) },
+                        { _id: parseInt(search, 10) },
                         { username: { $regex: search, $options: 'i' } }
                     ]
                 };
@@ -3513,7 +3507,7 @@ module.exports = function(app) {
                 output.status = -2;
                 return res.send(JSON.stringify(output));
             }
-            did.push({ _id: parseInt(id) });
+            did.push({ _id: parseInt(id, 10) });
         }
         try {
             const delResult = await db.collection('warehouse_orders').deleteMany({
@@ -3542,7 +3536,7 @@ module.exports = function(app) {
             }));
         }
         try {
-            const item = await db.collection('warehouse_orders').findOne({ _id: parseInt(id) });
+            const item = await db.collection('warehouse_orders').findOne({ _id: parseInt(id, 10) });
             if (!item) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -3564,19 +3558,19 @@ module.exports = function(app) {
             let querySKU = [];
             let propertiesQuery = [];
             for (let i in item.cart) {
-                const [id, variant] = i.split('|');
+                const [iid] = i.split('|');
                 querySKU.push({
-                    sku: { $eq: id }
+                    sku: { $eq: iid }
                 });
                 for (let p in item.cart[i].checkboxes) {
                     if (propertiesQuery.indexOf({ pid: item.cart[i].checkboxes[p] }) === -1) {
-                        propertiesQuery.push({ pid: item.cart[i].checkboxes[p] })
+                        propertiesQuery.push({ pid: item.cart[i].checkboxes[p] });
                     }
                 }
                 for (let p in item.cart[i].integers) {
-                    const [id, cnt] = item.cart[i].integers[p].split('|');
-                    if (propertiesQuery.indexOf({ pid: id }) === -1) {
-                        propertiesQuery.push({ pid: id });
+                    const [jid] = item.cart[i].integers[p].split('|');
+                    if (propertiesQuery.indexOf({ pid: jid }) === -1) {
+                        propertiesQuery.push({ pid: jid });
                     }
                 }
             }
@@ -3608,8 +3602,8 @@ module.exports = function(app) {
             }
             let addressData = {};
             for (let i in jsonAddress) {
-                const item = jsonAddress[i];
-                addressData[item.id] = item.label[locale] || '';
+                const iitem = jsonAddress[i];
+                addressData[iitem.id] = item.label[locale] || '';
             }
             // Variants                        
             if (variantsQuery.length) {
@@ -3638,43 +3632,6 @@ module.exports = function(app) {
         }
     };
 
-    const addCartOrder = async(req, res) => {
-        res.contentType('application/json');
-        if (!Module.isAuthorizedAdmin(req)) {
-            return res.send(JSON.stringify({
-                status: 0
-            }));
-        }
-        const locale = req.session.currentLocale;
-        const sku = req.body.sku;
-        if (!sku || typeof sku !== 'string' || !sku.match(/^[A-Za-z0-9_\-]+$/)) {
-            return res.send(JSON.stringify({
-                status: 0
-            }));
-        }
-        let ffields = { _id: 1, sku: 1 };
-        ffields[locale + '.title'] = 1;
-        try {
-            const item = await db.collection('warehouse').findOne({ sku: sku }, { projection: ffields });
-            if (!item) {
-                return res.send(JSON.stringify({
-                    status: 0
-                }));
-            }
-            return res.send(JSON.stringify({
-                status: 1,
-                sku: item.sku,
-                title: item[locale] ? item[locale].title : ''
-            }));
-        } catch (e) {
-            log.error(e);
-            res.send(JSON.stringify({
-                status: 0,
-                error: e.message
-            }));
-        }
-    };
-
     const saveOrder = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
@@ -3690,7 +3647,7 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        id = parseInt(id);
+        id = parseInt(id, 10);
         try {
             const updResult = await db.collection('warehouse_orders').update({ _id: id }, { $set: data }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
@@ -3727,7 +3684,6 @@ module.exports = function(app) {
         sort[sortField] = sortDirection;
         let skip = req.query.skip || 0;
         let limit = req.query.limit || 10;
-        let search = req.query.search || '';
         if (typeof sortField !== 'string' || typeof skip !== 'string' || typeof limit !== 'string') {
             return res.send(JSON.stringify({
                 status: 0
@@ -3758,6 +3714,80 @@ module.exports = function(app) {
                 count: items.length,
                 total: total,
                 items: items
+            }));
+        } catch (e) {
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
+    const loadItemData = async(req, res) => {
+        const locale = req.session.currentLocale;
+        res.contentType('application/json');
+        if (!Module.isAuthorized(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const sku = req.body.sku;
+        if (!sku || typeof sku !== 'string' || !sku.match(/^[A-Za-z0-9_\-\.]{1,64}$/)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            // Find item by SKU
+            const data = await db.collection('warehouse').findOne({ sku: sku });
+            if (!data) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            let variantsQuery = [];
+            for (let i in data.variants) {
+                variantsQuery.push({ pid: data.variants[i].d });
+            }
+            let variantsData = {};
+            if (variantsQuery.length > 0) {
+                const variants = await db.collection('warehouse_variants').find({ $or: variantsQuery }).toArray();
+                for (let p in variants) {
+                    variantsData[variants[p].pid] = variants[p].title[locale] || '';
+                }
+            }
+            let propertiesQuery = [];
+            let propertiesData = {};
+            let checkboxes = [];
+            let integers = [];
+            if (data[locale]) {
+                for (let i in data[locale].properties) {
+                    propertiesQuery.push({ pid: data[locale].properties[i].d });
+                }
+            }
+            if (propertiesQuery.length > 0) {
+                const properties = await db.collection('warehouse_properties').find({ $or: propertiesQuery }).toArray();
+                for (let p in properties) {
+                    if (properties[p].type === '2' || properties[p].type === '3') {
+                        propertiesData[properties[p].pid] = properties[p].title[locale] || '';
+                        if (properties[p].type === '2') {
+                            checkboxes.push(properties[p].pid);
+                        } else {
+                            integers.push(properties[p].pid);
+                        }
+                    }
+                }
+            }
+            res.send(JSON.stringify({
+                status: 1,
+                data: {
+                    sku: data.sku,
+                    title: data[locale] ? data[locale].title : '',
+                    variants: variantsData,
+                    checkboxes: checkboxes,
+                    integers: integers,
+                    properties: propertiesData
+                }
             }));
         } catch (e) {
             res.send(JSON.stringify({
@@ -3824,8 +3854,8 @@ module.exports = function(app) {
     router.all('/orders/list', ordersList);
     router.post('/orders/delete', delOrder);
     router.post('/orders/load', loadOrder);
-    router.post('/orders/cart/add', addCartOrder);
     router.post('/orders/save', saveOrder);
+    router.post('/orders/load/item', loadItemData);
     // Frontend routes
     router.post('/cart/add', cartAdd);
     router.post('/cart/count', cartCount);

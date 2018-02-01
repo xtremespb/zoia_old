@@ -58,11 +58,15 @@ const viewOrder = (id) => {
                 const [id, variant] = i.split('|');
                 let extraHTML = '';
                 for (let c in order.cart[i].checkboxes) {
-                    extraHTML += '<br>' + res.propertiesData[order.cart[i].checkboxes[c]];
+                    if (res.propertiesData[order.cart[i].checkboxes[c]]) {
+                        extraHTML += '<br>' + res.propertiesData[order.cart[i].checkboxes[c]];
+                    }
                 }
                 for (let c in order.cart[i].integers) {
                     const [id, cnt] = order.cart[i].integers[c].split('|');
-                    extraHTML += '<br>' + res.propertiesData[id] + '&nbsp;(' + cnt + ')';
+                    if (res.propertiesData[id]) {
+                        extraHTML += '<br>' + res.propertiesData[id] + '&nbsp;(' + cnt + ')';
+                    }
                 }
                 cartHTML += '<tr><td class="za-table-shrink">' + id + '</td><td class="za-table-expand">' + res.cartData[id] + (variant ? '&nbsp;(' + res.variants[variant] + ')' : '') + extraHTML + '</td><td class="za-table-shrink">' + order.cart[i].count + '</td><td class="za-table-shrink"></td></tr>';
             }

@@ -424,7 +424,7 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
-        var sku = req.params.sku;
+        const sku = req.params.sku;
         if (!sku || typeof sku !== 'string' || !sku.match(/^[A-Za-z0-9_\-\.]{1,64}$/)) {
             return next();
         }
@@ -588,7 +588,9 @@ module.exports = function(app) {
                         price = parseFloat(cartData[id].variants[variant]);
                     }
                     for (let p in item.checkboxes) {
-                        price += parseFloat(propertiesCost[item.checkboxes[p]]);
+                        if (propertiesCost[item.checkboxes[p]]) {
+                            price += parseFloat(propertiesCost[item.checkboxes[p]]);
+                        }
                     }
                     let integersID = [];
                     for (let p in item.integers) {
@@ -600,7 +602,9 @@ module.exports = function(app) {
                         if (integersID.indexOf(id) === -1) {
                             integersID.push(id);
                         }
-                        price += parseFloat(propertiesCost[id]) * parseInt(cnt);
+                        if (propertiesCost[id]) {
+                            price += parseFloat(propertiesCost[id]) * parseInt(cnt);
+                        }
                     }
                     cartArr.push({
                         id: id,
@@ -622,6 +626,7 @@ module.exports = function(app) {
                 total = parseFloat(total).toFixed(2);
             }
         }
+        console.log(cartArr);
         // Render
         let catalogCartHTML = await renderAuth.file(templateCatalogCart, {
             i18n: i18n.get(),
@@ -732,7 +737,9 @@ module.exports = function(app) {
                         price = parseFloat(cartData[id].variants[variant]);
                     }
                     for (let p in item.checkboxes) {
-                        price += parseFloat(propertiesCost[item.checkboxes[p]]);
+                        if (propertiesCost[item.checkboxes[p]]) {
+                            price += parseFloat(propertiesCost[item.checkboxes[p]]);
+                        }
                     }
                     let integersID = [];
                     for (let p in item.integers) {
@@ -744,7 +751,9 @@ module.exports = function(app) {
                         if (integersID.indexOf(id) === -1) {
                             integersID.push(id);
                         }
-                        price += parseFloat(propertiesCost[id]) * parseInt(cnt);
+                        if (propertiesCost[id]) {
+                            price += parseFloat(propertiesCost[id]) * parseInt(cnt);
+                        }
                     }
                     cartArr.push({
                         id: id,

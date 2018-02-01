@@ -213,5 +213,8 @@
 	"Use drag-and-drop to arrange variants order": "Use drag-and-drop to arrange variants order",
 	"Options": "Options",
 	"Type": "Type",
-	"Refresh": "Refresh"
+	"Refresh": "Refresh",
+	"Add Item": "Add Item",
+	"Default": "Default",
+	"Variant": "Variant"
 }
