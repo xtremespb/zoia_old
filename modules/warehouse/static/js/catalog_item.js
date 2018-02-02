@@ -1,3 +1,7 @@
+/* eslint no-undef: 0 */
+/* eslint no-use-before-define: 0 */
+/* eslint max-nested-callbacks: 0 */
+
 let price = parseFloat($('#za_catalog_item_price').html());
 
 const calculatePrice = () => {
@@ -14,7 +18,7 @@ const calculatePrice = () => {
     $('.za-catalog-item-integer').each(function() {
         if ($(this).is(':checked')) {
             const id = $(this).attr('data-id');
-            let val = parseInt($('#za_catalog_item_integer_' + id).val());
+            let val = parseInt($('#za_catalog_item_integer_' + id).val(), 10);
             if (!val) {
                 val = 1;
             }
@@ -28,7 +32,7 @@ const calculatePrice = () => {
     return {
         checkboxes: checkboxes,
         integers: integers
-    }
+    };
 };
 
 $(document).ready(() => {

@@ -46,7 +46,7 @@ module.exports = function(app) {
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 langs: JSON.stringify(config.i18n.localeNames),
                 address: JSON.stringify(jsonAddress),
-                folders: folders ? folders.data : JSON.stringify([{ 'id': '1', 'text': '/', 'parent': '#', 'type': 'root' }]),
+                folders: folders ? folders.data : JSON.stringify([{ id: '1', text: '/', parent: '#', type: 'root' }]),
                 settings: settings ? settings.data : JSON.stringify({}),
                 addressJSON: JSON.stringify(addressData),
                 delivery: delivery

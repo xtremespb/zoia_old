@@ -75,20 +75,21 @@ module.exports = function(app) {
     };
 
     const _getTreePath = (tree, id) => {
-        let path = [];
+        let pathT = [];
         let nextId = id;
-        while (true) {
+        const always = true;
+        while (always) {
             let item = _findTreeItemById(tree, nextId);
             if (!item) {
                 break;
             }
             if (item.parent !== '#') {
-                path.push(item.text);
+                pathT.push(item.text);
             }
             nextId = item.parent;
         }
-        path.push(configModule.prefix);
-        return path.reverse();
+        pathT.push(configModule.prefix);
+        return pathT.reverse();
     };
 
     const _findFolderId = (tree, sText, urlPartsCopy) => {
@@ -106,32 +107,33 @@ module.exports = function(app) {
     };
 
     const _getTreeBreadcrumbs = (tree, id, locale, nonulllast) => {
-        let path = [];
+        let pathT = [];
         let nextId = id;
-        while (true) {
+        const always = true;
+        while (always) {
             let item = _findTreeItemById(tree, nextId);
             if (!item) {
                 break;
             }
             if (item.parent !== '#') {
-                path.push({
+                pathT.push({
                     title: item.data.lang[locale],
                     url: item.text
                 });
             }
             nextId = item.parent;
         }
-        path.push({ title: i18n.get().__(locale, 'Catalog'), url: configModule.prefix.replace(/\//, '') });
-        path = path.reverse();
+        pathT.push({ title: i18n.get().__(locale, 'Catalog'), url: configModule.prefix.replace(/\//, '') });
+        pathT = pathT.reverse();
         let prevPath = '';
-        for (let i in path) {
-            path[i].url = prevPath + '/' + path[i].url;
-            prevPath = path[i].url;
+        for (let i in pathT) {
+            pathT[i].url = prevPath + '/' + pathT[i].url;
+            prevPath = pathT[i].url;
         }
-        if (path.length > 1 && !nonulllast) {
-            path[path.length - 1].url = null;
+        if (pathT.length > 1 && !nonulllast) {
+            pathT[pathT.length - 1].url = null;
         }
-        return path;
+        return pathT;
     };
 
     const _loadTree = async() => {
@@ -149,14 +151,13 @@ module.exports = function(app) {
             }
         }
         return items;
-    }
+    };
 
     const _loadFolders = async(locale, urlParts) => {
         let folders = [];
         let folder = '1';
         let breadcrumbs = [];
         let children = [];
-        const dataTree = await db.collection('registry').findOne({ name: 'warehouseFolders' });
         let items = await _loadTree();
         if (items) {
             try {
@@ -182,14 +183,14 @@ module.exports = function(app) {
                 for (let i in items) {
                     const item = items[i];
                     if (item.parent === lookupFolder) {
-                        const path = _getTreePath(items, lookupFolder);
-                        path.push(item.text);
+                        const pathT = _getTreePath(items, lookupFolder);
+                        pathT.push(item.text);
                         folders.push({
                             id: item.id,
                             fid: item.text,
                             title: item.data.lang[locale] || '',
                             active: (item.id === folder) ? 'za-active' : '',
-                            path: path.join('/')
+                            pathT: pathT.join('/')
                         });
                     }
                 }
@@ -215,7 +216,7 @@ module.exports = function(app) {
         };
         if (dataSettings && dataSettings.data) {
             try {
-                settingsParsed = JSON.parse(dataSettings.data);
+                const settingsParsed = JSON.parse(dataSettings.data);
                 for (let i in settingsParsed) {
                     for (let p in settingsParsed[i]) {
                         if (settingsParsed[i][p].p === locale) {
@@ -252,7 +253,7 @@ module.exports = function(app) {
         if (typeof page !== 'string' || !page.match(/^[0-9]+$/)) {
             page = 1;
         } else {
-            page = parseInt(page);
+            page = parseInt(page, 10);
         }
         const skip = (page - 1) * configModule.itemsPerPage;
         let sortQuery = req.query.s || '';
@@ -289,11 +290,10 @@ module.exports = function(app) {
             return next();
         }
         let folders = foldersData.folders;
-        let folder = foldersData.folder;
         let breadcrumbs = foldersData.breadcrumbs;
         let children = foldersData.children;
         let what = {
-            status: '1',
+            status: '1'
         };
         if (children.length) {
             what.$or = children;
@@ -500,7 +500,7 @@ module.exports = function(app) {
         res.send(html);
     };
 
-    const cart = async(req, res, next) => {
+    const cartDisplay = async(req, res) => {
         let locale = config.i18n.locales[0];
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
@@ -519,7 +519,7 @@ module.exports = function(app) {
             let filter = {};
             let propertiesQuery = [];
             for (let i in cart) {
-                const [id, variant] = i.split('|');
+                const [id] = i.split('|');
                 if (!filter[id]) {
                     query.push({
                         _id: new ObjectID(id)
@@ -527,11 +527,11 @@ module.exports = function(app) {
                     filter[id] = true;
                 }
                 for (let p in cart[i].checkboxes) {
-                    propertiesQuery.push({ pid: cart[i].checkboxes[p] })
+                    propertiesQuery.push({ pid: cart[i].checkboxes[p] });
                 }
                 for (let p in cart[i].integers) {
-                    const [id, cnt] = cart[i].integers[p].split('|');
-                    propertiesQuery.push({ pid: id });
+                    const [iid] = cart[i].integers[p].split('|');
+                    propertiesQuery.push({ pid: iid });
                 }
             }
             let ffields = { _id: 1, price: 1, variants: 1 };
@@ -541,10 +541,12 @@ module.exports = function(app) {
                 let propertiesData = {};
                 let propertiesCost = {};
                 let propertiesCount = {};
-                const propertiesDB = await db.collection('warehouse_properties').find({ $or: propertiesQuery }).toArray();
-                if (propertiesDB && propertiesDB.length) {
-                    for (let i in propertiesDB) {
-                        propertiesData[propertiesDB[i].pid] = propertiesDB[i].title[locale];
+                if (propertiesQuery.length) {
+                    const propertiesDB = await db.collection('warehouse_properties').find({ $or: propertiesQuery }).toArray();
+                    if (propertiesDB && propertiesDB.length) {
+                        for (let i in propertiesDB) {
+                            propertiesData[propertiesDB[i].pid] = propertiesDB[i].title[locale];
+                        }
                     }
                 }
                 let cartData = {};
@@ -568,7 +570,7 @@ module.exports = function(app) {
                         text: cartDB[i][locale] ? cartDB[i][locale].title : '',
                         price: parseFloat(cartDB[i].price),
                         variants: variants
-                    }
+                    };
                 }
                 let variantsData = {};
                 if (variantsQuery.length) {
@@ -582,28 +584,28 @@ module.exports = function(app) {
                 // Build cartArr
                 for (let i in cart) {
                     const [id, variant] = i.split('|');
-                    const item = cart[i];
+                    const itemCart = cart[i];
                     let price = cartData[id].price;
                     if (variant && cartData[id].variants[variant]) {
                         price = parseFloat(cartData[id].variants[variant]);
                     }
-                    for (let p in item.checkboxes) {
-                        if (propertiesCost[item.checkboxes[p]]) {
-                            price += parseFloat(propertiesCost[item.checkboxes[p]]);
+                    for (let p in itemCart.checkboxes) {
+                        if (propertiesCost[itemCart.checkboxes[p]]) {
+                            price += parseFloat(propertiesCost[itemCart.checkboxes[p]]);
                         }
                     }
                     let integersID = [];
-                    for (let p in item.integers) {
-                        let [id, cnt] = item.integers[p].split('|');
+                    for (let p in itemCart.integers) {
+                        let [iid, cnt] = itemCart.integers[p].split('|');
                         if (!cnt) {
                             cnt = 1;
                         }
-                        propertiesCount[id] = cnt;
-                        if (integersID.indexOf(id) === -1) {
-                            integersID.push(id);
+                        propertiesCount[iid] = cnt;
+                        if (integersID.indexOf(iid) === -1) {
+                            integersID.push(iid);
                         }
-                        if (propertiesCost[id]) {
-                            price += parseFloat(propertiesCost[id]) * parseInt(cnt);
+                        if (propertiesCost[iid]) {
+                            price += parseFloat(propertiesCost[iid]) * parseInt(cnt, 10);
                         }
                     }
                     cartArr.push({
@@ -611,22 +613,21 @@ module.exports = function(app) {
                         variant: variant,
                         variantTitle: variantsData[variant],
                         text: cartData[id].text,
-                        count: item.count,
+                        count: itemCart.count,
                         price: parseFloat(price).toFixed(2),
-                        subtotal: parseFloat(price * item.count).toFixed(2),
-                        checkboxes: item.checkboxes,
-                        integers: item.integers,
+                        subtotal: parseFloat(price * itemCart.count).toFixed(2),
+                        checkboxes: itemCart.checkboxes,
+                        integers: itemCart.integers,
                         integersID: integersID,
                         propertiesData: propertiesData,
                         propertiesCost: propertiesCost,
                         propertiesCount: propertiesCount
                     });
-                    total += price * item.count;
+                    total += price * itemCart.count;
                 }
                 total = parseFloat(total).toFixed(2);
             }
         }
-        console.log(cartArr);
         // Render
         let catalogCartHTML = await renderAuth.file(templateCatalogCart, {
             i18n: i18n.get(),
@@ -647,7 +648,7 @@ module.exports = function(app) {
         res.send(html);
     };
 
-    const order = async(req, res, next) => {
+    const order = async(req, res) => {
         let locale = config.i18n.locales[0];
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
@@ -667,7 +668,7 @@ module.exports = function(app) {
             let propertiesQuery = [];
             let filter = {};
             for (let i in cart) {
-                const [id, variant] = i.split('|');
+                const [id] = i.split('|');
                 if (!filter[id]) {
                     query.push({
                         _id: new ObjectID(id)
@@ -675,11 +676,11 @@ module.exports = function(app) {
                     filter[id] = true;
                 }
                 for (let p in cart[i].checkboxes) {
-                    propertiesQuery.push({ pid: cart[i].checkboxes[p] })
+                    propertiesQuery.push({ pid: cart[i].checkboxes[p] });
                 }
                 for (let p in cart[i].integers) {
-                    const [id, cnt] = cart[i].integers[p].split('|');
-                    propertiesQuery.push({ pid: id });
+                    const [iid] = cart[i].integers[p].split('|');
+                    propertiesQuery.push({ pid: iid });
                 }
             }
             let ffields = { _id: 1, price: 1, variants: 1 };
@@ -689,10 +690,12 @@ module.exports = function(app) {
                 let propertiesData = {};
                 let propertiesCost = {};
                 let propertiesCount = {};
-                const propertiesDB = await db.collection('warehouse_properties').find({ $or: propertiesQuery }).toArray();
-                if (propertiesDB && propertiesDB.length) {
-                    for (let i in propertiesDB) {
-                        propertiesData[propertiesDB[i].pid] = propertiesDB[i].title[locale];
+                if (propertiesQuery.length) {
+                    const propertiesDB = await db.collection('warehouse_properties').find({ $or: propertiesQuery }).toArray();
+                    if (propertiesDB && propertiesDB.length) {
+                        for (let i in propertiesDB) {
+                            propertiesData[propertiesDB[i].pid] = propertiesDB[i].title[locale];
+                        }
                     }
                 }
                 let cartData = {};
@@ -717,7 +720,7 @@ module.exports = function(app) {
                         price: parseFloat(cartDB[i].price),
                         weight: cartDB[i].weight,
                         variants: variants
-                    }
+                    };
                 }
                 let variantsData = {};
                 if (variantsQuery.length) {
@@ -731,28 +734,28 @@ module.exports = function(app) {
                 // Build cartArr
                 for (let i in cart) {
                     const [id, variant] = i.split('|');
-                    const item = cart[i];
+                    const itemCart = cart[i];
                     let price = cartData[id].price;
                     if (variant && cartData[id].variants[variant]) {
                         price = parseFloat(cartData[id].variants[variant]);
                     }
-                    for (let p in item.checkboxes) {
-                        if (propertiesCost[item.checkboxes[p]]) {
-                            price += parseFloat(propertiesCost[item.checkboxes[p]]);
+                    for (let p in itemCart.checkboxes) {
+                        if (propertiesCost[itemCart.checkboxes[p]]) {
+                            price += parseFloat(propertiesCost[itemCart.checkboxes[p]]);
                         }
                     }
                     let integersID = [];
-                    for (let p in item.integers) {
-                        let [id, cnt] = item.integers[p].split('|');
+                    for (let p in itemCart.integers) {
+                        let [iid, cnt] = itemCart.integers[p].split('|');
                         if (!cnt) {
                             cnt = 1;
                         }
-                        propertiesCount[id] = cnt;
-                        if (integersID.indexOf(id) === -1) {
-                            integersID.push(id);
+                        propertiesCount[iid] = cnt;
+                        if (integersID.indexOf(iid) === -1) {
+                            integersID.push(iid);
                         }
-                        if (propertiesCost[id]) {
-                            price += parseFloat(propertiesCost[id]) * parseInt(cnt);
+                        if (propertiesCost[iid]) {
+                            price += parseFloat(propertiesCost[iid]) * parseInt(cnt, 10);
                         }
                     }
                     cartArr.push({
@@ -760,18 +763,18 @@ module.exports = function(app) {
                         variant: variant,
                         variantTitle: variantsData[variant],
                         text: cartData[id].text,
-                        count: item.count,
+                        count: itemCart.count,
                         price: parseFloat(price).toFixed(2),
-                        subtotal: parseFloat(price * item.count).toFixed(2),
-                        checkboxes: item.checkboxes,
-                        integers: item.integers,
+                        subtotal: parseFloat(price * itemCart.count).toFixed(2),
+                        checkboxes: itemCart.checkboxes,
+                        integers: itemCart.integers,
                         integersID: integersID,
                         propertiesData: propertiesData,
                         propertiesCost: propertiesCost,
                         propertiesCount: propertiesCount
                     });
-                    total += price * item.count;
-                    weight += item.count * cartData[id].weight;
+                    total += price * itemCart.count;
+                    weight += itemCart.count * cartData[id].weight;
                 }
                 total = parseFloat(total).toFixed(2);
             }
@@ -841,7 +844,7 @@ module.exports = function(app) {
         if (!template) {
             template = {
                 data: ''
-            }
+            };
         } else {
             delete template._id;
             delete template.name;
@@ -869,7 +872,7 @@ module.exports = function(app) {
     let router = Router();
     router.get('/item/:sku', item);
     router.get(/^(.*)?$/, list);
-    router.get('/cart', cart);
+    router.get('/cart', cartDisplay);
     router.get('/order', order);
     router.get('/orders', orders);
     return {

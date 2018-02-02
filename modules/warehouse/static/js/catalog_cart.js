@@ -1,3 +1,7 @@
+/* eslint no-undef: 0 */
+/* eslint no-use-before-define: 0 */
+/* eslint max-nested-callbacks: 0 */
+
 const _setSpinnerSize = () => {
     $('#za_catalog_cart_table_spinner').width($('#za_catalog_cart_table').width()).height($('#za_catalog_cart_table').height());
 };
@@ -16,7 +20,7 @@ const _debounce = (fn, delay) => {
 
 $(document).ready(() => {
     _setSpinnerSize();
-    $('.za-catalog-cart-count').keyup(_debounce(function(e) {
+    $('.za-catalog-cart-count').keyup(_debounce(function() {
         let val = $(this).val().trim();
         $(this).removeClass('za-form-danger');
         if (!val.match(/^[0-9]+$/) || val.length > 5) {
@@ -26,7 +30,7 @@ $(document).ready(() => {
         if (val === $(that).attr('data-prev')) {
             return;
         }
-        $(that).attr('data-prev', val)
+        $(that).attr('data-prev', val);
         _setSpinnerSize();
         $('#za_catalog_cart_table_spinner').show();
         $.ajax({
@@ -52,7 +56,6 @@ $(document).ready(() => {
                 let total = 0;
                 $('.za-catalog-cart-subtotal').each(function() {
                     total += parseFloat($(this).attr('data-val'));
-                    console.log(parseFloat($(this).attr('data-val')));
                 });
                 $('.za-catalog-cart-total').html(parseFloat(total).toFixed(2) + '&nbsp;' + settings.currency);
             }

@@ -10,6 +10,12 @@ module.exports = function(data) {
         } catch (e) {
             console.log('      [ ] Collection is not created');
         }
+        console.log('  └── Creating collection: mail...');
+        try {
+            await db.createCollection('mail');
+        } catch (e) {
+            console.log('      [ ] Collection is not created');
+        }
         console.log('      Dropping indexes...');
         try {
             await db.collection('registry').dropIndexes();

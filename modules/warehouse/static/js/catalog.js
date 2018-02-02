@@ -1,3 +1,6 @@
+/* eslint no-undef: 0 */
+/* eslint no-use-before-define: 0 */
+
 const filterQuery = (e) => {
     e.preventDefault();
     location.href = '?p=' + queryPage + '&s=' + querySort + '&t=' + $('#za_catalog_search_text').val().trim();
@@ -25,7 +28,6 @@ $(document).ready(() => {
             cache: false
         }).done((res) => {
             $('.za-catalog-item-button-spinner[data="' + $(that).attr('data') + '"]').hide();
-            console.log(res);
             if (res.status === 1) {
                 $zUI.notification(lang['Added to your cart'], {
                     status: 'success',
@@ -45,5 +47,5 @@ $(document).ready(() => {
         });
     });
     $('#za_catalog_search_btn').click(filterQuery);
-    $('#za_catalog_search_form').submit(filterQuery);    
+    $('#za_catalog_search_form').submit(filterQuery);
 });

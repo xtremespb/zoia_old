@@ -3156,10 +3156,12 @@ module.exports = function(app) {
                     let propertiesData = {};
                     let propertiesCost = {};
                     let propertiesCount = {};
-                    const propertiesDB = await db.collection('warehouse_properties').find({ $or: propertiesQuery }).toArray();
-                    if (propertiesDB && propertiesDB.length) {
-                        for (let i in propertiesDB) {
-                            propertiesData[propertiesDB[i].pid] = propertiesDB[i].title[locale];
+                    if (propertiesQuery.length) {
+                        const propertiesDB = await db.collection('warehouse_properties').find({ $or: propertiesQuery }).toArray();
+                        if (propertiesDB && propertiesDB.length) {
+                            for (let i in propertiesDB) {
+                                propertiesData[propertiesDB[i].pid] = propertiesDB[i].title[locale];
+                            }
                         }
                     }
                     let cartData = {};
@@ -3350,7 +3352,7 @@ module.exports = function(app) {
             // 
             // Clean up the Cart
             //
-            // req.session.catalog_cart = {};
+            req.session.catalog_cart = {};
             // 
             // Send mail
             //
@@ -3393,7 +3395,7 @@ module.exports = function(app) {
                 orderStatus: i18n.get().__(locale, 'orderStatuses')[orderData.status]
             });
             try {
-                if (req.session.auth.email) {
+                if (req.session.auth && req.session.auth.email) {
                     await mailer.send(req, req.session.auth.email, i18n.get().__(locale, 'Your order confirmation'), mailUserHTML);
                 }
                 if (config.website.email.feedback) {
@@ -3583,10 +3585,12 @@ module.exports = function(app) {
             let variants = {};
             let propertiesData = {};
             if (cartDB) {
-                const propertiesDB = await db.collection('warehouse_properties').find({ $or: propertiesQuery }).toArray();
-                if (propertiesDB && propertiesDB.length) {
-                    for (let i in propertiesDB) {
-                        propertiesData[propertiesDB[i].pid] = propertiesDB[i].title[locale];
+                if (propertiesQuery.length) {
+                    const propertiesDB = await db.collection('warehouse_properties').find({ $or: propertiesQuery }).toArray();
+                    if (propertiesDB && propertiesDB.length) {
+                        for (let i in propertiesDB) {
+                            propertiesData[propertiesDB[i].pid] = propertiesDB[i].title[locale];
+                        }
                     }
                 }
                 for (let i in cartDB) {
@@ -3603,7 +3607,7 @@ module.exports = function(app) {
             let addressData = {};
             for (let i in jsonAddress) {
                 const iitem = jsonAddress[i];
-                addressData[iitem.id] = item.label[locale] || '';
+                addressData[iitem.id] = iitem.label[locale] || '';
             }
             // Variants                        
             if (variantsQuery.length) {

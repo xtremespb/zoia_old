@@ -1,3 +1,8 @@
+/* eslint no-undef: 0 */
+/* eslint max-len: 0 */
+/* eslint no-use-before-define: 0 */
+/* eslint max-nested-callbacks: 0 */
+
 const getUrlParam = (sParam) => {
     let sPageURL = decodeURIComponent(window.location.search.substring(1));
     let sURLVariables = sPageURL.split('&');
@@ -17,7 +22,7 @@ const processTemplate = (s, d) => {
     }
     s = s.replace(new RegExp('({([^}]+)})', 'ig'), '');
     return s;
-}
+};
 
 const processState = (eventState) => {
     const state = eventState || {
@@ -50,12 +55,12 @@ const viewOrder = (id) => {
         $('#zoiaSpinnerMain').hide();
         if (res.status === 1 && res.item) {
             const order = res.item;
-            $('#za_order_date').html(new Date(parseInt(order.date) * 1000).toLocaleString());
+            $('#za_order_date').html(new Date(parseInt(order.date, 10) * 1000).toLocaleString());
             $('#za_order_status').html(lang.orderStatuses[order.status]);
             $('#za_order_delivery').html(deliveryData[order.delivery]);
             let cartHTML = '<table class="za-table za-table-striped za-table-small za-table-middle za-table-responsive"><tbody>';
             for (let i in order.cart) {
-                const [id, variant] = i.split('|');
+                const [iid, variant] = i.split('|');
                 let extraHTML = '';
                 for (let c in order.cart[i].checkboxes) {
                     if (res.propertiesData[order.cart[i].checkboxes[c]]) {
@@ -63,12 +68,12 @@ const viewOrder = (id) => {
                     }
                 }
                 for (let c in order.cart[i].integers) {
-                    const [id, cnt] = order.cart[i].integers[c].split('|');
-                    if (res.propertiesData[id]) {
-                        extraHTML += '<br>' + res.propertiesData[id] + '&nbsp;(' + cnt + ')';
+                    const [iid2, cnt] = order.cart[i].integers[c].split('|');
+                    if (res.propertiesData[iid2]) {
+                        extraHTML += '<br>' + res.propertiesData[iid2] + '&nbsp;(' + cnt + ')';
                     }
                 }
-                cartHTML += '<tr><td class="za-table-shrink">' + id + '</td><td class="za-table-expand">' + res.cartData[id] + (variant ? '&nbsp;(' + res.variants[variant] + ')' : '') + extraHTML + '</td><td class="za-table-shrink">' + order.cart[i].count + '</td><td class="za-table-shrink"></td></tr>';
+                cartHTML += '<tr><td class="za-table-shrink">' + iid + '</td><td class="za-table-expand">' + res.cartData[iid] + (variant ? '&nbsp;(' + res.variants[variant] + ')' : '') + extraHTML + '</td><td class="za-table-shrink">' + order.cart[i].count + '</td><td class="za-table-shrink"></td></tr>';
             }
             cartHTML += '</tbody></table>';
             $('#za_order_cart').html(cartHTML);
@@ -106,8 +111,7 @@ const viewOrder = (id) => {
             timeout: 1000
         });
     });
-    ///    
-}
+};
 
 const ordersTableData = {
     url: '/api/warehouse/orders',
@@ -126,7 +130,7 @@ const ordersTableData = {
         date: {
             sortable: true,
             process: (id, item, value) => {
-                return new Date(parseInt(value) * 1000).toLocaleString();
+                return new Date(parseInt(value, 10) * 1000).toLocaleString();
             }
         },
         costs: {

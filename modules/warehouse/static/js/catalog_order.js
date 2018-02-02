@@ -1,7 +1,12 @@
+/* eslint no-undef: 0 */
+/* eslint max-len: 0 */
+/* eslint no-use-before-define: 0 */
+/* eslint max-nested-callbacks: 0 */
+
 let totalWares = 0;
 let loading = false;
 
-const filterInput = function(event) {
+const filterInput = function() {
     $(this).removeClass('za-form-danger');
     const _regex = $(this).attr('data-mask');
     const val = $(this).val().trim();
@@ -19,7 +24,7 @@ const filterInput = function(event) {
         }
     }
     return;
-}
+};
 
 const submitOrder = function(event) {
     event.preventDefault();
@@ -89,14 +94,14 @@ const submitOrder = function(event) {
         if (res.status !== 1 || !res.order) {
             captchaRefresh();
             if (res.fields) {
-                let focus = false;
+                let focusS = false;
                 for (let i in res.fields) {
-                    $('#za_catalog_form_' + res.fields[i]).addClass('za-form-danger');;
+                    $('#za_catalog_form_' + res.fields[i]).addClass('za-form-danger');
                     if (res.fields[i] === 'captcha') {
                         $('#za_catalog_form_captcha_error_text').show();
                     }
-                    if (!focus) {
-                        focus = true;
+                    if (!focusS) {
+                        focusS = true;
                         $('#za_catalog_form_' + res.fields[i]).focus();
                     }
                 }
@@ -112,7 +117,7 @@ const submitOrder = function(event) {
             }
         } else {
             $('#za_catalog_order_wrap').hide();
-            $('#za_catalog_order_success_id').html(res.order._id)
+            $('#za_catalog_order_success_id').html(res.order._id);
             $('#za_catalog_order_success').show();
         }
     }).fail(() => {
@@ -152,7 +157,7 @@ const captchaInit = () => {
     });
 };
 
-const calculateFields = function(event) {
+const calculateFields = function() {
     let total = totalWares;
     let costs = {};
     if ($('#za_catalog_order_delivery').find(':selected').attr('data-type') === 'delivery') {
@@ -212,6 +217,7 @@ $(document).ready(() => {
                 }
                 formHTML += '<div class="za-margin"><label class="za-form-label" for="za_catalog_form_' + item.id + '">' + item.label[locale] + ':&nbsp;</label><div class="za-form-controls"><select class="za-catalog-form-input za-catalog-order-form-rx za-select za-width-' + item.width + '" id="za_catalog_form_' + item.id + '">' + opts + '</select></div></div>';
                 break;
+            default:
         }
     }
     $('#za_catalog_order_form').html(formHTML);
