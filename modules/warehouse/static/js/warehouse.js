@@ -2677,7 +2677,9 @@ const editAddressFormData = {
             $('#zoiaAddressFormSpinner').show();
             const properties = [];
             $('.addressFormDataItems').children().each(function() {
-                properties.push($(this).attr('data-pid'));
+                const id = $(this).attr('data-pid');
+                const m = $('#za_address_cbx_' + id).is(':checked') ? 'm' : 'o';
+                properties.push(id + '|' + m);
             });
             data.properties = properties;
             data.template = $('#editAddressForm_template').val().trim();
@@ -2708,14 +2710,15 @@ const editAddressFormData = {
             if (data && data.item && data.item.data) {
                 for (let i in data.item.data) {
                     let item = data.item.data[i];
+                    let [aid, af] = item.split('|');
                     let title = item;
                     for (let a in addressData) {
-                        if (addressData[a].id === item) {
+                        if (addressData[a].id === aid) {
                             title = addressData[a].title[locale];
                             break;
                         }
                     }
-                    $('.addressFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + item + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + title + '&nbsp;&ndash;&nbsp;' + item + '<button type="button" class="addressItemClose" za-close style="float:right"></button></div>');
+                    $('.addressFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + aid + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + title + '&nbsp;&ndash;&nbsp;' + aid + '&nbsp;<label><input type="checkbox" class="za-checkbox" id="za_address_cbx_' + aid + '"' + (af === 'm' ? ' checked' : '') + '>&nbsp;*</label><button type="button" class="addressItemClose" za-close style="float:right"></button></div>');
                 }
                 $('#editAddressForm_template').val(data.template.data);
             }

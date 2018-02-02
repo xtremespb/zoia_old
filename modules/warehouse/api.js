@@ -3266,9 +3266,10 @@ module.exports = function(app) {
             }
             if (addressData && addressData.data && deliveryRec.delivery === 'delivery') {
                 for (let i in addressData.data) {
-                    const field = addressData.data[i];
+                    const [field, flag] = addressData.data[i].split('|');
+                    const mandatory = flag === 'm' ? true : false;
                     const ai = _getJsonAddressById(field);
-                    if (ai.mandatory && (!req.body[field] || typeof req.body[field] !== 'string')) {
+                    if (mandatory && (!req.body[field] || typeof req.body[field] !== 'string')) {
                         errorFields.push(field);
                         continue;
                     }

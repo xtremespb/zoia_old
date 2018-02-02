@@ -784,10 +784,12 @@ module.exports = function(app) {
         let addressData = {};
         if (addressDB && addressDB.data && addressDB.data.length) {
             for (let i in addressDB.data) {
-                let id = addressDB.data[i];
+                const [id, flag] = addressDB.data[i].split('|');
+                const mandatory = flag === 'm' ? true : false;
                 for (let j in jsonAddress) {
                     if (jsonAddress[j].id === id) {
                         addressData[id] = jsonAddress[j];
+                        addressData[id].mandatory = mandatory;
                     }
                 }
             }

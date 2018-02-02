@@ -1,45 +1,58 @@
  [
  {
-     "id": "name",
+     "id": "firstname",
      "title":
      {
-         "en": "Last name, first name (mandatory)",
-         "ru": "Фамилия, имя (обяз.)"
+         "en": "First name",
+         "ru": "Имя"
      },
      "maxlength": 80,
-     "mandatory": true,
-     "width": "large",
+     "width": "medium",
      "type": "text",
      "label":
      {
-         "en": "Last name, first name",
-         "ru": "Фамилия, имя"
+         "en": "First name",
+         "ru": "Имя"
      }
  },
  {
-     "id": "zip",
+     "id": "lastname",
      "title":
      {
-         "en": "ZIP (mandatory)",
-         "ru": "Индекс (обяз.)"
+         "en": "Last name",
+         "ru": "Фамилия"
      },
-     "mandatory": false,
-     "maxlength": 6,
-     "width": "small",
+     "maxlength": 80,
+     "width": "medium",
      "type": "text",
      "label":
      {
-         "en": "ZIP",
-         "ru": "Индекс"
+         "en": "Last name",
+         "ru": "Фамилия"
+     }
+ },
+ {
+     "id": "fathersname",
+     "title":
+     {
+         "en": "Father's name",
+         "ru": "Отчество"
      },
-     "regex": "^[0-9_\\-]+$"
+     "maxlength": 80,
+     "width": "medium",
+     "type": "text",
+     "label":
+     {
+         "en": "Father's name",
+         "ru": "Отчество"
+     }
  },
  {
      "id": "state",
      "title":
      {
-         "en": "State (optional)",
-         "ru": "Штат (необяз.)"
+         "en": "State",
+         "ru": "Штат"
      },
      "width": "medium",
      "type": "select",
@@ -48,23 +61,515 @@
          "en": "State",
          "ru": "Штат"
      },
-    "values": [
-        {
-            "value": "IL",
-            "lang": {
-                "en": "Illinois",
-                "ru": "Иллинойс"
-            },
-            "cost": 0,
-            "addPrc": 8.4
-        }, {
-            "value": "DE",
-            "lang": {
-                "en": "Delaware",
-                "ru": "Делавэр"
-            },
-            "cost": 100,
-            "addPrc": 0
-        }
-     ]
+     "values": [
+     {
+         "value": "AL",
+         "lang":
+         {
+             "en": "Alabama",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 4
+     },
+     {
+         "value": "AK",
+         "lang":
+         {
+             "en": "Alaska",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 4
+     },
+     {
+         "value": "AR",
+         "lang":
+         {
+             "en": "Arkansas",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6.5
+     },
+     {
+         "value": "AZ",
+         "lang":
+         {
+             "en": "Arizona",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 5.6
+     },
+     {
+         "value": "CA",
+         "lang":
+         {
+             "en": "California",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 7.25
+     },
+     {
+         "value": "CO",
+         "lang":
+         {
+             "en": "Colorado",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 2.9
+     },
+     {
+         "value": "CT",
+         "lang":
+         {
+             "en": "Connecticut",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6.35
+     },
+     {
+         "value": "DE",
+         "lang":
+         {
+             "en": "Delaware",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 0
+     },
+     {
+         "value": "FL",
+         "lang":
+         {
+             "en": "Florida",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6
+     },
+     {
+         "value": "GA",
+         "lang":
+         {
+             "en": "Georgia",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 4
+     },
+     {
+         "value": "HI",
+         "lang":
+         {
+             "en": "Hawaii",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 4.166
+     },
+     {
+         "value": "IA",
+         "lang":
+         {
+             "en": "Iowa",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6
+     },
+     {
+         "value": "ID",
+         "lang":
+         {
+             "en": "Idaho",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6
+     },
+     {
+         "value": "IL",
+         "lang":
+         {
+             "en": "Illinois",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6.25
+     },
+     {
+         "value": "IN",
+         "lang":
+         {
+             "en": "Indiana",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 7
+     },
+     {
+         "value": "KS",
+         "lang":
+         {
+             "en": "Kansas",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6.5
+     },
+     {
+         "value": "KY",
+         "lang":
+         {
+             "en": "Kentucky",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6
+     },
+     {
+         "value": "LA",
+         "lang":
+         {
+             "en": "Louisiana",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 5
+     },
+     {
+         "value": "MA",
+         "lang":
+         {
+             "en": "Massachusetts",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6.25
+     },
+     {
+         "value": "MD",
+         "lang":
+         {
+             "en": "Maryland",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6
+     },
+     {
+         "value": "ME",
+         "lang":
+         {
+             "en": "Maine",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 5.5
+     },
+     {
+         "value": "MI",
+         "lang":
+         {
+             "en": "Michigan",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6
+     },
+     {
+         "value": "MN",
+         "lang":
+         {
+             "en": "Minnesota",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6.875
+     },
+     {
+         "value": "MO",
+         "lang":
+         {
+             "en": "Missouri",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 4.225
+     },
+     {
+         "value": "MS",
+         "lang":
+         {
+             "en": "Mississippi",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 7
+     },
+     {
+         "value": "MT",
+         "lang":
+         {
+             "en": "Montana",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 0
+     },
+     {
+         "value": "NC",
+         "lang":
+         {
+             "en": "North Carolina",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 4.75
+     },
+     {
+         "value": "ND",
+         "lang":
+         {
+             "en": "North Dakota",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 5
+     },
+     {
+         "value": "NE",
+         "lang":
+         {
+             "en": "Nebraska",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 5.5
+     },
+     {
+         "value": "NH",
+         "lang":
+         {
+             "en": "New Hampshire",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 0
+     },
+     {
+         "value": "NJ",
+         "lang":
+         {
+             "en": "New Jersey",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6.875
+     },
+     {
+         "value": "NM",
+         "lang":
+         {
+             "en": "New Mexico",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 5.125
+     },
+     {
+         "value": "NV",
+         "lang":
+         {
+             "en": "Nevada",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 0
+     },
+     {
+         "value": "NY",
+         "lang":
+         {
+             "en": "New York",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6.85
+     },
+     {
+         "value": "OH",
+         "lang":
+         {
+             "en": "Ohio",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 5.75
+     },
+     {
+         "value": "OK",
+         "lang":
+         {
+             "en": "Oklahoma",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 4.5
+     },
+     {
+         "value": "OR",
+         "lang":
+         {
+             "en": "Oregon",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 0
+     },
+     {
+         "value": "PA",
+         "lang":
+         {
+             "en": "Pennsylvania",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6
+     },
+     {
+         "value": "RI",
+         "lang":
+         {
+             "en": "Rhode Island",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 7
+     },
+     {
+         "value": "SC",
+         "lang":
+         {
+             "en": "South Carolina",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6
+     },
+     {
+         "value": "SD",
+         "lang":
+         {
+             "en": "South Dakota",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 4
+     },
+     {
+         "value": "TN",
+         "lang":
+         {
+             "en": "Tennessee",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 7
+     },
+     {
+         "value": "TX",
+         "lang":
+         {
+             "en": "Texas",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6.25
+     },
+     {
+         "value": "UT",
+         "lang":
+         {
+             "en": "Utah",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 5.95
+     },
+     {
+         "value": "VA",
+         "lang":
+         {
+             "en": "Virginia",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 5.3
+     },
+     {
+         "value": "VT",
+         "lang":
+         {
+             "en": "Vermont",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6
+     },
+     {
+         "value": "WA",
+         "lang":
+         {
+             "en": "Washington",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6.5
+     },
+     {
+         "value": "WI",
+         "lang":
+         {
+             "en": "Wisconsin",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 5
+     },
+     {
+         "value": "WV",
+         "lang":
+         {
+             "en": "West Virginia",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 6
+     },
+     {
+         "value": "WY",
+         "lang":
+         {
+             "en": "Wyoming",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 4
+     },
+     {
+         "value": "DC",
+         "lang":
+         {
+             "en": "District of Columbia",
+             "ru": ""
+         },
+         "cost": 0,
+         "addPrc": 5.75
+     }]
  }]
