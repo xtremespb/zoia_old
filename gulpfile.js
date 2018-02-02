@@ -400,7 +400,18 @@ gulp.task('warehouse', async() => {
     });
     fs.unlinkSync(path.join(__dirname, 'modules', 'warehouse', 'static', 'js', 'warehouse'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'warehouse', 'static', 'js', 'plugins'));
-    // Generate catalog_cart.js
+    // Generate catalog.min.js
+    await new Promise((resolve) => {
+        gulp.src(['modules/warehouse/static/js/catalog.js'], { base: __dirname })
+            .pipe(babel({
+                presets: ['env']
+            }))
+            .pipe(concat('catalog.min.js'))
+            .pipe(uglify())
+            .pipe(gulp.dest(path.join('modules', 'warehouse', 'static', 'js')))
+            .on('end', resolve);
+    });
+    // Generate catalog_cart.min.js
     await new Promise((resolve) => {
         gulp.src(['modules/warehouse/static/js/catalog_cart.js'], { base: __dirname })
             .pipe(babel({
@@ -411,7 +422,7 @@ gulp.task('warehouse', async() => {
             .pipe(gulp.dest(path.join('modules', 'warehouse', 'static', 'js')))
             .on('end', resolve);
     });
-    // Generate catalog_item.js
+    // Generate catalog_item.min.js
     await new Promise((resolve) => {
         gulp.src(['modules/warehouse/static/js/catalog_item.js'], { base: __dirname })
             .pipe(babel({
@@ -422,7 +433,7 @@ gulp.task('warehouse', async() => {
             .pipe(gulp.dest(path.join('modules', 'warehouse', 'static', 'js')))
             .on('end', resolve);
     });
-    // Generate catalog_order.js
+    // Generate catalog_order.min.js
     await new Promise((resolve) => {
         gulp.src(['modules/warehouse/static/js/catalog_order.js'], { base: __dirname })
             .pipe(babel({
@@ -433,7 +444,7 @@ gulp.task('warehouse', async() => {
             .pipe(gulp.dest(path.join('modules', 'warehouse', 'static', 'js')))
             .on('end', resolve);
     });
-    // Generate catalog_orders.js
+    // Generate catalog_orders.min.js
     await new Promise((resolve) => {
         gulp.src(['static/zoia/core/js/jquery.zoiaTable.js', 'modules/warehouse/static/js/catalog_orders.js'], { base: __dirname })
             .pipe(babel({
