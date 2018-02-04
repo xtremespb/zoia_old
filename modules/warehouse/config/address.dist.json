@@ -32,10 +32,10 @@
      }
  },
  {
-     "id": "fathersname",
+     "id": "patronymic",
      "title":
      {
-         "en": "Father's name",
+         "en": "Patronymic",
          "ru": "Отчество"
      },
      "maxlength": 80,
@@ -43,8 +43,56 @@
      "type": "text",
      "label":
      {
-         "en": "Father's name",
+         "en": "Patronymic",
          "ru": "Отчество"
+     }
+ },
+ {
+     "id": "phone",
+     "title":
+     {
+         "en": "Phone number",
+         "ru": ""
+     },
+     "maxlength": 25,
+     "width": "small",
+     "type": "text",
+     "label":
+     {
+         "en": "Phone number",
+         "ru": ""
+     }
+ },
+ {
+     "id": "street",
+     "title":
+     {
+         "en": "Street",
+         "ru": ""
+     },
+     "maxlength": 80,
+     "width": "large",
+     "type": "text",
+     "label":
+     {
+         "en": "Street",
+         "ru": ""
+     }
+ },
+ {
+     "id": "building",
+     "title":
+     {
+         "en": "Building, apt. etc",
+         "ru": ""
+     },
+     "maxlength": 40,
+     "width": "large",
+     "type": "text",
+     "label":
+     {
+         "en": "Building, apt. etc",
+         "ru": ""
      }
  },
  {
