@@ -3103,6 +3103,16 @@ module.exports = function(app) {
                 fields: ['delivery']
             }));
         }
+        orderData.email = req.body.email;
+        orderData.phone = req.body.phone;
+        if (!orderData.email || !orderData.phone ||
+            !orderData.email.match(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/) || orderData.email.length > 100 ||
+            !orderData.phone.match(/^[\+][0-9]{4,24}$/) || orderData.phone.length > 30) {
+            return res.send(JSON.stringify({
+                status: 0,
+                fields: ['email', 'phone']
+            }));
+        }
         const template = await db.collection('registry').findOne({ name: 'warehouse_address_template' });
         if (!template) {
             template = {
@@ -3331,7 +3341,7 @@ module.exports = function(app) {
             orderData.costs.totalWares = parseFloat(orderData.costs.totalWares).toFixed(2);
             orderData.status = 1;
             orderData.date = Date.now() / 1000 | 0;
-            if (req.session.auth && req.session.auth.username) {
+            if (req.session && req.session.auth && req.session.auth.username) {
                 orderData.username = req.session.auth.username;
             }
             const incr = await db.collection('counters').findAndModify({ _id: 'warehouse_orders' }, [], { $inc: { seq: 1 } }, { new: true, upsert: true });
@@ -3354,6 +3364,17 @@ module.exports = function(app) {
             // Clean up the Cart
             //
             req.session.catalog_cart = {};
+            //
+            // Update the users collection
+            //
+            if (req.session && req.session.auth && req.session.auth._id) {
+                await db.collection('users').update({ _id: req.session.auth._id }, { $set: {
+                    warehouse: {
+                        email: orderData.email,
+                        phone: orderData.phone
+                    }
+                } }, { upsert: true });
+            }
             // 
             // Send mail
             //

@@ -1,3 +1,9 @@
 {
-	"title": "Информация"
+	"title": "Информация",
+	"Up and running.": "Up and running.",
+	"Parameter": "Parameter",
+	"Value": "Value",
+	"Software version": "Software version",
+	"OS Type": "OS Type",
+	"Running on hostname": "Running on hostname"
 }

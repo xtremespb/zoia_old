@@ -1,3 +1,8 @@
 {
-	"title": "Навигация"
+	"title": "Навигация",
+	"Language": "Language",
+	"Actions": "Actions",
+	"Cancel": "Cancel",
+	"Save": "Save",
+	"Edit Item": "Edit Item"
 }

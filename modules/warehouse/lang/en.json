@@ -152,7 +152,7 @@
 	"Item": "Item",
 	"Order Summary": "Order Summary",
 	"Please check your order details below.": "Please check your order details below.",
-	"Choose the appropriate shipping method and provide your contact details if necessary.": "Choose the appropriate shipping method and provide your contact details if necessary.",
+	"Choose the appropriate shipping method and provide your contact details.": "Choose the appropriate shipping method and provide your contact details.",
 	"Form contains errors. Please check it and re-submit your order.": "Form contains errors. Please check it and re-submit your order.",
 	"Total sum": "Total sum",
 	"You are not authorized. To check your order status and make the next order faster, please": "You are not authorized. To check your order status and make the next order faster, please",
@@ -216,5 +216,8 @@
 	"Refresh": "Refresh",
 	"Add Item": "Add Item",
 	"Default": "Default",
-	"Variant": "Variant"
+	"Variant": "Variant",
+	"E-mail": "E-mail",
+	"Phone": "Phone",
+	"Example: +15417543010": "Example: +15417543010"
 }

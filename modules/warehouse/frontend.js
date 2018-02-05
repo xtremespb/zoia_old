@@ -794,6 +794,17 @@ module.exports = function(app) {
                 }
             }
         }
+        let email = '';
+        let phone = '';
+        if (req.session && req.session.auth && req.session.auth._id) {
+            const data = await db.collection('users').findOne({ _id: req.session.auth._id });
+            if (data && data.warehouse) {
+                email = data.warehouse.email || '';
+                phone = data.warehouse.phone || '';
+            } else {
+                email = req.session.auth.email;
+            }
+        }
         // Render
         let catalogOrderHTML = await renderAuth.file(templateCatalogOrder, {
             i18n: i18n.get(),
@@ -809,6 +820,8 @@ module.exports = function(app) {
             delivery: delivery,
             weight: weight,
             auth: req.session.auth,
+            email: email,
+            phone: phone,
             isAuth: req.session.auth ? 'true' : 'false',
             addressJSON: JSON.stringify(addressData)
         });

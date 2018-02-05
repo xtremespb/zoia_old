@@ -37,10 +37,13 @@ const submitOrder = function(event) {
     let errors;
     let focus;
     let fields = {
-        delivery: $('#za_catalog_order_delivery').val()
+        delivery: $('#za_catalog_form_delivery').val()
     };
-    if ($('#za_catalog_order_delivery').find(':selected').attr('data-type') === 'delivery') {
-        $('.za-catalog-order-form-rx').each(function() {
+    $('.za-catalog-order-form-rx').each(function() {
+        console.log($(this).attr('id').replace('za_catalog_form_', ''));
+        if ($('#za_catalog_form_delivery').find(':selected').attr('data-type') === 'delivery' ||
+            $(this).attr('id').replace('za_catalog_form_', '') === 'email' ||
+            $(this).attr('id').replace('za_catalog_form_', '') === 'phone') {
             const val = $(this).val().trim();
             const _regex = $(this).attr('data-mask');
             if ($(this).attr('data-mandatory') && val === '') {
@@ -68,8 +71,8 @@ const submitOrder = function(event) {
                 }
             }
             fields[$(this).attr('id').replace('za_catalog_form_', '')] = val;
-        });
-    }
+        }
+    });
     if (!isAuth) {
         fields.captcha = $('#za_catalog_form_captcha').val().trim();
         if (!fields.captcha || !fields.captcha.match(/^([0-9]+){4}$/)) {
@@ -132,7 +135,7 @@ const submitOrder = function(event) {
 };
 
 const getAddressLabel = (id) => {
-    if (id === 'za_catalog_order_delivery') {
+    if (id === 'za_catalog_form_delivery') {
         return lang.Delivery;
     }
     for (let i in addressJSON) {
@@ -160,7 +163,7 @@ const captchaInit = () => {
 const calculateFields = function() {
     let total = totalWares;
     let costs = {};
-    if ($('#za_catalog_order_delivery').find(':selected').attr('data-type') === 'delivery') {
+    if ($('#za_catalog_form_delivery').find(':selected').attr('data-type') === 'delivery') {
         $('.za-catalog-order-form-rx').each(function() {
             const id = $(this).attr('id').replace('za_catalog_form_', '');
             const cost = $(this).attr('data-cost') || parseFloat($(this).find(':selected').attr('data-cost')) || 0;
@@ -193,7 +196,7 @@ const calculateFields = function() {
 };
 
 const onDeliveryChange = () => {
-    if ($('#za_catalog_order_delivery').find(':selected').attr('data-type') === 'delivery') {
+    if ($('#za_catalog_form_delivery').find(':selected').attr('data-type') === 'delivery') {
         $('#za_catalog_order_form').show();
     } else {
         $('#za_catalog_order_form').hide();
@@ -225,7 +228,7 @@ $(document).ready(() => {
     $('#za_catalog_form_captcha').on('input', filterInput);
     $('.za-catalog-order-form-rx').on('input', calculateFields);
     $('#za_catalog_order_submit').click(submitOrder);
-    $('#za_catalog_order_delivery').on('input', onDeliveryChange);
+    $('#za_catalog_form_delivery').on('input', onDeliveryChange);
     totalWares = parseFloat($('.za-catalog-cart-total').attr('data-total'));
     calculateFields();
     onDeliveryChange();

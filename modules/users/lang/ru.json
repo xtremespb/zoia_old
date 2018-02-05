@@ -1,3 +1,16 @@
 {
-	"title": "Пользователи"
+	"title": "Пользователи",
+	"Add": "Add",
+	"Delete": "Delete",
+	"Select all": "Select all",
+	"Select none": "Select none",
+	"Search": "Search",
+	"Username": "Username",
+	"E-mail": "E-mail",
+	"Groups": "Groups",
+	"Status": "Status",
+	"Actions": "Actions",
+	"Loading data, please wait": "Loading data, please wait",
+	"The following user(s) will be removed from the database": "The following user(s) will be removed from the database",
+	"Cancel": "Cancel"
 }

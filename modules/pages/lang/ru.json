@@ -1,5 +1,26 @@
 {
 	"title": "Пользователи",
 	"Administration panel": "Administration panel",
-	"Log out": "Log out"
+	"Log out": "Log out",
+	"Add": "Add",
+	"Delete": "Delete",
+	"Select all": "Select all",
+	"Select none": "Select none",
+	"Settings": "Settings",
+	"Repair database": "Repair database",
+	"Re-build URL cache": "Re-build URL cache",
+	"Search": "Search",
+	"Folder": "Folder",
+	"Name": "Name",
+	"Title": "Title",
+	"Status": "Status",
+	"Actions": "Actions",
+	"Loading data, please wait": "Loading data, please wait",
+	"Enable language": "Enable language",
+	"Folders": "Folders",
+	"Cancel": "Cancel",
+	"Select": "Select",
+	"Repair database and move missing items to the following folders": "Repair database and move missing items to the following folders",
+	"Edit Folder": "Edit Folder",
+	"The following page(s) will be removed from the database": "The following page(s) will be removed from the database"
 }
