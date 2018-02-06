@@ -1,6 +1,6 @@
 {
   "name": "zoia",
-  "version": "0.17.101601",
+  "version": "0.18.020601",
   "description": "Zoia.js Framework",
   "main": "bin/webserver.js",
   "directories": {
