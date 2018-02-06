@@ -1,9 +1,9 @@
-<ul za-tab>
+{% if configModule.cart %}<ul za-tab>
     <li class="za-active"><a href="">{{ i18n.__(locale, 'Items')}}</a></li>
     <li><a href="">{{ i18n.__(locale, 'Orders')}}</a></li>
 </ul>
 <ul class="za-switcher za-margin">
-    <li>
+    <li>{% endif %}
         <div id="wrapTable">
             <h1>{{ i18n.__(locale, 'title')}}</h1>
             <div class="za-grid za-grid-small">
@@ -125,7 +125,7 @@
                     <div za-spinner></div>
                 </div>
             </form>
-        </div>
+        </div>{% if configModule.cart %}
     </li>
     <li>
         <h1>{{ i18n.__(locale, 'Orders')}}</h1>
@@ -190,7 +190,7 @@
         </table>
         <div class="ordersPagination za-margin noselect"></div>
     </li>
-</ul>
+</ul>{% endif %}
 <div id="zoiaFoldersDialog" style="display:none">
     <div class="za-modal-dialog">
         <div class="za-modal-header">
@@ -1228,6 +1228,18 @@
                         <label class="za-form-label" for="za_catalog_order_username">{{ i18n.__(locale, 'Username')}}:</label>
                         <div class="za-form-controls">
                             <input class="za-input za-catalog-order-input" id="za_catalog_order_username" type="text">
+                        </div>
+                    </div>
+                    <div class="za-margin">
+                        <label class="za-form-label" for="za_catalog_order_email">{{ i18n.__(locale, 'E-mail')}}:</label>
+                        <div class="za-form-controls">
+                            <input class="za-input za-catalog-order-input" id="za_catalog_order_email" type="text">
+                        </div>
+                    </div>
+                    <div class="za-margin">
+                        <label class="za-form-label" for="za_catalog_order_phone">{{ i18n.__(locale, 'Phone')}}:</label>
+                        <div class="za-form-controls">
+                            <input class="za-input za-width-medium za-catalog-order-input" id="za_catalog_order_phone" type="text">
                         </div>
                     </div>
                 </li>

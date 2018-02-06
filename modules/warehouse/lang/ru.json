@@ -105,7 +105,7 @@
 	"Delete selected": "Удалить выбранные",
 	"Cannot save images data": "Ошибка во время сохранения данных изображения",
 	"Weight": "Вес",
-	"Amount": "Количество",
+	"Amount": "Кол-во",
 	"The first image is a default one. Use drag and drop to manage images order.": "Первое изображение является изображением по умолчанию. Перетаскивайте изображения для того, чтобы выставить их в нужном порядке.",
 	"Warehouse Settings": "Настройки склада",
 	"Weight Description": "Единицы веса",
@@ -186,8 +186,8 @@
 	"There are currently no items available.": "В настоящий момент товары в данной категории отсутствуют.",
 	"Add to cart": "В корзину",
 	"Sort by": "Сортировка",
-	"Lowest price": "Цена (по возрастанию)",
-	"Highest price": "Цена (по убыванию)",
+	"Lowest price": "Цена ▲",
+	"Highest price": "Цена ▼",
 	"Find text": "Найти",
 	"No items found.": "Записей не найдено.",
 	"My Orders": "Мои заказы",
@@ -219,5 +219,6 @@
 	"Variant": "Вариант цены",
 	"E-mail": "E-mail",
 	"Phone": "Телефон",
-	"Example: +15417543010": "Пример: +79219876543"
+	"Example: +15417543010": "Пример: +79219876543",
+	"More info": "Подробнее"
 }

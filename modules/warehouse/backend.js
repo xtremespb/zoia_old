@@ -10,6 +10,12 @@ try {
 } catch (e) {
     jsonAddress = require(path.join(__dirname, 'config', 'address.dist.json'));
 }
+let configModule;
+try {
+    configModule = require(path.join(__dirname, 'config', 'catalog.json'));
+} catch (e) {
+    configModule = require(path.join(__dirname, 'config', 'catalog.dist.json'));
+}
 
 module.exports = function(app) {
     const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
@@ -30,7 +36,7 @@ module.exports = function(app) {
             let addressData = {};
             if (addressDB && addressDB.data && addressDB.data.length) {
                 for (let i in addressDB.data) {
-                    let id = addressDB.data[i];
+                    let [id] = addressDB.data[i].split('|');
                     for (let j in jsonAddress) {
                         if (jsonAddress[j].id === id) {
                             addressData[id] = jsonAddress[j];
@@ -49,7 +55,8 @@ module.exports = function(app) {
                 folders: folders ? folders.data : JSON.stringify([{ id: '1', text: '/', parent: '#', type: 'root' }]),
                 settings: settings ? settings.data : JSON.stringify({}),
                 addressJSON: JSON.stringify(addressData),
-                delivery: delivery
+                delivery: delivery,
+                configModule: configModule
             });
             res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, config.production ? ['/warehouse/static/css/warehouse.min.css'] : ['/zoia/3rdparty/jstree/themes/default/style.min.css', '/warehouse/static/css/warehouse.css'],
                 config.production ? ['/zoia/3rdparty/ckeditor/ckeditor.js', '/zoia/3rdparty/ckeditor/adapters/jquery.js', '/warehouse/static/js/warehouse.min.js'] : ['/zoia/3rdparty/ckeditor/ckeditor.js', '/zoia/3rdparty/ckeditor/adapters/jquery.js',

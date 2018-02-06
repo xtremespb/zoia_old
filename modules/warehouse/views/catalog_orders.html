@@ -1,6 +1,6 @@
 <h1>{{ i18n.__(locale, 'My Orders')}}</h1>
 <ul class="za-breadcrumb">
-    <li><a href="{{ configModule.prefix }}">{{ i18n.__(locale, 'Catalog')}}</a></li>
+    <li><a href="{{ configModule.prefix }}/">{{ i18n.__(locale, 'Catalog')}}</a></li>
     <li><a href="{{ configModule.prefix }}/orders" class="za-active">{{ i18n.__(locale, 'Orders')}}</a></li>
 </ul>
 <div id="wrapOrders" style="display:none">
@@ -25,7 +25,7 @@
     <div class="ordersPagination za-margin-top noselect"></div>
 </div>
 <div id="wrapOrder" style="display:none">
-    <h2>Order&nbsp;<span id="orderID"></span></h2>
+    <h2>{{ i18n.__(locale, 'Order')}}&nbsp;<span id="orderID"></span></h2>
     <div za-grid class="za-catalog-metadata-wrap">
         <div>
             <div class="za-catalog-metadata">{{ i18n.__(locale, 'Order date')}}:&nbsp;<span id="za_order_date"></span></div>
@@ -48,4 +48,5 @@
 var settings = {{ settings }};
 var deliveryData = {{ delivery }};
 var addressTemplate = {{ template }};
+var addressData = {{ addressData }};
 </script>

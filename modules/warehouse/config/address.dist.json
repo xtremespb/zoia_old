@@ -84,7 +84,7 @@
      "title":
      {
          "en": "Building, apt. etc",
-         "ru": ""
+         "ru": "Номер дома, корпус, кв."
      },
      "maxlength": 40,
      "width": "large",
@@ -92,7 +92,7 @@
      "label":
      {
          "en": "Building, apt. etc",
-         "ru": ""
+         "ru": "Номер дома, корпус, кв."
      }
  },
  {

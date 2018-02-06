@@ -181,7 +181,7 @@ const calculateFields = function() {
                     subtotal += costWeight * weight;
                 }
                 total += parseFloat(subtotal);
-                costs[getAddressLabel(id)] = parseFloat(subtotal).toFixed(2) + '&nbsp;' + settings.currency;
+                costs[id === 'delivery' ? lang['Delivery'] : getAddressLabel(id)] = currencyPosition === 'right' ? (parseFloat(subtotal).toFixed(2) + '&nbsp;' + settings.currency) : (settings.currency + parseFloat(subtotal).toFixed(2));
             }
         });
     }
@@ -192,7 +192,7 @@ const calculateFields = function() {
         extraHTML += '<tr class="za-catalog-cart-extra"><td>' + i + '</td><td colspan="2"></td><td>' + costs[i] + '</td></tr>';
     }
     $('#za-catalog-cart-table').append(extraHTML);
-    $('.za-catalog-cart-total').html(total + '&nbsp;' + settings.currency);
+    $('.za-catalog-cart-total').html(currencyPosition === 'right' ? (total + '&nbsp;' + settings.currency) : (settings.currency + total));
 };
 
 const onDeliveryChange = () => {

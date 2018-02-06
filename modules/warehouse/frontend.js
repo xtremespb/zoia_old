@@ -118,7 +118,7 @@ module.exports = function(app) {
             if (item.parent !== '#') {
                 pathT.push({
                     title: item.data.lang[locale],
-                    url: item.text
+                    url: item.text.replace(/\/\//, '/')
                 });
             }
             nextId = item.parent;
@@ -128,6 +128,7 @@ module.exports = function(app) {
         let prevPath = '';
         for (let i in pathT) {
             pathT[i].url = prevPath + '/' + pathT[i].url;
+            pathT[i].url = pathT[i].url.replace(/\/\//, '/');
             prevPath = pathT[i].url;
         }
         if (pathT.length > 1 && !nonulllast) {
@@ -229,6 +230,19 @@ module.exports = function(app) {
             }
         }
         return settings;
+    };
+
+    const _getJsonAddressSelectDataByValue = (locale) => {
+        let data = {};
+        for (let i in jsonAddress) {
+            if (jsonAddress[i].type === 'select') {
+                data[jsonAddress[i].id] = {};
+                for (let j in jsonAddress[i].values) {
+                    data[jsonAddress[i].id][jsonAddress[i].values[j].value] = jsonAddress[i].values[j].lang[locale];
+                }
+            }
+        }
+        return data;
     };
 
     const list = async(req, res, next) => {
@@ -500,7 +514,12 @@ module.exports = function(app) {
         res.send(html);
     };
 
-    const cartDisplay = async(req, res) => {
+    const cartDisplay = async(req, res, next) => {
+        if (!configModule.cart) {
+            let err = new Error();
+            err.status = 404;
+            return next(err);
+        }
         let locale = config.i18n.locales[0];
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
@@ -648,7 +667,12 @@ module.exports = function(app) {
         res.send(html);
     };
 
-    const order = async(req, res) => {
+    const order = async(req, res, next) => {
+        if (!configModule.cart) {
+            let err = new Error();
+            err.status = 404;
+            return next(err);
+        }
         let locale = config.i18n.locales[0];
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
@@ -834,7 +858,7 @@ module.exports = function(app) {
     };
 
     const orders = async(req, res, next) => {
-        if (!Module.isAuthorized(req)) {
+        if (!Module.isAuthorized(req) || !configModule.cart) {
             let err = new Error();
             err.status = 404;
             return next(err);
@@ -873,7 +897,8 @@ module.exports = function(app) {
             settings: JSON.stringify(settings),
             config: config,
             delivery: JSON.stringify(delivery),
-            template: JSON.stringify(template)
+            template: JSON.stringify(template),
+            addressData: JSON.stringify(_getJsonAddressSelectDataByValue(locale))
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'My Orders'), {
             content: catalogOrdersHTML,

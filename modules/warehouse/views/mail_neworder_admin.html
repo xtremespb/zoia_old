@@ -28,9 +28,9 @@
                     <br>{{ item.propertiesData[itg] }}&nbsp;({{ item.propertiesCount[itg] }})
                     {% endfor %}</p>
                 </td>
-                <td nowrap="">{{ item.price }} {{ settings.currency }}</td>
+                <td nowrap="">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ item.price }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
                 <td nowrap="" style="text-align:center;">{{ item.count }}</td>
-                <td nowrap="">{{ item.subtotal }} {{ settings.currency }}</td>
+                <td nowrap="">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ item.subtotal }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
             </tr>
             {% endfor %}
         </table>
@@ -40,21 +40,21 @@
                 <td style="width:100%">
                     <p>{{ i18n.__(locale, 'Delivery') }}</p>
                 </td>
-                <td nowrap="">{{ orderData.costs.delivery }} {{ settings.currency }}</td>
+                <td nowrap="">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ orderData.costs.delivery }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
             </tr>
             {% for item in delivery %}
             <tr>
                 <td style="width:100%">
-                    <p>{{ item.title }}</p>
+                    <p>{{ item.title }} {% if item.variant %}&nbsp;({{ item.variantTitle }}){% endif %}</p>
                 </td>
-                <td nowrap="">{{ item.cost }} {{ settings.currency }}</td>
+                <td nowrap="">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ item.cost }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
             </tr>
             {% endfor %}
             <tr style="padding: 18px 5 5 5">
                 <td>
                     <p><b>{{ i18n.__(locale, 'Total cost') }}</b></p>
                 </td>
-                <td nowrap=""><b>{{ orderData.costs.total }} {{ settings.currency }}</b></td>
+                <td nowrap=""><b>{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ orderData.costs.total }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</b></td>
             </tr>
         </table>
         {% if addressHTML %}

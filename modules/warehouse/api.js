@@ -36,7 +36,20 @@ const _getJsonAddressById = (id) => {
     }
 };
 
-const processTemplate = (s, d) => {
+const _getJsonAddressSelectDataByValue = (locale) => {
+    let data = {};
+    for (let i in jsonAddress) {
+        if (jsonAddress[i].type === 'select') {
+            data[jsonAddress[i].id] = {};
+            for (let j in jsonAddress[i].values) {
+                data[jsonAddress[i].id][jsonAddress[i].values[j].value] = jsonAddress[i].values[j].lang[locale];
+            }
+        }
+    }
+    return data;
+};
+
+const _processTemplate = (s, d) => {
     for (let p in d) {
         s = s.replace(new RegExp('{' + p + '}', 'g'), d[p]);
     }
@@ -2874,6 +2887,11 @@ module.exports = function(app) {
 
     const cartAdd = async(req, res) => {
         res.contentType('application/json');
+        if (!configModule.cart) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
         const locale = req.session.currentLocale;
         const id = req.body.id;
         let variant = req.body.variant;
@@ -2974,6 +2992,11 @@ module.exports = function(app) {
 
     const cartCount = async(req, res) => {
         res.contentType('application/json');
+        if (!configModule.cart) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
         const locale = req.session.currentLocale;
         const id = req.body.id;
         let variant = req.body.variant;
@@ -3037,6 +3060,11 @@ module.exports = function(app) {
 
     const cartDelete = async(req, res) => {
         res.contentType('application/json');
+        if (!configModule.cart) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
         const id = req.body.id;
         let variant = req.body.variant;
         const count = req.body.count;
@@ -3066,6 +3094,11 @@ module.exports = function(app) {
         res.contentType('application/json');
         const locale = req.session.currentLocale;
         let errorFields = [];
+        if (!configModule.cart) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
         if (!Module.isAuthorized(req) && (!req.session || req.body.captcha !== req.session.captcha)) {
             return res.send(JSON.stringify({
                 status: 0,
@@ -3368,12 +3401,14 @@ module.exports = function(app) {
             // Update the users collection
             //
             if (req.session && req.session.auth && req.session.auth._id) {
-                await db.collection('users').update({ _id: req.session.auth._id }, { $set: {
-                    warehouse: {
-                        email: orderData.email,
-                        phone: orderData.phone
+                await db.collection('users').update({ _id: req.session.auth._id }, {
+                    $set: {
+                        warehouse: {
+                            email: orderData.email,
+                            phone: orderData.phone
+                        }
                     }
-                } }, { upsert: true });
+                }, { upsert: true });
             }
             // 
             // Send mail
@@ -3390,7 +3425,13 @@ module.exports = function(app) {
             }
             let addressHTML = '';
             if (deliveryDB[orderData.delivery] === 'delivery') {
-                addressHTML = processTemplate(template.data, orderData.address);
+                const addressDataG = _getJsonAddressSelectDataByValue(locale);
+                for (let i in orderData.address) {
+                    if (addressDataG[i] && addressDataG[i][orderData.address[i]]) {
+                        orderData.address[i] = addressDataG[i][orderData.address[i]];
+                    }
+                }
+                addressHTML = _processTemplate(template.data, orderData.address);
             }
             let mailUserHTML = await render.file('mail_neworder_user.html', {
                 i18n: i18n.get(),
@@ -3398,9 +3439,10 @@ module.exports = function(app) {
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 config: config,
                 cart: cartArr,
-                settingsData: settingsData,
+                settings: settingsData,
                 orderData: orderData,
                 delivery: deliveryArr,
+                configModule: configModule,
                 addressHTML: addressHTML,
                 orderStatus: i18n.get().__(locale, 'orderStatuses')[orderData.status]
             });
@@ -3410,16 +3452,22 @@ module.exports = function(app) {
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 config: config,
                 cart: cartArr,
-                settingsData: settingsData,
+                settings: settingsData,
                 orderData: orderData,
                 delivery: deliveryArr,
+                configModule: configModule,
                 addressHTML: addressHTML,
                 orderStatus: i18n.get().__(locale, 'orderStatuses')[orderData.status]
             });
             try {
+                let email;
                 if (req.session.auth && req.session.auth.email) {
-                    await mailer.send(req, req.session.auth.email, i18n.get().__(locale, 'Your order confirmation'), mailUserHTML);
+                    email = req.session.auth.email;
                 }
+                if (orderData.email) {
+                    email = orderData.email;
+                }
+                await mailer.send(req, email, i18n.get().__(locale, 'Your order confirmation'), mailUserHTML);
                 if (config.website.email.feedback) {
                     await mailer.send(req, config.website.email.feedback, i18n.get().__(locale, 'New order on your website'), mailAdminHTML);
                 }
@@ -3441,7 +3489,7 @@ module.exports = function(app) {
     const ordersList = async(req, res) => {
         const locale = req.session.currentLocale;
         res.contentType('application/json');
-        if (!Module.isAuthorizedAdmin(req)) {
+        if (!Module.isAuthorizedAdmin(req) || !configModule.cart) {
             return res.send(JSON.stringify({
                 status: 0
             }));
@@ -3508,7 +3556,7 @@ module.exports = function(app) {
 
     const delOrder = async(req, res) => {
         res.contentType('application/json');
-        if (!Module.isAuthorizedAdmin(req)) {
+        if (!Module.isAuthorizedAdmin(req) || !configModule.cart) {
             return res.send(JSON.stringify({
                 status: 0
             }));
@@ -3552,6 +3600,11 @@ module.exports = function(app) {
 
     const loadOrder = async(req, res) => {
         res.contentType('application/json');
+        if (!configModule.cart) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
         const locale = req.session.currentLocale;
         const id = req.body.id;
         if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/)) {
@@ -3660,7 +3713,7 @@ module.exports = function(app) {
 
     const saveOrder = async(req, res) => {
         res.contentType('application/json');
-        if (!Module.isAuthorizedAdmin(req)) {
+        if (!Module.isAuthorized(req) || !configModule.cart) {
             return res.send(JSON.stringify({
                 status: 0
             }));
@@ -3696,7 +3749,7 @@ module.exports = function(app) {
     const orders = async(req, res) => {
         const locale = req.session.currentLocale;
         res.contentType('application/json');
-        if (!Module.isAuthorized(req)) {
+        if (!Module.isAuthorized(req) || !configModule.cart) {
             return res.send(JSON.stringify({
                 status: 0
             }));

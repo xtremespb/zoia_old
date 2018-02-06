@@ -52,12 +52,12 @@ $(document).ready(() => {
                 if (res.count !== val) {
                     $(that).val(res.count);
                 }
-                $('.za-catalog-cart-subtotal[data="' + res.id + '"][data-variant="' + res.variant + '"]').html(res.subtotal + '&nbsp;' + settings.currency).attr('data-val', res.subtotal);
+                $('.za-catalog-cart-subtotal[data="' + res.id + '"][data-variant="' + res.variant + '"]').html(currencyPosition === 'right' ? (res.subtotal + '&nbsp;' + settings.currency) : (settings.currency + res.subtotal)).attr('data-val', res.subtotal);
                 let total = 0;
                 $('.za-catalog-cart-subtotal').each(function() {
                     total += parseFloat($(this).attr('data-val'));
                 });
-                $('.za-catalog-cart-total').html(parseFloat(total).toFixed(2) + '&nbsp;' + settings.currency);
+                $('.za-catalog-cart-total').html(currencyPosition === 'right' ? (parseFloat(total).toFixed(2) + '&nbsp;' + settings.currency) : (settings.currency + parseFloat(total).toFixed(2)));
             }
         }).fail(() => {
             setTimeout(() => {
@@ -91,7 +91,7 @@ $(document).ready(() => {
                 $('.za-catalog-cart-subtotal').each(function() {
                     total += parseFloat($(this).attr('data-val'));
                 });
-                $('.za-catalog-cart-total').html(parseFloat(total).toFixed(2) + '&nbsp;' + settings.currency);
+                $('.za-catalog-cart-total').html(currencyPosition === 'right' ? (parseFloat(total).toFixed(2) + '&nbsp;' + settings.currency) : (settings.currency + parseFloat(total).toFixed(2)));
             } else {
                 $zUI.notification(lang['Could not delete item from your cart'], {
                     status: 'danger',

@@ -89,6 +89,11 @@ const viewOrder = (id) => {
             let addressHTML = '';
             if (res.delivery.delivery !== 'pickup') {
                 $('.za-catalog-metadata-wrap').addClass('za-grid-divider');
+                for (let i in order.address) {
+                    if (addressData[i] && addressData[i][order.address[i]]) {
+                        order.address[i] = addressData[i][order.address[i]];
+                    }
+                }
                 addressHTML = processTemplate(addressTemplate.data, order.address);
             } else {
                 $('.za-catalog-metadata-wrap').removeClass('za-grid-divider');

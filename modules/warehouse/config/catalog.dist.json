@@ -4,5 +4,7 @@
     "thumb": {
     	"width": 300,
     	"height": 300
-    }
+    },
+    "currencyPosition": "left",
+    "cart": true
 }

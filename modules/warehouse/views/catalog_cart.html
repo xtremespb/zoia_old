@@ -1,6 +1,6 @@
 <h1>{{ i18n.__(locale, 'Cart')}}</h1>
 <ul class="za-breadcrumb">
-    <li><a href="{{ configModule.prefix }}">{{ i18n.__(locale, 'Catalog')}}</a></li>
+    <li><a href="{{ configModule.prefix }}/">{{ i18n.__(locale, 'Catalog')}}</a></li>
 </ul>
 {% if cart.length %}
 <div id="za_catalog_cart_wrap">
@@ -11,7 +11,7 @@
         <tfoot>
             <tr>
                 <td colspan="3"></td>
-                <td class="za-catalog-cart-total">{{ total }}&nbsp;{{ settings.currency }}</td>
+                <td class="za-catalog-cart-total">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ total }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
             </tr>
         </tfoot>
         <tbody>
@@ -25,11 +25,11 @@
                 <br>{{ item.propertiesData[itg] }}&nbsp;({{ item.propertiesCount[itg] }})
                 {% endfor %}
                 </td>
-                <td class="za-table-shrink">{{ item.price }}&nbsp;{{ settings.currency }}</td>
+                <td class="za-table-shrink">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ item.price }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
                 <td class="za-table-shrink">
                     <input class="za-input za-form-width-xsmall za-catalog-cart-count" type="text" data="{{ item.id }}" data-prev="{{ item.count }}" value="{{ item.count }}" data-variant="{{ item.variant }}">
                 </td>
-                <td class="za-table-shrink za-catalog-cart-subtotal" data="{{ item.id }}" data-val="{{ item.subtotal }}" data-variant="{{ item.variant }}">{{ item.subtotal }}&nbsp;{{ settings.currency }}</td>
+                <td class="za-table-shrink za-catalog-cart-subtotal" data="{{ item.id }}" data-val="{{ item.subtotal }}" data-variant="{{ item.variant }}">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ item.subtotal }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
                 <td class="za-table-shrink"><span data="{{ item.id }}" data-variant="{{ item.variant }}" class="za-icon-button za-button-danger za-catalog-cart-btn-del" za-icon="icon:trash"></span></span>
                 </td>
             </tr>
@@ -49,4 +49,5 @@
 <script src="/api/lang/warehouse/{{ locale }}.js" type="text/javascript"></script>
 <script type="text/javascript">
 var settings = {{ settingsJSON }};
+var currencyPosition = "{{ configModule.currencyPosition }}";
 </script>

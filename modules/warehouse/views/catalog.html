@@ -8,12 +8,16 @@
             {% endif %}{% endfor %}
         </ul>
     </div>
+    {% if configModule.cart %}
     <div class="za-width-auto">
         <div class="za-catalog-cart za-margin">
-            <a href="{{ configModule.prefix }}/cart" class="za-button za-button-default za-button-small"><span class="za-badge za-catalog-cart-count za-box-shadow" style="display:none">0</span>&nbsp;{{ i18n.__(locale, 'Cart')}}</a> {% if auth %}
-            <a href="{{ configModule.prefix }}/orders" class="za-button za-button-default za-button-small">{{ i18n.__(locale, 'My orders')}}</a> {% endif %}
+            <a href="{{ configModule.prefix }}/cart" class="za-button za-button-default za-button-small"><span class="za-badge za-catalog-cart-count za-box-shadow" style="display:none">0</span>&nbsp;{{ i18n.__(locale, 'Cart')}}</a> 
+            {% if auth %}
+            <a href="{{ configModule.prefix }}/orders" class="za-button za-button-default za-button-small">{{ i18n.__(locale, 'My orders')}}</a>
+            {% endif %}
         </div>
     </div>
+    {% endif %}
 </div>
 <a class="za-icon-button za-margin-small-right za-margin-bottom za-hidden@s" za-icon="icon:chevron-down" type="button" id="zoia_catalog_folders_toggle"></a>
 <div za-drop="mode:click" style="display:none">
@@ -30,7 +34,7 @@
         <div class="za-card za-card-default za-card-small za-card-body">
             <ul class="za-nav za-nav-default">
                 {% for folder in folders %}
-                <li class="{{ folder.active }}"><a href="{{ folder.path }}?&s={{ sort }}">{{ folder.title }}</a></li>
+                <li class="{{ folder.active }}"><a href="{{ folder.pathT }}?&s={{ sort }}">{{ folder.title }}</a></li>
                 {% endfor %}
             </ul>
         </div>
@@ -67,11 +71,17 @@
                     <div class="za-catalog-item-img-placeholder za-flex za-flex-center za-flex-middle"><a href="{{ configModule.prefix }}/item/{{ item.sku }}"><span class="za-catalog-item-img-placeholder-icon" za-icon="icon:image;ratio:4"></span></a></div>
                     {% endif %}</div>
                 <div class="za-catalog-item-text za-text-truncate"><a href="{{ configModule.prefix }}/item/{{ item.sku }}">{{ item[locale].title }}</a></div>
-                <div class="za-catalog-item-price">{{ item.price }}&nbsp;{{ settings.currency }}</div>
+                <div class="za-catalog-item-price">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ item.price }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</div>
+                {% if configModule.cart %}
                 <div class="za-catalog-item-buttons">
                     <button class="za-button za-button-primary za-button-small za-catalog-item-button" data="{{ item._id }}">
                         <div za-spinner="ratio:0.5" class="za-catalog-item-button-spinner" style="display:none" data="{{ item._id }}"></div>{{ i18n.__(locale, 'Add to cart')}}</button>
                 </div>
+                {% else %}
+                <div class="za-catalog-item-buttons">
+                    <a class="za-button za-button-primary za-button-small" href="/catalog/item/{{ item.sku }}">{{ i18n.__(locale, 'More info')}}</a>
+                </div>
+                {% endif %}
             </div>
             {% endfor %} {% else %}
             <div class="za-align-center">
