@@ -4427,7 +4427,7 @@ const editAddressForm_properties_btnClick = () => {
 
 const btnAddressAddClick = () => {
     addressAddEditDialog.hide();
-    $('.addressFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + $('#zoiaAddressSelect').val() + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + $('#zoiaAddressSelect option:selected').text() + '&nbsp;&ndash;&nbsp;' + $('#zoiaAddressSelect').val() + '<button type="button" class="addressItemClose" za-close style="float:right"></button></div>');
+    $('.addressFormDataItems').append('<div class="za-card za-card-default za-card-small za-card-body" data-pid="' + $('#zoiaAddressSelect').val() + '"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span>' + $('#zoiaAddressSelect option:selected').text() + '&nbsp;&ndash;&nbsp;' + $('#zoiaAddressSelect').val() + '&nbsp;<label><input type="checkbox" class="za-checkbox" id="za_address_cbx_' + $('#zoiaAddressSelect').val() + '">&nbsp;*</label><button type="button" class="addressItemClose" za-close style="float:right"></button></div>');
     $('.addressItemClose').unbind();
     $('.addressItemClose').click(function() {
         $(this).parent().remove();
