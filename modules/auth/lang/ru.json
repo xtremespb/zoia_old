@@ -22,7 +22,7 @@
 	"Latin characters and numbers, length: 3-20": "Латинские буквы и цифры, длина: 3-20 символов",
 	"Minimal length: 5 characters": "Минимальная длина: 5 символов",
 	"Example: user@domain.com": "Пример: user@domain.com",
-	"Captcha": "Капча",
+	"Captcha": "Код на картинке",
 	"4 digits": "4 цифры, нажмите изображение, чтобы обновить",
 	"Register new user": "Регистрация нового пользователя",
 	"E-mail": "Адрес электронной почты",

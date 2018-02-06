@@ -1,9 +1,9 @@
 {
-	"title": "Информация",
-	"Up and running.": "Up and running.",
-	"Parameter": "Parameter",
-	"Value": "Value",
-	"Software version": "Software version",
-	"OS Type": "OS Type",
-	"Running on hostname": "Running on hostname"
+	"title": "Панель администратора",
+	"Parameter": "Параметр",
+	"Value": "Значение",
+	"Up and running.": "Система успешно запущена.",
+	"Software version": "Версия ПО",
+	"Running on hostname": "Имя хоста",
+	"OS Type": "Тип ОС"
 }

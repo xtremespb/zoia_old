@@ -1,3 +1,6 @@
 {
-	"title": "Резервные копии"
+	"title": "Резервные копии",
+	"You can backup and restore your website data. The backup contains database collections, modules and static folders.": "You can backup and restore your website data. The backup contains database collections, modules and static folders.",
+	"Backup": "Backup",
+	"Restore": "Restore"
 }
