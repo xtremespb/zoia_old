@@ -58,7 +58,7 @@ module.exports = function(app) {
         }
         try {
             const json = JSON.stringify(navigation);
-            let updResult = await db.collection('registry').update({ name: 'navigation' }, { name: 'navigation', data: json }, { upsert: true });
+            let updResult = await db.collection('navigation').update({ name: 'navigation' }, { name: 'navigation', data: json }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -66,14 +66,14 @@ module.exports = function(app) {
             }
             for (let n in config.i18n.localeNames) {
                 let data = render(navigation[n], 'd');
-                updResult = await db.collection('registry').update({ name: 'navigation_html_d_' + n }, { name: 'navigation_html_d_' + n, data: data }, { upsert: true });
+                updResult = await db.collection('navigation').update({ name: 'navigation_html_d_' + n }, { name: 'navigation_html_d_' + n, data: data }, { upsert: true });
                 if (!updResult || !updResult.result || !updResult.result.ok) {
                     return res.send(JSON.stringify({
                         status: 0
                     }));
                 }
                 data = render(navigation[n], 'm');
-                updResult = await db.collection('registry').update({ name: 'navigation_html_m_' + n }, { name: 'navigation_html_m_' + n, data: data }, { upsert: true });
+                updResult = await db.collection('navigation').update({ name: 'navigation_html_m_' + n }, { name: 'navigation_html_m_' + n, data: data }, { upsert: true });
                 if (!updResult || !updResult.result || !updResult.result.ok) {
                     return res.send(JSON.stringify({
                         status: 0

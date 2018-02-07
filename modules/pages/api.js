@@ -135,7 +135,7 @@ module.exports = function(app) {
         }
         try {
             const json = JSON.stringify(data);
-            const updResult = await db.collection('registry').update({ name: 'pagesFolders' }, { name: 'pagesFolders', data: json }, { upsert: true });
+            const updResult = await db.collection('pages_registry').update({ name: 'pagesFolders' }, { name: 'pagesFolders', data: json }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -673,7 +673,7 @@ module.exports = function(app) {
             }));
         }
         try {
-            const foldersString = await db.collection('registry').findOne({ name: 'pagesFolders' });
+            const foldersString = await db.collection('pages_registry').findOne({ name: 'pagesFolders' });
             if (!foldersString || !foldersString.data) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -719,7 +719,7 @@ module.exports = function(app) {
             }));
         }
         try {
-            const foldersString = await db.collection('registry').findOne({ name: 'pagesFolders' });
+            const foldersString = await db.collection('pages_registry').findOne({ name: 'pagesFolders' });
             if (!foldersString || !foldersString.data) {
                 return res.send(JSON.stringify({
                     status: 0

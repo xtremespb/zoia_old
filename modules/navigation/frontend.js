@@ -15,7 +15,7 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
-        let html = await db.collection('registry').findOne({ name: 'navigation_html_' + prefix + '_' + locale });
+        let html = await db.collection('navigation').findOne({ name: 'navigation_html_' + prefix + '_' + locale });
         return html ? html.data : '';
     };
 

@@ -13,9 +13,16 @@ module.exports = function(data) {
         } catch (e) {
             console.log('      [ ] Collection is not created');
         }
+        console.log('  └── Creating collection: pages_registry...');
+        try {
+            await db.createCollection('pages_registry');
+        } catch (e) {
+            console.log('      [ ] Collection is not created');
+        }
         console.log('      Dropping indexes...');
         try {
             await db.collection('pages').dropIndexes();
+            await db.collection('pages_registry').dropIndexes();
         } catch (e) {
             console.log('      [ ] Indexes are not dropped');
         }
@@ -29,6 +36,8 @@ module.exports = function(data) {
             idx[lng + '.title'] = -1;
             await db.collection('pages').createIndex(idx);
         }
+        await db.collection('pages_registry').createIndex({ name: 1 });
+        await db.collection('pages_registry').createIndex({ name: -1 });
         let res = {};
         if (!data.options.force) {
             res = await inquirer.prompt([{
@@ -164,14 +173,14 @@ module.exports = function(data) {
                 throw new Error('Could not run db.collection(\'pages\').update');
             }
         }
-        const upd = await db.collection('registry').update({ name: 'pagesFolders' }, {
+        const upd = await db.collection('pages_registry').update({ name: 'pagesFolders' }, {
             $set: {
                 name: 'pagesFolders',
                 data: '[{\"id\":\"1\",\"text\":\"/\",\"parent\":\"#\",\"type\":\"root\"},{\"id\":\"1502985623\",\"text\":\"manual\",\"data\":{\"lang\":{\"en\":\"Manual\",\"ru\":\"Руководство\"}},\"parent\":\"1\",\"type\":\"folder\"}]'
             }
         }, { upsert: true });
         if (!upd || !upd.result || !upd.result.ok) {
-            throw new Error('Could not run db.collection(\'registry\').update');
+            throw new Error('Could not run db.collection(\'pages_registry\').update');
         }
         console.log('      Creating storage directory...');
         try {

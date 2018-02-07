@@ -66,7 +66,8 @@ const winston = require('winston');
         let backendModules = [];
         log.info('Loading ' + modules.length + ' module(s)...');
         for (let m in modules) {
-            let moduleLoaded = require(path.join(__dirname, '..', 'modules', modules[m], 'module'))(app);
+            const moduleLoaded = require(path.join(__dirname, '..', 'modules', modules[m], 'module'))(app);
+
             if (moduleLoaded) {
                 if (moduleLoaded.frontend) {
                     if (moduleLoaded.frontend.routes) {

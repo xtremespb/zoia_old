@@ -30,9 +30,9 @@ module.exports = function(app) {
                 return res.redirect(303, (config.website.authPrefix || '/auth') + '?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
             }
             const locale = req.session.currentLocale;
-            const folders = await db.collection('registry').findOne({ name: 'warehouseFolders' });
-            const settings = await db.collection('registry').findOne({ name: 'warehouseSettings' });
-            const addressDB = await db.collection('registry').findOne({ name: 'warehouse_address' });
+            const folders = await db.collection('warehouse_registry').findOne({ name: 'warehouseFolders' });
+            const settings = await db.collection('warehouse_registry').findOne({ name: 'warehouseSettings' });
+            const addressDB = await db.collection('warehouse_registry').findOne({ name: 'warehouse_address' });
             let addressData = {};
             if (addressDB && addressDB.data && addressDB.data.length) {
                 for (let i in addressDB.data) {

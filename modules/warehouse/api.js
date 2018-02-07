@@ -69,7 +69,7 @@ module.exports = function(app) {
     const mailer = new(require(path.join(__dirname, '..', '..', 'core', 'mailer.js')))(app);
 
     const _loadSettings = async(locale) => {
-        const dataSettings = await db.collection('registry').findOne({ name: 'warehouseSettings' });
+        const dataSettings = await db.collection('warehouse_registry').findOne({ name: 'warehouseSettings' });
         let settings = {
             currency: '',
             weight: ''
@@ -725,8 +725,8 @@ module.exports = function(app) {
             }));
         }
         try {
-            const item = await db.collection('registry').findOne({ name: 'warehouse_address' });
-            const template = await db.collection('registry').findOne({ name: 'warehouse_address_template' });
+            const item = await db.collection('warehouse_registry').findOne({ name: 'warehouse_address' });
+            const template = await db.collection('warehouse_registry').findOne({ name: 'warehouse_address_template' });
             if (!item || !item.data) {
                 return res.send(JSON.stringify({
                     status: 1,
@@ -1037,7 +1037,7 @@ module.exports = function(app) {
         }
         try {
             const json = JSON.stringify(data);
-            const updResult = await db.collection('registry').update({ name: 'warehouseFolders' }, { name: 'warehouseFolders', data: json }, { upsert: true });
+            const updResult = await db.collection('warehouse_registry').update({ name: 'warehouseFolders' }, { name: 'warehouseFolders', data: json }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -1080,7 +1080,7 @@ module.exports = function(app) {
                 weight: fields.weight.value
             };
             const json = JSON.stringify(data);
-            const updResult = await db.collection('registry').update({ name: 'warehouseSettings' }, { name: 'warehouseSettings', data: json }, { upsert: true });
+            const updResult = await db.collection('warehouse_registry').update({ name: 'warehouseSettings' }, { name: 'warehouseSettings', data: json }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -1346,8 +1346,8 @@ module.exports = function(app) {
             }));
         }
         try {
-            let updResult1 = await db.collection('registry').update({ name: 'warehouse_address' }, { $set: { data: properties } }, { upsert: true });
-            let updResult2 = await db.collection('registry').update({ name: 'warehouse_address_template' }, { $set: { data: template } }, { upsert: true });
+            let updResult1 = await db.collection('warehouse_registry').update({ name: 'warehouse_address' }, { $set: { data: properties } }, { upsert: true });
+            let updResult2 = await db.collection('warehouse_registry').update({ name: 'warehouse_address_template' }, { $set: { data: template } }, { upsert: true });
             if (!updResult1 || !updResult1.result || !updResult1.result.ok ||
                 !updResult2 || !updResult2.result || !updResult2.result.ok) {
                 return res.send(JSON.stringify({
@@ -2390,7 +2390,7 @@ module.exports = function(app) {
             }));
         }
         try {
-            const foldersRString = await db.collection('registry').findOne({ name: 'warehouseFolders' });
+            const foldersRString = await db.collection('warehouse_registry').findOne({ name: 'warehouseFolders' });
             if (!foldersRString || !foldersRString.data) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -2436,7 +2436,7 @@ module.exports = function(app) {
             }));
         }
         try {
-            const foldersRString = await db.collection('registry').findOne({ name: 'warehouseFolders' });
+            const foldersRString = await db.collection('warehouse_registry').findOne({ name: 'warehouseFolders' });
             if (!foldersRString || !foldersRString.data) {
                 return res.send(JSON.stringify({
                     status: -1
@@ -3146,7 +3146,7 @@ module.exports = function(app) {
                 fields: ['email', 'phone']
             }));
         }
-        const template = await db.collection('registry').findOne({ name: 'warehouse_address_template' });
+        const template = await db.collection('warehouse_registry').findOne({ name: 'warehouse_address_template' });
         if (!template) {
             template = {
                 data: ''
@@ -3166,7 +3166,7 @@ module.exports = function(app) {
             orderData.address = {};
             orderData.delivery = deliveryRec.pid;
             orderData.cart = {};
-            const addressData = await db.collection('registry').findOne({ name: 'warehouse_address' }) || [];
+            const addressData = await db.collection('warehouse_registry').findOne({ name: 'warehouse_address' }) || [];
             const settingsData = await _loadSettings(locale);
             const cart = req.session.catalog_cart || {};
             let weight = 0;

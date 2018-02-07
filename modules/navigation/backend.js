@@ -23,7 +23,7 @@ module.exports = function(app) {
             for (let i in config.i18n.locales) {
                 defaultFolders[config.i18n.locales[i]] = new Array({ id: 'j1_1', text: '/', data: null, parent: '#', type: 'root' });
             }
-            let folders = await db.collection('registry').findOne({ name: 'navigation' });
+            let folders = await db.collection('navigation').findOne({ name: 'navigation' });
             let html = await render.file('navigation.html', {
                 i18n: i18n.get(),
                 config: config,

@@ -110,7 +110,7 @@ module.exports = function(app) {
         }
         let locale = _locale || config.i18n.locales[0];
         try {
-            let foldersData = await db.collection('registry').findOne({ name: 'pagesFolders' });
+            let foldersData = await db.collection('pages_registry').findOne({ name: 'pagesFolders' });
             if (!foldersData) {
                 return '';
             }

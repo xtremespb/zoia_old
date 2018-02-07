@@ -139,7 +139,7 @@ module.exports = function(app) {
 
     const _loadTree = async() => {
         let items = [];
-        const dataTree = await db.collection('registry').findOne({ name: 'warehouseFolders' });
+        const dataTree = await db.collection('warehouse_registry').findOne({ name: 'warehouseFolders' });
         if (dataTree && dataTree.data) {
             try {
                 try {
@@ -210,7 +210,7 @@ module.exports = function(app) {
     };
 
     const _loadSettings = async(locale) => {
-        const dataSettings = await db.collection('registry').findOne({ name: 'warehouseSettings' });
+        const dataSettings = await db.collection('warehouse_registry').findOne({ name: 'warehouseSettings' });
         let settings = {
             currency: '',
             weight: ''
@@ -804,7 +804,7 @@ module.exports = function(app) {
             }
         }
         const delivery = await db.collection('warehouse_delivery').find({ status: '1' }).toArray();
-        const addressDB = await db.collection('registry').findOne({ name: 'warehouse_address' });
+        const addressDB = await db.collection('warehouse_registry').findOne({ name: 'warehouse_address' });
         let addressData = {};
         if (addressDB && addressDB.data && addressDB.data.length) {
             for (let i in addressDB.data) {
@@ -879,7 +879,7 @@ module.exports = function(app) {
             delivery[deliveryData[i].pid] = deliveryData[i].title[locale];
         }
         // Address template
-        const template = await db.collection('registry').findOne({ name: 'warehouse_address_template' });
+        const template = await db.collection('warehouse_registry').findOne({ name: 'warehouse_address_template' });
         if (!template) {
             template = {
                 data: ''

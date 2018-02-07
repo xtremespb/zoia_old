@@ -19,7 +19,7 @@ module.exports = function(app) {
                 return res.redirect(303, (config.website.authPrefix || '/auth')  + '?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
             }
             const locale = req.session.currentLocale;
-            let folders = await db.collection('registry').findOne({ name: 'pagesFolders' });
+            let folders = await db.collection('pages_registry').findOne({ name: 'pagesFolders' });
             let html = await render.file('pages.html', {
                 i18n: i18n.get(),
                 config: config,

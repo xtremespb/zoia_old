@@ -54,11 +54,23 @@ module.exports = function(data) {
         } catch (e) {
             console.log('      [ ] Collection is not created');
         }
+        console.log('  └── Creating collection: warehouse_registry...');
+        try {
+            await db.createCollection('warehouse_registry');
+        } catch (e) {
+            console.log('      [ ] Collection is not created');
+        }
         console.log('      Dropping indexes...');
         try {
             await db.collection('warehouse').dropIndexes();
+            await db.collection('warehouse_registry').dropIndexes();
+            await db.collection('warehouse_properties').dropIndexes();
+            await db.collection('warehouse_collections').dropIndexes();
+            await db.collection('warehouse_delivery').dropIndexes();
+            await db.collection('warehouse_variants').dropIndexes();
+            await db.collection('warehouse_variants_collections').dropIndexes();
         } catch (e) {
-            console.log('      [ ] Indexes are not dropped');
+            console.log('      [ ] Some Indexes were not dropped');
         }
         console.log('      Creating indexes...');
         await db.collection('warehouse').createIndex({ folder: 1, sku: 1, price: 1, status: 1, properties: 1 });
@@ -115,6 +127,8 @@ module.exports = function(data) {
             idx['title.' + lng] = -1;
             await db.collection('warehouse_variants_collections').createIndex(idx);
         }
+        await db.collection('warehouse_registry').createIndex({ name: 1 });
+        await db.collection('warehouse_registry').createIndex({ name: -1 });
         console.log('      Creating storage directory...');
         try {
             await fs.mkdir(path.join(__dirname, 'static', 'storage'));
