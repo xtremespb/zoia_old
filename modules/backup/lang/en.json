@@ -3,5 +3,16 @@
 	"You can backup and restore your website data. The backup contains database collections, modules and static folders.": "You can backup and restore your website data. The backup contains database collections, modules and static folders.",
 	"Backup": "Backup",
 	"Restore": "Restore",
-	"Could not create backup file": "Could not create backup file"
+	"Could not create backup file": "Could not create backup file",
+	"System Backup": "System Backup",
+	"Cancel": "Cancel",
+	"System backup is currently being created. This can take up to several minutes...": "System backup is currently being created. This can take up to several minutes...",
+	"Backup file has been created. Please download it by clicking the link below.": "Backup file has been created. Please download it by clicking the link below.",
+	"Could not load information from database": "Could not load information from database",
+	"Could not create backup file. Please check logs for details.": "Could not create backup file. Please check logs for details.",
+	"Restore backup": "Restore backup",
+	"Please note: your existing files will be overwritten. The MongoDB collections will be dropped first before importing.": "Please note: your existing files will be overwritten. The MongoDB collections will be dropped first before importing.",
+	"Attach backup file by dropping it here or": "Attach backup file by dropping it here or",
+	"selecting one": "selecting one",
+	"Could not upload file": "Could not upload file"
 }
