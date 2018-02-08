@@ -32,6 +32,8 @@ gulp.task('cleanup', async() => {
     fs.unlinkSync(path.join(__dirname, 'modules', 'navigation', 'static', 'js', 'navigation.min.js'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'updates', 'static', 'css', 'updates.min.css'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'updates', 'static', 'js', 'updates.min.js'));
+    fs.unlinkSync(path.join(__dirname, 'modules', 'backup', 'static', 'css', 'backup.min.css'));
+    fs.unlinkSync(path.join(__dirname, 'modules', 'backup', 'static', 'js', 'backup.min.js'));
 });
 
 gulp.task('panel', async() => {
@@ -306,6 +308,22 @@ gulp.task('updates', async() => {
         .pipe(gulp.dest(path.join('modules', 'updates', 'static', 'js')));
 });
 
+gulp.task('backup', async() => {
+    // Generate CSS
+    gulp.src(['modules/backup/static/css/backup.css'], { base: __dirname })
+        .pipe(minifyCSS())
+        .pipe(concat('backup.min.css'))
+        .pipe(gulp.dest(path.join('modules', 'backup', 'static', 'css')));
+    // Generate backup.min.js
+    gulp.src(['modules/backup/static/js/backup.js'], { base: __dirname })
+        .pipe(babel({
+            presets: ['env']
+        }))
+        .pipe(concat('backup.min.js'))
+        .pipe(uglify())
+        .pipe(gulp.dest(path.join('modules', 'backup', 'static', 'js')));
+});
+
 gulp.task('default', function() {
     gulp.start('panel');
     gulp.start('users');
@@ -314,4 +332,5 @@ gulp.task('default', function() {
     gulp.start('pages');
     gulp.start('navigation');
     gulp.start('updates');
+    gulp.start('backup');
 });

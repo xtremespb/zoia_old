@@ -21,7 +21,8 @@ module.exports = function(app) {
                 i18n: i18n.get(),
                 config: config,
                 locale: locale,
-                lang: JSON.stringify(i18n.get().locales[locale])
+                lang: JSON.stringify(i18n.get().locales[locale]),
+                rnd: Date.now()
             });
             res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, config.production ? ['/backup/static/css/backup.min.css'] : ['/backup/static/css/backup.css'],
                 config.production ? ['/backup/static/js/backup.min.js'] : ['/backup/static/js/backup.js']));

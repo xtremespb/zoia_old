@@ -5,6 +5,7 @@ const ObjectID = require('mongodb').ObjectID;
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const fs = require('fs-extra');
 const tar = require('tar');
+const crypto = require('crypto');
 
 module.exports = function(app) {
     const log = app.get('log');
@@ -50,11 +51,14 @@ module.exports = function(app) {
                                     switch (item.type) {
                                         case 'directory':
                                             for (let k in item.directories) {
-                                                await fs.copy(path.join(__dirname, '..', '..', 'modules', modules[i], item.directories[k]),
+                                                await fs.copy(item.root ? path.join(__dirname, '..', '..', item.directories[k]) :
+                                                    path.join(__dirname, '..', '..', 'modules', modules[i], item.directories[k]),
                                                     path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId, modules[i], item.directories[k]));
                                                 backupData.push({
                                                     action: 'directory',
-                                                    path: path.join(modules[i], item.directories[k])
+                                                    root: item.root ? true : false,
+                                                    module: modules[i],
+                                                    path: item.root ? item.directories[k] : path.join(modules[i], item.directories[k])
                                                 });
                                             }
                                             break;
@@ -73,14 +77,17 @@ module.exports = function(app) {
                                         case 'file':
                                             for (let f in item.files) {
                                                 const filename = item.files[f].replace(/^.*[\\\/]/, '');
+                                                const hash = crypto.createHash('md5').update(String(Date.now()) + modules[i] + filename).digest('hex');
                                                 try {
-                                                    await fs.copy(path.join(__dirname, '..', '..', 'modules', modules[i], item.files[f]),
-                                                        path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId, modules[i], filename));
+                                                    await fs.copy(item.root ? path.join(__dirname, '..', '..', item.files[f]) :
+                                                        path.join(__dirname, '..', '..', 'modules', modules[i], item.files[f]),
+                                                        path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId, modules[i], hash));
                                                     backupData.push({
                                                         action: 'file',
                                                         module: modules[i],
-                                                        filename: filename,
-                                                        path: path.join(modules[i], item.files[f])
+                                                        filename: hash,
+                                                        root: item.root ? true : false,
+                                                        path: item.root ? item.files[f] : path.join(modules[i], item.files[f])
                                                     });
                                                 } catch (e) {
                                                     log.error('File ' + filename + ' could not be copied');
@@ -104,11 +111,21 @@ module.exports = function(app) {
                         file: path.join(__dirname, 'static', 'storage', 'backup_' + taskId + '.tgz')
                     }, files);
                     await fs.remove(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId));
-                    await db.collection('backup_tasks').update({ _id: new ObjectID(taskId) }, { $set: { state: 3 } }, { upsert: true });
+                    await db.collection('backup_tasks').update({ _id: new ObjectID(taskId) }, { $set: { state: 3 } }, { upsert: true });                    
                 } catch (e) {
                     log.error('Could not create a backup');
                     log.error(e);
                     await db.collection('backup_tasks').update({ _id: new ObjectID(taskId) }, { $set: { state: 0 } }, { upsert: true });
+                    try {
+                        await fs.remove(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId + '.tgz'));
+                    } catch (e) {
+                        // Ignored
+                    }
+                    try {
+                        await fs.remove(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId));
+                    } catch (e) {
+                        // Ignored
+                    }
                 }
             }, 0);
             res.send(JSON.stringify({
@@ -151,6 +168,9 @@ module.exports = function(app) {
                     // Ignore
                 }
             }
+            if ((item.state === 3 || item.state === 0) && id) {
+                await db.collection('backup_tasks').remove({ _id: new ObjectID(id) });
+            }
             return res.send(JSON.stringify({
                 status: 1,
                 state: item.state
@@ -177,7 +197,7 @@ module.exports = function(app) {
             }));
         }
         try {
-            const insResult = await db.collection('warehouse_tasks').insertOne({
+            const insResult = await db.collection('backup_tasks').insertOne({
                 state: 1
             });
             if (!insResult || !insResult.result || !insResult.result.ok || !insResult.insertedId) {
@@ -201,15 +221,23 @@ module.exports = function(app) {
                         const item = data[i];
                         switch (item.action) {
                             case 'directory':
-                                await fs.copy(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId, item.path),
+                                await fs.copy(item.root ? path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId, item.module, item.path) :
+                                    path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId, item.path),
+                                    item.root ? path.join(__dirname, '..', '..', item.path) :
                                     path.join(__dirname, '..', '..', 'modules', item.path));
                                 break;
                             case 'file':
                                 await fs.copy(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId, item.module, item.filename),
+                                    item.root ? path.join(__dirname, '..', '..', item.path) :
                                     path.join(__dirname, '..', '..', 'modules', item.path));
                                 break;
                             case 'mongo':
                                 const dbdata = await fs.readJson(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId, item.module, item.from));
+                                for (let i in dbdata) {
+                                    if (dbdata[i]._id) {
+                                        dbdata[i]._id = new ObjectID(dbdata[i]._id);
+                                    }
+                                }
                                 if (dbdata && dbdata.length > 0) {
                                     await db.collection(item.collection).remove({});
                                     await db.collection(item.collection).insert(dbdata);
@@ -220,10 +248,21 @@ module.exports = function(app) {
                         }
                     }
                     await fs.remove(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId));
+                    await db.collection('backup_tasks').update({ _id: new ObjectID(taskId) }, { $set: { state: 3 } }, { upsert: true });
                 } catch (e) {
-                    log.error('Could not create a backup');
+                    log.error('Could not restore a backup');
                     log.error(e);
                     await db.collection('backup_tasks').update({ _id: new ObjectID(taskId) }, { $set: { state: 0 } }, { upsert: true });
+                    try {
+                        await fs.remove(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId + '.tgz'));
+                    } catch (e) {
+                        // Ignored
+                    }
+                    try {
+                        await fs.remove(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId));
+                    } catch (e) {
+                        // Ignored
+                    }
                 }
             }, 0);
             return res.send(JSON.stringify({
@@ -238,10 +277,55 @@ module.exports = function(app) {
         }
     };
 
+    const restoreState = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const id = req.query.id;
+        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const item = await db.collection('backup_tasks').findOne({ _id: new ObjectID(id) });
+            if (!item || !item.state) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            if (item.state === 3) {
+                try {
+                    fs.remove(path.join(__dirname, '..', '..', 'temp', 'backup_' + id));
+                } catch (e) {
+                    log.error(e);
+                    // Ignore
+                }
+                Module.logout(req);
+            }
+            if (item.state === 3 || item.state === 0) {
+                await db.collection('backup_tasks').remove({ _id: new ObjectID(id) });
+            }
+            return res.send(JSON.stringify({
+                status: 1,
+                state: item.state
+            }));
+        } catch (e) {
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
     let router = Router();
     router.get('/create', create);
     router.get('/create/state', createState);
     router.post('/restore', restore);
+    router.get('/restore/state', restoreState);
     return {
         routes: router
     };

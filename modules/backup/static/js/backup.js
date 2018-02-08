@@ -48,6 +48,53 @@ const backupStateCheck = (id) => {
     });
 };
 
+const restoreStateCheck = (id) => {
+    $.ajax({
+        type: 'GET',
+        url: '/api/backup/restore/state',
+        data: {
+            id: id
+        },
+        cache: false
+    }).done((res) => {
+        if (res && res.status === 1 && res.state) {
+            if (res.state === 3 || res.state === 0) {
+                switch (res.state) {
+                    case 0:
+                        $('#dialogRestoreBody').show();
+                        $('#dialogRestoreSpinner').hide();
+                        $('#dialogRestoreFooter').show();
+                        $zUI.notification(lang['Could not restore backup file. Please check logs for details.'], {
+                            status: 'danger',
+                            timeout: 1500
+                        });
+                        break;
+                    default:
+                        $('#dialogRestoreSpinner').hide();
+                        $('#dialogRestoreSuccess').show();
+                        break;
+                }
+            } else {
+                setTimeout(() => {
+                    restoreStateCheck(id);
+                }, 5000);
+            }
+        } else {
+            dialogRestore.hide();
+            $zUI.notification(lang['Could not load information from database'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        }
+    }).fail(() => {
+        dialogRestore.hide();
+        $zUI.notification(lang['Could not load information from database'], {
+            status: 'danger',
+            timeout: 1500
+        });
+    });
+};
+
 const backupStart = () => {
     if ($('#zoia_btn_backup').hasClass('za-disabled')) {
         return;
@@ -89,6 +136,7 @@ const backupStart = () => {
 
 const initUploader = () => {
     const bimport_bar = document.getElementById('bimport_progressbar');
+    bimport_bar.setAttribute('hidden', 'hidden');
     $zUI.upload('.bimport-upload', {
         url: '/api/backup/restore',
         multiple: false,
@@ -100,6 +148,7 @@ const initUploader = () => {
         },
         loadStart: function(e) {
             bimport_bar.removeAttribute('hidden');
+            $('#dialogRestoreFooter').hide();
             bimport_bar.max = e.total;
             bimport_bar.value = e.loaded;
         },
@@ -122,8 +171,13 @@ const initUploader = () => {
                 // Ignore
             }
             if (response.taskId) {
-                
-            } else {
+                $('#dialogRestoreBody').hide();
+                $('#dialogRestoreSpinner').show();
+                setTimeout(() => {
+                    restoreStateCheck(response.taskId);
+                }, 1500);
+            } else {                
+                $('#dialogRestoreFooter').show();
                 $zUI.notification(lang['Could not upload file'], {
                     status: 'danger',
                     timeout: 1500
@@ -137,6 +191,9 @@ $(document).ready(() => {
     initUploader();
     $('#zoia_btn_backup').click(backupStart);
     $('#zoia_btn_restore').click(() => {
+        $('#dialogRestoreFooter').show();
+        $('#dialogRestoreBody').show();
+        $('#dialogRestoreSpinner').hide();
         dialogRestore.show();
     });
     dialogBackup = $zUI.modal('#dialogBackup', {
@@ -146,5 +203,5 @@ $(document).ready(() => {
     dialogRestore = $zUI.modal('#dialogRestore', {
         bgClose: false,
         escClose: false
-    });    
+    });
 });

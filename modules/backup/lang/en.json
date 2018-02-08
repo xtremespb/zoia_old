@@ -1,6 +1,6 @@
 {
 	"title": "Backup",
-	"You can backup and restore your website data. The backup contains database collections, modules and static folders.": "You can backup and restore your website data. The backup contains database collections, modules and static folders.",
+	"You can backup and restore your website data. The backup contains database collections, files and folders.": "You can backup and restore your website data. The backup contains database collections, files and folders.",
 	"Backup": "Backup",
 	"Restore": "Restore",
 	"Could not create backup file": "Could not create backup file",
@@ -14,5 +14,8 @@
 	"Please note: your existing files will be overwritten. The MongoDB collections will be dropped first before importing.": "Please note: your existing files will be overwritten. The MongoDB collections will be dropped first before importing.",
 	"Attach backup file by dropping it here or": "Attach backup file by dropping it here or",
 	"selecting one": "selecting one",
-	"Could not upload file": "Could not upload file"
+	"Could not upload file": "Could not upload file",
+	"When finished, you will need to re-authorize.": "When finished, you will need to re-authorize.",
+	"Backup has been restored. You're now logged off and need to re-authorize.": "Backup has been restored. You're now logged off and need to re-authorize.",
+	"Close": "Close"
 }

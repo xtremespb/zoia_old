@@ -1,5 +1,5 @@
 <h1>{{ i18n.__(locale, 'title') }}</h1>
-<p>{{ i18n.__(locale, 'You can backup and restore your website data. The backup contains database collections, modules and static folders.') }}</p>
+<p>{{ i18n.__(locale, 'You can backup and restore your website data. The backup contains database collections, files and folders.') }}</p>
 <p za-margin>
     <button class="za-button za-button-default" id="zoia_btn_backup">{{ i18n.__(locale, 'Backup') }}</button>
     <button class="za-button za-button-default" id="zoia_btn_restore">{{ i18n.__(locale, 'Restore') }}</button>
@@ -33,6 +33,7 @@
         </div>
         <div class="za-modal-body" id="dialogRestoreBody">
         	<p>{{ i18n.__(locale, 'Please note: your existing files will be overwritten. The MongoDB collections will be dropped first before importing.') }}</p>
+        	<p>{{ i18n.__(locale, 'When finished, you will need to re-authorize.') }}</p>
             <div class="bimport-upload za-placeholder za-text-center">
                 <span class="za-text-middle">{{ i18n.__(locale, 'Attach backup file by dropping it here or')}}</span>
                 <div za-form-custom>
@@ -42,11 +43,15 @@
             </div>
             <progress id="bimport_progressbar" class="za-progress" value="0" max="100" hidden></progress>
         </div>
+        <div class="za-modal-body" id="dialogRestoreSuccess" style="display:none">
+        	<p>{{ i18n.__(locale, 'Backup has been restored. You\'re now logged off and need to re-authorize.') }}</p>
+        	<a href="?_={{ rnd }}" class="za-button za-button-default">{{ i18n.__(locale, 'Close')}}</a>
+        </div>
         <div class="za-modal-body za-flex za-flex-center za-flex-middle" id="dialogRestoreSpinner" style="display:none">
             <div za-spinner></div>
         </div>
         <div class="za-modal-footer za-text-right" id="dialogRestoreFooter">
-            <button class="za-button za-button-default zoia-images-dialog-button za-modal-close" type="button">{{ i18n.__(locale, 'Cancel')}}</button>
+            <button class="za-button za-button-default za-modal-close" type="button">{{ i18n.__(locale, 'Close')}}</button>
         </div>
     </div>
 </div>
