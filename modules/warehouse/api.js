@@ -3146,7 +3146,7 @@ module.exports = function(app) {
                 fields: ['email', 'phone']
             }));
         }
-        const template = await db.collection('warehouse_registry').findOne({ name: 'warehouse_address_template' });
+        let template = await db.collection('warehouse_registry').findOne({ name: 'warehouse_address_template' });
         if (!template) {
             template = {
                 data: ''

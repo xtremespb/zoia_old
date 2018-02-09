@@ -1242,6 +1242,15 @@
                             <input class="za-input za-width-medium za-catalog-order-input" id="za_catalog_order_phone" type="text">
                         </div>
                     </div>
+                    <div class="za-margin">
+                        <label><input class="za-checkbox za-catalog-order-input" type="checkbox" id="za_catalog_order_paid">&nbsp;{{ i18n.__(locale, 'Order is paid')}}</label>
+                    </div>
+                    <div class="za-margin">
+                        <label class="za-form-label" for="za_catalog_order_tracking">{{ i18n.__(locale, 'Tracking number')}}:</label>
+                        <div class="za-form-controls">
+                            <input class="za-input za-width-large za-catalog-order-input" id="za_catalog_order_tracking" type="text">
+                        </div>
+                    </div>
                 </li>
                 <li>
                     <form id="za_catalog_order_add_form">
