@@ -86,7 +86,7 @@ gulp.task('default', async() => {
             .on('end', resolve);
     });
     await new Promise((resolve) => {
-        gulp.src(['static/zoia/core/js/jquery.zoiaFormBuilder.js', 'static/zoia/core/js/jquery.zoiaTable.js', 'static/js/warehouse.js'], { base: __dirname })
+        gulp.src(['../../static/zoia/core/js/jquery.zoiaFormBuilder.js', '../../static/zoia/core/js/jquery.zoiaTable.js', 'static/js/warehouse.js'], { base: __dirname })
             .pipe(babel({
                 presets: ['env']
             }))
@@ -149,7 +149,7 @@ gulp.task('default', async() => {
     });
     // Generate catalog_orders.min.js
     await new Promise((resolve) => {
-        gulp.src(['static/zoia/core/js/jquery.zoiaTable.js', 'static/js/catalog_orders.js'], { base: __dirname })
+        gulp.src(['../../static/zoia/core/js/jquery.zoiaTable.js', 'static/js/catalog_orders.js'], { base: __dirname })
             .pipe(babel({
                 presets: ['env']
             }))
