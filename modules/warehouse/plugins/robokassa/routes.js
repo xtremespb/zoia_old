@@ -87,7 +87,7 @@ module.exports = function(app, router) {
             return res.send('Invalid order ID, payment amount or signature value');
         }
         const crcValid = crypto.createHash('md5').update(sum + ':' + id + ':' + configPlugin.sMerchantPass2).digest('hex').toLowerCase();
-        if (crc.toLowerCase !== crcValid) {
+        if (crc.toLowerCase() !== crcValid) {
             return res.send('Invalid signature');
         }
         const orderData = await db.collection('warehouse_orders').findOne({ _id: parseInt(id, 10) });
@@ -119,7 +119,7 @@ module.exports = function(app, router) {
             return renderError(req, res, i18n.get().__(locale, 'Invalid order ID, payment amount or signature value.'));
         }
         const crcValid = crypto.createHash('md5').update(sum + ':' + id + ':' + configPlugin.sMerchantPass1).digest('hex').toLowerCase();
-        if (crc.toLowerCase !== crcValid) {
+        if (crc.toLowerCase() !== crcValid) {
             return renderError(req, res, i18n.get().__(locale, 'The payment signature is invalid. If you believe that\'s wrong, please contact website support.'));
         }
         let templateHTML = await renderModule.file(templatePaymentSuccess, {

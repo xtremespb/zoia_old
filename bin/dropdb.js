@@ -37,7 +37,7 @@ const install = async() => {
             await db.collection(collection.name).drop();
         }
         console.log('Script finished. Have a nice day!');
-        db.close();
+        process.exit(0);
     } catch (e) {
         console.log('\nScript failed: ' + e);
         process.exit(1);
