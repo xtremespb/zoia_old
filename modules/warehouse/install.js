@@ -60,6 +60,12 @@ module.exports = function(data) {
         } catch (e) {
             console.log('      [ ] Collection is not created');
         }
+        console.log('  └── Creating collection: warehouse_counters...');
+        try {
+            await db.createCollection('warehouse_counters');
+        } catch (e) {
+            console.log('      [ ] Collection is not created');
+        }
         console.log('      Dropping indexes...');
         try {
             await db.collection('warehouse').dropIndexes();

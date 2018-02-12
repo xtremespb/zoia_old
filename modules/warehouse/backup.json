@@ -5,7 +5,7 @@
         "type": "mongo",
         "collections": ["warehouse", "warehouse_collections", "warehouse_delivery", "warehouse_orders",
             "warehouse_properties", "warehouse_registry", "warehouse_variants",
-            "warehouse_variants_collections"
+            "warehouse_variants_collections", "warehouse_counters"
         ]
     },
     {

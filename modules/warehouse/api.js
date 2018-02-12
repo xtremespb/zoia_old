@@ -3377,7 +3377,7 @@ module.exports = function(app) {
             if (req.session && req.session.auth && req.session.auth.username) {
                 orderData.username = req.session.auth.username;
             }
-            const incr = await db.collection('counters').findAndModify({ _id: 'warehouse_orders' }, [], { $inc: { seq: 1 } }, { new: true, upsert: true });
+            const incr = await db.collection('warehouse_counters').findAndModify({ _id: 'orders' }, [], { $inc: { seq: 1 } }, { new: true, upsert: true });
             if (!incr || !incr.value || !incr.value.seq) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -3726,6 +3726,7 @@ module.exports = function(app) {
                 status: 0
             }));
         }
+        data.paid = data.paid === 'true' ? true : false;
         id = parseInt(id, 10);
         try {
             const updResult = await db.collection('warehouse_orders').update({ _id: id }, { $set: data }, { upsert: true });

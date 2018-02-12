@@ -40,7 +40,6 @@ const submitOrder = function(event) {
         delivery: $('#za_catalog_form_delivery').val()
     };
     $('.za-catalog-order-form-rx').each(function() {
-        console.log($(this).attr('id').replace('za_catalog_form_', ''));
         if ($('#za_catalog_form_delivery').find(':selected').attr('data-type') === 'delivery' ||
             $(this).attr('id').replace('za_catalog_form_', '') === 'email' ||
             $(this).attr('id').replace('za_catalog_form_', '') === 'phone') {

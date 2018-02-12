@@ -406,6 +406,8 @@ const editOrder = (id) => {
             $('#za_catalog_order_username').val(res.item.username || '');
             $('#za_catalog_order_email').val(res.item.email || '');
             $('#za_catalog_order_phone').val(res.item.phone || '');
+            $('#za_catalog_order_tracking').val(res.item.tracking || '');
+            $('#za_catalog_order_paid').prop("checked", res.item.paid);
             $('#za_catalog_order_delivery').val(res.item.delivery);
             let cartHTML = '<table class="za-table za-table-striped za-table-hover za-table-small za-table-middle za-table-responsive" id="za_catalog_order_cart_table"><tbody>';
             for (let i in res.item.cart) {
@@ -4566,6 +4568,8 @@ const zoiaOrderDialogButtonClick = () => {
     data.phone = $('#za_catalog_order_phone').val().trim();
     data.status = $('#za_catalog_order_status').val();
     data.delivery = $('#za_catalog_order_delivery').val();
+    data.tracking = $('#za_catalog_order_tracking').val().trim();
+    data.paid = $('#za_catalog_order_paid').is(':checked');
     data.costs.delivery = $('#za_catalog_order_cost_delivery').val().trim();
     data.costs.total = $('#za_catalog_order_cost_total').val().trim();
     data.costs.totalWares = $('#za_catalog_order_cost_wares').val().trim();

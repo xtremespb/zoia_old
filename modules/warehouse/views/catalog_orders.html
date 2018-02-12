@@ -25,12 +25,13 @@
     <div class="ordersPagination za-margin-top noselect"></div>
 </div>
 <div id="wrapOrder" style="display:none">
-    <h2>{{ i18n.__(locale, 'Order')}}&nbsp;<span id="orderID"></span></h2>
+    <h2>{{ i18n.__(locale, 'Order')}}&nbsp;<span id="orderID"></span></h2>    
     <div za-grid class="za-catalog-metadata-wrap">
         <div>
             <div class="za-catalog-metadata">{{ i18n.__(locale, 'Order date')}}:&nbsp;<span id="za_order_date"></span></div>
-            <div class="za-catalog-metadata">{{ i18n.__(locale, 'Status')}}:&nbsp;<span id="za_order_status"></span></div>
+            <div class="za-catalog-metadata">{{ i18n.__(locale, 'Status')}}:&nbsp;<span id="za_order_status"></span>{% if configModule.payments.enabled %}&nbsp;&nbsp;<span id="za_order_status_badge_paid" class="za-label za-label-success" style="display:none;margin-top:-2px">{{ i18n.__(locale, 'Paid')}}</span><span id="za_order_status_badge_unpaid" class="za-label za-label-warning" style="display:none;margin-top:-2px">{{ i18n.__(locale, 'Unpaid')}}</span>{% endif %}</div>
             <div class="za-catalog-metadata">{{ i18n.__(locale, 'Delivery')}}:&nbsp;<span id="za_order_delivery"></span></div>
+            <div class="za-catalog-metadata za-order-tracking-wrap">{{ i18n.__(locale, 'Tracking number')}}:&nbsp;<span id="za_order_tracking"></span></div>
         </div>
         <div id="za_order_address">
         </div>
@@ -41,6 +42,11 @@
     <h3>{{ i18n.__(locale, 'Costs')}}</h3>
     <div class="za-margin-top" id="za_order_costs">
     </div>
+    {% if configModule.payments.enabled %}
+    <div class="za-margin-large-top">
+        <a href="#" data="{{ configModule.prefix }}" class="za-button za-button-primary" id="za_order_btn_pay">{{ i18n.__(locale, 'Pay')}}</a>
+    </div>
+    {% endif %}
 </div>
 <div id="zoiaSpinnerMain" style="display:none" class="za-flex za-flex-middle za-flex-center"><span za-spinner style="color:#000"></span></div>
 <script src="/api/lang/warehouse/{{ locale }}.js" type="text/javascript"></script>

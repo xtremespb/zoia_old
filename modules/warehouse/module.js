@@ -10,6 +10,14 @@ module.exports = function(app) {
     } catch (e) {
         configModule = require(path.join(__dirname, 'config', 'catalog.dist.json'));
     }
+    let plugin = {};
+    if (configModule.payments && configModule.payments.enabled) {        
+        try {
+            plugin = require(path.join(__dirname, 'plugins', configModule.payments.plugin, 'routes'))(app, frontend.routes);
+        } catch(e) {
+            app.get('log').error('Could not load payments plugin: ' + e);
+        }
+    }
     return {
         frontend: {
             prefix: configModule.prefix,

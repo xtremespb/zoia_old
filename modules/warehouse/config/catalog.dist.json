@@ -1,11 +1,17 @@
 {
     "prefix": "/catalog",
     "itemsPerPage": 12,
-    "thumb": {
-    	"width": 300,
-    	"height": 300
+    "thumb":
+    {
+        "width": 300,
+        "height": 300
     },
     "currencyPosition": "left",
     "cart": true,
-    "payments": true
+    "payments":
+    {
+        "enabled": true,
+        "plugin": "robokassa"
+    }
+
 }
