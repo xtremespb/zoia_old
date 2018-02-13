@@ -39,6 +39,8 @@ const configs = async() => {
         let tplMailer = String(await fs.readFile(path.join(__dirname, 'templates', 'mailer.template')));
         let zConfig = await fs.readJSON(path.join(__dirname, 'templates', 'config.template'));
         let zConfigWebsite = await fs.readJSON(path.join(__dirname, 'templates', 'website.template'));
+        let tplSystemd = String(await fs.readFile(path.join(__dirname, 'templates', 'systemd_zoia.template')));
+        let tplSystemdMailer = String(await fs.readFile(path.join(__dirname, 'templates', 'systemd_mailer.template')));
         let zoiaIP = {};
         let zoiaPort = {};
         let zoiaProduction = {};
@@ -49,6 +51,9 @@ const configs = async() => {
         let zoiaMongoURL = {};
         let nginxPort = {};
         let serverName = {};
+        let zoiaSetCredentials = {};
+        let zoiaUser = {};
+        let zoiaGroup = {};
         if (!options.docker) {
             zoiaIP = await inquirer.prompt([{
                 type: 'input',
@@ -62,6 +67,32 @@ const configs = async() => {
                 default: 3000,
                 message: 'Local port for Zoia:'
             }]);
+            zoiaSetCredentials = await inquirer.prompt([{
+                type: 'list',
+                name: 'val',
+                message: 'Set system user and group for Zoia process?',
+                choices: [
+                    'true',
+                    'false'
+                ]
+            }]);
+            if (zoiaSetCredentials.val === 'true') {
+                zoiaUser = await inquirer.prompt([{
+                    type: 'input',
+                    name: 'val',
+                    default: 'zoia',
+                    message: 'User:'
+                }]);
+                zoiaGroup = await inquirer.prompt([{
+                    type: 'input',
+                    name: 'val',
+                    default: 'zoia',
+                    message: 'Group:'
+                }]);
+            } else {
+                zoiaUser.val = '';
+                zoiaGroup.val = '';
+            }
             zoiaProduction = await inquirer.prompt([{
                 type: 'list',
                 name: 'val',
@@ -141,6 +172,8 @@ const configs = async() => {
         let monit;
         let zoia;
         let mailer;
+        let systemd;
+        let systemd_mailer;
         if (!options.docker) {
             name = serverName.val.replace(/[\.\-]/gm, '_');
             nginx = tpl(tplNginx, {
@@ -165,11 +198,28 @@ const configs = async() => {
             mailer = tpl(tplMailer, {
                 serverName: serverName.val,
                 name: name,
+                user: zoiaUser.val,
+                group: zoiaGroup.val,
+                root: path.join(__dirname, '..').replace(/\\/gm, '/')
+            });
+            systemd = tpl(tplSystemd, {
+                serverName: serverName.val,
+                user: zoiaUser.val,
+                group: zoiaGroup.val,
+                name: name,
+                root: path.join(__dirname, '..').replace(/\\/gm, '/')
+            });
+            systemd_mailer = tpl(tplSystemdMailer, {
+                serverName: serverName.val,
+                name: name,
                 root: path.join(__dirname, '..').replace(/\\/gm, '/')
             });
         }
         zConfig.salt = salt;
         zConfig.session.secret = sessionSecret;
+        zConfig.credentials.set = zoiaSetCredentials.val === 'true' ? true : false;
+        zConfig.credentials.user = zoiaUser.val;
+        zConfig.credentials.group = zoiaGroup.val;
         if (!options.docker) {
             zConfig.ip = zoiaIP.val;
             zConfig.port = zoiaPort.val;
@@ -186,8 +236,10 @@ const configs = async() => {
             await fs.ensureDir(path.join(__dirname, 'config'));
             await fs.writeFile(path.join(__dirname, 'config', name + '_nginx.conf'), nginx);
             await fs.writeFile(path.join(__dirname, 'config', name + '_monit.conf'), monit);
-            await fs.writeFile(path.join(__dirname, 'zoia.sh'), zoia);
-            await fs.writeFile(path.join(__dirname, 'mailer.sh'), mailer);
+            await fs.writeFile(path.join(__dirname, 'startup', 'zoia_' + name + '.sh'), zoia);
+            await fs.writeFile(path.join(__dirname, 'startup', 'mailer_' + name + '.sh'), mailer);
+            await fs.writeFile(path.join(__dirname, 'startup', 'zoia_' + name + '.service'), systemd);
+            await fs.writeFile(path.join(__dirname, 'startup', 'mailer_' + name + '.service'), systemd_mailer);
         }
         await fs.writeFile(path.join(__dirname, '..', 'etc', 'config.json'), JSON.stringify(zConfig, null, "\t").replace(/\"true\"/gm, 'true').replace(/\"false\"/gm, 'false'));
         await fs.writeFile(path.join(__dirname, '..', 'etc', 'website.json'), JSON.stringify(zConfigWebsite, null, "\t"));

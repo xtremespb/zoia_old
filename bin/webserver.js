@@ -8,11 +8,15 @@ try {
     fs.accessSync(path.join(__dirname, '..', 'etc', 'website.json'), fs.constants.F_OK);
 } catch (e) {
     console.log('Error: no configuration files found in ./etc folder.');
-    console.log('Please run "npm run config" before starting the Zoia Webserver.');
+    console.log('Please run "npm run zoia_config" before starting the Zoia Webserver.');
     process.exit();
 }
 
 const config = require(path.join(__dirname, '..', 'core', 'config.js'));
+if (config.credentials && config.credentials.set && process.getuid && process.setuid) {
+    process.setuid(config.credentials.user);
+    process.setgid(config.credentials.group);
+}
 const app = require(path.join(__dirname, '..', 'core', 'app'));
 const log = app.get('log');
 const http = require('http');

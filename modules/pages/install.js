@@ -43,10 +43,10 @@ module.exports = function(data) {
             res = await inquirer.prompt([{
                 type: 'list',
                 name: 'continue',
-                message: 'Do you wish to create default pages?\n',
+                message: '    Do you wish to create default pages?\n',
                 choices: [
-                    'Yes, please',
-                    'No'
+                    '     - Yes',
+                    '     - No'
                 ]
             }]);
         }

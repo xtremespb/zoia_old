@@ -9,7 +9,7 @@
  */
 
 // dependencies
-const vsprintf = require('sprintf').vsprintf;
+const vsprintf = require('./sprintf.js').vsprintf;
 const fs = require('fs');
 const path = require('path');
 
