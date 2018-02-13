@@ -1,0 +1,27 @@
+{
+  "name": "zoia_warehouse",
+  "version": "1.02.1301",
+  "description": "Warehouse module for Zoia.js Framework",
+  "scripts": {
+  },
+  "dependencies": {
+    "csvtojson": "^1.1.9"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xtremespb/zoia.git"
+  },
+  "keywords": [
+    "nodejs",
+    "mongodb",
+    "framework",
+    "express",
+    "cms"
+  ],
+  "author": "Michael Matveev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xtremespb/zoia/issues"
+  },
+  "homepage": "https://github.com/xtremespb/zoia#readme"
+}
