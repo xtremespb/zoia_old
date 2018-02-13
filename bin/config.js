@@ -49,6 +49,7 @@ const configs = async() => {
         let zoiaStackTrace = {};
         let zoiaLogLevel = {};
         let zoiaMongoURL = {};
+        let zoiaMongoDB = {};
         let nginxPort = {};
         let serverName = {};
         let zoiaSetCredentials = {};
@@ -149,6 +150,12 @@ const configs = async() => {
                 default: 'mongodb://localhost:27017/zoia',
                 message: 'MongoDB URL:'
             }]);
+            zoiaMongoDB = await inquirer.prompt([{
+                type: 'input',
+                name: 'val',
+                default: 'zoia',
+                message: 'MongoDB Database name:'
+            }]);
             nginxPort = await inquirer.prompt([{
                 type: 'input',
                 name: 'val',
@@ -228,6 +235,7 @@ const configs = async() => {
             zConfig.log.stackTrace = zoiaStackTrace.val;
             zConfig.logLevel = zoiaLogLevel.val;
             zConfig.mongo.url = zoiaMongoURL.val;
+            zConfig.mongo.database = zoiaMongoDB.val;
         } else {
             zConfig.ip = '0.0.0.0';
             zConfig.mongo.url = zConfig.mongo.url.replace(/127\.0\.0\.1/, 'mongo');
@@ -236,10 +244,10 @@ const configs = async() => {
             await fs.ensureDir(path.join(__dirname, 'config'));
             await fs.writeFile(path.join(__dirname, 'config', name + '_nginx.conf'), nginx);
             await fs.writeFile(path.join(__dirname, 'config', name + '_monit.conf'), monit);
-            await fs.writeFile(path.join(__dirname, 'startup', 'zoia_' + name + '.sh'), zoia);
-            await fs.writeFile(path.join(__dirname, 'startup', 'mailer_' + name + '.sh'), mailer);
-            await fs.writeFile(path.join(__dirname, 'startup', 'zoia_' + name + '.service'), systemd);
-            await fs.writeFile(path.join(__dirname, 'startup', 'mailer_' + name + '.service'), systemd_mailer);
+            await fs.writeFile(path.join(__dirname, 'startup', name + '.sh'), zoia);
+            await fs.writeFile(path.join(__dirname, 'startup', name + '_mailer.sh'), mailer);
+            await fs.writeFile(path.join(__dirname, 'startup', name + '.service'), systemd);
+            await fs.writeFile(path.join(__dirname, 'startup', name + '_mailer.service'), systemd_mailer);
         }
         await fs.writeFile(path.join(__dirname, '..', 'etc', 'config.json'), JSON.stringify(zConfig, null, "\t").replace(/\"true\"/gm, 'true').replace(/\"false\"/gm, 'false'));
         await fs.writeFile(path.join(__dirname, '..', 'etc', 'website.json'), JSON.stringify(zConfigWebsite, null, "\t"));

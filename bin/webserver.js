@@ -14,8 +14,8 @@ try {
 
 const config = require(path.join(__dirname, '..', 'core', 'config.js'));
 if (config.credentials && config.credentials.set && process.getuid && process.setuid) {
-    process.setuid(config.credentials.user);
     process.setgid(config.credentials.group);
+    process.setuid(config.credentials.user);
 }
 const app = require(path.join(__dirname, '..', 'core', 'app'));
 const log = app.get('log');
