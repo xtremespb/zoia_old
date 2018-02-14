@@ -8,12 +8,6 @@
         <div id="za_catalog_cart_table-spinner" class="za-flex za-flex-center za-flex-middle" style="display:none">
             <span za-spinner></span>
         </div>
-        <tfoot>
-            <tr>
-                <td colspan="3"></td>
-                <td class="za-catalog-cart-total">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ total }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
-            </tr>
-        </tfoot>
         <tbody>
             {% for item in cart %}
             <tr>
@@ -36,7 +30,10 @@
             {% endfor %}
         </tbody>
     </table>
-    <div>
+    <div class="za-margin-top za-catalog-cart-total-wrap">
+        {{ i18n.__(locale, 'Cost')}}:&nbsp;<span class="za-catalog-cart-total">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ total }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</span>
+    </div>
+    <div class="za-margin-top">
         <a href="{{ configModule.prefix }}/order" class="za-button za-button-primary">{{ i18n.__(locale, 'Order')}}</a>
     </div>
 </div>

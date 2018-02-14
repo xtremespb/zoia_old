@@ -48,9 +48,9 @@
             "ru": "Русский"
         },
         "detect": {
-            "subdomain": true,
+            "subdomain": false,
             "query": true,
-            "cookie": true
+            "cookie": false
         },
         "dev": true,
         "cookieName": "zoiaLang",

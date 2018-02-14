@@ -197,7 +197,7 @@
 	"Items cost": "Стоимость товаров",
 	"Delivery address": "Адрес доставки",
 	"A new order on your website has been placed.": "В Вашем интернет-магазине сделан новый заказ.",
-	"New order on your website": "Новый заказ в Вашем интернет-магазине",
+	"New order on your website": "Новый заказ в Вашем магазине",
 	"Price variants": "Варианты цены",
 	"Variants List": "Список вариантов цен",
 	"Import Variants from CSV": "Импорт вариантов цены из CSV-файла",
@@ -233,5 +233,6 @@
 	"View Order": "Просмотр заказа",
 	"Paid": "Оплачен",
 	"Unpaid": "Не оплачен",
-	"Pay": "Оплатить"
+	"Pay": "Оплатить",
+	"pc(s).": "шт."
 }

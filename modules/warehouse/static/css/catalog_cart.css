@@ -21,6 +21,10 @@
     text-align: center;
 }
 
+.za-catalog-cart-total-wrap {
+    font-size: 120%;
+}
+
 .za-catalog-cart-total {
-    border-top: 1px solid #f0f0f0;
+    font-weight: bold;
 }
