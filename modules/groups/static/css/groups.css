@@ -69,3 +69,8 @@
 #users > tbody > tr:hover {
 	background: #FFF8E3;
 }
+
+.groupsBtnSelectAll,
+.groupsBtnSelectNone {
+    padding: 9px;
+} 

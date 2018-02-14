@@ -1,66 +1,78 @@
 /* eslint max-len: 0 */
 const fs = require('fs-extra');
 const path = require('path');
+const npm = require('npm-programmatic');
+
 // const ObjectId = require('mongodb').ObjectID;
 module.exports = function(data) {
     return async() => {
         const db = data.db;
         const config = data.config;
-        console.log('  └── Creating collection: warehouse...');
+        console.log('  └── Installing required packages (this may take a while)...');
+        try {
+            await npm.install(['csvtojson@1.1.9'], {
+                cwd: path.join(__dirname, '..', '..'),
+                save: false
+            })
+        } catch (e) {
+            console.log('      Error: ' + e);
+        }
+        //await _npmInstall(['csvtojson@1.1.9']);
+        console.log('      Creating collection: warehouse...');
         try {
             await db.createCollection('warehouse');
         } catch (e) {
             console.log('      [ ] Collection is not created');
         }
-        console.log('  └── Creating collection: warehouse_collections...');
+        console.log('      Creating collection: warehouse_collections...');
         try {
             await db.createCollection('warehouse_collections');
         } catch (e) {
             console.log('      [ ] Collection is not created');
         }
-        console.log('  └── Creating collection: warehouse_delivery...');
+        console.log('      Creating collection: warehouse_delivery...');
         try {
             await db.createCollection('warehouse_delivery');
         } catch (e) {
             console.log('      [ ] Collection is not created');
         }
-        console.log('  └── Creating collection: warehouse_orders...');
+        console.log('      Creating collection: warehouse_orders...');
         try {
             await db.createCollection('warehouse_orders');
         } catch (e) {
             console.log('      [ ] Collection is not created');
         }
-        console.log('  └── Creating collection: warehouse_properties...');
+        console.log('      Creating collection: warehouse_properties...');
         try {
             await db.createCollection('warehouse_properties');
         } catch (e) {
             console.log('      [ ] Collection is not created');
         }
-        console.log('  └── Creating collection: warehouse_tasks...');
+        console.log('      Creating collection: warehouse_tasks...');
         try {
             await db.createCollection('warehouse_tasks');
         } catch (e) {
             console.log('      [ ] Collection is not created');
         }
-        console.log('  └── Creating collection: warehouse_variants...');
+        console.log('      Creating collection: warehouse_variants...');
         try {
             await db.createCollection('warehouse_variants');
         } catch (e) {
             console.log('      [ ] Collection is not created');
         }
-        console.log('  └── Creating collection: warehouse_variants_collections...');
+        console.log('      Creating collection: warehouse_variants_collections...');
         try {
             await db.createCollection('warehouse_variants_collections');
         } catch (e) {
             console.log('      [ ] Collection is not created');
         }
-        console.log('  └── Creating collection: warehouse_registry...');
+        console.log('      Creating collection: warehouse_registry...');
         try {
             await db.createCollection('warehouse_registry');
         } catch (e) {
             console.log('      [ ] Collection is not created');
         }
-        console.log('  └── Creating collection: warehouse_counters...');
+        console.log('      Creating collection: warehouse_counters...');
         try {
             await db.createCollection('warehouse_counters');
         } catch (e) {

@@ -235,7 +235,12 @@ module.exports = function(app) {
                                 const dbdata = await fs.readJson(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId, item.module, item.from));
                                 for (let i in dbdata) {
                                     if (dbdata[i]._id) {
-                                        dbdata[i]._id = new ObjectID(dbdata[i]._id);
+                                        try {
+                                            const oid = new ObjectID(dbdata[i]._id);
+                                            dbdata[i]._id = oid;
+                                        } catch(e) {
+                                            // ignore
+                                        }
                                     }
                                 }
                                 if (dbdata && dbdata.length > 0) {
@@ -252,6 +257,7 @@ module.exports = function(app) {
                 } catch (e) {
                     log.error('Could not restore a backup');
                     log.error(e);
+                    console.log(e);
                     await db.collection('backup_tasks').update({ _id: new ObjectID(taskId) }, { $set: { state: 0 } }, { upsert: true });
                     try {
                         await fs.remove(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId + '.tgz'));
@@ -279,11 +285,11 @@ module.exports = function(app) {
 
     const restoreState = async(req, res) => {
         res.contentType('application/json');
-        if (!Module.isAuthorizedAdmin(req)) {
+        /*if (!Module.isAuthorizedAdmin(req)) {
             return res.send(JSON.stringify({
                 status: 0
             }));
-        }
+        }*/
         const id = req.query.id;
         if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
             return res.send(JSON.stringify({

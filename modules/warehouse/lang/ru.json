@@ -220,5 +220,18 @@
 	"E-mail": "E-mail",
 	"Phone": "Телефон",
 	"Example: +15417543010": "Пример: +79219876543",
-	"More info": "Подробнее"
+	"More info": "Подробнее",
+	"Order is paid": "Заказ оплачен",
+	"Tracking number": "Трекинг-номер",
+	"Could not process the requested order. Please check the order number or try a few moments later.": "Ошибка во время обработки заказа. Пожалуйста, проверьте номер заказа или повторите попытку через некоторое время.",
+	"Payment Failed": "Ошибка платежа",
+	"Invalid order ID": "Неверный номер заказа",
+	"Invalid order ID, payment amount or signature value.": "Неверный номер заказа, сумма платежа, либо контрольная подпись.",
+	"Could not complete your payment. Please contact website support for more information or try again.": "Ошибка во время совершения платежа. Пожалуйста, обратитесь в поддержку сайта, либо повторите попытку через некоторое время.",
+	"Successful Payment": "Успешный платеж",
+	"The payment of the order was successful. Thank you!": "Оплата Вашего заказа выполнена успешно. Спасибо!",
+	"View Order": "Просмотр заказа",
+	"Paid": "Оплачен",
+	"Unpaid": "Не оплачен",
+	"Pay": "Оплатить"
 }

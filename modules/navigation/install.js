@@ -17,7 +17,7 @@ module.exports = function(data) {
         console.log('      Creating indexes...');
         await db.collection('navigation').createIndex({ name: 1 });
         await db.collection('navigation').createIndex({ name: -1 });
-        console.log('  └── Creating default navigation...');
+        console.log('      Creating default navigation...');
         let upd = await db.collection('navigation').update({ name: 'navigation' }, {
             $set: {
                 name: 'navigation',

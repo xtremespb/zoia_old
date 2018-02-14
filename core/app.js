@@ -10,13 +10,6 @@ const fs = require('fs');
 const winston = require('winston');
 
 ((async function init() {
-    /*console.log('\n          (_)     (_)');
-    console.log('  _______  _  __ _   _ ___');
-    console.log(' |_  / _ \\| |/ _` | | / __|');
-    console.log('  / / (_) | | (_| |_| \\__ \\');
-    console.log(' /___\\___/|_|\\__,_(_) |___/');
-    console.log('                   _/ |');
-    console.log('                  |__/\n');*/
     console.log('\nZoia Web Framework\n');
     try {
         const config = require(path.join(__dirname, 'config.js'));

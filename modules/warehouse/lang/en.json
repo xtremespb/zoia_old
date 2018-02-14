@@ -226,7 +226,6 @@
 	"Could not process the requested order. Please check the order number or try a few moments later.": "Could not process the requested order. Please check the order number or try a few moments later.",
 	"Payment Failed": "Payment Failed",
 	"Invalid order ID": "Invalid order ID",
-	"Sucessful Payment": "Sucessful Payment",
 	"Invalid order ID, payment amount or signature value.": "Invalid order ID, payment amount or signature value.",
 	"Could not complete your payment. Please contact website support for more information or try again.": "Could not complete your payment. Please contact website support for more information or try again.",
 	"Successful Payment": "Successful Payment",

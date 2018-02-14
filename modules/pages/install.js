@@ -13,7 +13,7 @@ module.exports = function(data) {
         } catch (e) {
             console.log('      [ ] Collection is not created');
         }
-        console.log('  └── Creating collection: pages_registry...');
+        console.log('      Creating collection: pages_registry...');
         try {
             await db.createCollection('pages_registry');
         } catch (e) {
@@ -43,7 +43,7 @@ module.exports = function(data) {
             res = await inquirer.prompt([{
                 type: 'list',
                 name: 'continue',
-                message: '    Do you wish to create default pages?\n',
+                message: '    Create default pages?\n',
                 choices: [
                     '     - Yes',
                     '     - No'
