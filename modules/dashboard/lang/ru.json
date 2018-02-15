@@ -5,5 +5,20 @@
 	"Up and running.": "Система успешно запущена.",
 	"Software version": "Версия ПО",
 	"Running on hostname": "Имя хоста",
-	"OS Type": "Тип ОС"
+	"OS Type": "Тип ОС",
+	"Info": "Информация",
+	"Settings": "Настройки",
+	"Control": "Управление",
+	"Please restart Zoia for changes to take effect.": "Пожалуйста, перезапустите Zoia для вступления изменений в силу.",
+	"Protocol": "Протокол",
+	"URL": "URL",
+	"Title": "Заголовок (title)",
+	"Title (short)": "Краткий заголовок",
+	"E-mail address (no-reply)": "Адрес E-mail (no-reply)",
+	"E-mail address (feedback)": "Адрес E-mail (feedback)",
+	"Save": "Сохранить",
+	"Restart": "Перезапуск",
+	"Zoia process will terminate. If you are running with default recommended tools like forever, the process will be restarted automatically.": "Процесс Zoia будет завершен. Если Вы используете инструменты для автоматической перезагрузки веб-сервера, такие, как forever, процесс будет перезапущен автоматически.",
+	"Restarting": "Перезапуск",
+	"Restart is in progress, please wait...": "Идет перезапуск, пожалуйста, подождите..."
 }
