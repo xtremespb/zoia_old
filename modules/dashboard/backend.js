@@ -22,13 +22,16 @@ module.exports = function(app) {
                 i18n: i18n.get(),
                 config: config,
                 locale: locale,
+                langs: JSON.stringify(config.i18n.locales),
                 os: os
             });
-            res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html));
+            res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, config.production ? ['/dashboard/static/css/dashboard.min.css'] : ['/dashboard/static/css/dashboard.css'],
+                config.production ? ['/dashboard/static/js/dashboard.min.js'] : ['/dashboard/static/js/dashboard.js']));
         } catch (e) {
             next(new Error(e.message));
         }
     };
+    app.use('/dashboard/static', app.get('express').static(path.join(__dirname, 'static')));
     let router = Router();
     router.get('/', dashboard);
     return {
