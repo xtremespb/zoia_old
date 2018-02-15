@@ -111,7 +111,7 @@ module.exports = function(app) {
                         file: path.join(__dirname, 'static', 'storage', 'backup_' + taskId + '.tgz')
                     }, files);
                     await fs.remove(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId));
-                    await db.collection('backup_tasks').update({ _id: new ObjectID(taskId) }, { $set: { state: 3 } }, { upsert: true });                    
+                    await db.collection('backup_tasks').update({ _id: new ObjectID(taskId) }, { $set: { state: 3 } }, { upsert: true });
                 } catch (e) {
                     log.error('Could not create a backup');
                     log.error(e);
@@ -238,7 +238,7 @@ module.exports = function(app) {
                                         try {
                                             const oid = new ObjectID(dbdata[i]._id);
                                             dbdata[i]._id = oid;
-                                        } catch(e) {
+                                        } catch (e) {
                                             // ignore
                                         }
                                     }
@@ -303,17 +303,20 @@ module.exports = function(app) {
                     status: 0
                 }));
             }
-            if (item.state === 3) {
-                try {
-                    fs.remove(path.join(__dirname, '..', '..', 'temp', 'backup_' + id));
-                } catch (e) {
-                    log.error(e);
-                    // Ignore
-                }
-                Module.logout(req);
-            }
             if (item.state === 3 || item.state === 0) {
                 await db.collection('backup_tasks').remove({ _id: new ObjectID(id) });
+                if (item.state === 3) {
+                    try {
+                        fs.remove(path.join(__dirname, '..', '..', 'temp', 'backup_' + id));
+                    } catch (e) {
+                        log.error(e);
+                        // Ignore
+                    }
+                    Module.logout(req);
+                    setTimeout(() => {
+                        process.exit(0);
+                    }, 3000);
+                }
             }
             return res.send(JSON.stringify({
                 status: 1,

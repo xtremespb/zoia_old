@@ -33,7 +33,7 @@
         </div>
         <div class="za-modal-body" id="dialogRestoreBody">
         	<p>{{ i18n.__(locale, 'Please note: your existing files will be overwritten. The MongoDB collections will be dropped first before importing.') }}</p>
-        	<p>{{ i18n.__(locale, 'When finished, you will need to re-authorize.') }}</p>
+        	<p>{{ i18n.__(locale, 'When finished, Zoia will terminate, so make sure you are running any tool to automatically restart the server (like forever). You will need to re-authorize.') }}</p>
             <div class="bimport-upload za-placeholder za-text-center">
                 <span class="za-text-middle">{{ i18n.__(locale, 'Attach backup file by dropping it here or')}}</span>
                 <div za-form-custom>
@@ -42,6 +42,9 @@
                 </div>
             </div>
             <progress id="bimport_progressbar" class="za-progress" value="0" max="100" hidden></progress>
+        </div>
+        <div class="za-modal-body" id="dialogRestoreRestart" style="display:none">
+            <div za-spinner style="margin:-2px 20px 0 0"></div>{{ i18n.__(locale, 'System is restarting, please wait...')}}
         </div>
         <div class="za-modal-body" id="dialogRestoreSuccess" style="display:none">
         	<p>{{ i18n.__(locale, 'Backup has been restored. You\'re now logged off and need to re-authorize.') }}</p>

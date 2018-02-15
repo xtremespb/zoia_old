@@ -34,6 +34,24 @@ gulp.task('cleanup', async() => {
     fs.unlinkSync(path.join(__dirname, 'modules', 'updates', 'static', 'js', 'updates.min.js'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'backup', 'static', 'css', 'backup.min.css'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'backup', 'static', 'js', 'backup.min.js'));
+    fs.unlinkSync(path.join(__dirname, 'modules', 'dashboard', 'static', 'css', 'dashboard.min.css'));
+    fs.unlinkSync(path.join(__dirname, 'modules', 'dashboard', 'static', 'js', 'dashboard.min.js'));
+});
+
+gulp.task('dashboard', async() => {
+    // Generate CSS
+    gulp.src(['modules/dashboard/static/css/dashboard.css'], { base: __dirname })
+        .pipe(minifyCSS())
+        .pipe(concat('dashboard.min.css'))
+        .pipe(gulp.dest(path.join('modules', 'dashboard', 'static', 'css')));
+    // Generate dashboard.min.js
+    gulp.src(['modules/dashboard/static/js/dashboard.js'], { base: __dirname })
+        .pipe(babel({
+            presets: ['env']
+        }))
+        .pipe(concat('dashboard.min.js'))
+        .pipe(uglify())
+        .pipe(gulp.dest(path.join('modules', 'dashboard', 'static', 'js')));
 });
 
 gulp.task('panel', async() => {
@@ -325,6 +343,7 @@ gulp.task('backup', async() => {
 });
 
 gulp.task('default', function() {
+    gulp.start('dashboard');
     gulp.start('panel');
     gulp.start('users');
     gulp.start('groups');
@@ -332,5 +351,5 @@ gulp.task('default', function() {
     gulp.start('pages');
     gulp.start('navigation');
     gulp.start('updates');
-    gulp.start('backup');
+    gulp.start('backup');    
 });

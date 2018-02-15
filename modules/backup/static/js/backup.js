@@ -70,8 +70,12 @@ const restoreStateCheck = (id) => {
                         });
                         break;
                     default:
+                        $('#dialogRestoreRestart').show();
                         $('#dialogRestoreSpinner').hide();
-                        $('#dialogRestoreSuccess').show();
+                        setTimeout(() => {
+                            $('#dialogRestoreRestart').hide();
+                            $('#dialogRestoreSuccess').show();
+                        }, 30000);
                         break;
                 }
             } else {
@@ -176,7 +180,7 @@ const initUploader = () => {
                 setTimeout(() => {
                     restoreStateCheck(response.taskId);
                 }, 1500);
-            } else {                
+            } else {
                 $('#dialogRestoreFooter').show();
                 $zUI.notification(lang['Could not upload file'], {
                     status: 'danger',

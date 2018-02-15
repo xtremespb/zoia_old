@@ -15,7 +15,8 @@
 	"Attach backup file by dropping it here or": "Добавьте файл резервной копии, перетащив его, или",
 	"selecting one": "выберите файл на диске",
 	"Could not upload file": "Ошибка во время загрузки файла",
-	"When finished, you will need to re-authorize.": "После окончания процесса восстановления резервной копии потребуется повторная авторизация в системе.",
+	"When finished, Zoia will terminate, so make sure you are running any tool to automatically restart the server (like forever). You will need to re-authorize.": "После окончания восстановления резервной копии процесс Zoia будет остановлен; пожалуйста, убедитесь, что Вы используете инструмент для перезагрузки веб-сервера, такой, как forever. Также потребуется повторная авторизация в системе.",
 	"Backup has been restored. You're now logged off and need to re-authorize.": "Резервная копия успешно восстановлена. Вам потребуется повторный вход в систему для продолжения.",
-	"Close": "Close"
+	"Close": "Закрыть",
+	"System is restarting, please wait...": "Идет перезапуск Zoia, пожалуйста, подождите..."
 }

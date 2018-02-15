@@ -7,7 +7,6 @@ const rp = require('request-promise');
 const fs = require('fs-extra');
 const md5File = require('md5-file/promise');
 const targz = require('tar');
-/*const npm = require('npm');*/
 
 module.exports = function(app) {
     const log = app.get('log');
@@ -85,21 +84,7 @@ module.exports = function(app) {
             }));
         }
     };
-
-    const _npmUpdate = () => {
-        return new Promise(function(resolve, reject) {
-            npm.load({ save: true }, () => {
-                npm.commands.install((err, d) => {
-                    if (err) {
-                        reject();
-                    } else {
-                        resolve();
-                    }
-                });
-            });
-        });
-    };
-
+    
     const extract = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
@@ -117,7 +102,6 @@ module.exports = function(app) {
             });
             await fs.access(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'), fs.constants.F_OK);
             await fs.remove(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'));
-            // await _npmUpdate();
             res.send(JSON.stringify({
                 status: 1
             }));
