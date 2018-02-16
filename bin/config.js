@@ -256,7 +256,7 @@ const configs = async() => {
             console.log('Startup file ("zoia.sh") written to the "./bin" directory.');
         }
         console.log('Configuration files ("config.json" and "website.json") are written to "./etc" directory.');
-        console.log('Please check configuration files in "./etc" manually and run "npm run install" before you start Zoia.');
+        console.log('Please check configuration files in "./etc" manually and run "npm run zoia_install" before you start Zoia.');
     } catch (e) {
         console.log('\nError: ' + e);
     }
