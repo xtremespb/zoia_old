@@ -8,6 +8,7 @@ const settingsFields = require(path.join(__dirname, 'schemas', 'settingsFields.j
 const propertyFields = require(path.join(__dirname, 'schemas', 'propertyFields.js'));
 const deliveryFields = require(path.join(__dirname, 'schemas', 'deliveryFields.js'));
 const collectionFields = require(path.join(__dirname, 'schemas', 'collectionFields.js'));
+const variantFields = require(path.join(__dirname, 'schemas', 'variantFields.js'));
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const fs = require('fs-extra');
 const Jimp = require('jimp');
@@ -1187,7 +1188,7 @@ module.exports = function(app) {
             }));
         }
         try {
-            const fieldList = propertyFields.getPropertyFields();
+            const fieldList = variantFields.getVariantFields();
             let fields = validation.checkRequest(req.body, fieldList);
             let fieldsFailed = validation.getCheckRequestFailedFields(fields);
             if (fieldsFailed.length > 0) {

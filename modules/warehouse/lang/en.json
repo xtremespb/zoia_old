@@ -234,5 +234,7 @@
 	"Paid": "Paid",
 	"Unpaid": "Unpaid",
 	"Pay": "Pay",
-	"pc(s).": "pc(s)."
+	"pc(s).": "pc(s).",
+	"Copy numeric values": "Copy numeric values",
+	"Synchronize numeric values": "Synchronize numeric values"
 }

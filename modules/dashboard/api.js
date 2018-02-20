@@ -41,6 +41,7 @@ module.exports = function(app) {
         try {
             const settingsMerge = Object.assign(config.website, data);
             await fs.writeJson(path.join(__dirname, '..', '..', 'etc', 'website.json'), settingsMerge, { spaces: '\t' });
+            config.website = settingsMerge;
             return res.send(JSON.stringify({
                 status: 1
             }));

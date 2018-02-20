@@ -6,7 +6,7 @@
         "width": 300,
         "height": 300
     },
-    "currencyPosition": "left",
+    "currencyPosition": "right",
     "cart": true,
     "payments":
     {

@@ -50,7 +50,7 @@
             {% for p in data[locale].properties %}
             <!-- -->
             {% if props[p.d] %}
-            {% if propsType[p.d] == null %}                       
+            {% if propsType[p.d] == 0 %}                       
             <div class="za-grid-small" za-grid>
                 <div class="za-width-expand" za-leader>{{ props[p.d] }}</div>
                 <div>{{ p.v }}</div>
@@ -65,14 +65,14 @@
             {% if propsType[p.d] == 2 %}            
             <div class="za-margin-top za-margin-bottom za-grid-small" za-grid>
                 <div class="za-width-expand" za-leader><label><input class="za-checkbox za-catalog-item-checkbox" type="checkbox" data-id="{{ p.d }}" data-price="{{ p.v }}">&nbsp;{{ props[p.d] }}</label></div>
-                <div>{{ p.v }}&nbsp;{{ settings.currency }}</div>
+                <div>{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ p.v }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</div>
             </div>
             {% endif %}
             <!-- -->
             {% if propsType[p.d] == 3 %}            
             <div class="za-margin-top za-margin-bottom za-grid-small" za-grid>
                 <div class="za-width-expand" za-leader><label><input class="za-checkbox za-catalog-item-integer" type="checkbox" data-id="{{ p.d }}" data-price="{{ p.v }}">&nbsp;{{ props[p.d] }}&nbsp;<input class="za-input za-form-width-xsmall za-catalog-item-integer-field za-form-small" value="1" type="number" min="1" step="1" id="za_catalog_item_integer_{{ p.d }}"></label></div>
-                <div><span id="za_catalog_item_integer_val_{{ p.d }}">{{ p.v }}</span>&nbsp;{{ settings.currency }}</div>
+                <div>{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}<span id="za_catalog_item_integer_val_{{ p.d }}">{{ p.v }}</span>{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</div>
             </div>
             {% endif %}
             <!-- -->

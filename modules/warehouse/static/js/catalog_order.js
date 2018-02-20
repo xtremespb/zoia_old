@@ -213,9 +213,18 @@ $(document).ready(() => {
                 break;
             case 'select':
                 let opts = '';
+                item.values.sort(function(a, b) {
+                    const x = a.lang[locale].toLowerCase();
+                    const y = b.lang[locale].toLowerCase();
+                    return x < y ? -1 : (x > y ? 1 : 0);
+                });
                 for (let v in item.values) {
                     const iv = item.values[v];
-                    opts += '<option value="' + iv.value + '" data-addprc="' + iv.addPrc + '" data-cost="' + iv.cost + '">' + iv.lang[locale] + '</option>';
+                    let selected = '';
+                    if (item.default && item.default === iv.value) {
+                        selected = ' selected';
+                    }
+                    opts += '<option value="' + iv.value + '" data-addprc="' + iv.addPrc + '" data-cost="' + iv.cost + '"' + selected + '>' + iv.lang[locale] + '</option>';
                 }
                 formHTML += '<div class="za-margin"><label class="za-form-label" for="za_catalog_form_' + item.id + '">' + item.label[locale] + ':&nbsp;</label><div class="za-form-controls"><select class="za-catalog-form-input za-catalog-order-form-rx za-select za-width-' + item.width + '" id="za_catalog_form_' + item.id + '">' + opts + '</select></div></div>';
                 break;

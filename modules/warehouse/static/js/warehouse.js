@@ -1740,7 +1740,7 @@ const editFormData = {
         },
         properties: {
             type: 'valueslisteditable',
-            buttons: '<div class="za-margin-bottom"><ul class="za-iconnav"><li><button type="button" class="za-icon-button zoiaAddPropertyBtn" za-icon="icon:file" title="' + lang['Insert property'] + '" za-tooltip="pos: bottom-right"></button></li><li><button type="button" class="za-icon-button zoiaAddCollectionBtn"za-icon="icon:album" title="' + lang['Insert collection'] + '" za-tooltip="pos: bottom-right"></button></li><li><button type="button" class="za-icon-button zoiaRemoveAllProperties"za-icon="icon:trash" title="' + lang['Remove all properties'] + '" za-tooltip="pos: bottom-right"></button></li></ul></div>',
+            buttons: '<div class="za-margin-bottom"><ul class="za-iconnav"><li><button type="button" class="za-icon-button zoiaAddPropertyBtn" za-icon="icon:file" title="' + lang['Insert property'] + '" za-tooltip="pos: bottom-right"></button></li><li><button type="button" class="za-icon-button zoiaAddCollectionBtn"za-icon="icon:album" title="' + lang['Insert collection'] + '" za-tooltip="pos: bottom-right"></button></li><li><button type="button" class="za-icon-button zoiaRemoveAllProperties"za-icon="icon:trash" title="' + lang['Remove all properties'] + '" za-tooltip="pos: bottom-right"></button></li><li><button type="button" class="za-icon-button zoiaPropertiesCopyNumeric"za-icon="icon:copy" title="' + lang['Copy numeric values'] + '" za-tooltip="pos: bottom-right"></button></li><li><button type="button" class="za-icon-button zoiaPropertiesSyncNumeric"za-icon="icon:move" title="' + lang['Synchronize numeric values'] + '" za-tooltip="pos: bottom-right"></button></li></ul></div>',
             helpText: lang['Use drag-and-drop to arrange properties order'],
             label: lang['Properties']
         },
@@ -2406,8 +2406,8 @@ const editDeliveryFormData = {
             label: lang['Delivery'],
             css: 'uk-form-width-medium',
             values: {
-                delivery: 'Need to enter an address',
-                pickup: 'Local pickup'
+                delivery: lang['Need to enter an address'],
+                pickup: lang['Local pickup']
             },
             validation: {
                 mandatoryCreate: true,
@@ -3728,7 +3728,7 @@ const editVariantCollectionForm_properties_btnHandler = () => {
 const addCheckedProperties = (ids) => {
     const data = $('#propertyselect').zoiaTable().getCurrentData();
     let duplicate = false;
-    const _duplicateFunc = function() {
+    const _duplicateFunc = function(pid) {
         if ($(this).attr('data-pid') === pid) {
             duplicate = true;
         }
@@ -4633,6 +4633,37 @@ const ordersBtnRefreshClick = () => {
     $('#orders').zoiaTable().load();
 };
 
+const zoiaPropertiesCopyNumericClick = () => {
+    for (let i in editShadow) {
+        if (i !== editLanguage) {
+            for (let j in editShadow[i].data.properties.value) {
+                const item = editShadow[i].data.properties.value[j];
+                const nval = parseFloat(item.v);
+                if (nval) {
+                    $('.formBuilder-valueslist-val[data="' + item.d + '"]').val(nval);
+                }
+            }
+            return;
+        }
+    }
+};
+
+const zoiaPropertiesSyncNumericClick = () => {
+    for (let i in editShadow) {        
+        if (i !== editLanguage) {
+            for (let j in editShadow[i].data.properties.value) {
+                const item = editShadow[i].data.properties.value[j];
+                const val = $('.formBuilder-valueslist-val[data="' + item.d + '"]').val();
+                const nval = parseFloat(val);
+                if (nval) {
+                    editShadow[i].data.properties.value[j].v = val;
+                }
+            }
+            return;
+        }
+    }
+};
+
 $(document).ready(() => {
     // Init section
     initDialogs();
@@ -4724,6 +4755,8 @@ $(document).ready(() => {
     $('.zoiaRemoveAllProperties').click(() => {
         $('#editForm_properties_wrap').empty();
     });
+    $('.zoiaPropertiesCopyNumeric').click(zoiaPropertiesCopyNumericClick)
+    $('.zoiaPropertiesSyncNumeric').click(zoiaPropertiesSyncNumericClick)
     $('.zoiaRemoveAllVariants').click(() => {
         $('#editForm_variants_wrap').empty();
     });
