@@ -23,6 +23,29 @@ module.exports = function(app) {
     const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
     const db = app.get('db');
 
+    const _loadSettings = async(locale) => {
+        const dataSettings = await db.collection('warehouse_registry').findOne({ name: 'warehouseSettings' });
+        let settings = {
+            currency: '',
+            weight: ''
+        };
+        if (dataSettings && dataSettings.data) {
+            try {
+                let settingsParsed = JSON.parse(dataSettings.data);
+                for (let i in settingsParsed) {
+                    for (let p in settingsParsed[i]) {
+                        if (settingsParsed[i][p].p === locale) {
+                            settings[i] = settingsParsed[i][p].v;
+                        }
+                    }
+                }
+            } catch (e) {
+                // Ignore
+            }
+        }
+        return settings;
+    };
+
     const list = async(req, res, next) => {
         try {
             if (!Module.isAuthorizedAdmin(req)) {
@@ -33,6 +56,7 @@ module.exports = function(app) {
             const folders = await db.collection('warehouse_registry').findOne({ name: 'warehouseFolders' });
             const settings = await db.collection('warehouse_registry').findOne({ name: 'warehouseSettings' });
             const addressDB = await db.collection('warehouse_registry').findOne({ name: 'warehouse_address' });
+            const settingsData = await _loadSettings(locale);
             let addressData = {};
             if (addressDB && addressDB.data && addressDB.data.length) {
                 for (let i in addressDB.data) {
@@ -53,7 +77,7 @@ module.exports = function(app) {
                 langs: JSON.stringify(config.i18n.localeNames),
                 address: JSON.stringify(jsonAddress),
                 folders: folders ? folders.data : JSON.stringify([{ id: '1', text: '/', parent: '#', type: 'root' }]),
-                settings: settings ? settings.data : JSON.stringify({}),
+                settings: JSON.stringify(settingsData),
                 addressJSON: JSON.stringify(addressData),
                 delivery: delivery,
                 configModule: configModule

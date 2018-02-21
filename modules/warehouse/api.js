@@ -212,7 +212,7 @@ module.exports = function(app) {
                 tfq['title.' + locale] = { $regex: search, $options: 'i' };
                 fquery.$or.push(tfq);
             }
-            let ffields = { _id: 1, pid: 1, title: 1 };
+            let ffields = { _id: 1, pid: 1, title: 1, type: 1 };
             const total = await db.collection('warehouse_properties').find(fquery).count();
             const items = await db.collection('warehouse_properties').find(fquery, { skip: skip, limit: limit, sort: sort, projection: ffields }).toArray();
             for (let i in items) {
@@ -528,6 +528,7 @@ module.exports = function(app) {
             }));
         }
         try {
+            const settingsData = await _loadSettings(locale);
             const item = await db.collection('warehouse').findOne({ _id: new ObjectID(id) });
             if (!item) {
                 return res.send(JSON.stringify({
@@ -541,12 +542,15 @@ module.exports = function(app) {
                 });
             }
             let propertiesData = {};
+            let propertiesType = {};
             if (propertiesQuery.length > 0) {
                 const properties = await db.collection('warehouse_properties').find({ $or: propertiesQuery }).toArray();
                 for (let p in properties) {
                     for (let i in item[locale].properties) {
                         if (item[locale].properties[i].d === properties[p].pid) {
                             propertiesData[properties[p].pid] = properties[p].title[locale];
+                            const type = parseInt(properties[p].type) || null;
+                            propertiesType[properties[p].pid] = type > 1 ? settingsData.currency : undefined;
                         }
                     }
                 }
@@ -557,6 +561,7 @@ module.exports = function(app) {
                     for (let j in item[lng].properties) {
                         if (p === item[lng].properties[j].d) {
                             item[lng].properties[j].p = propertiesData[p];
+                            item[lng].properties[j].t = propertiesType[p];
                         }
                     }
                 }
@@ -906,7 +911,10 @@ module.exports = function(app) {
                 for (let i in item.properties) {
                     for (let p in properties) {
                         if (properties[p].pid === item.properties[i]) {
-                            propertiesData[properties[p].pid] = properties[p].title[locale];
+                            propertiesData[properties[p].pid] = {
+                                title: properties[p].title[locale],
+                                type: parseInt(properties[p].type)
+                            };
                         }
                     }
                 }

@@ -145,11 +145,12 @@
                     case 'valueslisteditable':
                         let valuesListItemsEditable = '';
                         for (let v in item.values) {
-                            valuesListItemsEditable += this._template(this.settings.html.valueslistItemEditable, {
+                            valuesListItemsEditable += this._template(item.values[v].t ? this.settings.html.valueslistItemEditablePostfix : this.settings.html.valueslistItemEditable, {
                                 prefix: this._prefix,
                                 name: n,
                                 key: item.values[v].p,
                                 value: item.values[v].v,
+                                postfix: item.values[v].t,
                                 langParameter: this.settings.lang.parameter,
                                 langValue: this.settings.lang.value
                             });
@@ -350,14 +351,17 @@
                 $(this).parent().parent().remove();
             });
         },
-        _valueslisteditableAddFunc(prefix, name, key, value, data, nofocus) {
+        _valueslisteditableAddFunc(prefix, name, key, value, data, type, nofocus) {
+            type = type === "undefined" ? null : type;
             if (key) {
-                const valuesListItem = this._template(this.settings.html.valueslistItemEditable, {
+                key = String(key);
+                const valuesListItem = this._template(type ? this.settings.html.valueslistItemEditablePostfix : this.settings.html.valueslistItemEditable, {
                     prefix: prefix,
                     name: name,
                     key: key.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"),
                     value: value,
                     data: data,
+                    postfix: type,
                     langParameter: this.settings.lang.parameter,
                     langValue: this.settings.lang.value
                 });
@@ -465,7 +469,8 @@
                             evalues.push({
                                 p: String($(this).find('*>.formBuilder-valueslist-par').html()),
                                 v: String($(this).find('*>.formBuilder-valueslist-val').val()),
-                                d: String($(this).find('*>.formBuilder-valueslist-val').attr('data'))
+                                d: String($(this).find('*>.formBuilder-valueslist-val').attr('data')),
+                                t: String($(this).find('*>.formBuilder-valueslist-val').attr('data-postfix')),
                             });
                         });
                         json[n] = {
@@ -496,6 +501,7 @@
             return json;
         },
         deserialize(json) {
+            console.log(json);
             if (!json || typeof json !== 'object') {
                 return;
             }
@@ -536,13 +542,15 @@
                             evalues.push(json[n].value[v].p);
                             evalues.push(json[n].value[v].v);
                             evalues.push(json[n].value[v].d);
+                            evalues.push(json[n].value[v].t);
                         }
                         $('#' + this._prefix + '_' + n + '_wrap').html('');
                         while (evalues.length > 0) {
                             const par = evalues.shift();
                             const val = evalues.shift();
                             const dat = evalues.shift();
-                            this._valueslisteditableAddFunc(this._prefix, n, par, val, dat, true);
+                            const typ = evalues.shift();
+                            this._valueslisteditableAddFunc(this._prefix, n, par, val, dat, typ, true);
                         }
                         break;
                     case 'valueslistfixed':
@@ -602,7 +610,8 @@
                         const par = evalues.shift();
                         const val = evalues.shift();
                         const dat = evalues.shift();
-                        this._valueslisteditableAddFunc(this._prefix, n, par, val, dat, true);
+                        const typ = evalues.shift();
+                        this._valueslisteditableAddFunc(this._prefix, n, par, val, dat, typ, true);
                     }
                     break;
                 case 'valueslistfixed':
@@ -637,7 +646,6 @@
                     }
                 }
                 if (that.settings.items[key] && that.settings.items[key].type === 'valueslisteditable' && value) {
-                    console('value: ' + value);
                     let values = [];
                     for (let v in value) {
                         values.push(v);
@@ -645,7 +653,7 @@
                     }
                     $('#' + that._prefix + '_' + key + '_wrap').html('');
                     for (let i in value) {
-                        that._valueslisteditableAddFunc(that._prefix, key, values.shift(), values.shift(), values.shift());
+                        that._valueslisteditableAddFunc(that._prefix, key, values.shift(), values.shift(), values.shift(), values.shift());
                     }
                 }
                 if (that.settings.items[key] && that.settings.items[key].type === 'valueslistfixed' && value) {
@@ -696,7 +704,7 @@
                             }
                             $('#' + that._prefix + '_' + key + '_wrap').html('');
                             for (let i in value) {
-                                that._valueslisteditableAddFunc(that._prefix, key, values.shift(), values.shift());
+                                that._valueslisteditableAddFunc(that._prefix, key, values.shift(), values.shift(), values.shift());
                             }
                         }
                         if (that.settings.items[key] && that.settings.items[key].type === 'valueslistfixed' && value) {

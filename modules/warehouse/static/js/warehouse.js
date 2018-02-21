@@ -465,7 +465,7 @@ const editOrder = (id) => {
 const createProperty = () => {
     editMode = false;
     propertyEditDialog.show();
-    currentEditID = null;
+    currentEditID = null;    
     $('#editPropertyForm').zoiaFormBuilder().resetForm();
     $('#zoiaPropertyEditDialogHeader').html(lang.addItem);
 };
@@ -1367,6 +1367,7 @@ const formBuilderHTML = {
     valueslistItem: '<div class="za-flex za-margin-top {prefix}-{name}-item"><div class="za-margin-right"><input placeholder="{langParameter}" type="text" class="za-input formBuilder-valueslist-par" value="{key}"></div><div class="za-margin-right"><input placeholder="{langValue}" type="text" class="za-input formBuilder-valueslist-val" value="{value}"></div><div style="padding-top:3px"><button class="za-icon-button za-button-danger formBuilder-valueslist-btnDel" za-icon="icon:minus"></button></div></div>',
     valueslistItemFixed: '<div class="za-flex za-margin-top {prefix}-{name}-item"><div class="za-margin-right" style="margin-top:10px;min-width:100px;font-size:80%">{value}:</div><div class="za-margin-right"><input placeholder="{langValue}" type="text" class="za-input formBuilder-valueslist-val {prefix}-{name}-item-val" value="{data}" data="{key}"></div></div>',
     valueslistItemEditable: '<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body {prefix}-{name}-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectPropertyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">{key}</label><input placeholder="{langValue}" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="{value}" data="{data}"></div></div>',
+    valueslistItemEditablePostfix: '<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body {prefix}-{name}-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectPropertyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">{key}</label><div><div class="za-inline za-form-width-medium"><span class="za-form-icon za-form-icon-flip">{postfix}</span><input placeholder="{langValue}" type="number" step="0.01" class="za-input za-width-1-1 formBuilder-valueslist-val" value="{value}" data-postfix="{postfix}" data="{data}"></div></div></div></div>',
     valueslist: '<div class="za-flex za-flex-column"><div class="za-margin-bottom"><label class="za-form-label">{label}:</label></div><div><button type="button" class="za-icon-button za-button-primary formBuilder-valueslist-btnAdd" id="{prefix}_{name}_btnAdd" za-icon="icon:plus" data-prefix="{prefix}" data-name="{name}"></button></div><div id="{prefix}_{name}_wrap" class="za-margin-bottom {prefix}-formBuilder-valueslist-wrap">{items}</div>',
     valueslistFixed: '<div class="za-flex za-flex-column"><div><label class="za-form-label">{label}:</label></div><div id="{prefix}_{name}_wrap" class="za-margin-bottom formBuilder-valueslist-wrap">{items}</div></div>',
     valueslistEditable: '<div class="za-flex za-flex-column" id="{prefix}_{name}_widget"><div class="za-margin-bottom"><label class="za-form-label">{label}:</label></div>{buttons}<div id="{prefix}_{name}_wrap" class="za-margin-bottom {prefix}-formBuilder-valueslist-wrap" za-sortable="handle:.za-sortable-handle">{items}</div><div class="za-margin-bottom">{helpText}</div></div>',
@@ -3784,7 +3785,12 @@ const selectCheckedProperties = (ids) => {
         const id = ids[i];
         const pid = data[id].pid;
         const title = data[id].title;
-        $('#editForm_properties_wrap').append('<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body editForm-properties-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectPropertyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">' + title + '</label><input placeholder="' + lang['Value'] + '" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="" data="' + pid + '"></div></div>');
+        const type = parseInt(data[id].type);
+        if (type > 1) {
+            $('#editForm_properties_wrap').append('<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body editForm-properties-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectPropertyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">' + title + '</label><div><div class="za-inline za-form-width-medium"><span class="za-form-icon za-form-icon-flip">' + settings.currency + '</span><input placeholder="' + lang['Value'] + '" type="number" step="0.01" class="za-input za-width-1-1 formBuilder-valueslist-val" value="" data-postfix="' + settings.currency + '" data="' + pid + '"></div></div></div></div>');
+        } else {
+            $('#editForm_properties_wrap').append('<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body editForm-properties-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectPropertyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">' + title + '</label><input placeholder="' + lang['Value'] + '" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="" data="' + pid + '"></div></div>');
+        }
     }
     $('.selectPropertyItemClose').unbind();
     $('.selectPropertyItemClose').click(function() {
@@ -3879,7 +3885,11 @@ const selectCheckedCollection = (id) => {
             $('#zoiaSpinnerMain').hide();
             if (res && res.status === 1 && res.items) {
                 for (let pid in res.items) {
-                    $('#editForm_properties_wrap').append('<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body editForm-properties-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectPropertyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">' + res.items[pid] + '</label><input placeholder="' + lang['Value'] + '" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="" data="' + pid + '"></div></div>');
+                    if (res.items[pid].type > 1) {
+                        $('#editForm_properties_wrap').append('<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body editForm-properties-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectPropertyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">' + res.items[pid].title + '</label><div><div class="za-inline za-form-width-medium"><span class="za-form-icon za-form-icon-flip">' + settings.currency + '</span><input placeholder="' + lang['Value'] + '" type="number" step="0.01" class="za-input za-width-1-1 formBuilder-valueslist-val" value="" data-postfix="' + settings.currency + '" data="' + pid + '"></div></div></div></div>');
+                    } else {
+                        $('#editForm_properties_wrap').append('<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body editForm-properties-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectPropertyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">' + res.items[pid].title + '</label><input placeholder="' + lang['Value'] + '" type="text" class="za-input za-width-1-1 formBuilder-valueslist-val" value="" data="' + pid + '"></div></div>');
+                    }
                 }
                 $('.selectPropertyItemClose').unbind();
                 $('.selectPropertyItemClose').click(function() {
@@ -4649,7 +4659,7 @@ const zoiaPropertiesCopyNumericClick = () => {
 };
 
 const zoiaPropertiesSyncNumericClick = () => {
-    for (let i in editShadow) {        
+    for (let i in editShadow) {
         if (i !== editLanguage) {
             for (let j in editShadow[i].data.properties.value) {
                 const item = editShadow[i].data.properties.value[j];
