@@ -25,5 +25,11 @@
 	"E-mail address (feedback)": "E-mail address (feedback)",
 	"Save": "Save",
 	"Settings are saved": "Settings are saved",
-	"Could not save settings": "Could not save settings"
+	"Could not save settings": "Could not save settings",
+	"Maintenance mode": "Maintenance mode",
+	"In maintenance mode the users will see the corresponding page instead of content of your website.": "In maintenance mode the users will see the corresponding page instead of content of your website.",
+	"Off": "Off",
+	"On": "On",
+	"Maintenance mode is disabled.": "Maintenance mode is disabled.",
+	"Maintenance mode is turned on.": "Maintenance mode is turned on."
 }

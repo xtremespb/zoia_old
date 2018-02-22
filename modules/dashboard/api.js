@@ -53,9 +53,39 @@ module.exports = function(app) {
         }
     };
 
+    const maintenance = async(req, res) => {
+        const locale = req.session.currentLocale;
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let enabled = req.body.enabled;
+        if (!enabled || typeof enabled !== 'string') {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        enabled = enabled === 'true' ? true : false;
+        try {
+            config.website.maintenance = enabled;
+            await fs.writeJson(path.join(__dirname, '..', '..', 'etc', 'website.json'), config.website, { spaces: '\t' });
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            log.error(e);
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
     let router = Router();
     router.get('/restart', restart);
     router.post('/settings/save', settingsSave);
+    router.post('/settings/maintenance', maintenance)
     return {
         routes: router
     };

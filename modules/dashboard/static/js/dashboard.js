@@ -80,4 +80,34 @@ $(document).ready(() => {
                 });
             }, 200);
     });
+    $('.zoia-maintenance').click(() => {
+        $('#zoiaSpinnerMain').show();
+        $.ajax({
+                type: 'POST',
+                url: '/api/dashboard/settings/maintenance',
+                data: {
+                    enabled: $('#zoia_maintenance_on').hasClass('za-active')
+                },
+                cache: false
+            }).done((res) => {
+                $('#zoiaSpinnerMain').hide();
+                if (res && res.status === 1) {
+                    $zUI.notification(lang['Settings are saved'], {
+                        status: 'success',
+                        timeout: 1500
+                    });
+                } else {
+                    $zUI.notification(lang['Could not save settings'], {
+                        status: 'danger',
+                        timeout: 1500
+                    });
+                }
+            }).fail(() => {
+                $('#zoiaSpinnerMain').hide();
+                $zUI.notification(lang['Could not save settings'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            }, 200);
+    });
 });

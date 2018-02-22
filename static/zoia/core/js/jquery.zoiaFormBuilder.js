@@ -501,7 +501,6 @@
             return json;
         },
         deserialize(json) {
-            console.log(json);
             if (!json || typeof json !== 'object') {
                 return;
             }

@@ -1069,6 +1069,7 @@ module.exports = function(app) {
                 status: 0
             }));
         }
+        const locale = req.session.currentLocale;
         try {
             const fieldList = settingsFields.getSettingsFields();
             let fields = validation.checkRequest(req.body, fieldList);
@@ -1095,8 +1096,12 @@ module.exports = function(app) {
                     status: 0
                 }));
             }
+            const settingsDataDB = await db.collection('warehouse_registry').findOne({ name: 'warehouseSettings' });
+            const settingsDB = await _loadSettings(locale);
             return res.send(JSON.stringify({
-                status: 1
+                status: 1,
+                settings: JSON.stringify(settingsDB),
+                settingsData: settingsDataDB ? settingsDataDB.data : JSON.stringify({})
             }));
         } catch (e) {
             return res.send(JSON.stringify({
@@ -1527,6 +1532,7 @@ module.exports = function(app) {
                     }
                     for (let p in fields.properties.value) {
                         delete fields.properties.value[p].p;
+                        delete fields.properties.value[p].t;
                         if (!fields.properties.value[p].d || typeof fields.properties.value[p].d !== 'string' || !fields.properties.value[p].d.match(/^[A-Za-z0-9_\-]+$/)) {
                             throw new Error('Invalid property ID');
                         }
@@ -1539,6 +1545,7 @@ module.exports = function(app) {
                     }
                     for (let p in fields.variants.value) {
                         delete fields.variants.value[p].p;
+                        delete fields.variants.value[p].t;
                         if (!fields.variants.value[p].d || typeof fields.variants.value[p].d !== 'string' || !fields.variants.value[p].d.match(/^[A-Za-z0-9_\-]+$/)) {
                             throw new Error('Invalid property ID');
                         }

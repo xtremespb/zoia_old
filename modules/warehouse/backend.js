@@ -54,9 +54,9 @@ module.exports = function(app) {
             }
             const locale = req.session.currentLocale;
             const folders = await db.collection('warehouse_registry').findOne({ name: 'warehouseFolders' });
-            const settings = await db.collection('warehouse_registry').findOne({ name: 'warehouseSettings' });
+            const settingsData = await db.collection('warehouse_registry').findOne({ name: 'warehouseSettings' });
             const addressDB = await db.collection('warehouse_registry').findOne({ name: 'warehouse_address' });
-            const settingsData = await _loadSettings(locale);
+            const settings = await _loadSettings(locale);
             let addressData = {};
             if (addressDB && addressDB.data && addressDB.data.length) {
                 for (let i in addressDB.data) {
@@ -77,7 +77,8 @@ module.exports = function(app) {
                 langs: JSON.stringify(config.i18n.localeNames),
                 address: JSON.stringify(jsonAddress),
                 folders: folders ? folders.data : JSON.stringify([{ id: '1', text: '/', parent: '#', type: 'root' }]),
-                settings: JSON.stringify(settingsData),
+                settings: JSON.stringify(settings),
+                settingsData: settingsData ? settingsData.data : JSON.stringify({}),
                 addressJSON: JSON.stringify(addressData),
                 delivery: delivery,
                 configModule: configModule

@@ -465,7 +465,7 @@ const editOrder = (id) => {
 const createProperty = () => {
     editMode = false;
     propertyEditDialog.show();
-    currentEditID = null;    
+    currentEditID = null;
     $('#editPropertyForm').zoiaFormBuilder().resetForm();
     $('#zoiaPropertyEditDialogHeader').html(lang.addItem);
 };
@@ -1952,9 +1952,17 @@ const editSettingsFormData = {
             $('#zoiaSettingsSpinner').show();
             return data;
         },
-        onSaveSuccess: () => {
+        onSaveSuccess: (res) => {
             $('.editSettingsForm-form-button').show();
             $('#zoiaSettingsSpinner').hide();
+            try {
+                const settingsP = JSON.parse(res.settings);
+                const settingsDataP = JSON.parse(res.settingsData);
+                settings = settingsP;
+                settingsData = settingsDataP;
+            } catch (e) {
+                // ignored
+            }
             settingsDialog.hide();
             $zUI.notification(lang.fieldErrors['Saved successfully'], {
                 status: 'success',
@@ -3696,7 +3704,7 @@ const initEditLanguages = () => {
 const warehouseBtnSettingsDialogHandler = () => {
     settingsDialog.show();
     $('#editSettingsForm').zoiaFormBuilder().resetForm();
-    $('#editSettingsForm').zoiaFormBuilder().loadJSON(settings);
+    $('#editSettingsForm').zoiaFormBuilder().loadJSON(settingsData);
     $('#editSettingsForm_weight_wrap>div:first>div:last>input').focus();
 };
 
