@@ -603,6 +603,7 @@
                         evalues.push(item.value[v].p);
                         evalues.push(item.value[v].v);
                         evalues.push(item.value[v].d);
+                        evalues.push(item.value[v].t);
                     }
                     $('#' + this._prefix + '_' + n + '_wrap').html('');
                     while (evalues.length > 0) {

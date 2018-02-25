@@ -1112,6 +1112,7 @@ const onEditLanguageCheckboxClickEvent = () => {
         editShadow[editLanguage].enabled = true;
         editShadow[editLanguage].data = {};
         syncEditFormPropertiesFirst();
+        console.log(editShadow[editLanguage].data.properties);
         $('#editForm').zoiaFormBuilder().deserializePart('properties', editShadow[editLanguage].data.properties);
         for (let lng in langs) {
             if (editShadow[lng].data) {
