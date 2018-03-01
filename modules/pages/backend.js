@@ -20,10 +20,16 @@ module.exports = function(app) {
             }
             const locale = req.session.currentLocale;
             let folders = await db.collection('pages_registry').findOne({ name: 'pagesFolders' });
+            let templatesHash = {};
+            let templates = typeof config.website.templates === 'object' ? config.website.templates : [config.website.templates];
+            for (let i in templates) {
+            	templatesHash[templates[i]] = templates[i];
+            }
             let html = await render.file('pages.html', {
                 i18n: i18n.get(),
                 config: config,
                 locale: locale,
+                templates: JSON.stringify(templatesHash),
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 langs: JSON.stringify(config.i18n.localeNames),
                 folders: folders ? folders.data : JSON.stringify([{ 'id': '1', 'text': '/', 'parent': '#', 'type': 'root' }])

@@ -189,6 +189,7 @@ module.exports = function(app) {
                     data.url = fields.url.value;
                     data.name = fields.name.value;
                     data.status = fields.status.value;
+                    data.template = fields.template.value;
                 }
             }
             if (id) {

@@ -401,6 +401,9 @@ const onEditLanguageCheckboxClickEvent = () => {
                 if (editShadow[lng].data.name) {
                     $('#editForm_name').val(editShadow[lng].data.name.value);
                 }
+                if (editShadow[lng].data.template) {
+                    $('#editForm_template').val(editShadow[lng].data.template.value);
+                }
                 if (editShadow[lng].data.status) {
                     $('#editForm_status').val(editShadow[lng].data.status.value);
                 }
@@ -457,8 +460,10 @@ const onZoiaEditLanguagesClick = (lng) => {
         let saveFolder = editShadow[editLanguage].data.folder;
         let saveName = editShadow[editLanguage].data.name;
         let saveStatus = editShadow[editLanguage].data.status;
+        let saveTemplate = editShadow[editLanguage].data.template;
         editShadow[lng].data.folder = saveFolder;
         editShadow[lng].data.name = saveName;
+        editShadow[lng].data.template = saveTemplate;
         editShadow[lng].data.status = saveStatus;
     }
     editLanguage = lng;
@@ -534,6 +539,7 @@ $(document).ready(() => {
                 let saveFolder = editShadow[editLanguage].data.folder.id;
                 let saveURL = editShadow[editLanguage].data.folder.value;
                 let saveName = editShadow[editLanguage].data.name.value;
+                let saveTemplate = editShadow[editLanguage].data.template.value;
                 let saveStatus = editShadow[editLanguage].data.status.value;
                 for (let n in editShadow) {
                     if (!editShadow[n].enabled) {
@@ -552,6 +558,7 @@ $(document).ready(() => {
                     vr.data.folder = saveFolder;
                     vr.data.url = (saveURL + '/' + saveName).replace(/^\//, '').replace(/\/$/, '');
                     vr.data.name = saveName;
+                    vr.data.template = saveTemplate;
                     vr.data.status = saveStatus;
                     data[n] = vr.data;
                 }
@@ -636,6 +643,10 @@ $(document).ready(() => {
                     editShadow[n].data.status = {
                         type: 'select',
                         value: data.item.status
+                    };
+                    editShadow[n].data.template = {
+                        type: 'select',
+                        value: data.item.template
                     };
                     editShadow[n].data.keywords = {
                         type: 'text',
@@ -731,6 +742,13 @@ $(document).ready(() => {
                     },
                     regexp: /^(0|1|2)$/
                 }
+            },
+            template: {
+                type: 'select',
+                label: lang['Template'],
+                css: 'za-form-width-small',
+                values: templates,
+                default: templates[0]
             },
             keywords: {
                 type: 'text',
@@ -1091,5 +1109,10 @@ $(document).ready(() => {
     $('.pagesBtnRebuild').click(() => {
         ajaxRebuildDatabase();
     });
+    /*let templatesHTML = '';
+    for (let i in templates) {
+        templatesHTML += '<option value="' + templates[i] + '">' + templates[i] + '</option>';
+    }
+    $('#editForm_status').html(templatesHTML);*/
     initCKEditor();
 });

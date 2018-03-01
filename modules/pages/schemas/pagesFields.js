@@ -61,6 +61,9 @@
                 type: 'string',
                 regexp: /^(0|1|2)$/
             },
+            template: {
+                mandatoryCreate: true
+            },
             keywords: {
                 mandatoryCreate: false,
                 length: {

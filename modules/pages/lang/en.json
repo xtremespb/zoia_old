@@ -78,5 +78,6 @@
 	"Re-build URL cache": "Re-build URL cache",
 	"Cannot rebuild one or more items": "Cannot rebuild one or more items",
 	"Loading data, please wait": "Loading data, please wait",
-	"In demo mode, you cannot edit or delete the index page. That's not an error.": "In demo mode, you cannot edit or delete the index page. That's not an error."
+	"In demo mode, you cannot edit or delete the index page. That's not an error.": "In demo mode, you cannot edit or delete the index page. That's not an error.",
+	"Template": "Template"
 }

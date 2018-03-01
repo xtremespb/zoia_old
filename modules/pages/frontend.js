@@ -98,7 +98,7 @@ module.exports = function(app) {
                 content: pageData[locale].content || '',
                 keywords: pageData[locale].keywords || '',
                 description: pageData[locale].description || ''
-            });
+            }, pageData.template || config.website.templates[0]);
             return res.send(html);
         }
         return next();
