@@ -56,7 +56,8 @@ module.exports = function(app) {
         let filter = {
             status: 1,
             url: 1,
-            folder: 1
+            folder: 1,
+            template: 1
         };
         url = url.replace(/\/$/, '');
         filter[locale] = 1;
