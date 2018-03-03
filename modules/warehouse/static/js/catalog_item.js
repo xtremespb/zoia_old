@@ -45,7 +45,7 @@ $(document).ready(() => {
     });
     $('.za-catalog-item-checkbox').click(calculatePrice);
     $('.za-catalog-item-integer').click(calculatePrice);
-    $('.za-catalog-item-integer-field').change(calculatePrice).click(calculatePrice).keypress(calculatePrice);
+    $('.za-catalog-item-integer-field').change(calculatePrice).click(calculatePrice).keypress(calculatePrice);    
     $('.za-catalog-cart-add-btn').click(() => {
         const variantId = $('input[name="za_item_variants"]:checked').attr('data-id');
         const priceData = calculatePrice();
@@ -80,4 +80,5 @@ $(document).ready(() => {
             $('.za-catalog-cart-add-spinner').hide();
         });
     });
+    $('.za-catalog-item-variant:first').click();
 });
