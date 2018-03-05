@@ -80,13 +80,16 @@ $(document).ready(() => {
                 });
             }, 200);
     });
-    $('.zoia-maintenance').click(() => {
+    $('.zoia-maintenance').click(function() {
+        if ($(this).hasClass('za-active')) {
+            return false;
+        }
         $('#zoiaSpinnerMain').show();
         $.ajax({
                 type: 'POST',
                 url: '/api/dashboard/settings/maintenance',
                 data: {
-                    enabled: $('#zoia_maintenance_on').hasClass('za-active')
+                    enabled: !$('#zoia_maintenance_on').hasClass('za-active')
                 },
                 cache: false
             }).done((res) => {

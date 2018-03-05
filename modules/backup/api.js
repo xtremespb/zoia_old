@@ -221,12 +221,14 @@ module.exports = function(app) {
                         const item = data[i];
                         switch (item.action) {
                             case 'directory':
+                                item.path = item.path.replace(/\\/gm, '/');
                                 await fs.copy(item.root ? path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId, item.module, item.path) :
                                     path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId, item.path),
                                     item.root ? path.join(__dirname, '..', '..', item.path) :
                                     path.join(__dirname, '..', '..', 'modules', item.path));
                                 break;
                             case 'file':
+                                item.path = item.path.replace(/\\/gm, '/');
                                 await fs.copy(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId, item.module, item.filename),
                                     item.root ? path.join(__dirname, '..', '..', item.path) :
                                     path.join(__dirname, '..', '..', 'modules', item.path));

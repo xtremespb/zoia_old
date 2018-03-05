@@ -7,5 +7,7 @@
 	"Log out": "Выйти",
 	"Administration panel": "Панель администрирования",
 	"Sign In": "Войти",
-	"Register": "Регистрация"
+	"Register": "Регистрация",
+	"Maintenance": "Режим обслуживания",
+	"Website is currently under maintenance.": "Веб-сайт в настоящий момент находится в режиме обслуживания."
 }

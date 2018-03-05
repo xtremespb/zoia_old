@@ -1,9 +1,12 @@
 const path = require('path');
 const ObjectID = require('mongodb').ObjectID;
+const config = require('./config.js');
 
 module.exports = function(app) {
     const db = app.get('db');
     const log = app.get('log');
+    const render = new(require(path.join(__dirname, 'render.js')))(path.join(__dirname, 'views'));
+    const i18n = new(require(path.join(__dirname, 'i18n.js')))(path.join(__dirname, 'lang'), app);
     return {
         setLocale: async(req, res, next) => {
             const i18n = new(require(path.join(__dirname, 'i18n.js')))(path.join(__dirname, 'lang'), app);
@@ -28,6 +31,21 @@ module.exports = function(app) {
                 }
             } catch (e) {
                 log.error(e.message);
+            }
+            next();
+        },
+        maintenance: async(req, res, next) => {
+            let locale = config.i18n.locales[0];
+            if (req.session && req.session.currentLocale) {
+                locale = req.session.currentLocale;
+            }
+            if (config.website.maintenance && !req.url.match(/^\/(admin|api)/) && !req.url.match(/\/(static)\//) && !req.url.match(/\/(auth)/)) {
+                const html = await render.file('maintenance.html', {
+                    locale: locale,
+                    i18n: i18n.get(),
+                    config: config
+                });
+                return res.send(html);
             }
             next();
         }

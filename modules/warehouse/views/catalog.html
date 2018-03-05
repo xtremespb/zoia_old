@@ -25,7 +25,7 @@
     <div class="za-card za-card-default za-card-small za-card-body">
         <ul class="za-nav za-nav-default">
             {% for folder in folders %}
-            <li class="{{ folder.active }}"><a href="{{ folder.path }}?&s={{ sort }}">{{ folder.title }}</a></li>
+            <li class="{{ folder.active }}"><a href="{{ folder.pathT }}?&s={{ sort }}">{{ folder.title }}</a></li>
             {% endfor %}
         </ul>
     </div>
