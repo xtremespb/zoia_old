@@ -29,7 +29,7 @@
                     min: 1,
                     max: 1
                 },
-                regexp: /^(0|1|2|3)$/,
+                regexp: /^(0|1|2|3|4)$/,
                 process: function(item) {
                     return item;
                 }

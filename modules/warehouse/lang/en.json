@@ -16,7 +16,8 @@
 		"Normal",
 		"Header",
 		"Checkbox",
-		"Integer"
+		"Integer",
+		"List (comma separated)"
 	],
 	"orderStatuses": [
 		"Cancelled",

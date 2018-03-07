@@ -7,6 +7,7 @@ let price = parseFloat($('#za_catalog_item_price').html());
 const calculatePrice = () => {
     let checkboxes = [];
     let integers = [];
+    let selects = [];
     let priceCurrent = price;
     $('.za-catalog-item-checkbox').each(function() {
         if ($(this).is(':checked')) {
@@ -28,10 +29,15 @@ const calculatePrice = () => {
             priceCurrent += itemPrice;
         }
     });
+    $('.za-catalog-item-select').each(function() {
+        selects.push($(this).find(':selected').data('id') + '|' + $(this).val());
+        priceCurrent += parseFloat($(this).find(':selected').data('price'));
+    });
     $('#za_catalog_item_price').html(parseFloat(priceCurrent).toFixed(2));
     return {
         checkboxes: checkboxes,
-        integers: integers
+        integers: integers,
+        selects: selects
     };
 };
 
@@ -45,6 +51,7 @@ $(document).ready(() => {
     });
     $('.za-catalog-item-checkbox').click(calculatePrice);
     $('.za-catalog-item-integer').click(calculatePrice);
+    $('.za-catalog-item-select').click(calculatePrice).change(calculatePrice);
     $('.za-catalog-item-integer-field').change(calculatePrice).click(calculatePrice).keypress(calculatePrice);    
     $('.za-catalog-cart-add-btn').click(() => {
         const variantId = $('input[name="za_item_variants"]:checked').attr('data-id');
@@ -57,7 +64,8 @@ $(document).ready(() => {
                 id: za_catalog_item_id,
                 variant: variantId,
                 checkboxes: priceData.checkboxes || [],
-                integers: priceData.integers || []
+                integers: priceData.integers || [],
+                selects: priceData.selects || []
             },
             cache: false
         }).done((res) => {

@@ -2115,7 +2115,8 @@ const editPropertyFormData = {
                 0: lang.types[0],
                 1: lang.types[1],
                 2: lang.types[2],
-                3: lang.types[3]
+                3: lang.types[3],
+                4: lang.types[4]
             },
             default: '0',
             validation: {
@@ -2125,7 +2126,7 @@ const editPropertyFormData = {
                     min: 1,
                     max: 1
                 },
-                regexp: /^(0|1|2|3)$/
+                regexp: /^(0|1|2|3|4)$/
             }
         },
         title: {

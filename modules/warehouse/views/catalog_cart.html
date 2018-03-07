@@ -18,6 +18,9 @@
                 {% for itg in item.integersID %}
                 <br>{{ item.propertiesData[itg] }}&nbsp;({{ item.propertiesCount[itg] }})
                 {% endfor %}
+                {% for slt in item.selectsID %}
+                <br>{{ item.propertiesData[slt] }}
+                {% endfor %}
                 </td>
                 <td class="za-table-shrink">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ item.price }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
                 <td class="za-table-shrink">

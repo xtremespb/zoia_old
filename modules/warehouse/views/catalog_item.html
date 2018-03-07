@@ -76,6 +76,13 @@
             </div>
             {% endif %}
             <!-- -->
+            {% if propsType[p.d] == 4 %}            
+            <div class="za-margin-top za-margin-bottom za-grid-small" za-grid>
+                <div class="za-width-expand" za-leader><label>{{ props[p.d] }}</label>&nbsp;</div>
+                <div><select class="za-select za-form-width-medium za-catalog-item-select">{% for i in propsValues[p.d] %}<option value="{{ loop.index0 }}" data-id="{{ p.d }}" data-price="{{ p.v[loop.index0] }}">{{ i }}</option>{% endfor %}</select></div>
+            </div>
+            {% endif %}
+            <!-- -->            
             {% endfor %}
             <!-- -->
             {% endif %}

@@ -549,8 +549,8 @@ module.exports = function(app) {
                     for (let i in item[locale].properties) {
                         if (item[locale].properties[i].d === properties[p].pid) {
                             propertiesData[properties[p].pid] = properties[p].title[locale];
-                            const type = parseInt(properties[p].type) || null;
-                            propertiesType[properties[p].pid] = type > 1 ? settingsData.currency : undefined;
+                            const type = parseInt(properties[p].type, 10) || null;
+                            propertiesType[properties[p].pid] = type === 2 || type === 3 ? settingsData.currency : undefined;
                         }
                     }
                 }
@@ -2913,9 +2913,11 @@ module.exports = function(app) {
         let variant = req.body.variant;
         const checkboxes = req.body.checkboxes || [];
         const integers = req.body.integers || [];
+        const selects = req.body.selects || [];
         if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/) ||
             (variant && (typeof variant !== 'string' || !variant.match(/^[a-zA-Z0-9_]+$/) || variant.length > 64)) ||
             typeof checkboxes !== 'object' || !(checkboxes instanceof Array) ||
+            typeof selects !== 'object' || !(selects instanceof Array) ||
             typeof integers !== 'object' || !(integers instanceof Array)) {
             return res.send(JSON.stringify({
                 status: 0
@@ -2974,6 +2976,30 @@ module.exports = function(app) {
                 typesForId[iid] = '3';
             }
         }
+        for (let i in selects) {
+            let found = false;
+            let [iid, cnt] = selects[i].split('|');
+            if (!cnt || !parseInt(cnt, 10)) {
+                cnt = 0;
+            } else {
+                cnt = parseInt(cnt, 10);
+            }
+            for (let v in item[locale].properties) {
+                if (item[locale].properties[v].d === iid) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            if (checkPropertiesType.indexOf(iid) === -1) {
+                checkPropertiesType.push({ pid: iid });
+                typesForId[iid] = '4';
+            }
+        }
         if (checkPropertiesType.length) {
             const propDB = await db.collection('warehouse_properties').find({ $or: checkPropertiesType }).toArray();
             if (!propDB || propDB.length !== checkPropertiesType.length) {
@@ -2998,6 +3024,7 @@ module.exports = function(app) {
         }
         cart[uid].integers = integers;
         cart[uid].checkboxes = checkboxes;
+        cart[uid].selects = selects;
         req.session.catalog_cart = cart;
         let cartCount = Object.keys(cart).length;
         return res.send(JSON.stringify({

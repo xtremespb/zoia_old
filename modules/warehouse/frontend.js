@@ -459,6 +459,7 @@ module.exports = function(app) {
         let propsQuery = [];
         let props = {};
         let propsType = {};
+        let propsValues = {};
         if (data[locale]) {
             for (let i in data[locale].properties) {
                 propsQuery.push({ pid: data[locale].properties[i].d });
@@ -470,6 +471,18 @@ module.exports = function(app) {
                 for (let i in dataProps) {
                     props[dataProps[i].pid] = dataProps[i].title[locale];
                     propsType[dataProps[i].pid] = dataProps[i].type;
+                    if (dataProps[i].type === '4') {
+                        const [title, values] = dataProps[i].title[locale].split(/\|/);
+                        props[dataProps[i].pid] = title;
+                        propsValues[dataProps[i].pid] = values.split(/,/);
+                    }
+                }
+            }
+        }
+        if (data[locale]) {
+            for (let i in data[locale].properties) {
+                if (propsValues[data[locale].properties[i].d]) {
+                    data[locale].properties[i].v = data[locale].properties[i].v.split(/,/);                    
                 }
             }
         }
@@ -502,6 +515,7 @@ module.exports = function(app) {
             data: data,
             props: props,
             propsType: propsType,
+            propsValues: propsValues,
             variants: variants,
             cartCount: cartCount,
             auth: req.session.auth
@@ -552,6 +566,10 @@ module.exports = function(app) {
                     const [iid] = cart[i].integers[p].split('|');
                     propertiesQuery.push({ pid: iid });
                 }
+                for (let p in cart[i].selects) {
+                    const [iid] = cart[i].selects[p].split('|');
+                    propertiesQuery.push({ pid: iid });
+                }
             }
             let ffields = { _id: 1, price: 1, variants: 1 };
             ffields[locale + '.title'] = 1;
@@ -581,7 +599,7 @@ module.exports = function(app) {
                     if (cartDB[i][locale]) {
                         for (let p in cartDB[i][locale].properties) {
                             if (propertiesData[cartDB[i][locale].properties[p].d]) {
-                                propertiesCost[cartDB[i][locale].properties[p].d] = parseFloat(cartDB[i][locale].properties[p].v) || 0;
+                                propertiesCost[cartDB[i][locale].properties[p].d] = cartDB[i][locale].properties[p].v.match(/,/) ? cartDB[i][locale].properties[p].v : parseFloat(cartDB[i][locale].properties[p].v) || 0;
                             }
                         }
                     }
@@ -627,6 +645,21 @@ module.exports = function(app) {
                             price += parseFloat(propertiesCost[iid]) * parseInt(cnt, 10);
                         }
                     }
+                    let selectsID = [];
+                    for (let p in itemCart.selects) {
+                        let [iid, cnt] = itemCart.selects[p].split('|');
+                        if (!cnt) {
+                            cnt = 0;
+                        }
+                        propertiesCount[iid] = cnt;
+                        if (selectsID.indexOf(iid) === -1) {
+                            selectsID.push(iid);
+                        }
+                        if (propertiesCost[iid]) {
+                            const costArr = propertiesCost[iid].split(/,/);
+                            price += parseFloat(costArr[cnt]);
+                        }
+                    }
                     cartArr.push({
                         id: id,
                         variant: variant,
@@ -638,6 +671,7 @@ module.exports = function(app) {
                         checkboxes: itemCart.checkboxes,
                         integers: itemCart.integers,
                         integersID: integersID,
+                        selectsID: selectsID,
                         propertiesData: propertiesData,
                         propertiesCost: propertiesCost,
                         propertiesCount: propertiesCount
