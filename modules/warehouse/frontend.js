@@ -68,9 +68,10 @@ module.exports = function(app) {
         for (let k in tree) {
             if (tree[k].parent === id) {
                 _findChildren(tree, tree[k].id, children);
-                children.push({ folder: id });
+                children.push({ folder: tree[k].id });
             }
         }
+        console.log(children);
         return children;
     };
 
