@@ -71,7 +71,6 @@ module.exports = function(app) {
                 children.push({ folder: tree[k].id });
             }
         }
-        console.log(children);
         return children;
     };
 
