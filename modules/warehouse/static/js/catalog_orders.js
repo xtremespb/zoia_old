@@ -79,6 +79,14 @@ const viewOrder = (id) => {
                         extraHTML += '<br>' + res.propertiesData[iid2] + '&nbsp;(' + cnt + ')';
                     }
                 }
+                for (let c in order.cart[i].selects) {
+                    const [sid, cnt] = order.cart[i].selects[c].split('|');
+                    if (res.propertiesData[sid]) {
+                        const [title, valuesStr] = res.propertiesData[sid].split('|');
+                        const values = valuesStr.split(',');
+                        extraHTML += '<br>' + title + ':&nbsp;' + values[cnt];
+                    }
+                }
                 cartHTML += '<tr><td class="za-table-shrink">' + iid + '</td><td class="za-table-expand">' + res.cartData[iid] + (variant ? '&nbsp;(' + res.variants[variant] + ')' : '') + extraHTML + '</td><td class="za-table-shrink">' + order.cart[i].count + '</td><td class="za-table-shrink"></td></tr>';
             }
             cartHTML += '</tbody></table>';

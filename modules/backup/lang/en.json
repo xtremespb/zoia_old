@@ -18,5 +18,8 @@
 	"Backup has been restored. You're now logged off and need to re-authorize.": "Backup has been restored. You're now logged off and need to re-authorize.",
 	"Close": "Close",
 	"When finished, Zoia will terminate, so make sure you are running any tool to automatically restart the server (like forever). You will need to re-authorize.": "When finished, Zoia will terminate, so make sure you are running any tool to automatically restart the server (like forever). You will need to re-authorize.",
-	"System is restarting, please wait...": "System is restarting, please wait..."
+	"System is restarting, please wait...": "System is restarting, please wait...",
+	"Backup Options": "Backup Options",
+	"Choose the modules you wish to backup": "Choose the modules you wish to backup",
+	"Start": "Start"
 }

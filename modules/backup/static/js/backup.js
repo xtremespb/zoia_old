@@ -1,4 +1,5 @@
 let dialogBackup;
+let dialogBackupOptions;
 let dialogRestore;
 
 const backupStateCheck = (id) => {
@@ -99,16 +100,19 @@ const restoreStateCheck = (id) => {
     });
 };
 
-const backupStart = () => {
+const backupStart = (modules) => {
     if ($('#zoia_btn_backup').hasClass('za-disabled')) {
         return;
     }
     $('#zoia_btn_backup').addClass('za-disabled');
     $('#zoiaSpinnerMain').show();
     $.ajax({
-        type: 'GET',
+        type: 'POST',
         url: '/api/backup/create',
-        cache: false
+        cache: false,
+        data: {
+            modules: modules
+        }
     }).done((res) => {
         $('#zoia_btn_backup').removeClass('za-disabled');
         $('#zoiaSpinnerMain').hide();
@@ -193,12 +197,29 @@ const initUploader = () => {
 
 $(document).ready(() => {
     initUploader();
-    $('#zoia_btn_backup').click(backupStart);
+    $('#zoia_btn_backup').click(() => {
+        $('.za-backup-module-checkbox').prop('checked', true);
+        dialogBackupOptions.show();
+    });
+    $('#zoia_btn_backup_start').click(() => {
+        let modules = [];
+        $('.za-backup-module-checkbox').each(function() {
+            if ($(this).prop('checked')) {
+                modules.push($(this).attr('data'));
+            }
+        });
+        dialogBackupOptions.hide();
+        backupStart(modules);
+    });
     $('#zoia_btn_restore').click(() => {
         $('#dialogRestoreFooter').show();
         $('#dialogRestoreBody').show();
         $('#dialogRestoreSpinner').hide();
         dialogRestore.show();
+    });
+    dialogBackupOptions = $zUI.modal('#dialogBackupOptions', {
+        bgClose: false,
+        escClose: false
     });
     dialogBackup = $zUI.modal('#dialogBackup', {
         bgClose: false,

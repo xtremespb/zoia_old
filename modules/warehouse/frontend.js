@@ -646,11 +646,17 @@ module.exports = function(app) {
                         }
                     }
                     let selectsID = [];
+                    let selectsTitles = {};
+                    let selectsValues = {};
                     for (let p in itemCart.selects) {
                         let [iid, cnt] = itemCart.selects[p].split('|');
                         if (!cnt) {
                             cnt = 0;
                         }
+                        const [title, valuesStr] = propertiesData[iid].split('|');
+                        const values = valuesStr.split(',');
+                        selectsTitles[iid] = title;
+                        selectsValues[iid] = values[cnt];
                         propertiesCount[iid] = cnt;
                         if (selectsID.indexOf(iid) === -1) {
                             selectsID.push(iid);
@@ -674,7 +680,9 @@ module.exports = function(app) {
                         selectsID: selectsID,
                         propertiesData: propertiesData,
                         propertiesCost: propertiesCost,
-                        propertiesCount: propertiesCount
+                        propertiesCount: propertiesCount,
+                        selectsTitles: selectsTitles,
+                        selectsValues: selectsValues
                     });
                     total += price * itemCart.count;
                 }
@@ -740,6 +748,10 @@ module.exports = function(app) {
                     const [iid] = cart[i].integers[p].split('|');
                     propertiesQuery.push({ pid: iid });
                 }
+                for (let p in cart[i].selects) {
+                    const [iid] = cart[i].selects[p].split('|');
+                    propertiesQuery.push({ pid: iid });
+                }
             }
             let ffields = { _id: 1, price: 1, variants: 1 };
             ffields[locale + '.title'] = 1;
@@ -769,7 +781,7 @@ module.exports = function(app) {
                     if (cartDB[i][locale]) {
                         for (let p in cartDB[i][locale].properties) {
                             if (propertiesData[cartDB[i][locale].properties[p].d]) {
-                                propertiesCost[cartDB[i][locale].properties[p].d] = parseFloat(cartDB[i][locale].properties[p].v) || 0;
+                                propertiesCost[cartDB[i][locale].properties[p].d] = cartDB[i][locale].properties[p].v.match(/,/) ? cartDB[i][locale].properties[p].v : parseFloat(cartDB[i][locale].properties[p].v) || 0;
                             }
                         }
                     }
@@ -816,6 +828,27 @@ module.exports = function(app) {
                             price += parseFloat(propertiesCost[iid]) * parseInt(cnt, 10);
                         }
                     }
+                    let selectsID = [];
+                    let selectsTitles = {};
+                    let selectsValues = {};
+                    for (let p in itemCart.selects) {
+                        let [iid, cnt] = itemCart.selects[p].split('|');
+                        if (!cnt) {
+                            cnt = 0;
+                        }
+                        const [title, valuesStr] = propertiesData[iid].split('|');
+                        const values = valuesStr.split(',');
+                        selectsTitles[iid] = title;
+                        selectsValues[iid] = values[cnt];
+                        propertiesCount[iid] = cnt;
+                        if (selectsID.indexOf(iid) === -1) {
+                            selectsID.push(iid);
+                        }
+                        if (propertiesCost[iid]) {
+                            const costArr = propertiesCost[iid].split(/,/);
+                            price += parseFloat(costArr[cnt]);
+                        }
+                    }
                     cartArr.push({
                         id: id,
                         variant: variant,
@@ -829,7 +862,10 @@ module.exports = function(app) {
                         integersID: integersID,
                         propertiesData: propertiesData,
                         propertiesCost: propertiesCost,
-                        propertiesCount: propertiesCount
+                        propertiesCount: propertiesCount,
+                        selectsTitles: selectsTitles,
+                        selectsValues: selectsValues,
+                        selectsID: selectsID
                     });
                     total += price * itemCart.count;
                     weight += itemCart.count * cartData[id].weight;

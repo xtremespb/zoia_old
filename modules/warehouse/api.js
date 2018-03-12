@@ -3233,6 +3233,10 @@ module.exports = function(app) {
                         const [iid] = cart[i].integers[p].split('|');
                         propertiesQuery.push({ pid: iid });
                     }
+                    for (let p in cart[i].selects) {
+                        const [iid] = cart[i].selects[p].split('|');
+                        propertiesQuery.push({ pid: iid });
+                    }
                 }
                 let ffields = { _id: 1, price: 1, variants: 1, sku: 1 };
                 ffields[locale + '.title'] = 1;
@@ -3263,7 +3267,7 @@ module.exports = function(app) {
                         if (cartDB[i][locale]) {
                             for (let p in cartDB[i][locale].properties) {
                                 if (propertiesData[cartDB[i][locale].properties[p].d]) {
-                                    propertiesCost[cartDB[i][locale].properties[p].d] = parseFloat(cartDB[i][locale].properties[p].v) || 0;
+                                    propertiesCost[cartDB[i][locale].properties[p].d] = cartDB[i][locale].properties[p].v.match(/,/) ? cartDB[i][locale].properties[p].v : parseFloat(cartDB[i][locale].properties[p].v) || 0;
                                 }
                             }
                         }
@@ -3311,7 +3315,27 @@ module.exports = function(app) {
                                 price += parseFloat(propertiesCost[iid]) * parseInt(cnt, 10);
                             }
                         }
-
+                        let selectsID = [];
+                        let selectsTitles = {};
+                        let selectsValues = {};
+                        for (let p in item.selects) {
+                            let [iid, cnt] = item.selects[p].split('|');
+                            if (!cnt) {
+                                cnt = 0;
+                            }
+                            const [title, valuesStr] = propertiesData[iid].split('|');
+                            const values = valuesStr.split(',');
+                            selectsTitles[iid] = title;
+                            selectsValues[iid] = values[cnt];
+                            propertiesCount[iid] = cnt;
+                            if (selectsID.indexOf(iid) === -1) {
+                                selectsID.push(iid);
+                            }
+                            if (propertiesCost[iid]) {
+                                const costArr = propertiesCost[iid].split(/,/);
+                                price += parseFloat(costArr[cnt]);
+                            }
+                        }
                         cartArr.push({
                             id: id,
                             variant: variant,
@@ -3325,13 +3349,17 @@ module.exports = function(app) {
                             integersID: integersID,
                             propertiesData: propertiesData,
                             propertiesCost: propertiesCost,
-                            propertiesCount: propertiesCount
+                            propertiesCount: propertiesCount,
+                            selectsTitles: selectsTitles,
+                            selectsValues: selectsValues,
+                            selectsID: selectsID
                         });
                         // total += price * item.count;
                         orderData.cart[cartData[id].sku + '|' + variant] = {
                             count: item.count,
                             checkboxes: item.checkboxes,
-                            integers: item.integers
+                            integers: item.integers,
+                            selects: item.selects
                         };
                         orderData.costs.total += price * item.count;
                         weight += cartData[id].weight + item.count;
@@ -3693,6 +3721,12 @@ module.exports = function(app) {
                         propertiesQuery.push({ pid: jid });
                     }
                 }
+                for (let p in item.cart[i].selects) {
+                    const [jid] = item.cart[i].selects[p].split('|');
+                    if (propertiesQuery.indexOf({ pid: jid }) === -1) {
+                        propertiesQuery.push({ pid: jid });
+                    }
+                }
             }
             let ffields = { _id: 1, sku: 1, variants: 1 };
             ffields[locale + '.title'] = 1;
@@ -3883,6 +3917,7 @@ module.exports = function(app) {
             let propertiesData = {};
             let checkboxes = [];
             let integers = [];
+            let selects = [];
             if (data[locale]) {
                 for (let i in data[locale].properties) {
                     propertiesQuery.push({ pid: data[locale].properties[i].d });
@@ -3891,12 +3926,18 @@ module.exports = function(app) {
             if (propertiesQuery.length > 0) {
                 const properties = await db.collection('warehouse_properties').find({ $or: propertiesQuery }).toArray();
                 for (let p in properties) {
-                    if (properties[p].type === '2' || properties[p].type === '3') {
+                    if (properties[p].type === '2' || properties[p].type === '3' || properties[p].type === '4') {
                         propertiesData[properties[p].pid] = properties[p].title[locale] || '';
-                        if (properties[p].type === '2') {
-                            checkboxes.push(properties[p].pid);
-                        } else {
-                            integers.push(properties[p].pid);
+                        switch (properties[p].type) {
+                            case '2':
+                                checkboxes.push(properties[p].pid);
+                                break;
+                            case '3':
+                                integers.push(properties[p].pid);
+                                break;
+                            default:
+                                selects.push(properties[p].pid);
+                                break;
                         }
                     }
                 }
@@ -3909,6 +3950,7 @@ module.exports = function(app) {
                     variants: variantsData,
                     checkboxes: checkboxes,
                     integers: integers,
+                    selects: selects,
                     properties: propertiesData
                 }
             }));

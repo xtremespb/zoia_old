@@ -424,7 +424,15 @@ const editOrder = (id) => {
                         extraHTML += '<br>' + res.propertiesData[iid] + '&nbsp;(' + cnt + ')';
                     }
                 }
-                cartHTML += '<tr><td class="za-table-shrink" data-variant="' + i + '" data-checkboxes="' + res.item.cart[i].checkboxes + '" data-integers="' + res.item.cart[i].integers + '">' + cid + '</td><td class="za-table-expand">' + res.cartData[cid] + (variant ? '&nbsp;(' + res.variants[variant] + ')' : '') + extraHTML + '</td><td class="za-table-shrink"><input class="za-input za-form-width-xsmall" value="' + res.item.cart[i].count + '"></td><td class="za-table-shrink"><div style="height:20px"><span za-icon="icon:trash;ratio:0.8" class="za-catalog-cart-del"></span></div></td></tr>';
+                for (let c in res.item.cart[i].selects) {
+                    const [sid, cnt] = res.item.cart[i].selects[c].split('|');
+                    if (res.propertiesData[sid]) {
+                        const [title, valuesStr] = res.propertiesData[sid].split('|');
+                        const values = valuesStr.split(',');
+                        extraHTML += '<br>' + title + ':&nbsp;' + values[cnt];
+                    }
+                }
+                cartHTML += '<tr><td class="za-table-shrink" data-variant="' + i + '" data-checkboxes="' + res.item.cart[i].checkboxes + '" data-integers="' + res.item.cart[i].integers + '" data-selects="' + res.item.cart[i].selects + '">' + cid + '</td><td class="za-table-expand">' + res.cartData[cid] + (variant ? '&nbsp;(' + res.variants[variant] + ')' : '') + extraHTML + '</td><td class="za-table-shrink"><input class="za-input za-form-width-xsmall" value="' + res.item.cart[i].count + '"></td><td class="za-table-shrink"><div style="height:20px"><span za-icon="icon:trash;ratio:0.8" class="za-catalog-cart-del"></span></div></td></tr>';
             }
             cartHTML += '</tbody></table>';
             $('#za_catalog_order_cart_wrap').html(cartHTML);
@@ -1112,7 +1120,6 @@ const onEditLanguageCheckboxClickEvent = () => {
         editShadow[editLanguage].enabled = true;
         editShadow[editLanguage].data = {};
         syncEditFormPropertiesFirst();
-        console.log(editShadow[editLanguage].data.properties);
         $('#editForm').zoiaFormBuilder().deserializePart('properties', editShadow[editLanguage].data.properties);
         for (let lng in langs) {
             if (editShadow[lng].data) {
@@ -2415,7 +2422,7 @@ const editDeliveryFormData = {
         delivery: {
             type: 'select',
             label: lang['Delivery'],
-            css: 'uk-form-width-medium',
+            css: 'za-form-width-medium',
             values: {
                 delivery: lang['Need to enter an address'],
                 pickup: lang['Local pickup']
@@ -4487,6 +4494,7 @@ const za_catalog_order_btn_addClick = () => {
             $('#zoiaOrderAddOptionsDialogVariants').html('');
             $('#zoiaOrderAddOptionsDialogCheckboxes').html('');
             $('#zoiaOrderAddOptionsDialogIntegers').html('');
+            $('#zoiaOrderAddOptionsDialogSelects').html('');
             let variantsHTML = '<div class="za-form-controls za-margin-top">';
             variantsHTML += '<label><input class="za-radio za-catalog-item-variant" type="radio" name="za_item_variants" data-id="" checked="checked">&nbsp;' + lang['Default'] + '</label><br>';
             for (let variant in res.data.variants) {
@@ -4505,7 +4513,19 @@ const za_catalog_order_btn_addClick = () => {
                 integersHTML += '<div><label><input class="za-checkbox za-catalog-item-integer" type="checkbox" data-id="' + res.data.integers[i] + '">&nbsp;' + res.data.properties[res.data.integers[i]] + '&nbsp;<input class="za-input za-form-width-xsmall za-form-small" value="1" type="number" min="1" step="1" id="za_catalog_item_integer_' + res.data.integers[i] + '" style="width:80px"></label></div>';
             }
             integersHTML += '</div>';
-            $('#zoiaOrderAddOptionsDialogIntegers').html(integersHTML);
+            $('#zoiaOrderAddOptionsDialogSelects').html(integersHTML);
+            let selectsHTML = '<div class="za-form-controls">';
+            for (let i in res.data.selects) {
+                const [title, valuesStr] = res.data.properties[res.data.selects[i]].split('|');
+                const values = valuesStr.split(',');
+                selectsHTML += '<div class="za-margin"><label class="za-form-label" for="form-horizontal-text">' + title + '</label><div class="za-form-controls"><select data-id="' + res.data.selects[i] + '" class="za-select za-form-width-medium za-catalog-item-select" id="' + res.data.selects[i] + '" type="select">';
+                for (let v in values) {
+                    selectsHTML += '<option value="' + v + '">' + values[v] + '</option>';
+                }
+                selectsHTML += '</select></div></div>';
+            }
+            selectsHTML += '</div>';
+            $('#zoiaOrderAddOptionsDialogSelects').html(selectsHTML);
             orderAddOptionsDialog.show();
         } else {
             $zUI.notification(lang['Could not create new item'], {
@@ -4525,6 +4545,7 @@ const za_catalog_order_btn_addClick = () => {
 const zoiaOrderAddOptionsAddClick = () => {
     let checkboxes = [];
     let integers = [];
+    let selects = [];
     $('.za-catalog-item-checkbox').each(function() {
         if ($(this).is(':checked')) {
             checkboxes.push($(this).attr('data-id'));
@@ -4540,6 +4561,11 @@ const zoiaOrderAddOptionsAddClick = () => {
             integers.push($(this).attr('data-id') + '|' + val);
         }
     });
+    $('.za-catalog-item-select').each(function() {
+        const id = $(this).attr('data-id');
+        let val = $(this).val();
+        selects.push($(this).attr('data-id') + '|' + val);
+    });
     let extraHTML = '';
     for (let c in checkboxes) {
         if (ordersItemCacheData.properties[checkboxes[c]]) {
@@ -4552,9 +4578,17 @@ const zoiaOrderAddOptionsAddClick = () => {
             extraHTML += '<br>' + ordersItemCacheData.properties[iid] + '&nbsp;(' + cnt + ')';
         }
     }
+    for (let c in selects) {
+        const [sid, cnt] = selects[c].split('|');
+        if (ordersItemCacheData.properties[sid]) {
+            const [title, valuesStr] = ordersItemCacheData.properties[sid].split('|');
+            const values = valuesStr.split(',');
+            extraHTML += '<br>' + title + ':&nbsp;' + values[cnt];
+        }
+    }
     const variant = $('input[name="za_item_variants"]:checked').attr('data-id');
     const sku = $('#za_catalog_order_sku').val().trim();
-    $('#za_catalog_order_cart_table>tbody').append('<tr><td class="za-table-shrink" data-variant="' + sku + '|' + variant + '" data-checkboxes="' + checkboxes + '" data-integers="' + integers + '">' + sku + '</td><td class="za-table-expand">' + ordersItemCacheData.title + (variant ? '&nbsp;(' + ordersItemCacheData.variants[variant] + ')' : '') + extraHTML + '</td><td class="za-table-shrink"><input class="za-input za-form-width-xsmall" value="1"></td><td class="za-table-shrink"><div style="height:20px"><span za-icon="icon:trash;ratio:0.8" class="za-catalog-cart-del"></span></div></td></tr>');
+    $('#za_catalog_order_cart_table>tbody').append('<tr><td class="za-table-shrink" data-variant="' + sku + '|' + variant + '" data-checkboxes="' + checkboxes + '" data-integers="' + integers + '" data-selects="' + selects + '">' + sku + '</td><td class="za-table-expand">' + ordersItemCacheData.title + (variant ? '&nbsp;(' + ordersItemCacheData.variants[variant] + ')' : '') + extraHTML + '</td><td class="za-table-shrink"><input class="za-input za-form-width-xsmall" value="1"></td><td class="za-table-shrink"><div style="height:20px"><span za-icon="icon:trash;ratio:0.8" class="za-catalog-cart-del"></span></div></td></tr>');
     $('.za-catalog-cart-del').unbind().click(function() {
         $(this).parent().parent().parent().remove();
     });
@@ -4598,6 +4632,7 @@ const zoiaOrderDialogButtonClick = () => {
         data.cart[$(this).children().eq(0).attr('data-variant')].count = parseInt($(this).children().eq(2).find('input').val(), 10) || 0;
         data.cart[$(this).children().eq(0).attr('data-variant')].checkboxes = $(this).children().eq(0).attr('data-checkboxes') ? $(this).children().eq(0).attr('data-checkboxes').split(',') : [];
         data.cart[$(this).children().eq(0).attr('data-variant')].integers = $(this).children().eq(0).attr('data-integers') ? $(this).children().eq(0).attr('data-integers').split(',') : [];
+        data.cart[$(this).children().eq(0).attr('data-variant')].selects = $(this).children().eq(0).attr('data-selects') ? $(this).children().eq(0).attr('data-selects').split(',') : [];
     });
     $('#za_catalog_order_costs_table>tbody>tr').each(function() {
         data.costs.extra[$(this).children().eq(0).attr('data')] = parseFloat($(this).children().eq(1).find('input').val()) || 0;

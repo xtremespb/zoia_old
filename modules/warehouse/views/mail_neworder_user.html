@@ -26,6 +26,9 @@
                     {% endfor %}
                     {% for itg in item.integersID %}
                     <br>{{ item.propertiesData[itg] }}&nbsp;({{ item.propertiesCount[itg] }})
+                    {% endfor %}
+                    {% for its in item.selectsID %}
+                    <br>{{ item.selectsTitles[its] }}: {{ item.selectsValues[its] }}
                     {% endfor %}</p>
                 </td>
                 <td nowrap="">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ item.price }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>

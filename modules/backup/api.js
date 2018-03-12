@@ -13,6 +13,12 @@ module.exports = function(app) {
 
     const create = async(req, res) => {
         const locale = req.session.currentLocale;
+        const modulesBackup = req.body.modules;
+        if (modulesBackup && typeof modulesBackup !== 'object') {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
             return res.send(JSON.stringify({
@@ -36,6 +42,9 @@ module.exports = function(app) {
                     let backupData = [];
                     let files = ['backup.json'];
                     for (let i in modules) {
+                        if (modulesBackup.indexOf(modules[i]) === -1) {
+                            continue;
+                        }
                         let data;
                         try {
                             data = await fs.readJson(path.join(__dirname, '..', '..', 'modules', modules[i], 'backup.json'));
@@ -95,7 +104,7 @@ module.exports = function(app) {
                                             }
                                             break;
                                         default:
-                                            log.error('Unknown backup type: ' + item.type)
+                                            log.error('Unknown backup type: ' + item.type);
                                     }
                                 }
                                 await fs.writeJson(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId, 'backup.json'), backupData);
@@ -333,7 +342,7 @@ module.exports = function(app) {
     };
 
     let router = Router();
-    router.get('/create', create);
+    router.post('/create', create);
     router.get('/create/state', createState);
     router.post('/restore', restore);
     router.get('/restore/state', restoreState);
