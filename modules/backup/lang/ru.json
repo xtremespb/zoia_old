@@ -18,5 +18,8 @@
 	"When finished, Zoia will terminate, so make sure you are running any tool to automatically restart the server (like forever). You will need to re-authorize.": "После окончания восстановления резервной копии процесс Zoia будет остановлен; пожалуйста, убедитесь, что Вы используете инструмент для перезагрузки веб-сервера, такой, как forever. Также потребуется повторная авторизация в системе.",
 	"Backup has been restored. You're now logged off and need to re-authorize.": "Резервная копия успешно восстановлена. Вам потребуется повторный вход в систему для продолжения.",
 	"Close": "Закрыть",
-	"System is restarting, please wait...": "Идет перезапуск Zoia, пожалуйста, подождите..."
+	"System is restarting, please wait...": "Идет перезапуск Zoia, пожалуйста, подождите...",
+	"Backup Options": "Настройки",
+	"Choose the modules you wish to backup": "Выберите модули, для которых требуется создать резервную копию",
+	"Start": "Начать"
 }
