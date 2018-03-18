@@ -323,8 +323,8 @@ module.exports = function(app) {
         let ffields = { _id: 1, folder: 1, sku: 1, status: 1, price: 1, images: 1 };
         ffields[locale + '.title'] = 1;
         const settings = await _loadSettings(locale);
-        const catalogItemsCount = await db.collection('warehouse').find(what, ffields, { skip: skip, limit: configModule.itemsPerPage }).count();
-        const catalogItems = await db.collection('warehouse').find(what, ffields, { skip: skip, limit: configModule.itemsPerPage }).sort(sort).toArray();
+        const catalogItemsCount = await db.collection('warehouse').find(what, { projection: ffields }).count();
+        const catalogItems = await db.collection('warehouse').find(what, { skip: skip, limit: configModule.itemsPerPage, projection: ffields, sort: sort }).toArray();
         for (let item in catalogItems) {
             if (catalogItems[item].images && catalogItems[item].images.length) {
                 catalogItems[item].firstImage = catalogItems[item].images[0].id + '.' + catalogItems[item].images[0].ext;
