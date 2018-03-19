@@ -1,0 +1,8 @@
+.hostingBtnSelectAll,
+.hostingBtnSelectNone {
+    padding: 9px;
+}
+
+#hosting_actions {
+	width: 90px;
+}

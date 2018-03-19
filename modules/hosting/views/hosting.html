@@ -1,0 +1,60 @@
+<h1>{{ i18n.__(locale, 'title')}}</h1>
+<div class="za-grid za-grid-small">
+    <div class="za-width-expand">
+        <div class="za-inline za-float-right">
+            <a class="za-form-icon za-form-icon-flip hostingSearchInputClear" za-icon="icon: close"></a>
+            <input type="text" class="hostingSearchInput za-input za-width-medium" placeholder="{{ i18n.__(locale, 'Search')}}">
+        </div>
+    </div>
+</div>
+<div class="hostingPagination za-margin-top noselect"></div>
+<table class="za-table za-table-divider za-table-striped za-table-hover za-table-responsive za-table-middle" id="hosting">
+    <thead class="noselect" style="display:none">
+        <tr>
+            <th id="hostingID" class="za-table-shrink"></th>
+            <th id="hosting_username">{{ i18n.__(locale, 'Username')}}</th>
+            <th id="hosting_accounts" class="za-table-shrink">{{ i18n.__(locale, 'Accounts')}}</th>
+            <th id="hosting_balance" class="za-table-shrink">{{ i18n.__(locale, 'Balance')}}</th>
+            <th id="hosting_actions">{{ i18n.__(locale, 'Actions')}}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td colspan="100%">
+                <div za-spinner style="margin:-2px 5px 0 0"></div>
+                &nbsp;{{ i18n.__(locale, 'Loading data, please wait')}}
+            </td>
+        </tr>
+    </tbody>
+</table>
+<div id="zoiaUserDialog" style="display:none">
+    <div class="za-modal-dialog">
+        <div class="za-modal-header">
+            <h2>{{ i18n.__(locale, 'User')}}:&nbsp;<span class="za-user-dialog-username"></span></h2>
+        </div>
+        <div class="za-modal-body za-flex za-flex-center za-flex-middle" id="zoiaUserDialogBodySpinner">
+            <div za-spinner></div>
+        </div>
+        <div class="za-modal-body" za-overflow-auto style="display:none" id="zoiaUserDialogBody">
+            <ul za-tab id="za_catalog_user_tabs">
+                <li><a href="#">{{ i18n.__(locale, 'Balance')}}</a></li>
+                <li><a href="#">{{ i18n.__(locale, 'Accounts')}}</a></li>
+            </ul>
+            <ul class="za-switcher za-margin">
+                <li>
+                    Balance
+                </li>
+                <li>
+                    Account
+                </li>
+            </ul>
+        </div>
+        <div class="za-modal-footer za-text-right" id="zoiaUserDialogButtons">
+            <button class="za-button za-button-default za-modal-close zoia-user-dialog-button" type="button">{{ i18n.__(locale, 'Cancel')}}</button>
+            <button class="za-button za-button-primary zoia-user-dialog-button" id="zoiaUserDialogButton" type="button">{{ i18n.__(locale, 'Save')}}</button>
+            <div za-spinner style="float:right;display:none" id="zoiaUserDialogSpinner"></div>
+        </div>
+    </div>
+</div>
+<div class="hostingPagination za-margin noselect"></div>
+<script src="/api/lang/hosting/{{ locale }}.js" type="text/javascript"></script>
