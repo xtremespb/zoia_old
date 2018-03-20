@@ -12,5 +12,11 @@
 	"Loading data, please wait": "Loading data, please wait",
 	"Accounts": "Accounts",
 	"Could not load data from server. Please try to refresh page in a few moments.": "Could not load data from server. Please try to refresh page in a few moments.",
-	"No items to display": "No items to display"
+	"No items to display": "No items to display",
+	"User": "User",
+	"Cancel": "Cancel",
+	"Save": "Save",
+	"Error while loading data": "Error while loading data",
+	"Current Balance": "Current Balance",
+	"Correction": "Correction"
 }
