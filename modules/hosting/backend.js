@@ -5,6 +5,15 @@ const path = require('path');
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
+const fs = require('fs');
+const plugins = fs.readdirSync(path.join(__dirname, 'plugins'));
+for (let i in plugins) { plugins[i] = plugins[i].replace(/\.js$/, ''); }
+let configModule;
+try {
+    configModule = require(path.join(__dirname, 'config', 'hosting.json'));
+} catch (e) {
+    configModule = require(path.join(__dirname, 'config', 'hosting.dist.json'));
+}
 
 module.exports = function(app) {
     const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
@@ -15,12 +24,15 @@ module.exports = function(app) {
         try {
             if (!Module.isAuthorizedAdmin(req)) {
                 Module.logout(req);
-                return res.redirect(303, (config.website.authPrefix || '/auth')  + '?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
+                return res.redirect(303, (config.website.authPrefix || '/auth') + '?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
             }
             const locale = req.session.currentLocale;
             let html = await render.file('hosting.html', {
                 i18n: i18n.get(),
                 config: config,
+                configModule: configModule,
+                configModuleJSON: JSON.stringify(configModule),
+                plugins: JSON.stringify(plugins),
                 locale: locale,
                 lang: JSON.stringify(i18n.get().locales[locale])
             });

@@ -7,12 +7,19 @@
 	width: 90px;
 }
 
-#zoiaSpinnerMain {
+#zoiaSpinnerWhite {
     position: fixed;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background: #fff;
+    background: #000;
     opacity: .7;
+    z-index: 2000;
+}
+
+.zoia-spinner>svg {
+    width: 15px;
+    margin-top: 4px;
+    margin-right: 5px
 }

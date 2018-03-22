@@ -1,0 +1,25 @@
+{
+    "currency": {
+        "en": "₽",
+        "ru": "₽"
+    },
+    "currencyPosition": "right",
+    "presets": [
+        { 
+            "id": "test",
+            "titles": {
+                "en": "Test Plan",
+                "ru": "Тестовый план"
+            },
+            "cost": 500
+        },
+        { 
+            "id": "test2",
+            "titles": {
+                "en": "Another Test Plan",
+                "ru": "Тестовый план 2"
+            },
+            "cost": 1000
+        }
+    ]
+}

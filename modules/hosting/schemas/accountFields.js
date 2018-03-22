@@ -3,12 +3,9 @@
         global[i] = vars[i];
     }
 })({
-    getHostingFields: function(_passwordMandatory) {
-        if (_passwordMandatory === undefined) {
-            _passwordMandatory = true;
-        }
+    getAccountFields: function() {
         return {
-            groupname: {
+            account: {
                 mandatoryCreate: true,
                 length: {
                     min: 3,
@@ -20,14 +17,30 @@
                     return item.trim().toLowerCase();
                 }
             },
-            status: {
+            days: {
                 mandatoryCreate: true,
                 length: {
                     min: 1,
-                    max: 1
+                    max: 5
                 },
+                regexp: /^[0-9]+$/,
+                process: (item) => {
+                    return item.trim();
+                }
+            },
+            preset: {
+                mandatoryCreate: true,
                 type: 'string',
-                regexp: /^(0|1)$/
+                process: function(item) {
+                    return item.trim().toLowerCase();
+                }
+            },
+            plugin: {
+                mandatoryCreate: true,
+                type: 'string',
+                process: function(item) {
+                    return item.trim().toLowerCase();
+                }
             }
         };
     }

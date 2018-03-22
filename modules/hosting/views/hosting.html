@@ -42,30 +42,49 @@
             </ul>
             <ul class="za-switcher za-margin">
                 <li>
-                    <b>{{ i18n.__(locale, 'Current Balance')}}</b>:&nbsp;<span class="za-user-dialog-balance"></span>
-                    <div class="za-form-stacked za-margin-top">
+                    <b>{{ i18n.__(locale, 'Current Balance')}}</b>:&nbsp;{% if configModule.currencyPosition == 'left' %}{{ configModule.currency[locale] }}{% endif %}<span class="za-user-dialog-balance"></span>{% if configModule.currencyPosition == 'right' %}&nbsp;{{ configModule.currency[locale] }}{% endif %}
+                    <form class="za-form-stacked za-margin-top" id="zoiaUserDialogCorrectionsForm">
                         <div class="za-margin">
                             <label class="za-form-label" for="zoia_correction">{{ i18n.__(locale, 'Correction')}}</label>
                             <div class="za-form-controls">
-                                <input class="za-input za-form-width-small" id="zoia_correction" type="text">&nbsp;<button class="za-button za-button-primary" style="margin-top:1px">{{ i18n.__(locale, 'Save')}}</button>
+                                <input class="za-input za-form-width-small" id="zoia_correction" type="text">&nbsp;
+                                <button class="za-button za-button-default" id="zoia_btn_correction_save" style="margin-top:1px"><span za-spinner class="zoia-spinner" id="zoia_spn_correction_save" style="display:none"></span>{{ i18n.__(locale, 'Make')}}</button>
                             </div>
                         </div>
-                    </div>
+                    </form>
                     <div class="za-panel za-panel-scrollable za-user-dialog-balance-history">
                     </div>
                 </li>
                 <li>
-                    Account
+                    <button class="za-button za-button-default" id="zoia_btn_account_add">{{ i18n.__(locale, 'Add Account')}}</button>
+                    <div id="zoiaUserAccounts" class="za-margin-top">
+                    </div>
                 </li>
             </ul>
         </div>
         <div class="za-modal-footer za-text-right" id="zoiaUserDialogButtons">
-            <button class="za-button za-button-default za-modal-close zoia-user-dialog-button" type="button">{{ i18n.__(locale, 'Cancel')}}</button>
-            <button class="za-button za-button-primary zoia-user-dialog-button" id="zoiaUserDialogButton" type="button">{{ i18n.__(locale, 'Save')}}</button>
+            <button class="za-button za-button-primary za-modal-close zoia-user-dialog-button" type="button">{{ i18n.__(locale, 'Done')}}</button>
             <div za-spinner style="float:right;display:none" id="zoiaUserDialogSpinner"></div>
         </div>
     </div>
 </div>
+<div id="zoiaAccountDialog" style="display:none">
+    <div class="za-modal-dialog">
+        <div class="za-modal-header">
+            <h2>{{ i18n.__(locale, 'Account')}}</h2>
+        </div>
+        <form id="zoiaAccountForm">
+            <div class="za-flex za-flex-center za-margin-bottom">
+                <div za-spinner class="za-margin-top za-margin-bottom"></div>
+            </div>
+        </form>
+    </div>
+</div>
 <div class="hostingPagination za-margin noselect"></div>
-<div id="zoiaSpinnerMain" style="display:none" class="za-flex za-flex-middle za-flex-center"><span za-spinner style="color:#000"></span></div>
+<div id="zoiaSpinnerWhite" style="display:none" class="za-flex za-flex-middle za-flex-center"><span za-spinner style="color:#fff"></span></div>
 <script src="/api/lang/hosting/{{ locale }}.js" type="text/javascript"></script>
+<script>
+var plugins = {{ plugins }};
+var configModule = {{ configModuleJSON }};
+var locale = '{{ locale }}';
+</script>
