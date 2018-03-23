@@ -6,6 +6,52 @@ let currentEditAccountID;
 let userDialog;
 let accountDialog;
 let presetTitles = {};
+let pluginTitles = {};
+
+const bindAccountButtonHandlers = () => {
+    $('.zoia-account-edit').unbind().click(function(e) {
+        e.preventDefault();
+        currentEditAccountID = $(this).attr('data');
+        editAccount();
+    });
+    $('.zoia-account-delete').unbind().click(function(e) {
+        e.preventDefault();
+        const account = $(this).parent().parent().find('td:first').html();
+        const accountID = $(this).attr('data');
+        $zUI.modal.confirm(lang['Are you sure you wish to delete the account?'] + '&nbsp;(' + account + ')', { stack: true, labels: { ok: lang['OK'], cancel: lang['Cancel'] } }).then(function() {
+            $('#zoiaSpinnerWhite').show();
+            $.ajax({
+                type: 'GET',
+                url: '/api/hosting/account/delete',
+                cache: false,
+                data: {
+                    id: accountID
+                }
+            }).done((res) => {
+                $('#zoiaSpinnerWhite').hide();
+                if (res && res.status === 1) {
+                    $('tr[data-account-id="' + accountID + '"]').remove();
+                    $('#hosting').zoiaTable().load();
+                    $zUI.notification(lang['Account has been deleted'], {
+                        status: 'success',
+                        timeout: 1500
+                    });
+                } else {
+                    $zUI.notification(lang['Error while loading data'], {
+                        status: 'danger',
+                        timeout: 1500
+                    });
+                }
+            }).fail(() => {
+                $('#zoiaSpinnerWhite').hide();
+                $zUI.notification(lang['Error while loading data'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            }, 200);
+        });
+    });
+};
 
 const editItem = (id) => {
     currentEditID = id;
@@ -13,8 +59,8 @@ const editItem = (id) => {
     $('#zoiaUserDialogButtons').hide();
     $('#zoiaUserDialogHeader').hide();
     $('#zoiaUserDialogBodySpinner').show();
-    $('#zoia_correction').removeClass('za-form-danger');        
-    userDialog.show().then(() => {    	
+    $('#zoia_correction').removeClass('za-form-danger');
+    userDialog.show().then(() => {
         $.ajax({
             type: 'GET',
             url: '/api/hosting/load',
@@ -30,10 +76,11 @@ const editItem = (id) => {
                 $('#zoiaUserDialogHeader').show();
                 $('.za-user-dialog-username').html(res.data.username);
                 $('.za-user-dialog-balance').html(res.data.balance || 0);
-                let balanceHistoryHTML = '';
+                let balanceHistoryHTML = '<div class="zoia-balance-history-wrap">';
                 for (let i in res.data.transactions) {
-                    balanceHistoryHTML += '<div za-grid class="za-grid-small"><div class="za-width-expand">' + new Date(parseInt(res.data.transactions[i].timestamp, 10) * 1000).toLocaleString() + '</div><div><span za-icon="' + (res.data.transactions[i].sum < 0 ? 'minus' : 'plus') + '-circle"></span>&nbsp;' + (configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + Math.abs(res.data.transactions[i].sum) + (configModule.currencyPosition === 'right' ? '&nbsp;' + configModule.currency[locale] : '') + '</div></div>';
+                    balanceHistoryHTML += '<div za-grid class="za-grid-collapse"><div class="za-width-expand">' + new Date(parseInt(res.data.transactions[i].timestamp, 10) * 1000).toLocaleString() + '</div><div><span za-icon="' + (res.data.transactions[i].sum < 0 ? 'minus' : 'plus') + '-circle"></span>&nbsp;' + (configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + Math.abs(res.data.transactions[i].sum) + (configModule.currencyPosition === 'right' ? '&nbsp;' + configModule.currency[locale] : '') + '</div></div>';
                 }
+                balanceHistoryHTML += '</div>';
                 $('.za-user-dialog-balance-history').html(balanceHistoryHTML);
                 let accountsHTML = '<div class="za-overflow-auto"><table class="za-table za-table-small za-table-divider za-table-striped za-table-middle" id="zoia_accounts_table"><thead><tr><th>' + lang['Account'] + '</th><th>' + lang['Preset'] + '</th><th>' + lang['Plugin'] + '</th><th>' + lang['Days'] + '</th><th></th></tr></thead><tbody>';
                 for (let i in res.data.accounts) {
@@ -41,11 +88,7 @@ const editItem = (id) => {
                 }
                 accountsHTML += '</tbody></table></div>'
                 $('#zoiaUserAccounts').html(accountsHTML);
-                $('.zoia-account-edit').unbind().click(function(e) {
-                    e.preventDefault();
-                    currentEditAccountID = $(this).attr('data');
-                    editAccount();
-                });
+                bindAccountButtonHandlers();
                 $zUI.tab('#za_catalog_user_tabs').show(0);
             } else {
                 userDialog.hide();
@@ -69,7 +112,7 @@ const editAccount = () => {
     $('#zoiaAccountForm').zoiaFormBuilder().loadData({ id: currentEditAccountID });
 };
 
-const zoiaBtnCollectionSaveClickHandler = () => {
+const zoiaBtnCorrectionSaveClickHandler = () => {
     if ($('#zoia_spn_correction_save').is(':visible')) {
         return;
     }
@@ -90,7 +133,7 @@ const zoiaBtnCollectionSaveClickHandler = () => {
     }).done((res) => {
         $('#zoia_spn_correction_save').hide();
         if (res && res.status === 1) {
-            $('.za-user-dialog-balance-history').prepend('<div za-grid class="za-grid-small"><div class="za-width-expand">' + new Date(parseInt(res.timestamp, 10) * 1000).toLocaleString() + '</div><div><span za-icon="' + (sum < 0 ? 'minus' : 'plus') + '-circle"></span>&nbsp;' + (configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + Math.abs(sum) + (configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + '</div></div>');
+            $('.zoia-balance-history-wrap').prepend('<div za-grid class="za-grid-collapse"><div class="za-width-expand">' + new Date(parseInt(res.timestamp, 10) * 1000).toLocaleString() + '</div><div><span za-icon="' + (sum < 0 ? 'minus' : 'plus') + '-circle"></span>&nbsp;' + (configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + Math.abs(sum) + (configModule.currencyPosition === 'right' ? '&nbsp;' + configModule.currency[locale] : '') + '</div></div>');
             $('#hosting').zoiaTable().load();
             $('#zoia_correction').val('');
             $('.za-user-dialog-balance').html(parseFloat($('.za-user-dialog-balance').html()) + sum);
@@ -165,6 +208,7 @@ const accountFormData = {
         onSaveSuccess: (res) => {
             $('#zoiaAccountDialogSpinner').hide();
             $('.zoiaAccountForm-form-button').show();
+            $('#hosting').zoiaTable().load();
             $zUI.notification(lang['Account has been saved'], {
                 status: 'success',
                 timeout: 1500
@@ -175,11 +219,7 @@ const accountFormData = {
             } else {
                 $('#zoia_accounts_table>tbody').append('<tr data-account-id="' + res._id + '">' + data + '</tr>');
             }
-            $('.zoia-account-edit').unbind().click(function(e) {
-                e.preventDefault();
-                currentEditAccountID = $(this).attr('data');
-                editAccount();
-            });
+            bindAccountButtonHandlers();
             accountDialog.hide();
         },
         onSaveError: (res) => {
@@ -194,7 +234,7 @@ const accountFormData = {
             setTimeout(() => {
                 for (let i in data.item) {
                     $('#zoiaAccountForm_' + i).val(data.item[i]);
-                }                
+                }
                 accountDialog.show().then(() => {
                     $('#zoiaSpinnerWhite').hide();
                     $('#zoiaAccountForm_account').focus();
@@ -272,9 +312,7 @@ const accountFormData = {
             label: lang['Plugin'],
             css: 'za-width-small',
             autofocus: false,
-            values: {
-                ispmgr: 'ispmgr'
-            },
+            values: pluginTitles,
             validation: {
                 mandatoryCreate: true,
             }
@@ -298,8 +336,11 @@ const accountFormData = {
 };
 
 const init = () => {
-	for (let i in configModule.presets) {
+    for (let i in configModule.presets) {
         presetTitles[configModule.presets[i].id] = configModule.presets[i].titles[locale];
+    }
+    for (let i in plugins) {
+        pluginTitles[plugins[i]] = plugins[i];
     }
     $('#zoiaAccountForm').zoiaFormBuilder(accountFormData);
     userDialog = $zUI.modal('#zoiaUserDialog', {
@@ -312,10 +353,10 @@ const init = () => {
         escClose: false,
         stack: true
     });
-    $('#zoia_btn_correction_save').click(zoiaBtnCollectionSaveClickHandler);
+    $('#zoia_btn_correction_save').click(zoiaBtnCorrectionSaveClickHandler);
     $('#zoiaUserDialogCorrectionsForm').submit(function(e) {
         e.preventDefault();
-        zoiaBtnCollectionSaveClickHandler();
+        zoiaBtnCorrectionSaveClickHandler();
     });
     $('#zoia_btn_account_add').click(zoiaBtnAccountAddClickHandler);
     $('#hosting').zoiaTable({
@@ -341,7 +382,7 @@ const init = () => {
             balance: {
                 sortable: false,
                 process: (id, item, value) => {
-                    return value || 0;
+                    return (configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + String(value || 0) + (configModule.currencyPosition === 'right' ? '&nbsp;' + configModule.currency[locale] : '');
                 }
             },
             actions: {

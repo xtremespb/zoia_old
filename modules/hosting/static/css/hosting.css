@@ -23,3 +23,17 @@
     margin-top: 4px;
     margin-right: 5px
 }
+
+.zoia-balance-history-wrap>div {
+	padding-top: 11px;
+}
+
+.zoia-balance-history-wrap>div {
+	padding-bottom: 10px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.zoia-balance-history-wrap>div:nth-child(odd) {
+	background: #eee;
+}

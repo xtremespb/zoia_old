@@ -1,0 +1,95 @@
+const path = require('path');
+const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const Router = require('co-router');
+const fs = require('fs');
+const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+
+const moduleURL = '/hosting';
+let templateList = 'frontend.html';
+if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateList))) {
+    templateRegister = 'custom_' + templateList;
+}
+
+let configModule;
+try {
+    configModule = require(path.join(__dirname, 'config', 'hosting.json'));
+} catch (e) {
+    configModule = require(path.join(__dirname, 'config', 'hosting.dist.json'));
+}
+
+module.exports = function(app) {
+    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
+    const db = app.get('db');
+    const renderHosting = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
+    const renderRoot = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), app);
+
+    const list = async(req, res, next) => {
+        if (!Module.isAuthorized(req)) {
+            return res.redirect(303, (config.website.authPrefix || '/auth') + '?redirect=' + moduleURL + '&_=' + Math.random().toString().replace('.', ''));
+        }
+        let locale = config.i18n.locales[0];
+        if (req.session && req.session.currentLocale) {
+            locale = req.session.currentLocale;
+        }
+        let filters = app.get('templateFilters');
+        renderRoot.setFilters(filters);
+        let presetTitles = {};
+        let presetPrices = {};
+        for (let i in configModule.presets) {
+            let cost = (configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + configModule.presets[i].cost + (configModule.currencyPosition === 'right' ? ' ' + configModule.currency[locale] : '');
+            presetTitles[configModule.presets[i].id] = configModule.presets[i].titles[locale] + '&nbsp;(' + cost + ')' || configModule.presets[i].id;
+            presetPrices[configModule.presets[i].id] = configModule.presets[i].cost || 0;
+        }
+        let accounts = [];
+        try {
+            accounts = await db.collection('hosting_accounts').find({ ref_id: String(req.session.auth._id) }, { projection: { id: 1, preset: 1, days: 1 } }).toArray() || [];
+        } catch (e) {
+            log.error(e);
+        }
+        let sum = 0;
+        try {
+            const ar = await db.collection('hosting_transactions').aggregate([
+                { $match: { ref_id: String(req.session.auth._id) } },
+                {
+                    $group: {
+                        _id: null,
+                        total: {
+                            $sum: "$sum"
+                        }
+                    }
+                }
+            ]).toArray();
+            const totalFunds = ar[0].total || 0;
+            let listHTML = await renderHosting.file(templateList, {
+                i18n: i18n.get(),
+                locale: locale,
+                lang: JSON.stringify(i18n.get().locales[locale]),
+                config: config,
+                configModule: configModule,
+                configModuleJSON: JSON.stringify(configModule),
+                accounts: accounts,
+                presets: presetTitles,
+                presetsJSON: JSON.stringify(presetTitles),
+                prices: presetPrices,
+                pricesJSON: JSON.stringify(presetPrices),
+                totalFunds: totalFunds
+            });
+            let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Hosting'), {
+                content: listHTML,
+                extraCSS: config.production ? ['/hosting/static/css/frontend.min.css'] : ['/hosting/static/css/frontend.css'],
+                extraJS: config.production ? ['/hosting/static/js/frontend.min.js'] : ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/hosting/static/js/frontend.js']
+            });
+            res.send(html);
+        } catch (e) {
+            log.error(e);
+            return next();
+        }
+    };
+
+    let router = Router();
+    router.get('/', list);
+
+    return {
+        routes: router
+    };
+};

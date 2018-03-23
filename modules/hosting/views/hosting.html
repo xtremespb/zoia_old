@@ -11,7 +11,6 @@
 <table class="za-table za-table-divider za-table-striped za-table-hover za-table-responsive za-table-middle" id="hosting">
     <thead class="noselect" style="display:none">
         <tr>
-            <th id="hostingID" class="za-table-shrink"></th>
             <th id="hosting_username">{{ i18n.__(locale, 'Username')}}</th>
             <th id="hosting_accounts" class="za-table-shrink">{{ i18n.__(locale, 'Accounts')}}</th>
             <th id="hosting_balance" class="za-table-shrink">{{ i18n.__(locale, 'Balance')}}</th>
@@ -33,7 +32,9 @@
             <h2>{{ i18n.__(locale, 'User')}}:&nbsp;<span class="za-user-dialog-username"></span></h2>
         </div>
         <div class="za-modal-body za-flex za-flex-center za-flex-middle" id="zoiaUserDialogBodySpinner">
-            <div za-spinner></div>
+            <div za-spinner>
+            	<b>{{ i18n.__(locale, 'Current Balance')}}</b>:&nbsp;{% if configModule.currencyPosition == 'left' %}{{ configModule.currency[locale] }}{% endif %}<span class="za-user-dialog-balance"></span>{% if configModule.currencyPosition == 'right' %}&nbsp;{{ configModule.currency[locale] }}{% endif %}
+            </div>
         </div>
         <div class="za-modal-body" za-overflow-auto style="display:none" id="zoiaUserDialogBody">
             <ul za-tab id="za_catalog_user_tabs">
@@ -42,16 +43,22 @@
             </ul>
             <ul class="za-switcher za-margin">
                 <li>
-                    <b>{{ i18n.__(locale, 'Current Balance')}}</b>:&nbsp;{% if configModule.currencyPosition == 'left' %}{{ configModule.currency[locale] }}{% endif %}<span class="za-user-dialog-balance"></span>{% if configModule.currencyPosition == 'right' %}&nbsp;{{ configModule.currency[locale] }}{% endif %}
-                    <form class="za-form-stacked za-margin-top" id="zoiaUserDialogCorrectionsForm">
-                        <div class="za-margin">
-                            <label class="za-form-label" for="zoia_correction">{{ i18n.__(locale, 'Correction')}}</label>
-                            <div class="za-form-controls">
-                                <input class="za-input za-form-width-small" id="zoia_correction" type="text">&nbsp;
-                                <button class="za-button za-button-default" id="zoia_btn_correction_save" style="margin-top:1px"><span za-spinner class="zoia-spinner" id="zoia_spn_correction_save" style="display:none"></span>{{ i18n.__(locale, 'Make')}}</button>
-                            </div>
+                    <div za-grid>
+                        <div class="za-width-expand za-flex za-flex-bottom za-margin-bottom">
+                        	<b>{{ i18n.__(locale, 'Current Balance')}}</b>:&nbsp;{% if configModule.currencyPosition == 'left' %}{{ configModule.currency[locale] }}{% endif %}<span class="za-user-dialog-balance"></span>{% if configModule.currencyPosition == 'right' %}&nbsp;{{ configModule.currency[locale] }}{% endif %}
                         </div>
-                    </form>
+                        <div>
+                            <form class="za-form-stacked" id="zoiaUserDialogCorrectionsForm">
+                                <div class="za-margin">
+                                    <label class="za-form-label" for="zoia_correction">{{ i18n.__(locale, 'Correction')}}</label>
+                                    <div class="za-form-controls">
+                                        <input class="za-input za-form-width-small" id="zoia_correction" type="text">&nbsp;
+                                        <button class="za-button za-button-default" id="zoia_btn_correction_save" style="margin-top:1px"><span za-spinner class="zoia-spinner" id="zoia_spn_correction_save" style="display:none"></span>{{ i18n.__(locale, 'Make')}}</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>                    
                     <div class="za-panel za-panel-scrollable za-user-dialog-balance-history">
                     </div>
                 </li>

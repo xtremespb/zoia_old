@@ -71,12 +71,22 @@ module.exports = function(app) {
                     ids.push({ ref_id: String(items[i]._id) });
                     delete items[i].password;
                 }
-                const accounts = await db.collection('hosting_accounts').find({ $or: ids }).toArray();
-                const transactions = await db.collection('hosting_transactions').find({ $or: ids }, { projection: { _id: 0, ref_id: 1, timestamp: 1, sum: 1 } }).toArray() || [];
-                let total = 0;
-                for (let i in transactions) {
-                    total += transactions[i].sum;
+                const agr = await db.collection('hosting_transactions').aggregate([
+                    { $match: { $or: ids } },
+                    {
+                        $group: {
+                            _id: { ref_id: '$ref_id' },
+                            total: {
+                                $sum: "$sum"
+                            }
+                        }
+                    }
+                ]).toArray();
+                amtTransactions = {};
+                for (let i in agr) {
+                    amtTransactions[agr[i]._id.ref_id] = agr[i].total
                 }
+                const accounts = await db.collection('hosting_accounts').find({ $or: ids }).toArray();
                 let amtAccounts = {};
                 if (accounts && accounts.length) {
                     for (let i in accounts) {
@@ -84,15 +94,6 @@ module.exports = function(app) {
                             amtAccounts[accounts[i].ref_id] = 0;
                         }
                         amtAccounts[accounts[i].ref_id]++;
-                    }
-                }
-                let amtTransactions = {};
-                if (transactions && transactions.length) {
-                    for (let i in transactions) {
-                        if (!amtTransactions[transactions[i].ref_id]) {
-                            amtTransactions[transactions[i].ref_id] = 0;
-                        }
-                        amtTransactions[transactions[i].ref_id] += transactions[i].sum;
                     }
                 }
                 for (let i in items) {
@@ -103,7 +104,6 @@ module.exports = function(app) {
             let data = {
                 status: 1,
                 count: items.length,
-                total: total,
                 items: items
             };
             res.send(JSON.stringify(data));
@@ -140,10 +140,18 @@ module.exports = function(app) {
             const data = await db.collection('hosting').findOne({ ref_id: String(user._id) }) || {};
             const accounts = await db.collection('hosting_accounts').find({ ref_id: String(user._id) }, { projection: { id: 1, plugin: 1, preset: 1, days: 1 } }).toArray() || [];
             const transactions = await db.collection('hosting_transactions').find({ ref_id: String(user._id) }, { sort: { timestamp: -1 }, limit: 50, projection: { _id: 0, timestamp: 1, sum: 1 } }).toArray() || [];
-            let total = 0;
-            for (let i in transactions) {
-                total += transactions[i].sum;
-            }
+            const ar = await db.collection('hosting_transactions').aggregate([
+                { $match: { ref_id: String(user._id) } },
+                {
+                    $group: {
+                        _id: null,
+                        total: {
+                            $sum: "$sum"
+                        }
+                    }
+                }
+            ]).toArray();
+            const total = ar[0].total || 0;
             user.balance = total || 0;
             user.accounts = accounts;
             user.transactions = transactions;
@@ -205,6 +213,11 @@ module.exports = function(app) {
 
     const accountLoad = async(req, res) => {
         res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
         const id = req.query.id;
         if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
             return res.send(JSON.stringify({
@@ -234,6 +247,11 @@ module.exports = function(app) {
 
     const accountSave = async(req, res) => {
         res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
         const locale = req.session.currentLocale;
         const fieldList = accountFields.getAccountFields();
         let fields = validation.checkRequest(req.body, fieldList);
@@ -270,8 +288,8 @@ module.exports = function(app) {
                 fields: ['preset']
             }));
         }
-        try {   
-            const account = await db.collection('hosting_accounts').findOne({ id: fields.account.value });         
+        try {
+            const account = await db.collection('hosting_accounts').findOne({ id: fields.account.value });
             if ((!_id && account) || (_id && account && String(account._id) !== _id)) {
                 return res.send(JSON.stringify({
                     status: 0,
@@ -291,7 +309,7 @@ module.exports = function(app) {
                 if (configModule.presets[i].id === fields.preset.value) {
                     presetTitle = configModule.presets[i].titles[locale] || fields.preset.value;
                 }
-            }            
+            }
             res.send(JSON.stringify({
                 status: 1,
                 _id: _id || update.value._id,
@@ -309,12 +327,45 @@ module.exports = function(app) {
         }
     };
 
+    const accountDelete = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const id = req.query.id;
+        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const delResult = await db.collection('hosting_accounts').remove({ _id: new ObjectID(id) });
+            if (!delResult || !delResult.result || !delResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            log.error(e);
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
     let router = Router();
     router.get('/list', list);
     router.get('/load', load);
     router.get('/correction', correction);
     router.get('/account/load', accountLoad);
     router.post('/account/save', accountSave);
+    router.get('/account/delete', accountDelete);
 
     return {
         routes: router
