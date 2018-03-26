@@ -24,9 +24,6 @@ module.exports = function(app) {
     const renderRoot = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), app);
 
     const list = async(req, res, next) => {
-        if (!Module.isAuthorized(req)) {
-            return res.redirect(303, (config.website.authPrefix || '/auth') + '?redirect=' + moduleURL + '&_=' + Math.random().toString().replace('.', ''));
-        }
         let locale = config.i18n.locales[0];
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
