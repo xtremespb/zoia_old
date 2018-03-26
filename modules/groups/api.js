@@ -50,8 +50,7 @@ module.exports = function(app) {
             if (search) {
                 fquery = {
                     $or: [
-                        { groupname: { $regex: search, $options: 'i' } },
-                        { email: { $regex: search, $options: 'i' } }
+                        { groupname: { $regex: search, $options: 'i' } }
                     ]
                 };
             }
@@ -97,7 +96,6 @@ module.exports = function(app) {
                 item: {
                     _id: item._id,
                     groupname: item.groupname,
-                    email: item.email,
                     status: item.status
                 }
             }));
