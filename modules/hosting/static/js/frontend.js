@@ -102,18 +102,18 @@ const accountCreateFormData = {
             css: 'za-width-small',
             autofocus: false,
             values: {
-            	1: '1',
-            	2: '2',
-            	3: '3',
-            	4: '4',
-            	5: '5',
-            	6: '6',
-            	7: '7',
-            	8: '8',
-            	9: '9',
-            	10: '10',
-            	11: '11',
-            	12: '12',
+                1: '1',
+                2: '2',
+                3: '3',
+                4: '4',
+                5: '5',
+                6: '6',
+                7: '7',
+                8: '8',
+                9: '9',
+                10: '10',
+                11: '11',
+                12: '12',
             },
             validation: {
                 mandatoryCreate: true,
@@ -141,15 +141,32 @@ const accountCreateFormData = {
     lang: formBuilderLang
 };
 
+const calculateTotal = () => {
+    const preset = $('#zoiaAccountForm_preset').val();
+    const months = $('#zoiaAccountForm_months').val();
+    const total = prices[preset] * months;
+    if (total > totalFunds) {
+        $('#zoiaAccountForm_btnSave').prop('disabled', true);
+        $('#zoiaAccountCreateInsufficientFunds').show();
+    } else {
+        $('#zoiaAccountForm_btnSave').prop('disabled', false);
+        $('#zoiaAccountCreateInsufficientFunds').hide();
+    }
+    $('.zoia-create-account-total').html((configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + total + (configModule.currencyPosition === 'right' ? '&nbsp;' + configModule.currency[locale] : ''));
+};
+
 $(document).ready(() => {
     accountCreateDialog = $zUI.modal('#createAccountDialog', {
         bgClose: false,
         escClose: false
     });
     $('#zoia_btn_account_create').click(() => {
-    	$('#zoiaAccountForm').zoiaFormBuilder().resetForm();
+        $('#zoiaAccountForm').zoiaFormBuilder().resetForm();
+        calculateTotal();
         accountCreateDialog.show();
     });
     $('#zoiaAccountForm').zoiaFormBuilder(accountCreateFormData);
-    $('#zoiaAccountForm_calc').parent().parent().html('<div style="padding-top:25px">'+ lang['Total']+':&nbsp;<span class="zoia-create-account-total"></span></div>');
+    $('#zoiaAccountForm_calc').parent().parent().html('<div class="za-alert-warning" za-alert id="zoiaAccountCreateInsufficientFunds" style="margin-bottom:-5px"><p>' + lang['Insufficient funds'] + '</p></div><div class="za-card za-card-default za-card-small za-card-body" style="padding-top:25px;"><p class="za-text-large">' + lang['Total'] + ':&nbsp;<span class="zoia-create-account-total"></span></div>');
+    $('#zoiaAccountForm_preset').change(calculateTotal).keypress(calculateTotal);
+    $('#zoiaAccountForm_months').change(calculateTotal).keypress(calculateTotal);
 });

@@ -59,5 +59,6 @@
 	"Months": "Months",
 	"Minimal length: 5 characters, type twice to verify": "Minimal length: 5 characters, type twice to verify",
 	"Total": "Total",
-	"Plan (price per month)": "Plan (price per month)"
+	"Plan (price per month)": "Plan (price per month)",
+	"Insufficient funds": "Insufficient funds"
 }
