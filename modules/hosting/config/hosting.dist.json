@@ -4,22 +4,39 @@
         "ru": "₽"
     },
     "currencyPosition": "right",
+    "defaultPlugin": "ispmgr",
     "presets": [
         { 
-            "id": "test",
+            "id": "professional",
             "titles": {
-                "en": "Test Plan",
-                "ru": "Тестовый план"
+                "en": "Professional",
+                "ru": "Professional"
             },
-            "cost": 500
+            "cost": 600
         },
         { 
-            "id": "test2",
+            "id": "comfort",
             "titles": {
-                "en": "Another Test Plan",
-                "ru": "Тестовый план 2"
+                "en": "Comfort",
+                "ru": "Comfort"
             },
-            "cost": 1000
+            "cost": 400
+        },
+        { 
+            "id": "econom",
+            "titles": {
+                "en": "Econom",
+                "ru": "Econom"
+            },
+            "cost": 200
+        },
+        { 
+            "id": "backup",
+            "titles": {
+                "en": "Backup",
+                "ru": "Backup"
+            },
+            "cost": 400
         }
     ]
 }

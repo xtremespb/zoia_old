@@ -5,6 +5,7 @@ const Router = require('co-router');
 const ObjectID = require('mongodb').ObjectID;
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const accountFields = require(path.join(__dirname, 'schemas', 'accountFields.js'));
+const newAccountFields = require(path.join(__dirname, 'schemas', 'newAccountFields.js'));
 const fs = require('fs');
 const plugins = fs.readdirSync(path.join(__dirname, 'plugins'));
 for (let i in plugins) { plugins[i] = plugins[i].replace(/\.js$/, ''); }
@@ -18,6 +19,7 @@ try {
 module.exports = function(app) {
     const log = app.get('log');
     const db = app.get('db');
+    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
 
     const sortFields = ['username'];
 
@@ -150,8 +152,8 @@ module.exports = function(app) {
                         }
                     }
                 }
-            ]).toArray();
-            const total = ar[0].total || 0;
+            ]).toArray() || [];
+            const total = (ar && ar.length) ? ar[0].total : 0;
             user.balance = total || 0;
             user.accounts = accounts;
             user.transactions = transactions;
@@ -192,7 +194,7 @@ module.exports = function(app) {
                     status: 0
                 }));
             }
-            const timestamp = Date.now() / 1000;
+            const timestamp = parseInt(Date.now() / 1000);
             const insResult = await db.collection('hosting_transactions').insertOne({ ref_id: id, timestamp: timestamp, sum: parseFloat(sum) });
             if (!insResult || !insResult.result || !insResult.result.ok) {
                 output.status = 0;
@@ -359,6 +361,112 @@ module.exports = function(app) {
         }
     };
 
+    const accountCreate = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorized(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const locale = req.session.currentLocale;
+        const fieldList = newAccountFields.getNewAccountFields();
+        let fields = validation.checkRequest(req.body, fieldList);
+        let fieldsFailed = validation.getCheckRequestFailedFields(fields);
+        if (fieldsFailed.length > 0) {
+            return res.send(JSON.stringify({
+                status: 0,
+                fields: fieldsFailed
+            }));
+        }
+        let preset;
+        let price;
+        for (let i in configModule.presets) {
+            if (configModule.presets[i].id === fields.preset.value) {
+                preset = fields.preset.value;
+                price = configModule.presets[i].cost;
+                break;
+            }
+        }
+        if (!preset) {
+            return res.send(JSON.stringify({
+                status: 0,
+                fields: ['preset']
+            }));
+        }
+        const hasUpperCase = /[A-Z]/.test(fields.password.value);
+        const hasLowerCase = /[a-z]/.test(fields.password.value);
+        const hasNumbers = /\d/.test(fields.password.value);
+        const hasNonalphas = /\W/.test(fields.password.value);
+        if (hasUpperCase + hasLowerCase + hasNumbers + hasNonalphas < 3) {
+            return res.send(JSON.stringify({
+                status: 0,
+                fields: ['password'],
+                error: i18n.get().__(locale, 'Password is too weak. Please use both lowercase and uppercase characters, numbers and special characters. Minimal length: 8')
+            }));
+        }
+        try {
+            const ag = await db.collection('hosting_transactions').aggregate([
+                { $match: { ref_id: String(req.session.auth._id) } },
+                {
+                    $group: {
+                        _id: null,
+                        total: {
+                            $sum: "$sum"
+                        }
+                    }
+                }
+            ]).toArray();
+            let funds = 0;
+            if (ag && ag.length > 0) {
+                funds = parseFloat(ag[0].total);
+            }
+            const cost = parseFloat(fields.months.value) * price;
+            if (cost > funds) {
+                return res.send(JSON.stringify({
+                    status: 0,
+                    fields: ['preset', 'months'],
+                    error: i18n.get().__(locale, 'Insufficient funds')
+                }));
+            }
+            const account = await db.collection('hosting_accounts').findOne({ id: fields.id.value });
+            const Plugin = require(path.join(__dirname, 'plugins', configModule.defaultPlugin));
+            const plugin = new Plugin(app);
+            const accountAvailable = await plugin.check(fields.id.value, locale);
+            if (account || !accountAvailable) {
+                return res.send(JSON.stringify({
+                    status: 0,
+                    fields: ['id'],
+                    error: i18n.get().__(locale, 'Account with such ID already exists')
+                }));
+            }
+
+            /*const timestamp = parseInt(Date.now() / 1000);
+            const insTransactionResult = await db.collection('hosting_transactions').insertOne({ ref_id: String(req.session.auth._id), timestamp: timestamp, sum: parseFloat(cost) * -1 });
+            if (!insTransactionResult || !insTransactionResult.result || !insTransactionResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            const days = parseInt(fields.months.value) * 30;
+            const insAccountResult = await db.collection('hosting_accounts').insertOne({ ref_id: String(req.session.auth._id), plugin: configModule.defaultPlugin, preset: preset, days: days, id: fields.id.value, processing: true });
+            if (!insAccountResult || !insAccountResult.result || !insAccountResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }*/            
+            await plugin.create(fields.id.value, preset, fields.password.value, locale);
+            res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            log.error(e);
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
     let router = Router();
     router.get('/list', list);
     router.get('/load', load);
@@ -366,6 +474,7 @@ module.exports = function(app) {
     router.get('/account/load', accountLoad);
     router.post('/account/save', accountSave);
     router.get('/account/delete', accountDelete);
+    router.post('/account/create', accountCreate);
 
     return {
         routes: router

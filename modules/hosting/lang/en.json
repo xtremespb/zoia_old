@@ -47,18 +47,13 @@
 	"New Account": "New Account",
 	"Create Account": "Create Account",
 	"Create": "Create",
-	"Should not be empty": "Should not be empty",
-	"Too short": "Too short",
-	"Too long": "Too long",
-	"Doesn't match required format": "Doesn't match required format",
-	"Passwords do not match": "Passwords do not match",
-	"Parameter": "Parameter",
-	"Value": "Value",
-	"Latin characters and numbers only (1-64 chars)": "Latin characters and numbers only (1-64 chars)",
 	"Password": "Password",
 	"Months": "Months",
-	"Minimal length: 5 characters, type twice to verify": "Minimal length: 5 characters, type twice to verify",
+	"Minimal length: 8 characters, type twice to verify. Required: uppercase and lowercase characters, numbers and special characters": "Minimal length: 8 characters, type twice to verify. Required: uppercase and lowercase characters, numbers and special characters",
+	"Password is too weak. Please use both lowercase and uppercase characters, numbers and special characters. Minimal length: 8": "Password is too weak. Please use both lowercase and uppercase characters, numbers and special characters. Minimal length: 8",
 	"Total": "Total",
 	"Plan (price per month)": "Plan (price per month)",
-	"Insufficient funds": "Insufficient funds"
+	"Insufficient funds": "Insufficient funds",
+	"Account with such ID already exists": "Account with such ID already exists",
+	"Unable to create new account": "Unable to create new account"
 }

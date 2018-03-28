@@ -40,11 +40,33 @@ const accountCreateFormData = {
     formDangerClass: 'za-form-danger',
     html: formBuilderHTML,
     events: {
-        onSaveValidate: (data) => {},
+        onSaveValidate: (data) => {
+            const hasUpperCase = /[A-Z]/.test(data.password);
+            const hasLowerCase = /[a-z]/.test(data.password);
+            const hasNumbers = /\d/.test(data.password);
+            const hasNonalphas = /\W/.test(data.password);
+            if (hasUpperCase + hasLowerCase + hasNumbers + hasNonalphas < 3) {
+                $zUI.modal.alert(lang['Password is too weak. Please use both lowercase and uppercase characters, numbers and special characters. Minimal length: 8'], { labels: { ok: lang['OK'] }, stack: true });
+                $('#zoiaAccountForm_password').addClass('za-form-danger');
+                $('#zoiaAccountForm_passwordConfirm').addClass('za-form-danger');
+                return '__stop';
+            }
+            return data;
+        },
         onSaveSuccess: (res) => {},
-        onSaveError: (res) => {},
-        onLoadSuccess: (data) => {},
-        onLoadError: () => {}
+        onSaveError: (res) => {
+            if (res.error) {
+                $zUI.modal.alert(res.error, { labels: { ok: lang['OK'] }, stack: true });
+            } else {
+                $zUI.modal.alert(lang['Unable to create new account'], { labels: { ok: lang['OK'] }, stack: true });
+            }
+            for (let i in res.fields) {
+                $('#zoiaAccountForm_' + res.fields[i]).addClass('za-form-danger');
+            }
+            if (res.fields && res.fields.length) {
+                $('#zoiaAccountForm_' + res.fields[0]).focus();
+            }
+        }
     },
     save: {
         url: '/api/hosting/account/create',
@@ -83,12 +105,12 @@ const accountCreateFormData = {
         password: {
             type: 'passwordConfirm',
             label: lang['Password'],
-            helpText: lang['Minimal length: 5 characters, type twice to verify'],
+            helpText: lang['Minimal length: 8 characters, type twice to verify. Required: uppercase and lowercase characters, numbers and special characters'],
             validation: {
                 mandatoryCreate: true,
                 mandatoryEdit: false,
                 length: {
-                    min: 5,
+                    min: 8,
                     max: 50
                 },
                 process: (item) => {
@@ -116,7 +138,7 @@ const accountCreateFormData = {
                 12: '12',
             },
             validation: {
-                mandatoryCreate: true,
+                mandatoryCreate: true
             }
         },
         calc: {
