@@ -80,5 +80,6 @@
 }
 
 .za-catalog-item-integer-field {
-    text-align: center;
+    text-align: left;
+    width: 70px;
 }

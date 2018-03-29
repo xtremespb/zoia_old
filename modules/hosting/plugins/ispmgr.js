@@ -14,29 +14,40 @@ module.exports = class HostingPlugin {
         this.db = app.get('db');
         this.log = app.get('log');
     }
-    async check(id, locale) {
-        const url = configModule.url + '?authinfo=' + configModule.username + ':' + configModule.password + '&out=text&func=user.edit&elid=' + id + '&lang=' + locale;
-        const response = await rp(url, { rejectUnauthorized: false });
-        if (response && response.match(/^ERROR value\(elid\)/)) {
-            return true;
-        } else {
+    async check(id, host, locale) {
+        try {
+            const url = configModule.url[host] + '?authinfo=' + configModule.username + ':' + configModule.password + '&out=text&func=user.edit&elid=' + id + '&lang=' + locale;
+            const response = await rp(url, { rejectUnauthorized: false });
+            console.log(response);
+            if (response && response.match(/^ERROR value\(elid\)/)) {
+                return true;
+            } else {
+                return response;
+            }
+        } catch (e) {
+            this.log.error(e);
             return false;
         }
     }
-    async create(id, preset, password, locale) {
-        const url = configModule.url + '?authinfo=' + configModule.username + ':' + configModule.password + '&out=text&func=user.edit&sok=ok&name=' + id + '&preset=' + preset + '&passwd=' + password + '&lang=' + locale;
-        const response = await rp(url, { rejectUnauthorized: false });
-        if (response && response.match(/^OK/)) {
-            return true;
-        } else {
+    async create(id, host, preset, password, locale) {
+        try {
+            const url = configModule.url[host] + '?authinfo=' + configModule.username + ':' + configModule.password + '&out=text&func=user.edit&sok=ok&name=' + id + '&preset=' + preset + '&passwd=' + password + '&lang=' + locale;
+            const response = await rp(url, { rejectUnauthorized: false });
+            console.log(response);
+            if (response && response.match(/^OK/)) {                
+                return true;
+            } else {
+                return response;
+            }
+        } catch (e) {
+            this.log.error(e);
             return false;
         }
+    }
+    async start(id, host, locale) {
         return;
     }
-    async start(id, locale) {
-        return;
-    }
-    async stop(id, locale) {
+    async stop(id, host, locale) {
         return;
     }
 };

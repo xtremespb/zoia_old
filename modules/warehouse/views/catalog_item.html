@@ -71,7 +71,7 @@
             <!-- -->
             {% if propsType[p.d] == 3 %}            
             <div class="za-margin-top za-margin-bottom za-grid-small" za-grid>
-                <div class="za-width-expand" za-leader><label><input class="za-checkbox za-catalog-item-integer" type="checkbox" data-id="{{ p.d }}" data-price="{{ p.v }}">&nbsp;{{ props[p.d] }}&nbsp;<input class="za-input za-form-width-xsmall za-catalog-item-integer-field za-form-small" value="1" type="number" min="1" step="1" id="za_catalog_item_integer_{{ p.d }}"></label></div>
+                <div class="za-width-expand" za-leader><label><input class="za-checkbox za-catalog-item-integer" type="checkbox" data-id="{{ p.d }}" data-price="{{ p.v }}">&nbsp;{{ props[p.d] }}&nbsp;<input class="za-input za-form-width-small za-catalog-item-integer-field za-form-small" value="1" type="number" min="1" step="1" id="za_catalog_item_integer_{{ p.d }}"></label></div>
                 <div>{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}<span id="za_catalog_item_integer_val_{{ p.d }}">{{ p.v }}</span>{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</div>
             </div>
             {% endif %}

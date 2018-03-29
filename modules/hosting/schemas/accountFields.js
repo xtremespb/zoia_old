@@ -28,6 +28,13 @@
                     return item.trim();
                 }
             },
+            host: {
+                mandatoryCreate: true,
+                type: 'string',
+                process: function(item) {
+                    return item.trim().toLowerCase();
+                }
+            },
             preset: {
                 mandatoryCreate: true,
                 type: 'string',

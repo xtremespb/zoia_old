@@ -4,7 +4,9 @@
         "ru": "₽"
     },
     "currencyPosition": "right",
+    "hosts": ["rw2", "sh1"],
     "defaultPlugin": "ispmgr",
+    "defaultHost": "rw2",
     "presets": [
         { 
             "id": "professional",

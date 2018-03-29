@@ -1,4 +1,5 @@
 let accountCreateDialog;
+let accountProgressDialog;
 
 const formBuilderLang = {
     mandatoryMissing: lang['Should not be empty'],
@@ -32,6 +33,34 @@ const formBuilderHTML = {
     bullet: '&nbsp;<span style="color:red;font-size:140%">&#8226;</span>'
 };
 
+const checkAccountStatus = (id) => {
+    $.ajax({
+        type: 'GET',
+        url: '/api/hosting/account/create/status',
+        data: {
+            id: id
+        },
+        cache: false
+    }).done((res) => {
+        if (res && res.status === 1) {
+            if (res.state && res.state === 2) {
+                accountProgressDialog.hide();
+                $('#zoia_account_table_body').append('<tr><td>' + res.id + '</td><td>' + res.preset + '</td><td>' + res.days + '</td><td><a href="" class="za-icon-button" za-icon="plus"></a></td></tr>');
+                $('#zoia_history_table>tbody').append('<tr><td>' + new Date(parseInt(res.timestamp, 10) * 1000).toLocaleString() + '</td><td>' + (configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + res.sum + (configModule.currencyPosition === 'right' ? '&nbsp;' + configModule.currency[locale] : '') + '</td></tr>');
+                $('.zoia-balance').html(parseFloat($('.zoia-balance').html()) - parseFloat(res.sum));
+                $zUI.modal.alert(lang['Your account has been created successfully and is ready to use.'], { labels: { ok: lang['OK'] }, stack: true });
+            } else {
+                setTimeout(() => {
+                    checkAccountStatus(id);
+                }, 3000);
+            }
+        }
+    }).fail(() => {
+        accountProgressDialog.hide();
+        $zUI.modal.alert(lang['Unable to create new account'], { labels: { ok: lang['OK'] }, stack: true });
+    }, 200);
+};
+
 const accountCreateFormData = {
     template: {
         fields: '<div class="za-modal-body">{fields}</div>',
@@ -51,10 +80,24 @@ const accountCreateFormData = {
                 $('#zoiaAccountForm_passwordConfirm').addClass('za-form-danger');
                 return '__stop';
             }
+            $('#zoiaAccountCreateSpinner').show();
+            $('.zoiaAccountForm-form-button').hide();
             return data;
         },
-        onSaveSuccess: (res) => {},
+        onSaveSuccess: (res) => {
+            $('#zoiaAccountCreateSpinner').hide();
+            $('.zoiaAccountForm-form-button').show();
+            if (res && res.status && res.status === 1 && res.taskID) {
+                accountCreateDialog.hide();
+                accountProgressDialog.show();
+                checkAccountStatus(res.taskID);
+            } else {
+                $zUI.modal.alert(lang['Unable to create new account'], { labels: { ok: lang['OK'] }, stack: true });
+            }
+        },
         onSaveError: (res) => {
+            $('#zoiaAccountCreateSpinner').hide();
+            $('.zoiaAccountForm-form-button').show();
             if (res.error) {
                 $zUI.modal.alert(res.error, { labels: { ok: lang['OK'] }, stack: true });
             } else {
@@ -182,6 +225,10 @@ $(document).ready(() => {
         bgClose: false,
         escClose: false
     });
+    accountProgressDialog = $zUI.modal('#accountProgressDialog', {
+        bgClose: false,
+        escClose: false
+    });
     $('#zoia_btn_account_create').click(() => {
         $('#zoiaAccountForm').zoiaFormBuilder().resetForm();
         calculateTotal();
@@ -191,4 +238,8 @@ $(document).ready(() => {
     $('#zoiaAccountForm_calc').parent().parent().html('<div class="za-alert-warning" za-alert id="zoiaAccountCreateInsufficientFunds" style="margin-bottom:-5px"><p>' + lang['Insufficient funds'] + '</p></div><div class="za-card za-card-default za-card-small za-card-body" style="padding-top:25px;"><p class="za-text-large">' + lang['Total'] + ':&nbsp;<span class="zoia-create-account-total"></span></div>');
     $('#zoiaAccountForm_preset').change(calculateTotal).keypress(calculateTotal);
     $('#zoiaAccountForm_months').change(calculateTotal).keypress(calculateTotal);
+    $('#zoia_history_table>tbody>tr').each(function() {
+        $(this).find('td:first').html(new Date(parseInt($(this).find('td:first').html(), 10) * 1000).toLocaleString());
+    });
+    $('#zoia_history_table').show();
 });

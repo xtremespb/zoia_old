@@ -55,5 +55,12 @@
 	"Plan (price per month)": "Plan (price per month)",
 	"Insufficient funds": "Insufficient funds",
 	"Account with such ID already exists": "Account with such ID already exists",
-	"Unable to create new account": "Unable to create new account"
+	"Unable to create new account": "Unable to create new account",
+	"Your account has been created successfully and is ready to use.": "Your account has been created successfully and is ready to use.",
+	"Creating Account": "Creating Account",
+	"Account creation is in progress, please wait...": "Account creation is in progress, please wait...",
+	"Host": "Host",
+	"History": "History",
+	"Date": "Date",
+	"Sum": "Sum"
 }

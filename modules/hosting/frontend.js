@@ -22,6 +22,7 @@ module.exports = function(app) {
     const db = app.get('db');
     const renderHosting = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
     const renderRoot = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), app);
+    const log = app.get('log');
 
     const list = async(req, res, next) => {
         if (!Module.isAuthorized(req)) {
@@ -48,6 +49,7 @@ module.exports = function(app) {
         }
         let sum = 0;
         try {
+            const transactions = await db.collection('hosting_transactions').find({ ref_id: String(req.session.auth._id) }, { sort: { timestamp: -1 }, limit: 50, projection: { _id: 0, timestamp: 1, sum: 1 } }).toArray() || [];
             const ar = await db.collection('hosting_transactions').aggregate([
                 { $match: { ref_id: String(req.session.auth._id) } },
                 {
@@ -72,7 +74,8 @@ module.exports = function(app) {
                 presetsJSON: JSON.stringify(presetTitles),
                 prices: presetPrices,
                 pricesJSON: JSON.stringify(presetPrices),
-                totalFunds: totalFunds
+                totalFunds: totalFunds,
+                transactions: transactions
             });
             let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Hosting'), {
                 content: listHTML,

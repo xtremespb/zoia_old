@@ -7,6 +7,7 @@ let userDialog;
 let accountDialog;
 let presetTitles = {};
 let pluginTitles = {};
+let hosts = {};
 
 const bindAccountButtonHandlers = () => {
     $('.zoia-account-edit').unbind().click(function(e) {
@@ -307,6 +308,16 @@ const accountFormData = {
                 mandatoryCreate: true,
             }
         },
+        host: {
+            type: 'select',
+            label: lang['Host'],
+            css: 'za-width-large',
+            autofocus: false,
+            values: hosts,
+            validation: {
+                mandatoryCreate: true,
+            }
+        },
         plugin: {
             type: 'select',
             label: lang['Plugin'],
@@ -338,6 +349,9 @@ const accountFormData = {
 const init = () => {
     for (let i in configModule.presets) {
         presetTitles[configModule.presets[i].id] = configModule.presets[i].titles[locale];
+    }
+    for (let i in configModule.hosts) {
+        hosts[configModule.hosts[i]] = configModule.hosts[i];
     }
     for (let i in plugins) {
         pluginTitles[plugins[i]] = plugins[i];
