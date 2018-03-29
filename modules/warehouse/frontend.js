@@ -460,6 +460,8 @@ module.exports = function(app) {
         let props = {};
         let propsType = {};
         let propsValues = {};
+        let propsFloats = {};
+        let propsPostfixes = {};
         if (data[locale]) {
             for (let i in data[locale].properties) {
                 propsQuery.push({ pid: data[locale].properties[i].d });
@@ -471,6 +473,7 @@ module.exports = function(app) {
                 for (let i in dataProps) {
                     props[dataProps[i].pid] = dataProps[i].title[locale];
                     propsType[dataProps[i].pid] = dataProps[i].type;
+                    propsPostfixes[dataProps[i].pid] = (dataProps[i].pid.match(/_float$/)) ? 'float' : undefined;
                     if (dataProps[i].type === '4') {
                         const [title, values] = dataProps[i].title[locale].split(/\|/);
                         props[dataProps[i].pid] = title;
@@ -516,6 +519,7 @@ module.exports = function(app) {
             props: props,
             propsType: propsType,
             propsValues: propsValues,
+            propsPostfixes: propsPostfixes,
             variants: variants,
             cartCount: cartCount,
             auth: req.session.auth
@@ -573,7 +577,9 @@ module.exports = function(app) {
             }
             let ffields = { _id: 1, price: 1, variants: 1 };
             ffields[locale + '.title'] = 1;
-            const cartDB = await db.collection('warehouse').find({ $or: query }, ffields).toArray();
+            ffields[locale + '.properties'] = 1;
+            const what = { $or: query };
+            const cartDB = await db.collection('warehouse').find({ $or: query }, { sort: {}, projection: ffields }).toArray();
             if (cartDB && cartDB.length) {
                 let propertiesData = {};
                 let propertiesCost = {};
@@ -642,7 +648,7 @@ module.exports = function(app) {
                             integersID.push(iid);
                         }
                         if (propertiesCost[iid]) {
-                            price += parseFloat(propertiesCost[iid]) * parseInt(cnt, 10);
+                            price += parseFloat(propertiesCost[iid]) * parseFloat(cnt);
                         }
                     }
                     let selectsID = [];
@@ -755,7 +761,8 @@ module.exports = function(app) {
             }
             let ffields = { _id: 1, price: 1, variants: 1 };
             ffields[locale + '.title'] = 1;
-            const cartDB = await db.collection('warehouse').find({ $or: query }, ffields).toArray();
+            ffields[locale + '.properties'] = 1;
+            const cartDB = await db.collection('warehouse').find({ $or: query }).toArray();
             if (cartDB && cartDB.length) {
                 let propertiesData = {};
                 let propertiesCost = {};
@@ -825,7 +832,7 @@ module.exports = function(app) {
                             integersID.push(iid);
                         }
                         if (propertiesCost[iid]) {
-                            price += parseFloat(propertiesCost[iid]) * parseInt(cnt, 10);
+                            price += parseFloat(propertiesCost[iid]) * parseFloat(cnt);
                         }
                     }
                     let selectsID = [];

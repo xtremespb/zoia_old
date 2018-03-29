@@ -19,7 +19,7 @@ const calculatePrice = () => {
     $('.za-catalog-item-integer').each(function() {
         if ($(this).is(':checked')) {
             const id = $(this).attr('data-id');
-            let val = parseInt($('#za_catalog_item_integer_' + id).val(), 10);
+            let val = id.match(/_float$/) ? parseFloat($('#za_catalog_item_integer_' + id).val()).toFixed(2) : parseInt($('#za_catalog_item_integer_' + id).val(), 10);
             if (!val) {
                 val = 1;
             }

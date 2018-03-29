@@ -3085,7 +3085,7 @@ module.exports = function(app) {
             const [iid, cnt] = cart[uid].integers[p].split('|');
             for (let i in item[locale].properties) {
                 if (item[locale].properties[i].d === iid) {
-                    subtotal += parseFloat(item[locale].properties[i].v) * parseInt(cnt, 10) * count;
+                    subtotal += parseFloat(item[locale].properties[i].v) * parseFloat(cnt) * count;
                 }
             }
         }
@@ -3312,7 +3312,7 @@ module.exports = function(app) {
                                 integersID.push(iid);
                             }
                             if (propertiesCost[iid]) {
-                                price += parseFloat(propertiesCost[iid]) * parseInt(cnt, 10);
+                                price += parseFloat(propertiesCost[iid]) * parseFloat(cnt);
                             }
                         }
                         let selectsID = [];
