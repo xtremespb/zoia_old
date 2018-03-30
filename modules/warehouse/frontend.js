@@ -309,16 +309,25 @@ module.exports = function(app) {
         let what = {
             status: '1'
         };
+        what.$and = [];
         if (children.length) {
-            what.$or = children;
+            what.$and.push({
+                $or: children
+            });
         }
+        let or2 = [];
         for (let i in textWords) {
-            if (!what.$or) {
-                what.$or = [];
-            }
             let item = {};
             item[locale + '.title'] = { $regex: textWords[i], $options: 'i' };
-            what.$or.push(item);
+            or2.push(item);
+        }
+        if (or2.length) {
+        	what.$and.push({
+        		$or: or2
+        	});
+        }
+        if (!what.$and.length) {
+        	delete what.$and;
         }
         let ffields = { _id: 1, folder: 1, sku: 1, status: 1, price: 1, images: 1 };
         ffields[locale + '.title'] = 1;
@@ -485,7 +494,7 @@ module.exports = function(app) {
         if (data[locale]) {
             for (let i in data[locale].properties) {
                 if (propsValues[data[locale].properties[i].d]) {
-                    data[locale].properties[i].v = data[locale].properties[i].v.split(/,/);                    
+                    data[locale].properties[i].v = data[locale].properties[i].v.split(/,/);
                 }
             }
         }
