@@ -22,10 +22,10 @@
                 <tbody class="zoia-accounts-tbody" id="zoia_account_table_body">
                     {% if accounts.length > 0 %} {% for account in accounts %}
                     <tr>
-                        <td>{{ account.id }}</td>
-                        <td>{{ presets[account.preset] }}</td>
+                        <td class="zoia-accounts-id">{{ account.id }}</td>
+                        <td data="{{ account.preset }}">{{ presets[account.preset] }}</td>
                         <td>{{ account.days }}</td>
-                        <td><a href="" class="za-icon-button" za-icon="plus"></a></td>
+                        <td><a href="" class="za-icon-button zoia-btn-extend" za-icon="plus"></a></td>
                     </tr>
                     {% endfor %} {% else %}
                     <tr class="zoia-accounts-empty">
@@ -67,6 +67,21 @@
             <p id="createAccountDialogErrorText"></p>
         </div>
         <form id="zoiaAccountForm">
+            <div class="za-flex za-flex-center za-margin-bottom">
+                <div za-spinner class="za-margin-top za-margin-bottom"></div>
+            </div>
+        </form>
+    </div>
+</div>
+<div id="extendAccountDialog" style="display:none">
+    <div class="za-modal-dialog">
+        <div class="za-modal-header">
+            <h2>{{ i18n.__(locale, 'Account Prolongation')}}</h2>
+        </div>
+        <div class="za-alert-danger" za-alert style="display:none;margin-top:0;margin-bottom:0" id="extendAccountDialogError">
+            <p id="extendAccountDialogErrorText"></p>
+        </div>
+        <form id="zoiaAccountExtendForm">
             <div class="za-flex za-flex-center za-margin-bottom">
                 <div za-spinner class="za-margin-top za-margin-bottom"></div>
             </div>

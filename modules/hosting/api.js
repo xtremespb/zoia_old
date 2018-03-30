@@ -454,6 +454,7 @@ module.exports = function(app) {
                 state: 1,
                 id: fields.id.value,
                 preset: presetTitle,
+                presetID: preset,
                 days: days,
                 sum: transactionSum,
                 timestamp: timestamp
@@ -538,9 +539,110 @@ module.exports = function(app) {
                 state: task.state || 0,
                 id: task.id,
                 preset: task.preset,
+                presetID: task.presetID,
                 days: task.days,
                 sum: task.sum,
                 timestamp: task.timestamp
+            }));
+        } catch (e) {
+            log.error(e);
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
+    const accountExtend = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorized(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const locale = req.session.currentLocale;
+        const id = req.body.id;
+        const months = req.body.months;
+        if (!id || typeof id !== 'string' || !id.match(/^[A-Za-z0-9_\-]+$/)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        if (!months || typeof months !== 'string' || !months.match(/^[0-9]{1,2}$/)) {
+            return res.send(JSON.stringify({
+                status: 0,
+                fields: ['months']
+            }));
+        }
+        const days = parseInt(months, 10) * 30;
+        try {
+            const account = await db.collection('hosting_accounts').findOne({ id: id });
+            if (!account) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            let preset;
+            for (let i in configModule.presets) {
+                if (configModule.presets[i].id === account.preset) {
+                    preset = configModule.presets[i];
+                }
+            }
+            if (!preset) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            const cost = parseFloat(preset.cost) * months;
+            const ag = await db.collection('hosting_transactions').aggregate([
+                { $match: { ref_id: String(req.session.auth._id) } },
+                {
+                    $group: {
+                        _id: null,
+                        total: {
+                            $sum: "$sum"
+                        }
+                    }
+                }
+            ]).toArray();
+            let funds = 0;
+            if (ag && ag.length > 0) {
+                funds = parseFloat(ag[0].total);
+            }
+            if (cost > funds) {
+                return res.send(JSON.stringify({
+                    status: 0,
+                    fields: ['months'],
+                    error: i18n.get().__(locale, 'Insufficient funds')
+                }));
+            }
+            const Plugin = require(path.join(__dirname, 'plugins', configModule.defaultPlugin));
+            const plugin = new Plugin(app);
+            const start = await plugin.start(account.id, account.host, locale);
+            if (start !== true) {
+                return res.send(JSON.stringify({
+                    status: 0,
+                    error: i18n.get().__(locale, 'Could not enable requested account')
+                }));
+            }
+            const update = await db.collection('hosting_accounts').findAndModify({ id: account.id }, [], { $inc: { days: days } }, { new: true, upsert: true });
+            if (!update || !update.value || !update.value._id) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            const timestamp = parseInt(Date.now() / 1000);
+            const insResult = await db.collection('hosting_transactions').insertOne({ ref_id: account.ref_id, timestamp: timestamp, sum: (cost * -1) });
+            if (!insResult || !insResult.result || !insResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            return res.send(JSON.stringify({
+                status: 1,
+                sum: cost,
+                timestamp: timestamp,
+                days: (parseInt(days) + parseInt(account.days))
             }));
         } catch (e) {
             log.error(e);
@@ -560,6 +662,7 @@ module.exports = function(app) {
     router.get('/account/delete', accountDelete);
     router.post('/account/create', accountCreate);
     router.get('/account/create/status', accountCreateStatus);
+    router.post('/account/extend', accountExtend);
 
     return {
         routes: router

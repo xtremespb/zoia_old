@@ -62,5 +62,10 @@
 	"Host": "Host",
 	"History": "History",
 	"Date": "Date",
-	"Sum": "Sum"
+	"Sum": "Sum",
+	"Account Prolongation": "Account Prolongation",
+	"Prolong": "Prolong",
+	"Unable to prolong account": "Unable to prolong account",
+	"Could not enable requested account": "Could not enable requested account",
+	"Prolongation was successful": "Prolongation was successful"
 }

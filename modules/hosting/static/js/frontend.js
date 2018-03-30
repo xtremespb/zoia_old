@@ -1,5 +1,7 @@
 let accountCreateDialog;
 let accountProgressDialog;
+let accountExtendCost;
+let accountExtendID;
 
 const formBuilderLang = {
     mandatoryMissing: lang['Should not be empty'],
@@ -45,20 +47,34 @@ const checkAccountStatus = (id) => {
         if (res && res.status === 1) {
             if (res.state && res.state === 2) {
                 accountProgressDialog.hide();
-                $('#zoia_account_table_body').append('<tr><td>' + res.id + '</td><td>' + res.preset + '</td><td>' + res.days + '</td><td><a href="" class="za-icon-button" za-icon="plus"></a></td></tr>');
-                $('#zoia_history_table>tbody').append('<tr><td>' + new Date(parseInt(res.timestamp, 10) * 1000).toLocaleString() + '</td><td>' + (configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + res.sum + (configModule.currencyPosition === 'right' ? '&nbsp;' + configModule.currency[locale] : '') + '</td></tr>');
-                $('.zoia-balance').html(parseFloat($('.zoia-balance').html()) - parseFloat(res.sum));
+                $('#zoia_account_table_body').append('<tr><td class="zoia-accounts-id">' + res.id + '</td><td data="' + res.presetID + '">' + res.preset + '</td><td>' + res.days + '</td><td><a href="" class="za-icon-button zoia-btn-extend" za-icon="plus"></a></td></tr>');
+                $('#zoia_history_table>tbody').prepend('<tr><td>' + new Date(parseInt(res.timestamp, 10) * 1000).toLocaleString() + '</td><td><span za-icon="' + (res.sum < 0 ? 'minus' : 'plus') + '-circle"></span>&nbsp;' + (configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + Math.abs(res.sum) + (configModule.currencyPosition === 'right' ? '&nbsp;' + configModule.currency[locale] : '') + '</td></tr>');
+                const total = parseFloat($('.zoia-balance').html()) - Math.abs(parseFloat(res.sum));
+                $('.zoia-balance').html(total);
+                totalFunds = total;
                 $zUI.modal.alert(lang['Your account has been created successfully and is ready to use.'], { labels: { ok: lang['OK'] }, stack: true });
             } else {
                 setTimeout(() => {
                     checkAccountStatus(id);
                 }, 3000);
             }
+        } else {
+            accountProgressDialog.hide();
+            $zUI.modal.alert(lang['Unable to create new account'], { labels: { ok: lang['OK'] }, stack: true });
         }
     }).fail(() => {
         accountProgressDialog.hide();
         $zUI.modal.alert(lang['Unable to create new account'], { labels: { ok: lang['OK'] }, stack: true });
     }, 200);
+};
+
+const btnExtendClickHandler = function(e) {
+    e.preventDefault();
+    accountExtendCost = parseFloat(prices[$(this).parent().parent().find('td:eq(1)').attr('data')]);
+    accountExtendID = $(this).parent().parent().find('td:eq(0)').html();
+    calculateExtendTotal();
+    $('#zoiaAccountExtendForm').zoiaFormBuilder().resetForm();
+    accountExtendDialog.show();
 };
 
 const accountCreateFormData = {
@@ -206,7 +222,106 @@ const accountCreateFormData = {
     lang: formBuilderLang
 };
 
-const calculateTotal = () => {
+const accountExtendFormData = {
+    template: {
+        fields: '<div class="za-modal-body">{fields}</div>',
+        buttons: '{buttons}'
+    },
+    formDangerClass: 'za-form-danger',
+    html: formBuilderHTML,
+    events: {
+        onSaveValidate: (data) => {
+            data.id = accountExtendID;
+            $('#zoiaAccountExtendSpinner').show();
+            $('.zoiaAccountExtendForm-form-button').hide();
+            return data;
+        },
+        onSaveSuccess: (res) => {
+            $('#zoiaAccountExtendSpinner').hide();
+            $('.zoiaAccountExtendForm-form-button').show();
+            if (res && res.status === 1) {
+                accountExtendDialog.hide();
+                $('.zoia-accounts-id').each(function() {
+                    if ($(this).html() === accountExtendID) {
+                        $(this).parent().find('td:eq(2)').html(res.days);
+                    }
+                });
+                $('#zoia_history_table>tbody').prepend('<tr><td>' + new Date(parseInt(res.timestamp, 10) * 1000).toLocaleString() + '</td><td><span za-icon="minus-circle"></span>&nbsp;' + (configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + res.sum + (configModule.currencyPosition === 'right' ? '&nbsp;' + configModule.currency[locale] : '') + '</td></tr>');
+                const total = parseFloat($('.zoia-balance').html()) - Math.abs(parseFloat(res.sum));
+                $('.zoia-balance').html(total);
+                totalFunds = total;
+                $zUI.modal.alert(lang['Prolongation was successful'], { labels: { ok: lang['OK'] }, stack: true });
+            } else {                
+                $zUI.modal.alert(lang['Unable to prolong account'], { labels: { ok: lang['OK'] }, stack: true });
+            }
+        },
+        onSaveError: (res) => {
+            $('#zoiaAccountExtendSpinner').hide();
+            $('.zoiaAccountExtendForm-form-button').show();
+            if (res.error) {
+                $zUI.modal.alert(res.error, { labels: { ok: lang['OK'] }, stack: true });
+            } else {
+                $zUI.modal.alert(lang['Unable to prolong account'], { labels: { ok: lang['OK'] }, stack: true });
+            }
+            for (let i in res.fields) {
+                $('#zoiaAccountExtendForm_' + res.fields[i]).addClass('za-form-danger');
+            }
+            if (res.fields && res.fields.length) {
+                $('#zoiaAccountExtendForm_' + res.fields[0]).focus();
+            }
+        }
+    },
+    save: {
+        url: '/api/hosting/account/extend',
+        method: 'POST'
+    },
+    items: {
+        months: {
+            type: 'select',
+            label: lang['Months'],
+            css: 'za-width-small',
+            autofocus: false,
+            values: {
+                1: '1',
+                2: '2',
+                3: '3',
+                4: '4',
+                5: '5',
+                6: '6',
+                7: '7',
+                8: '8',
+                9: '9',
+                10: '10',
+                11: '11',
+                12: '12',
+            },
+            validation: {
+                mandatoryCreate: true
+            }
+        },
+        calc: {
+            type: 'text',
+            label: ''
+        },
+        buttons: {
+            type: 'buttons',
+            css: 'za-modal-footer za-text-right',
+            buttons: [{
+                label: lang['Cancel'],
+                css: 'za-button-default za-modal-close'
+            }, {
+                name: 'btnSave',
+                label: lang['Prolong'],
+                css: 'za-button-primary',
+                type: 'submit'
+            }],
+            html: '<div za-spinner style="float:right;display:none" id="zoiaAccountExtendSpinner"></div>'
+        }
+    },
+    lang: formBuilderLang
+};
+
+const calculateCreateTotal = () => {
     const preset = $('#zoiaAccountForm_preset').val();
     const months = $('#zoiaAccountForm_months').val();
     const total = prices[preset] * months;
@@ -220,8 +335,25 @@ const calculateTotal = () => {
     $('.zoia-create-account-total').html((configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + total + (configModule.currencyPosition === 'right' ? '&nbsp;' + configModule.currency[locale] : ''));
 };
 
+const calculateExtendTotal = () => {
+    const months = $('#zoiaAccountExtendForm_months').val();
+    const total = accountExtendCost * months;
+    if (total > totalFunds) {
+        $('#zoiaAccountExtendForm_btnSave').prop('disabled', true);
+        $('#zoiaAccountExtendInsufficientFunds').show();
+    } else {
+        $('#zoiaAccountExtendForm_btnSave').prop('disabled', false);
+        $('#zoiaAccountExtendInsufficientFunds').hide();
+    }
+    $('.zoia-extend-account-total').html((configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + total + (configModule.currencyPosition === 'right' ? '&nbsp;' + configModule.currency[locale] : ''));
+};
+
 $(document).ready(() => {
     accountCreateDialog = $zUI.modal('#createAccountDialog', {
+        bgClose: false,
+        escClose: false
+    });
+    accountExtendDialog = $zUI.modal('#extendAccountDialog', {
         bgClose: false,
         escClose: false
     });
@@ -231,15 +363,19 @@ $(document).ready(() => {
     });
     $('#zoia_btn_account_create').click(() => {
         $('#zoiaAccountForm').zoiaFormBuilder().resetForm();
-        calculateTotal();
+        calculateCreateTotal();
         accountCreateDialog.show();
     });
     $('#zoiaAccountForm').zoiaFormBuilder(accountCreateFormData);
+    $('#zoiaAccountExtendForm').zoiaFormBuilder(accountExtendFormData);
     $('#zoiaAccountForm_calc').parent().parent().html('<div class="za-alert-warning" za-alert id="zoiaAccountCreateInsufficientFunds" style="margin-bottom:-5px"><p>' + lang['Insufficient funds'] + '</p></div><div class="za-card za-card-default za-card-small za-card-body" style="padding-top:25px;"><p class="za-text-large">' + lang['Total'] + ':&nbsp;<span class="zoia-create-account-total"></span></div>');
-    $('#zoiaAccountForm_preset').change(calculateTotal).keypress(calculateTotal);
-    $('#zoiaAccountForm_months').change(calculateTotal).keypress(calculateTotal);
+    $('#zoiaAccountForm_preset').change(calculateCreateTotal).keypress(calculateCreateTotal);
+    $('#zoiaAccountForm_months').change(calculateCreateTotal).keypress(calculateCreateTotal);
+    $('#zoiaAccountExtendForm_months').change(calculateExtendTotal).keypress(calculateExtendTotal);
+    $('#zoiaAccountExtendForm_calc').parent().parent().html('<div class="za-alert-warning" za-alert id="zoiaAccountExtendInsufficientFunds" style="margin-bottom:-5px;display:none"><p>' + lang['Insufficient funds'] + '</p></div><div class="za-card za-card-default za-card-small za-card-body" style="padding-top:25px;"><p class="za-text-large">' + lang['Total'] + ':&nbsp;<span class="zoia-extend-account-total"></span></div>');
     $('#zoia_history_table>tbody>tr').each(function() {
         $(this).find('td:first').html(new Date(parseInt($(this).find('td:first').html(), 10) * 1000).toLocaleString());
     });
     $('#zoia_history_table').show();
+    $('.zoia-btn-extend').unbind().click(btnExtendClickHandler);
 });

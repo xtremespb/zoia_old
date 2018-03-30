@@ -18,10 +18,10 @@ module.exports = class HostingPlugin {
         try {
             const url = configModule.url[host] + '?authinfo=' + configModule.username + ':' + configModule.password + '&out=text&func=user.edit&elid=' + id + '&lang=' + locale;
             const response = await rp(url, { rejectUnauthorized: false });
-            console.log(response);
             if (response && response.match(/^ERROR value\(elid\)/)) {
                 return true;
             } else {
+                this.log.error('hosting/check ' + id + ' ' + host + ' ' + response);
                 return response;
             }
         } catch (e) {
@@ -33,10 +33,10 @@ module.exports = class HostingPlugin {
         try {
             const url = configModule.url[host] + '?authinfo=' + configModule.username + ':' + configModule.password + '&out=text&func=user.edit&sok=ok&name=' + id + '&preset=' + preset + '&passwd=' + password + '&lang=' + locale;
             const response = await rp(url, { rejectUnauthorized: false });
-            console.log(response);
-            if (response && response.match(/^OK/)) {                
+            if (response && response.match(/^OK/)) {
                 return true;
             } else {
+                this.log.error('hosting/create ' + id + ' ' + host + ' ' + response);
                 return response;
             }
         } catch (e) {
@@ -45,9 +45,33 @@ module.exports = class HostingPlugin {
         }
     }
     async start(id, host, locale) {
-        return;
+        try {
+            const url = configModule.url[host] + '?authinfo=' + configModule.username + ':' + configModule.password + '&out=text&func=user.resume&elid=' + id + '&lang=' + locale;
+            const response = await rp(url, { rejectUnauthorized: false });
+            if (response && !response.match(/^ERROR/)) {
+                return true;
+            } else {
+                this.log.error('hosting/start ' + id + ' ' + host + ' ' + response);
+                return response;
+            }
+        } catch (e) {
+            this.log.error(e);
+            return false;
+        }
     }
     async stop(id, host, locale) {
-        return;
+        try {
+            const url = configModule.url[host] + '?authinfo=' + configModule.username + ':' + configModule.password + '&out=text&func=user.suspend&elid=' + id + '&lang=' + locale;
+            const response = await rp(url, { rejectUnauthorized: false });
+            if (response && !response.match(/^ERROR/)) {
+                return true;
+            } else {
+                this.log.error('hosting/stop ' + id + ' ' + host + ' ' + response);
+                return response;
+            }
+        } catch (e) {
+            this.log.error(e);
+            return false;
+        }
     }
 };
