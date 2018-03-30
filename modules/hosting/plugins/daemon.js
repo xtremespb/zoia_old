@@ -1,13 +1,19 @@
 module.exports = class HostingPlugin {
     constructor(app) {
     }
-    async create(id, preset) {
+    async getControlPanelURL(host) {
+        return '';
+    }
+    async check(id, host, locale) {
         return;
     }
-    async start(id) {
+    async create(id, host, preset, password, locale) {
         return;
     }
-    async stop(id) {
+    async start(id, host, locale) {
+        return;
+    }
+    async stop(id, host, locale) {
         return;
     }
 };

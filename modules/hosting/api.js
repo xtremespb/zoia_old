@@ -20,6 +20,8 @@ module.exports = function(app) {
     const log = app.get('log');
     const db = app.get('db');
     const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
+    const mailer = new(require(path.join(__dirname, '..', '..', 'core', 'mailer.js')))(app);
+    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
 
     const sortFields = ['username'];
 
@@ -84,7 +86,7 @@ module.exports = function(app) {
                         }
                     }
                 ]).toArray();
-                amtTransactions = {};
+                let amtTransactions = {};
                 for (let i in agr) {
                     amtTransactions[agr[i]._id.ref_id] = agr[i].total
                 }
@@ -139,8 +141,7 @@ module.exports = function(app) {
                 }));
             }
             delete user.password;
-            const data = await db.collection('hosting').findOne({ ref_id: String(user._id) }) || {};
-            const accounts = await db.collection('hosting_accounts').find({ ref_id: String(user._id) }, { projection: { id: 1, plugin: 1, preset: 1, days: 1 } }).toArray() || [];
+            const accounts = await db.collection('hosting_accounts').find({ ref_id: String(user._id) }, { sort: {}, projection: { id: 1, plugin: 1, preset: 1, days: 1 } }).toArray() || [];
             const transactions = await db.collection('hosting_transactions').find({ ref_id: String(user._id) }, { sort: { timestamp: -1 }, limit: 50, projection: { _id: 0, timestamp: 1, sum: 1 } }).toArray() || [];
             const ar = await db.collection('hosting_transactions').aggregate([
                 { $match: { ref_id: String(user._id) } },
@@ -148,7 +149,7 @@ module.exports = function(app) {
                     $group: {
                         _id: null,
                         total: {
-                            $sum: "$sum"
+                            $sum: '$sum'
                         }
                     }
                 }
@@ -169,7 +170,6 @@ module.exports = function(app) {
                 error: e.message
             }));
         }
-
     };
 
     const correction = async(req, res) => {
@@ -447,8 +447,8 @@ module.exports = function(app) {
                     error: i18n.get().__(locale, 'Account with such ID already exists')
                 }));
             }
-            const timestamp = parseInt(Date.now() / 1000);
-            const days = parseInt(fields.months.value) * 30;
+            const timestamp = parseInt(Date.now() / 1000, 10);
+            const days = parseInt(fields.months.value, 10) * 30;
             const transactionSum = parseFloat(cost) * -1;
             const insTaskResult = await db.collection('hosting_tasks').insertOne({
                 state: 1,
@@ -480,8 +480,21 @@ module.exports = function(app) {
                                 failed = true;
                             }
                         }
+                        if (!failed) {
+                            let mailHTML = await render.file('mail_account_new.html', {
+                                i18n: i18n.get(),
+                                locale: locale,
+                                lang: JSON.stringify(i18n.get().locales[locale]),
+                                config: config,
+                                url: await plugin.getControlPanelURL(configModule.hosts[configModule.hosts.indexOf(configModule.defaultHost)]),
+                                username: fields.id.value,
+                                days: days
+                            });
+                            await mailer.send(req, req.session.auth.email, i18n.get().__(locale, 'New Hosting Account'), mailHTML);
+                        }
                         await db.collection('hosting_tasks').update({ _id: new ObjectID(taskID) }, { $set: { state: failed ? 0 : 2 } }, { upsert: true });
                     } catch (e) {
+                        console.log(e);
                         log.error(e);
                     }
                 } else {
@@ -545,6 +558,7 @@ module.exports = function(app) {
                 timestamp: task.timestamp
             }));
         } catch (e) {
+            console.log(e);
             log.error(e);
             res.send(JSON.stringify({
                 status: 0,
@@ -600,7 +614,7 @@ module.exports = function(app) {
                     $group: {
                         _id: null,
                         total: {
-                            $sum: "$sum"
+                            $sum: '$sum'
                         }
                     }
                 }
@@ -631,7 +645,7 @@ module.exports = function(app) {
                     status: 0
                 }));
             }
-            const timestamp = parseInt(Date.now() / 1000);
+            const timestamp = parseInt(Date.now() / 1000, 10);
             const insResult = await db.collection('hosting_transactions').insertOne({ ref_id: account.ref_id, timestamp: timestamp, sum: (cost * -1) });
             if (!insResult || !insResult.result || !insResult.result.ok) {
                 return res.send(JSON.stringify({
@@ -642,9 +656,10 @@ module.exports = function(app) {
                 status: 1,
                 sum: cost,
                 timestamp: timestamp,
-                days: (parseInt(days) + parseInt(account.days))
+                days: (parseInt(days, 10) + parseInt(account.days, 10))
             }));
         } catch (e) {
+            console.log(e);
             log.error(e);
             res.send(JSON.stringify({
                 status: 0,

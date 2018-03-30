@@ -67,5 +67,10 @@
 	"Prolong": "Prolong",
 	"Unable to prolong account": "Unable to prolong account",
 	"Could not enable requested account": "Could not enable requested account",
-	"Prolongation was successful": "Prolongation was successful"
+	"Prolongation was successful": "Prolongation was successful",
+	"Your new hosting account has been created and is ready to use.": "Your new hosting account has been created and is ready to use.",
+	"Username:": "Username:",
+	"Days:": "Days:",
+	"Control Panel": "Control Panel",
+	"New Hosting Account": "New Hosting Account"
 }

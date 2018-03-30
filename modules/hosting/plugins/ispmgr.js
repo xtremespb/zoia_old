@@ -14,6 +14,9 @@ module.exports = class HostingPlugin {
         this.db = app.get('db');
         this.log = app.get('log');
     }
+    async getControlPanelURL(host) {
+        return configModule.url[host];
+    }
     async check(id, host, locale) {
         try {
             const url = configModule.url[host] + '?authinfo=' + configModule.username + ':' + configModule.password + '&out=text&func=user.edit&elid=' + id + '&lang=' + locale;

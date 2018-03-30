@@ -43,7 +43,7 @@ module.exports = function(app) {
         }
         let accounts = [];
         try {
-            accounts = await db.collection('hosting_accounts').find({ ref_id: String(req.session.auth._id) }, { projection: { id: 1, preset: 1, days: 1 } }).toArray() || [];
+            accounts = await db.collection('hosting_accounts').find({ ref_id: String(req.session.auth._id) }, { sort: {}, projection: { id: 1, preset: 1, days: 1 } }).toArray() || [];
         } catch (e) {
             log.error(e);
         }
@@ -56,12 +56,12 @@ module.exports = function(app) {
                     $group: {
                         _id: null,
                         total: {
-                            $sum: "$sum"
+                            $sum: '$sum'
                         }
                     }
                 }
             ]).toArray();
-            const totalFunds = ar[0].total || 0;
+            const totalFunds = ar.length > 0 ? ar[0].total : 0;
             let listHTML = await renderHosting.file(templateList, {
                 i18n: i18n.get(),
                 locale: locale,
@@ -84,6 +84,7 @@ module.exports = function(app) {
             });
             res.send(html);
         } catch (e) {
+            console.log(e);
             log.error(e);
             return next();
         }
