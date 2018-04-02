@@ -7,6 +7,8 @@
     "hosts": ["rw2", "sh1"],
     "defaultPlugin": "ispmgr",
     "defaultHost": "rw2",
+    "defaultSum": 1000,
+    "paymentPlugin": "robokassa",
     "presets": [
         { 
             "id": "professional",

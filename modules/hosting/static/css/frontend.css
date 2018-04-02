@@ -5,3 +5,19 @@
 #zoiaAccountForm_passwordConfirm {
 	margin-left: 5px;
 }
+
+#topup_captcha {
+    width: 100px;
+    height: 50px;
+    text-align: center;
+    font-size: 120%;
+}
+
+.topup-captcha-img {
+	border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer; 
+} 
+
+.zoia-topup-currency {
+}

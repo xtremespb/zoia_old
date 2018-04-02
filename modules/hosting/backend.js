@@ -6,7 +6,7 @@ const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
 const fs = require('fs');
-const plugins = fs.readdirSync(path.join(__dirname, 'plugins'));
+const plugins = fs.readdirSync(path.join(__dirname, 'plugins_hosting'));
 for (let i in plugins) { plugins[i] = plugins[i].replace(/\.js$/, ''); }
 let configModule;
 try {

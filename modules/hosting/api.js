@@ -7,7 +7,7 @@ const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const accountFields = require(path.join(__dirname, 'schemas', 'accountFields.js'));
 const newAccountFields = require(path.join(__dirname, 'schemas', 'newAccountFields.js'));
 const fs = require('fs');
-const plugins = fs.readdirSync(path.join(__dirname, 'plugins'));
+const plugins = fs.readdirSync(path.join(__dirname, 'plugins_hosting'));
 for (let i in plugins) { plugins[i] = plugins[i].replace(/\.js$/, ''); }
 let configModule;
 try {
@@ -437,7 +437,7 @@ module.exports = function(app) {
                 }));
             }
             const account = await db.collection('hosting_accounts').findOne({ id: fields.id.value });
-            const Plugin = require(path.join(__dirname, 'plugins', configModule.defaultPlugin));
+            const Plugin = require(path.join(__dirname, 'plugins_hosting', configModule.defaultPlugin));
             const plugin = new Plugin(app);
             //const accountAvailable = await plugin.check(fields.id.value, configModule.hosts[configModule.hosts.indexOf(configModule.defaultHost)], locale);
             const accountAvailable = true;
@@ -482,6 +482,7 @@ module.exports = function(app) {
                                 failed = true;
                             }
                         }*/
+                        const password = fields.password.value[0] + fields.password.value.replace(/./gm, '*').replace(/^./, '').replace(/.$/, '') + fields.password.value[fields.password.value.length - 1];
                         if (!failed) {
                             let mailHTML = await render.file('mail_account_new.html', {
                                 i18n: i18n.get(),
@@ -490,6 +491,7 @@ module.exports = function(app) {
                                 config: config,
                                 url: await plugin.getControlPanelURL(configModule.hosts[configModule.hosts.indexOf(configModule.defaultHost)]),
                                 username: fields.id.value,
+                                password: password,
                                 days: days
                             });
                             await mailer.send(req, req.session.auth.email, i18n.get().__(locale, 'New Hosting Account'), mailHTML);
@@ -632,9 +634,10 @@ module.exports = function(app) {
                     error: i18n.get().__(locale, 'Insufficient funds')
                 }));
             }
-            const Plugin = require(path.join(__dirname, 'plugins', configModule.defaultPlugin));
+            const Plugin = require(path.join(__dirname, 'plugins_hosting', configModule.defaultPlugin));
             const plugin = new Plugin(app);
-            const start = await plugin.start(account.id, account.host, locale);
+            //const start = await plugin.start(account.id, account.host, locale);
+            const start = true;
             if (start !== true) {
                 return res.send(JSON.stringify({
                     status: 0,
@@ -654,6 +657,16 @@ module.exports = function(app) {
                     status: 0
                 }));
             }
+            let mailHTML = await render.file('mail_account_extend.html', {
+                i18n: i18n.get(),
+                locale: locale,
+                lang: JSON.stringify(i18n.get().locales[locale]),
+                config: config,
+                url: await plugin.getControlPanelURL(configModule.hosts[configModule.hosts.indexOf(configModule.defaultHost)]),
+                username: account.id,
+                days: days
+            });
+            await mailer.send(req, req.session.auth.email, i18n.get().__(locale, 'Prolongation of Account'), mailHTML);
             return res.send(JSON.stringify({
                 status: 1,
                 sum: cost,

@@ -72,5 +72,17 @@
 	"Username:": "Username:",
 	"Days:": "Days:",
 	"Control Panel": "Control Panel",
-	"New Hosting Account": "New Hosting Account"
+	"New Hosting Account": "New Hosting Account",
+	"Password:": "Password:",
+	"Control panel:": "Control panel:",
+	"If you have any questions about your new hosting account, please contact support to get help.": "If you have any questions about your new hosting account, please contact support to get help.",
+	"Please use the following credentials to access the hosting control panel": "Please use the following credentials to access the hosting control panel",
+	"The prolongation of your hosting account was successful.": "The prolongation of your hosting account was successful.",
+	"If you have any questions about your hosting account, please contact support to get help.": "If you have any questions about your hosting account, please contact support to get help.",
+	"Top-Up": "Top-Up",
+	"Please use the form below to top-up your account.": "Please use the form below to top-up your account.",
+	"Continue": "Continue",
+	"Amount": "Amount",
+	"Captcha": "Captcha",
+	"You will be forwarded to the payment system website. After completing your payment, you will be returned to the current page and your transaction will be processed.": "You will be forwarded to the payment system website. After completing your payment, you will be returned to the current page and your transaction will be processed."
 }
