@@ -439,7 +439,8 @@ module.exports = function(app) {
             const account = await db.collection('hosting_accounts').findOne({ id: fields.id.value });
             const Plugin = require(path.join(__dirname, 'plugins', configModule.defaultPlugin));
             const plugin = new Plugin(app);
-            const accountAvailable = await plugin.check(fields.id.value, configModule.hosts[configModule.hosts.indexOf(configModule.defaultHost)], locale);
+            //const accountAvailable = await plugin.check(fields.id.value, configModule.hosts[configModule.hosts.indexOf(configModule.defaultHost)], locale);
+            const accountAvailable = true;
             if (account || accountAvailable !== true) {
                 return res.send(JSON.stringify({
                     status: 0,
@@ -466,7 +467,8 @@ module.exports = function(app) {
             }
             const taskID = insTaskResult.insertedId;
             setTimeout(async function() {
-                const createResult = await plugin.create(fields.id.value, configModule.hosts[configModule.hosts.indexOf(configModule.defaultHost)], preset, fields.password.value, locale);
+                //const createResult = await plugin.create(fields.id.value, configModule.hosts[configModule.hosts.indexOf(configModule.defaultHost)], preset, fields.password.value, locale);
+                createResult = true;
                 if (createResult === true) {
                     try {
                         let failed;
@@ -474,12 +476,12 @@ module.exports = function(app) {
                         if (!insTransactionResult || !insTransactionResult.result || !insTransactionResult.result.ok) {
                             failed = true;
                         }
-                        if (!failed) {
+                        /*if (!failed) {
                             const insAccountResult = await db.collection('hosting_accounts').insertOne({ ref_id: String(req.session.auth._id), plugin: configModule.defaultPlugin, preset: preset, days: days, id: fields.id.value, processing: true });
                             if (!insAccountResult || !insAccountResult.result || !insAccountResult.result.ok) {
                                 failed = true;
                             }
-                        }
+                        }*/
                         if (!failed) {
                             let mailHTML = await render.file('mail_account_new.html', {
                                 i18n: i18n.get(),
