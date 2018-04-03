@@ -1,0 +1,26 @@
+{
+	"title": "Support",
+	"Could not load data from server. Please try to refresh page in a few moments.": "Could not load data from server. Please try to refresh page in a few moments.",
+	"No items to display": "No items to display",
+	"Delete": "Delete",
+	"Select all": "Select all",
+	"Select none": "Select none",
+	"Search": "Search",
+	"ID": "ID",
+	"Timestamp": "Timestamp",
+	"Title": "Title",
+	"Username": "Username",
+	"Status": "Status",
+	"Actions": "Actions",
+	"Loading data, please wait": "Loading data, please wait",
+	"statuses": [
+		"New",
+		"Processing",
+		"Closed"
+	],
+	"Support request": "Support request",
+	"Common": "Common",
+	"Messages": "Messages",
+	"Attachments": "Attachments",
+	"Date": "Date"
+}

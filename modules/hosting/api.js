@@ -306,7 +306,7 @@ module.exports = function(app) {
                 }));
             }
 
-            const update = await db.collection('hosting_accounts').findAndModify(_id ? { _id: new ObjectID(_id) } : { id: fields.account.value }, [], { id: fields.account.value, ref_id: id, plugin: fields.plugin.value, preset: fields.preset.value, host: fields.host.value, days: parseInt(fields.days.value) }, { new: true, upsert: true });
+            const update = await db.collection('hosting_accounts').findAndModify(_id ? { _id: new ObjectID(_id) } : { id: fields.account.value }, [], { id: fields.account.value, ref_id: id, plugin: fields.plugin.value, preset: fields.preset.value, host: fields.host.value, locale: locale, days: parseInt(fields.days.value) }, { new: true, upsert: true });
             if (!update || !update.value || !update.value._id) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -477,7 +477,7 @@ module.exports = function(app) {
                             failed = true;
                         }
                         /*if (!failed) {
-                            const insAccountResult = await db.collection('hosting_accounts').insertOne({ ref_id: String(req.session.auth._id), plugin: configModule.defaultPlugin, preset: preset, days: days, id: fields.id.value, processing: true });
+                            const insAccountResult = await db.collection('hosting_accounts').insertOne({ ref_id: String(req.session.auth._id), plugin: configModule.defaultPlugin, preset: preset, days: days, id: fields.id.value, processing: true, locale: locale });
                             if (!insAccountResult || !insAccountResult.result || !insAccountResult.result.ok) {
                                 failed = true;
                             }

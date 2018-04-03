@@ -84,5 +84,7 @@
 	"Continue": "Continue",
 	"Amount": "Amount",
 	"Captcha": "Captcha",
-	"You will be forwarded to the payment system website. After completing your payment, you will be returned to the current page and your transaction will be processed.": "You will be forwarded to the payment system website. After completing your payment, you will be returned to the current page and your transaction will be processed."
+	"You will be forwarded to the payment system website. After completing your payment, you will be returned to the current page and your transaction will be processed.": "You will be forwarded to the payment system website. After completing your payment, you will be returned to the current page and your transaction will be processed.",
+	"Unable to create top-up request. Please try again later.": "Unable to create top-up request. Please try again later.",
+	"You have got no records in history.": "You have got no records in history."
 }

@@ -10,7 +10,7 @@
     </ul>
     <ul class="za-switcher za-margin">
         <li>
-            <button class="za-button za-button-default" id="zoia_btn_account_create">{{ i18n.__(locale, 'New Account') }}</button>
+            <button class="za-button za-button-primary" id="zoia_btn_account_create">{{ i18n.__(locale, 'New Account') }}</button>
             <table class="za-table za-table-divider za-table-middle za-margin-top">
                 <thead>
                     <tr>
@@ -29,7 +29,7 @@
                         <td><a href="" class="za-icon-button zoia-btn-extend" za-icon="plus"></a></td>
                     </tr>
                     {% endfor %} {% else %}
-                    <tr class="zoia-accounts-empty">
+                    <tr class="zoia-accounts-empty-accounts">
                         <td colspan="4">{{ i18n.__(locale, 'You have got no hosting accounts.') }}</td>
                     </tr>
                     {% endif %}
@@ -39,24 +39,25 @@
         <li>
             <p>{{ i18n.__(locale, 'Please use the form below to top-up your account.') }}</p>
             <p>{{ i18n.__(locale, 'You will be forwarded to the payment system website. After completing your payment, you will be returned to the current page and your transaction will be processed.') }}</p>
-            <form class="za-form-stacked za-card za-card-body za-card-default za-card-small">
+            <form class="za-form-stacked za-card za-card-body za-card-default za-card-small" id="zoia_form_topup">
                 <div za-grid class="za-grid-small">
                     <div>
                         <label class="za-form-label" for="topup_sum">{{ i18n.__(locale, 'Amount') }}:</label>
                         <div class="za-form-controls">
-                            <input class="za-input za-form-width-small" id="topup_sum" type="number" value="{{ configModule.defaultSum }}">&nbsp;<span class="zoia-topup-currency">{{ configModule.currency[locale] }}</span>
+                            <input class="za-input za-form-width-small zoia-topup-field" id="topup_sum" type="number" value="{{ configModule.defaultSum }}">&nbsp;<span class="zoia-topup-currency">{{ configModule.currency[locale] }}</span>
                         </div>
                     </div>
                     <div>
                         <label class="za-form-label" for="topup_captcha">{{ i18n.__(locale, 'Captcha') }}:</label>
                         <div class="za-form-controls">
-                            <img src="/api/captcha/" class="topup-captcha-img">&nbsp;<input class="za-input za-form-width-small" id="topup_captcha" type="text"">
+                            <img src="/api/captcha/" class="topup-captcha-img" style="display:none">&nbsp;<input class="za-input za-form-width-small zoia-topup-field" id="topup_captcha" type="text"">
                         </div>
                     </div>
                 <div>
                     <label class="za-form-label">&nbsp;</label>
                     <div class="za-form-controls">
-                        <button class="za-button za-button-primary">{{ i18n.__(locale, 'Continue') }}</button>
+                        <button class="za-button za-button-primary" id="zoia_btn_topup" type="submit">{{ i18n.__(locale, 'Continue') }}</button>
+                        <div za-spinner id="zoia_spinner_topup" style="display:none"></div>
                     </div>
                 </div>      
             </div>
@@ -71,12 +72,17 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% if transactions.length > 0 %}
                     {% for t in transactions %}
                     <tr>
                         <td>{{ t.timestamp }}</td>
                         <td nowrap><span za-icon="{% if t.sum < 0 %}minus{% else %}plus{% endif %}-circle"></span>&nbsp;{% if configModule.currencyPosition == 'left' %}{{ configModule.currency[locale] }}{% endif %}{{ t.sum|abs }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ configModule.currency[locale] }}{% endif %}</td>
                     </tr>
-                    {% endfor %}
+                    {% endfor %} {% else %}
+                    <tr class="zoia-accounts-empty-history">
+                        <td colspan="4">{{ i18n.__(locale, 'You have got no records in history.') }}</td>
+                    </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </li>
@@ -132,4 +138,5 @@ var presets = {{ presetsJSON }};
 var totalFunds = {{ totalFunds }};
 var configModule = {{ configModuleJSON }};
 var locale = '{{ locale }}';
+var transactionsLength = {{ transactions.length }};
 </script>

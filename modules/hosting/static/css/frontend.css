@@ -8,16 +8,22 @@
 
 #topup_captcha {
     width: 100px;
-    height: 50px;
     text-align: center;
     font-size: 120%;
+    margin-bottom: 6px;
 }
 
 .topup-captcha-img {
 	border: 1px solid #ddd;
     border-radius: 5px;
     cursor: pointer; 
+    height: 43px;
+    margin-bottom: 8px
 } 
+
+#zoia_btn_topup {
+	margin-top: 2px;
+}
 
 .zoia-topup-currency {
 }
