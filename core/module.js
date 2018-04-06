@@ -2,6 +2,50 @@ const path = require('path');
 const config = require(path.join(__dirname, 'config.js'));
 const natural = require('natural');
 
+const illegalRe = /[\/\?<>\\:\*\|":]/g;
+const controlRe = /[\x00-\x1f\x80-\x9f]/g;
+const reservedRe = /^\.+$/;
+const windowsReservedRe = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i;
+const windowsTrailingRe = /[\. ]+$/;
+
+const isLeadSurrogate = (code) => {
+    if (code === -1) {
+        return false;
+    }
+    return (code & 0xfc00) === 0xd800;
+}
+
+const truncate = (string, limit) => {
+    if (string.length * 4 < limit) {
+        return string;
+    }
+    let len = 0;
+    let previous = -1;
+    for (let i = 0; i < string.length; i++) {
+        const code = string.charCodeAt(i);
+        if (code <= 0x7f) {
+            len++;
+        } else if (code <= 0x7ff) {
+            len += 2;
+        } else {
+            if (isTrailSurrogate(code) && isLeadSurrogate(previous)) {
+                len += 1;
+            } else {
+                len += 3;
+            }
+        }
+
+        if (len > limit) {
+            if (isTrailSurrogate(code) && isLeadSurrogate(previous)) {
+                return string.slice(0, i - 1);
+            }
+            return string.slice(0, i);
+        }
+        previous = code;
+    }
+    return string;
+}
+
 module.exports = class Module {
     constructor(app) {
         this.app = app;
@@ -32,6 +76,16 @@ module.exports = class Module {
         if (req && req.session) {
             req.session.auth = undefined;
         }
+    }
+    static sanitizeFilename(str) {
+        const replacement = '';
+        const sanitized = str
+            .replace(illegalRe, replacement)
+            .replace(controlRe, replacement)
+            .replace(reservedRe, replacement)
+            .replace(windowsReservedRe, replacement)
+            .replace(windowsTrailingRe, replacement);
+        return truncate(sanitized, 200);
     }
     static stem(str, locale) {
         natural.PorterStemmer.attach();

@@ -22,5 +22,22 @@
 	"Common": "Common",
 	"Messages": "Messages",
 	"Attachments": "Attachments",
-	"Date": "Date"
+	"Date": "Date",
+	"Message": "Message",
+	"Add Message": "Add Message",
+	"Error while loading data": "Error while loading data",
+	"Cancel": "Cancel",
+	"Save": "Save",
+	"Edit": "Edit",
+	"Message text": "Message text",
+	"Message will be removed from support ticket. Continue?": "Message will be removed from support ticket. Continue?",
+	"Yes": "Yes",
+	"Attach file(s) by dropping them here or": "Attach binaries by dropping them here or",
+	"selecting one": "selecting one",
+	"Could not upload file to server. Please check file name and size, then try again.": "Could not upload file to server. Please check file name and size, then try again.",
+	"File with such name already exists.": "File with such name already exists.",
+	"OK": "OK",
+	"Done": "Done",
+	"Data has been saved successfully": "Data has been saved successfully",
+	"The following file will be deleted. Continue?": "The following file will be deleted. Continue?"
 }

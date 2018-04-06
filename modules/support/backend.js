@@ -22,6 +22,7 @@ module.exports = function(app) {
                 i18n: i18n.get(),
                 config: config,
                 locale: locale,
+                username: req.session.auth.username,
                 lang: JSON.stringify(i18n.get().locales[locale])
             });
             res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, config.production ? ['/support/static/css/backend.min.css'] : ['/support/static/css/backend.css'],
