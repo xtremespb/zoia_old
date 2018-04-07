@@ -72,6 +72,7 @@ const loadSupportRequest = () => {
             $('#zoia_support_timestamp').html(new Date(parseInt(res.data.timestamp) * 1000).toLocaleString());
             $('#zoia_support_username').html(res.data.username);
             $('#zoia_support_status').val(res.data.status);
+            $('#zoia_support_priority').val(res.data.priority);
             $('#zoia_support_title').val(res.data.title);
             if (res.data.messages) {
                 res.data.messages.sort(function(a, b) { return (a.timestamp > b.timestamp) ? -1 : ((b.timestamp > a.timestamp) ? 1 : 0); });
@@ -215,6 +216,7 @@ const btnCommonSaveClickHandler = () => {
     $('#zoia_support_title').removeClass('za-form-danger');
     const title = $('#zoia_support_title').val().trim();
     const status = $('#zoia_support_status').val();
+    const priority = $('#zoia_support_priority').val();
     if (!title || title.length > 512) {
         return $('#zoia_support_title').addClass('za-form-danger').focus();
     }
@@ -226,7 +228,8 @@ const btnCommonSaveClickHandler = () => {
         data: {
             id: currentSupportRequestID,
             title: title,
-            status: status
+            status: status,
+            priority: priority
         }
     }).done((res) => {
         setTimeout(() => {
@@ -327,6 +330,12 @@ $(document).ready(() => {
                     return lang.statuses[value];
                 }
             },
+            priority: {
+                sortable: true,
+                process: (id, item, value) => {
+                    return lang.priorities[value].replace(/\s/g, '&nbsp;');
+                }
+            },
             actions: {
                 sortable: false,
                 process: (id, item) => {
@@ -364,6 +373,9 @@ $(document).ready(() => {
     });
     for (let i in lang.statuses) {
         $('#zoia_support_status').append('<option value="' + i + '">' + lang.statuses[i] + '</option>');
+    }
+    for (let i in lang.priorities) {
+        $('#zoia_support_priority').append('<option value="' + i + '">' + lang.priorities[i] + '</option>');
     }
     $('#zoia_btn_message_add').click(() => {
         currentSupportMessageID = null;

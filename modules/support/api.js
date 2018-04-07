@@ -18,7 +18,7 @@ module.exports = function(app) {
     const db = app.get('db');
     const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
 
-    const sortFields = ['_id', 'status', 'timestamp', 'username', 'title'];
+    const sortFields = ['_id', 'status', 'timestamp', 'username', 'title', 'priority'];
 
     const list = async(req, res) => {
         res.contentType('application/json');
@@ -62,9 +62,9 @@ module.exports = function(app) {
                 };
             }
             const total = await db.collection('support').find(fquery).count();
-            const items = await db.collection('support').find(fquery, { skip: skip, limit: limit, sort: sort, projection: { _id: 1, timestamp: 1, title: 1, username: 1, status: 1 } }).toArray();
+            const items = await db.collection('support').find(fquery, { skip: skip, limit: limit, sort: sort, projection: { _id: 1, timestamp: 1, title: 1, username: 1, status: 1, priority: 1 } }).toArray();
             for (let i in items) {
-                items[i].title = items[i].title.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;")
+                items[i].title = items[i].title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;')
             }
             let data = {
                 status: 1,
@@ -101,10 +101,10 @@ module.exports = function(app) {
                     status: 0
                 }));
             }
-            data.title = data.title.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+            data.title = data.title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;');
             if (data.messages) {
                 for (let i in data.messages) {
-                    data.messages[i].message = data.messages[i].message.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+                    data.messages[i].message = data.messages[i].message.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;');
                 }
             }
             res.send(JSON.stringify({
@@ -197,15 +197,17 @@ module.exports = function(app) {
         const id = req.body.id;
         const title = req.body.title;
         const status = req.body.status;
+        const priority = req.body.priority;
         if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/) ||
             !status || (status !== '0' && status !== '1' && status !== '2') ||
+            !priority || (priority !== '0' && priority !== '1' && priority !== '2' && priority !== '3') ||
             !title || typeof title !== 'string' || title.lentgh > 512) {
             return res.send(JSON.stringify({
                 status: 0
             }));
         }
         try {
-            let updResult = await db.collection('support').update({ _id: parseInt(id) }, { $set: { title: title, status: parseInt(status) } }, { upsert: false });
+            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { title: title, status: parseInt(status, 10), priority: parseInt(priority, 10) } }, { upsert: false });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0
