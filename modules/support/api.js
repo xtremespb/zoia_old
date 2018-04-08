@@ -64,7 +64,7 @@ module.exports = function(app) {
             const total = await db.collection('support').find(fquery).count();
             const items = await db.collection('support').find(fquery, { skip: skip, limit: limit, sort: sort, projection: { _id: 1, timestamp: 1, title: 1, username: 1, status: 1, priority: 1 } }).toArray();
             for (let i in items) {
-                items[i].title = items[i].title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;')
+                items[i].title = items[i].title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;');
             }
             let data = {
                 status: 1,
@@ -95,7 +95,7 @@ module.exports = function(app) {
             }));
         }
         try {
-            const data = await db.collection('support').findOne({ _id: parseInt(id) });
+            const data = await db.collection('support').findOne({ _id: parseInt(id, 10) });
             if (!data) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -120,6 +120,50 @@ module.exports = function(app) {
         }
     };
 
+    const deleteRequest = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let output = {};
+        let ids = req.body['id'];
+        if (!ids || (typeof ids !== 'object' && typeof ids !== 'string') || !ids.length) {
+            output.status = -1;
+            return res.send(JSON.stringify(output));
+        }
+        if (typeof ids === 'string') {
+            const id = ids;
+            ids = [];
+            ids.push(id);
+        }
+        let did = [];
+        for (let i in ids) {
+            const id = ids[i];
+            if (!id.match(/^[0-9]{1,9999999999999}$/)) {
+                output.status = -2;
+                return res.send(JSON.stringify(output));
+            }
+            did.push({ _id: parseInt(id, 10) });
+        }
+        try {
+            const delResult = await db.collection('support').deleteMany({
+                $or: did
+            });
+            if (!delResult || !delResult.result || !delResult.result.ok || delResult.result.n !== ids.length) {
+                output.status = -3;
+                return res.send(JSON.stringify(output));
+            }
+            output.status = 1;
+            res.send(JSON.stringify(output));
+        } catch (e) {
+            output.status = 0;
+            log.error(e);
+            res.send(JSON.stringify(output));
+        }
+    };
+
     const saveMessage = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
@@ -138,7 +182,7 @@ module.exports = function(app) {
             }));
         }
         try {
-            const data = await db.collection('support').findOne({ _id: parseInt(id) });
+            const data = await db.collection('support').findOne({ _id: parseInt(id, 10) });
             if (!data) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -148,7 +192,7 @@ module.exports = function(app) {
             let message;
             if (msgId) {
                 for (let i in messages) {
-                    if (parseInt(messages[i].id) === parseInt(msgId)) {
+                    if (parseInt(messages[i].id, 10) === parseInt(msgId, 10)) {
                         messages[i].message = msg;
                         message = messages[i];
                         break;
@@ -168,7 +212,7 @@ module.exports = function(app) {
                 };
                 messages.push(message);
             }
-            let updResult = await db.collection('support').update({ _id: parseInt(id) }, { $set: { messages: messages } }, { upsert: true });
+            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { messages: messages } }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -241,7 +285,7 @@ module.exports = function(app) {
             }));
         }
         try {
-            const data = await db.collection('support').findOne({ _id: parseInt(id) });
+            const data = await db.collection('support').findOne({ _id: parseInt(id, 10) });
             if (!data) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -250,7 +294,7 @@ module.exports = function(app) {
             let messages = data.messages || [];
             let num;
             for (let i in messages) {
-                if (parseInt(messages[i].id) === parseInt(msgId)) {
+                if (parseInt(messages[i].id, 10) === parseInt(msgId, 10)) {
                     num = i;
                     break;
                 }
@@ -261,7 +305,7 @@ module.exports = function(app) {
                 }));
             }
             messages.splice(num, 1);
-            let updResult = await db.collection('support').update({ _id: parseInt(id) }, { $set: { messages: messages } }, { upsert: true });
+            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { messages: messages } }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -299,7 +343,7 @@ module.exports = function(app) {
         const filename = Module.sanitizeFilename(file.name);
         const dir = path.join(__dirname, 'storage', id);
         try {
-            const data = await db.collection('support').findOne({ _id: parseInt(id) });
+            const data = await db.collection('support').findOne({ _id: parseInt(id, 10) });
             if (!data) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -335,7 +379,7 @@ module.exports = function(app) {
                 encoding: req.files['files[]'].encoding,
                 ext: path.extname(filename)
             });
-            let updResult = await db.collection('support').update({ _id: parseInt(id) }, { $set: { files: data.files } }, { upsert: true });
+            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { files: data.files } }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -365,7 +409,7 @@ module.exports = function(app) {
             return next();
         }
         try {
-            const data = await db.collection('support').findOne({ _id: parseInt(id) });
+            const data = await db.collection('support').findOne({ _id: parseInt(id, 10) });
             if (!data) {
                 return next();
             }
@@ -403,7 +447,7 @@ module.exports = function(app) {
             }));
         }
         try {
-            const data = await db.collection('support').findOne({ _id: parseInt(id) });
+            const data = await db.collection('support').findOne({ _id: parseInt(id, 10) });
             if (!data) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -415,7 +459,7 @@ module.exports = function(app) {
             for (let i in files) {
                 if (files[i].id === fid) {
                     num = i;
-                    source = files[i].source; 
+                    source = files[i].source;
                     break;
                 }
             }
@@ -425,8 +469,8 @@ module.exports = function(app) {
                 }));
             }
             await fs.unlink(path.join(__dirname, 'storage', String(data._id), source));
-            files.splice(num, 1);            
-            let updResult = await db.collection('support').update({ _id: parseInt(id) }, { $set: { files: files } }, { upsert: false });
+            files.splice(num, 1);
+            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { files: files } }, { upsert: false });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -453,6 +497,7 @@ module.exports = function(app) {
     router.post('/request/attachment/delete', deleteAttachment);
     router.post('/request/upload', attachmentUpload);
     router.get('/download', attachmentDownload);
+    router.post('/request/delete', deleteRequest);
 
     return {
         routes: router

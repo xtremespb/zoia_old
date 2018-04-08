@@ -46,5 +46,8 @@
 	"Done": "Done",
 	"Data has been saved successfully": "Data has been saved successfully",
 	"The following file will be deleted. Continue?": "The following file will be deleted. Continue?",
-	"Priority": "Priority"
+	"Priority": "Priority",
+	"The following support request(s) will be removed. Continue?": "The following support request(s) will be removed. Continue?",
+	"Cannot delete one or more items": "Cannot delete one or more items",
+	"Operation was successful": "Operation was successful"
 }

@@ -291,6 +291,49 @@ const deleteAttachment = (id, fid) => {
     }, 200);
 };
 
+const zoiaDeleteButtonClickHandler = (id) => {
+    if (!id) {
+        return;
+    }
+    let items = [];
+    let names = [];
+    if (typeof id === 'object') {
+        items = id;
+        currentDeleteID = id;
+        for (let i in id) {
+            names.push($('#support').zoiaTable().getCurrentData()[id[i]]._id + ' (' + $('#support').zoiaTable().getCurrentData()[id[i]].title + ')');
+        }
+    } else {
+        items.push(id);
+        names.push($('#support').zoiaTable().getCurrentData()[id]._id + ' (' + $('#support').zoiaTable().getCurrentData()[id].title + ')');
+    }
+    $zUI.modal.confirm(lang['The following support request(s) will be removed. Continue?'] + '<br><br>' + names.join('<br>'), { labels: { ok: lang['Yes'], cancel: lang['Cancel'] }, stack: true }).then(function() {
+        $('#zoiaSpinnerWhite').show();
+        $.ajax({
+            type: 'POST',
+            url: '/api/support/request/delete',
+            data: {
+                id: items
+            },
+            cache: false
+        }).done((res) => {
+            $('#zoiaSpinnerWhite').hide();
+            $('#support').zoiaTable().load();
+            $zUI.notification((res && res.status === 1) ? lang['Operation was successful'] : lang['Cannot delete one or more items'], {
+                status: (res && res.status === 1) ? 'success' : 'danger',
+                timeout: 1500
+            });
+        }).fail(() => {
+            $('#zoiaSpinnerWhite').hide();
+            $('#support').zoiaTable().load();
+            $zUI.notification(lang['Cannot delete one or more items'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        });
+    });
+};
+
 $(document).ready(() => {
     $('#support').zoiaTable({
         url: '/api/support/list',
@@ -309,7 +352,7 @@ $(document).ready(() => {
             timestamp: {
                 sortable: true,
                 process: (id, item, value) => {
-                    return new Date(parseInt(value) * 1000).toLocaleString().replace(/\s/gm, '&nbsp;');
+                    return new Date(parseInt(value, 10) * 1000).toLocaleString().replace(/\s/gm, '&nbsp;');
                 }
             },
             username: {
@@ -354,7 +397,9 @@ $(document).ready(() => {
                 currentSupportRequestID = $(this).attr('data');
                 loadSupportRequest();
             });
-            $('.zoia-support-action-del-btn').click(function() {});
+            $('.zoia-support-action-del-btn').click(function() {
+                zoiaDeleteButtonClickHandler($(this).attr('data'));
+            });
         },
         lang: {
             error: lang['Could not load data from server. Please try to refresh page in a few moments.'],
@@ -386,5 +431,13 @@ $(document).ready(() => {
     });
     $('#zoia_btn_message_save').click(btnMessageSaveClickHandler);
     $('#zoia_common_save').click(btnCommonSaveClickHandler);
+    $('.zoiaDeleteButton').click(function() {
+        const checked = $('.supportCheckbox:checkbox:checked').map(function() {
+            return this.id;
+        }).get();
+        if (checked && checked.length > 0) {
+            zoiaDeleteButtonClickHandler(checked);
+        }
+    });
     initUploader();
 });
