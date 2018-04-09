@@ -376,7 +376,7 @@ $(document).ready(() => {
             priority: {
                 sortable: true,
                 process: (id, item, value) => {
-                    return lang.priorities[value].replace(/\s/g, '&nbsp;');
+                    return lang.priorities[value] ? lang.priorities[value].replace(/\s/g, '&nbsp;') : '&ndash;';
                 }
             },
             actions: {

@@ -81,6 +81,57 @@ module.exports = function(app) {
         }
     };
 
+    const frontendList = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorized(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const sortField = req.query.sortField || 'timestamp';
+        const sortDirection = (req.query.sortDirection === 'asc') ? 1 : -1;
+        const sort = {};
+        sort[sortField] = sortDirection;
+        let skip = req.query.skip || 0;
+        let limit = req.query.limit || 10;
+        if (typeof sortField !== 'string' || typeof skip !== 'string' || typeof limit !== 'string') {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        skip = parseInt(skip, 10) || 0;
+        limit = parseInt(limit, 10) || 0;
+        let result = {
+            status: 0
+        };
+        if (sortFields.indexOf(sortField) === -1) {
+            result.failedField = 'sortField';
+            return res.send(result);
+        }
+        let fquery = {
+            username: req.session.auth.username
+        };
+        try {
+            const total = await db.collection('support').find(fquery).count();
+            const items = await db.collection('support').find(fquery, { skip: skip, limit: limit, sort: sort, projection: { _id: 1, timestamp: 1, title: 1, username: 1, status: 1, priority: 1 } }).toArray();
+            for (let i in items) {
+                items[i].title = items[i].title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;');
+            }
+            let data = {
+                status: 1,
+                count: items.length,
+                total: total,
+                items: items
+            };
+            res.send(JSON.stringify(data));
+        } catch (e) {
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
     const loadRequest = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
@@ -146,11 +197,17 @@ module.exports = function(app) {
                 return res.send(JSON.stringify(output));
             }
             did.push({ _id: parseInt(id, 10) });
+            try {
+                await fs.remove(path.join(__dirname, 'storage', String(id)))
+            } catch(e) {
+                log.error(e);
+            }
         }
         try {
             const delResult = await db.collection('support').deleteMany({
                 $or: did
             });
+
             if (!delResult || !delResult.result || !delResult.result.ok || delResult.result.n !== ids.length) {
                 output.status = -3;
                 return res.send(JSON.stringify(output));
@@ -206,7 +263,7 @@ module.exports = function(app) {
             } else {
                 message = {
                     username: req.session.auth.username,
-                    id: parseInt(Date.now(), 10),
+                    id: Math.floor(new Date().valueOf() * Math.random()),
                     timestamp: parseInt(Date.now() / 1000, 10),
                     message: msg
                 };
@@ -488,8 +545,52 @@ module.exports = function(app) {
         }
     };
 
+    const frontendCreateRequest = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorized(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const title = req.body.title;
+        const message = req.body.message;
+        const priority = req.body.priority;
+        if (!priority || (priority !== '0' && priority !== '1' && priority !== '2' && priority !== '3') ||
+            !title || typeof title !== 'string' || title.lentgh < 2 || title.lentgh > 128 ||
+            !message || typeof message !== 'string' || message.lentgh < 2 || message.lentgh > 4096) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const incr = await db.collection('support_counters').findAndModify({ _id: 'requests' }, [], { $inc: { seq: 1 } }, { new: true, upsert: true });
+            if (!incr || !incr.value || !incr.value.seq) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            const id = incr.value.seq;
+            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { title: title, status: 0, priority: parseInt(priority, 10), messages: [{ username: req.session.auth.username, id: Math.floor(new Date().valueOf() * Math.random()), timestamp: parseInt(Date.now() / 1000, 10), message: message }] } }, { upsert: true });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            log.error(e);
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
     let router = Router();
     router.get('/list', list);
+    router.get('/frontend/list', frontendList);
     router.get('/request/load', loadRequest);
     router.post('/request/message/edit', saveMessage);
     router.post('/request/common/save', saveRequestCommon);
@@ -498,6 +599,7 @@ module.exports = function(app) {
     router.post('/request/upload', attachmentUpload);
     router.get('/download', attachmentDownload);
     router.post('/request/delete', deleteRequest);
+    router.post('/frontend/create', frontendCreateRequest);
 
     return {
         routes: router

@@ -49,5 +49,10 @@
 	"Priority": "Priority",
 	"The following support request(s) will be removed. Continue?": "The following support request(s) will be removed. Continue?",
 	"Cannot delete one or more items": "Cannot delete one or more items",
-	"Operation was successful": "Operation was successful"
+	"Operation was successful": "Operation was successful",
+	"Support": "Support",
+	"Create ticket": "Create ticket",
+	"Captcha": "Captcha",
+	"Create": "Create",
+	"Form contains errors. Please check all fields and try again.": "Form contains errors. Please check all fields and try again."
 }
