@@ -38,7 +38,7 @@
 	"Message text": "Message text",
 	"Message will be removed from support ticket. Continue?": "Message will be removed from support ticket. Continue?",
 	"Yes": "Yes",
-	"Attach file(s) by dropping them here or": "Attach binaries by dropping them here or",
+	"Attach file(s) by dropping them here or": "Attach file(s) by dropping them here or",
 	"selecting one": "selecting one",
 	"Could not upload file to server. Please check file name and size, then try again.": "Could not upload file to server. Please check file name and size, then try again.",
 	"File with such name already exists.": "File with such name already exists.",
@@ -57,5 +57,18 @@
 	"Form contains errors. Please check all fields and try again.": "Form contains errors. Please check all fields and try again.",
 	"A short description, length: 2-128 characters": "A short description, length: 2-128 characters",
 	"A long description, length: 2-4096 characters": "A long description, length: 2-4096 characters",
-	"Click the image if you cannot see code": "Click the image if you cannot see code"
+	"Click the image if you cannot see code": "Click the image if you cannot see code",
+	"Invalid captcha code": "Invalid captcha code",
+	"Ticket": "Ticket",
+	"Invalid Ticket ID.": "Invalid Ticket ID.",
+	"Too many files for this ticket.": "Too many files for this ticket.",
+	"Max. size of each file": "Max. size of each file",
+	"MB": "MB",
+	"Max. files count": "Max. files count",
+	"Specialist": "Specialist",
+	"Pick Up": "Pick Up",
+	"Release": "Release",
+	"Selected support request is currently being processed by another specialist. Continue?": "Selected support request is currently being processed by another specialist. Continue?",
+	"There are unsaved changes. Save?": "There are unsaved changes. Save?",
+	"No": "No"
 }

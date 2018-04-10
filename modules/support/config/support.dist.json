@@ -1,3 +1,4 @@
 {
-    "maxAttachmentSizeMB": 5
+    "maxAttachmentSizeMB": 5,
+    "maxAttachmentCount": 5
 }

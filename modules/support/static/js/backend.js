@@ -5,6 +5,7 @@ let supportDialog;
 let supportMessageDialog;
 let currentSupportRequestID;
 let currentSupportMessageID;
+let currentData;
 
 const bindMessageHandlers = () => {
     $('.zoia-msg-edit').unbind().click(function() {
@@ -48,6 +49,45 @@ const bindMessageHandlers = () => {
     });
 };
 
+const ajaxPickUp = (pickup, mute, reloadTable) => {
+    console.log('ajaxPickUp');
+    $('#zoiaSpinnerWhite').show();
+    $.ajax({
+        type: 'POST',
+        url: '/api/support/request/pickup',
+        cache: false,
+        data: {
+            id: currentSupportRequestID,
+            pickup: pickup ? true : null
+        }
+    }).done((res) => {
+        $('#zoiaSpinnerWhite').hide();
+        if (res && res.status === 1) {
+            $('#zoia_support_specialist').html(res.specialist);
+            if (!mute) {
+                $zUI.notification(lang['Data has been saved successfully'], {
+                    status: 'success',
+                    timeout: 1500
+                });
+            }
+            if (reloadTable) {
+                $('#support').zoiaTable().load();
+            }
+        } else {
+            $zUI.notification(lang['Error while loading data'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        }
+    }).fail(() => {
+        $('#zoiaSpinnerWhite').hide();
+        $zUI.notification(lang['Error while loading data'], {
+            status: 'danger',
+            timeout: 1500
+        });
+    }, 200);
+};
+
 const bindDeleteAttachmentHandlers = () => {
     $('.zoia-attachment-delete').unbind().click(function() {
         const filename = $(this).parent().find('a').html();
@@ -69,8 +109,10 @@ const loadSupportRequest = () => {
         }
     }).done((res) => {
         if (res && res.status === 1 && res.data) {
+            currentData = res.data;
             $('#zoia_support_timestamp').html(new Date(parseInt(res.data.timestamp) * 1000).toLocaleString());
             $('#zoia_support_username').html(res.data.username);
+            $('#zoia_support_specialist').html(res.data.specialist);
             $('#zoia_support_status').val(res.data.status);
             $('#zoia_support_priority').val(res.data.priority);
             $('#zoia_support_title').val(res.data.title);
@@ -95,10 +137,21 @@ const loadSupportRequest = () => {
             bindMessageHandlers();
             bindDeleteAttachmentHandlers();
             $('#support_request_id').html(currentSupportRequestID);
-            supportDialog.show().then(() => {
-                $zUI.tab('#zoia_support_dialog_tabs').show(0);
-                $('#zoiaSpinnerDark').hide();
-            });
+            if (res.data.specialist && res.data.specialist !== currentUsername) {
+                setTimeout(() => {
+                    $('#zoiaSpinnerDark').hide();
+                }, 200);
+                $zUI.modal.confirm(lang['Selected support request is currently being processed by another specialist. Continue?'] + '<br><br>' + res.data.specialist, { labels: { ok: lang['Yes'], cancel: lang['Cancel'] }, stack: true }).then(function() {
+                    supportDialog.show().then(() => {
+                        $zUI.tab('#zoia_support_dialog_tabs').show(0);
+                    });
+                });
+            } else {
+                supportDialog.show().then(() => {
+                    $zUI.tab('#zoia_support_dialog_tabs').show(0);
+                    $('#zoiaSpinnerDark').hide();
+                });
+            }
         } else {
             $('#zoiaSpinnerDark').hide();
             $zUI.notification(lang['Error while loading data'], {
@@ -212,7 +265,8 @@ const initUploader = () => {
     });
 };
 
-const btnCommonSaveClickHandler = () => {
+const btnCommonSaveClickHandler = (callback) => {
+    console.log('btnCommonSaveClickHandler');
     $('#zoia_support_title').removeClass('za-form-danger');
     const title = $('#zoia_support_title').val().trim();
     const status = $('#zoia_support_status').val();
@@ -240,12 +294,14 @@ const btnCommonSaveClickHandler = () => {
                 status: 'success',
                 timeout: 1500
             });
-            $('#support').zoiaTable().load();
         } else {
             $zUI.notification(lang['Error while loading data'], {
                 status: 'danger',
                 timeout: 1500
             });
+        }
+        if (callback) {
+            callback();
         }
     }).fail(() => {
         setTimeout(() => {
@@ -255,6 +311,9 @@ const btnCommonSaveClickHandler = () => {
             status: 'danger',
             timeout: 1500
         });
+        if (callback) {
+            callback();
+        }
     }, 200);
 };
 
@@ -334,6 +393,14 @@ const zoiaDeleteButtonClickHandler = (id) => {
     });
 };
 
+const pickupTicketHandler = () => {
+    ajaxPickUp(true);
+};
+
+const releaseTicketHandler = () => {
+    ajaxPickUp(false);
+};
+
 $(document).ready(() => {
     $('#support').zoiaTable({
         url: '/api/support/list',
@@ -371,6 +438,12 @@ $(document).ready(() => {
                 sortable: true,
                 process: (id, item, value) => {
                     return lang.statuses[value];
+                }
+            },
+            specialist: {
+                sortable: true,
+                process: (id, item, value) => {
+                    return value ? value : '&ndash;';
                 }
             },
             priority: {
@@ -437,6 +510,29 @@ $(document).ready(() => {
         }).get();
         if (checked && checked.length > 0) {
             zoiaDeleteButtonClickHandler(checked);
+        }
+    });
+    $('#zoia_common_pickup').click(pickupTicketHandler);
+    $('#zoia_common_release').click(releaseTicketHandler);
+    $('#zoia_btn_ticket_done').click(() => {        
+        if (parseInt(currentData.status) !== parseInt($('#zoia_support_status').val()) ||
+            parseInt(currentData.priority, 10) !== parseInt($('#zoia_support_priority').val(), 10) ||
+            currentData.title !== $('#zoia_support_title').val()) {
+            $zUI.modal.confirm(lang['There are unsaved changes. Save?'], { labels: { ok: lang['Yes'], cancel: lang['No'] }, stack: true }).then(function() {
+                btnCommonSaveClickHandler(() => {
+                    if (parseInt($('#zoia_support_status').val(), 10) === 0) {
+                        ajaxPickUp(false, true, true);
+                    } else {
+                        $('#support').zoiaTable().load();
+                    }
+                });
+            });
+        } else {
+            if (parseInt($('#zoia_support_status').val(), 10) === 0) {
+                ajaxPickUp(false, true, true);
+            } else {
+                $('#support').zoiaTable().load();
+            }
         }
     });
     initUploader();

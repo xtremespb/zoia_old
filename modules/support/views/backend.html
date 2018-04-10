@@ -37,6 +37,7 @@
             <th id="support_title">{{ i18n.__(locale, 'Title')}}</th>
             <th id="support_username" class="za-table-shrink">{{ i18n.__(locale, 'Username')}}</th>
             <th id="support_priority" class="za-table-shrink">{{ i18n.__(locale, 'Priority')}}</th>
+            <th id="support_specialist" class="za-table-shrink">{{ i18n.__(locale, 'Specialist')}}</th>
             <th id="support_status" class="za-table-shrink">{{ i18n.__(locale, 'Status')}}</th>
             <th id="support_actions">{{ i18n.__(locale, 'Actions')}}</th>
         </tr>
@@ -89,6 +90,12 @@
                                 <div id="zoia_support_username"></div>
                             </div>
                         </div>
+                        <div>
+                            <label class="za-form-label" for="zoia_support_specialist">{{ i18n.__(locale, 'Specialist')}}:</label>
+                            <div class="za-form-controls" style="margin-top:7px">
+                                <div id="zoia_support_specialist"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="za-margin">
                         <label class="za-form-label" for="zoia_support_title">{{ i18n.__(locale, 'Title')}}:</label>
@@ -96,8 +103,10 @@
                             <input class="za-input" id="zoia_support_title" type="text">
                         </div>
                     </div>
-                    <div class="za-margin-top">
+                    <div class="za-margin-top za-margin">
                         <button class="za-button za-button-primary" id="zoia_common_save" type="button">{{ i18n.__(locale, 'Save')}}</button>
+                        <button class="za-button za-button-secondary" id="zoia_common_pickup" type="button">{{ i18n.__(locale, 'Pick Up')}}</button>
+                        <button class="za-button za-button-secondary" id="zoia_common_release" type="button">{{ i18n.__(locale, 'Release')}}</button>
                     </div>
                 </li>
                 <li>
@@ -120,7 +129,7 @@
             </ul>
         </div>
         <div class="za-modal-footer za-text-right">
-            <button class="za-button za-button-default za-modal-close" type="button">{{ i18n.__(locale, 'Done')}}</button>            
+            <button class="za-button za-button-default za-modal-close" id="zoia_btn_ticket_done" type="button">{{ i18n.__(locale, 'Done')}}</button>            
         </div>
     </div>
 </div>

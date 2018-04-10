@@ -6,7 +6,7 @@
     margin-bottom: 8px
 }
 
-#zoia_ct_captcha {
+.zoia-captcha-field {
     width: 100px;
     text-align: center;
     font-size: 120%;
@@ -26,4 +26,20 @@
     -moz-box-shadow: -1px 2px 5px 0px rgba(0, 0, 0, 0.34);
     box-shadow: -1px 2px 5px 0px rgba(0, 0, 0, 0.34);
     text-align: center;
+}
+
+.zoia-ticket-title {
+	font-size: 180%;
+}
+
+.zoia-reply-msg {
+	background: #ffffef;
+	border: 1px solid #eee;
+}
+
+.zoia-attachments-wrap {
+}
+
+.zoia-attachment-delete {
+	cursor: pointer;
 }

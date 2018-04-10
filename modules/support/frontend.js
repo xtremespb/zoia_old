@@ -4,6 +4,13 @@ const Router = require('co-router');
 const fs = require('fs');
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 
+let configModule;
+try {
+    configModule = require(path.join(__dirname, 'config', 'support.json'));
+} catch (e) {
+    configModule = require(path.join(__dirname, 'config', 'support.dist.json'));
+} 
+
 const moduleURL = '/support';
 let templateList = 'frontend.html';
 if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateList))) {
@@ -33,7 +40,9 @@ module.exports = function(app) {
                 i18n: i18n.get(),
                 locale: locale,
                 lang: JSON.stringify(i18n.get().locales[locale]),
-                config: config
+                config: config,
+                configModule: configModule,
+                username: req.session.auth.username,
             });
             let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Support'), {
                 content: listHTML,

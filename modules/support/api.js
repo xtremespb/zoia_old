@@ -62,7 +62,7 @@ module.exports = function(app) {
                 };
             }
             const total = await db.collection('support').find(fquery).count();
-            const items = await db.collection('support').find(fquery, { skip: skip, limit: limit, sort: sort, projection: { _id: 1, timestamp: 1, title: 1, username: 1, status: 1, priority: 1 } }).toArray();
+            const items = await db.collection('support').find(fquery, { skip: skip, limit: limit, sort: sort, projection: { _id: 1, timestamp: 1, title: 1, username: 1, status: 1, priority: 1, specialist: 1 } }).toArray();
             for (let i in items) {
                 items[i].title = items[i].title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;');
             }
@@ -152,6 +152,15 @@ module.exports = function(app) {
                     status: 0
                 }));
             }
+            if (!data.specialist) {
+                let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { specialist: req.session.auth.username } }, { upsert: true });
+                if (!updResult || !updResult.result || !updResult.result.ok) {
+                    return res.send(JSON.stringify({
+                        status: 0
+                    }));
+                }
+                data.specialist = req.session.auth.username;
+            }
             data.title = data.title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;');
             if (data.messages) {
                 for (let i in data.messages) {
@@ -199,7 +208,7 @@ module.exports = function(app) {
             did.push({ _id: parseInt(id, 10) });
             try {
                 await fs.remove(path.join(__dirname, 'storage', String(id)))
-            } catch(e) {
+            } catch (e) {
                 log.error(e);
             }
         }
@@ -278,6 +287,40 @@ module.exports = function(app) {
             res.send(JSON.stringify({
                 status: 1,
                 message: message
+            }));
+        } catch (e) {
+            log.error(e);
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
+    const requestPickupRelease = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const pickup = req.body.pickup ? true : false;
+        const id = req.body.id;
+        if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { specialist: pickup ? req.session.auth.username : '' } }, { upsert: false });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            res.send(JSON.stringify({
+                status: 1,
+                specialist: pickup ? req.session.auth.username : ''
             }));
         } catch (e) {
             log.error(e);
@@ -467,7 +510,7 @@ module.exports = function(app) {
         }
         try {
             const data = await db.collection('support').findOne({ _id: parseInt(id, 10) });
-            if (!data) {
+            if (!data || (data.username !== req.session.auth.username && !Module.isAuthorizedAdmin(req))) {
                 return next();
             }
             let file;
@@ -547,6 +590,7 @@ module.exports = function(app) {
 
     const frontendCreateRequest = async(req, res) => {
         res.contentType('application/json');
+        const locale = req.session.currentLocale;
         if (!Module.isAuthorized(req)) {
             return res.send(JSON.stringify({
                 status: 0
@@ -556,8 +600,9 @@ module.exports = function(app) {
             req.session.captcha = null;
             return res.send(JSON.stringify({
                 status: 0,
-                error: 'Invalid captcha code'
-            }));    
+                error: i18n.get().__(locale, 'Invalid captcha code'),
+                captcha: true
+            }));
         }
         const title = req.body.title;
         const message = req.body.message;
@@ -578,7 +623,7 @@ module.exports = function(app) {
             }
             const id = incr.value.seq;
             const timestamp = parseInt(Date.now() / 1000, 10);
-            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { title: title, status: 0, priority: parseInt(priority, 10), messages: [{ username: req.session.auth.username, id: Math.floor(new Date().valueOf() * Math.random()), timestamp: timestamp, message: message }], timestamp: timestamp, username: req.session.auth.username  } }, { upsert: true });
+            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { title: title, status: 0, priority: parseInt(priority, 10), messages: [{ username: req.session.auth.username, id: Math.floor(new Date().valueOf() * Math.random()), timestamp: timestamp, message: message }], timestamp: timestamp, username: req.session.auth.username } }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -586,6 +631,242 @@ module.exports = function(app) {
             }
             res.send(JSON.stringify({
                 status: 1
+            }));
+        } catch (e) {
+            log.error(e);
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
+    const frontendLoadRequest = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorized(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const id = req.query.id;
+        if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const data = await db.collection('support').findOne({ _id: parseInt(id, 10) });
+            if (!data || data.username !== req.session.auth.username) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            data.title = data.title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;');
+            if (data.messages) {
+                for (let i in data.messages) {
+                    data.messages[i].message = data.messages[i].message.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;');
+                }
+            }
+            res.send(JSON.stringify({
+                status: 1,
+                data: data
+            }));
+        } catch (e) {
+            log.error(e);
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
+    const frontendAttachmentUpload = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorized(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const locale = req.session.currentLocale;
+        const id = req.body.id;
+        if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/) ||
+            !req.files || typeof req.files !== 'object' || !req.files['files[]'] || !req.files['files[]'].name || !req.files['files[]'].data ||
+            !req.files['files[]'].data.length || req.files['files[]'].data.length > configModule.maxAttachmentSizeMB * 1048576) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const file = req.files['files[]'];
+        const filename = Module.sanitizeFilename(file.name);
+        const dir = path.join(__dirname, 'storage', id);
+        try {
+            const data = await db.collection('support').findOne({ _id: parseInt(id, 10) });
+            if (!data || (!data.username !== req.session.auth.username && !Module.isAuthorizedAdmin(req))) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            if (data.files) {
+                let found;
+                for (let i in data.files) {
+                    if (data.files[i].filename === filename) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) {
+                    return res.send(JSON.stringify({
+                        status: 0,
+                        error: i18n.get().__(locale, 'File with such name already exists.')
+                    }));
+                }
+                if (configModule.maxAttachmentCount && data.files.length > configModule.maxAttachmentCount) {
+                    return res.send(JSON.stringify({
+                        status: 0,
+                        files: data.files,
+                        error: i18n.get().__(locale, 'Too many files for this ticket.')
+                    }));
+                }
+            }
+            const filenameHash = crypto.createHash('md5').update(String(Date.now()) + filename).digest('hex');
+            await fs.ensureDir(dir);
+            await fs.writeFile(path.join(dir, filenameHash), req.files['files[]'].data);
+            if (!data.files) {
+                data.files = [];
+            }
+            const fid = crypto.createHash('md5').update(config.salt + String(Date.now())).digest('hex');
+            data.files.push({
+                id: fid,
+                filename: filename,
+                source: filenameHash,
+                mime: req.files['files[]'].mimetype,
+                encoding: req.files['files[]'].encoding,
+                ext: path.extname(filename)
+            });
+            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { files: data.files } }, { upsert: true });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            res.send(JSON.stringify({
+                files: data.files,
+                status: 1
+            }));
+        } catch (e) {
+            log.error(e);
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
+    const frontendDeleteAttachment = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorized(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const id = req.body.id;
+        const fid = req.body.fid;
+        if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/) ||
+            !fid || typeof fid !== 'string' || !fid.match(/^[a-f0-9]{32}$/)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const data = await db.collection('support').findOne({ _id: parseInt(id, 10) });
+            if (!data || (!data.username !== req.session.auth.username && !Module.isAuthorizedAdmin(req))) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            let files = data.files || [];
+            let num;
+            let source;
+            for (let i in files) {
+                if (files[i].id === fid) {
+                    num = i;
+                    source = files[i].source;
+                    break;
+                }
+            }
+            if (!num) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            await fs.unlink(path.join(__dirname, 'storage', String(data._id), source));
+            files.splice(num, 1);
+            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { files: files } }, { upsert: false });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            log.error(e);
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
+    const frontendSaveMessage = async(req, res) => {
+        res.contentType('application/json');
+        const locale = req.session.currentLocale;
+        if (!Module.isAuthorized(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        if (!req.session || req.body.captcha !== req.session.captcha) {
+            req.session.captcha = null;
+            return res.send(JSON.stringify({
+                status: 0,
+                error: i18n.get().__(locale, 'Invalid captcha code'),
+                captcha: true
+            }));
+        }
+        const id = req.body.id;
+        const msg = req.body.message;
+        if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/) ||
+            !msg || typeof id !== 'string' || msg.length < 2 || msg.lentgh > 4096) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        try {
+            const data = await db.collection('support').findOne({ _id: parseInt(id, 10) });
+            if (!data || (!data.username !== req.session.auth.username && !Module.isAuthorizedAdmin(req))) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            let messages = data.messages || [];
+            const message = {
+                username: req.session.auth.username,
+                id: Math.floor(new Date().valueOf() * Math.random()),
+                timestamp: parseInt(Date.now() / 1000, 10),
+                message: msg
+            };
+            messages.push(message);
+            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { messages: messages } }, { upsert: true });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            res.send(JSON.stringify({
+                status: 1,
+                message: message
             }));
         } catch (e) {
             log.error(e);
@@ -608,6 +889,11 @@ module.exports = function(app) {
     router.get('/download', attachmentDownload);
     router.post('/request/delete', deleteRequest);
     router.post('/frontend/create', frontendCreateRequest);
+    router.get('/frontend/load', frontendLoadRequest);
+    router.post('/frontend/upload', frontendAttachmentUpload);
+    router.post('/frontend/attachment/delete', deleteAttachment);
+    router.post('/frontend/message', frontendSaveMessage);
+    router.post('/request/pickup', requestPickupRelease);
 
     return {
         routes: router
