@@ -552,6 +552,13 @@ module.exports = function(app) {
                 status: 0
             }));
         }
+        if (!req.session || req.body.captcha !== req.session.captcha) {
+            req.session.captcha = null;
+            return res.send(JSON.stringify({
+                status: 0,
+                error: 'Invalid captcha code'
+            }));    
+        }
         const title = req.body.title;
         const message = req.body.message;
         const priority = req.body.priority;
@@ -570,7 +577,8 @@ module.exports = function(app) {
                 }));
             }
             const id = incr.value.seq;
-            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { title: title, status: 0, priority: parseInt(priority, 10), messages: [{ username: req.session.auth.username, id: Math.floor(new Date().valueOf() * Math.random()), timestamp: parseInt(Date.now() / 1000, 10), message: message }] } }, { upsert: true });
+            const timestamp = parseInt(Date.now() / 1000, 10);
+            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { title: title, status: 0, priority: parseInt(priority, 10), messages: [{ username: req.session.auth.username, id: Math.floor(new Date().valueOf() * Math.random()), timestamp: timestamp, message: message }], timestamp: timestamp, username: req.session.auth.username  } }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0

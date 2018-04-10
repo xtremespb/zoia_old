@@ -54,5 +54,8 @@
 	"Create ticket": "Create ticket",
 	"Captcha": "Captcha",
 	"Create": "Create",
-	"Form contains errors. Please check all fields and try again.": "Form contains errors. Please check all fields and try again."
+	"Form contains errors. Please check all fields and try again.": "Form contains errors. Please check all fields and try again.",
+	"A short description, length: 2-128 characters": "A short description, length: 2-128 characters",
+	"A long description, length: 2-4096 characters": "A long description, length: 2-4096 characters",
+	"Click the image if you cannot see code": "Click the image if you cannot see code"
 }

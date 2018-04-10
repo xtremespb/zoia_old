@@ -44,6 +44,7 @@
             <div class="za-form-controls">
                 <input class="za-input za-form-width-large zoia-ct-field" id="zoia_ct_title" type="text">
             </div>
+            <div class="za-text-muted za-text-small">{{ i18n.__(locale, 'A short description, length: 2-128 characters')}}</div>
         </div>
         <div class="za-margin">
             <label class="za-form-label" for="zoia_ct_priority">{{ i18n.__(locale, 'Priority')}}:</label>
@@ -57,13 +58,15 @@
             <div class="za-form-controls">
                 <textarea class="za-textarea za-form-width-large zoia-ct-field" id="zoia_ct_message" rows="5"></textarea>
             </div>
-        </div>
+            <div class="za-text-muted za-text-small">{{ i18n.__(locale, 'A long description, length: 2-4096 characters')}}</div>
+        </div>        
         <div class="za-margin">
             <label class="za-form-label" for="zoia_ct_captcha">{{ i18n.__(locale, 'Captcha') }}:</label>
             <div class="za-form-controls">
                 <img src="/api/captcha/" class="zoia-ct-captcha-img" style="display:none">&nbsp;
                 <input class="za-input za-form-width-small zoia-ct-field" id="zoia_ct_captcha" type="text"">
             </div>
+            <div class="za-text-muted za-text-small">{{ i18n.__(locale, 'Click the image if you cannot see code')}}</div>
         </div> 
         <div class="za-margin">
         	<button class="za-button za-button-primary" id="zoia_ct_btn_create" type="submit"><div za-spinner id="zoia_ct_btn_create_spinner" style="display:none"></div>{{ i18n.__(locale, 'Create')}}</button>
