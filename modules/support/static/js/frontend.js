@@ -44,7 +44,8 @@ const createTicketFormSubmit = (e) => {
     }).done((res) => {
         $('#zoia_ct_btn_create_spinner').hide();
         if (res && res.status === 1) {
-
+            window.history.pushState({ action: 'view', id: res.id }, document.title, '/support?action=view&id=' + res.id);
+            viewTicket(String(res.id));
         } else {
             captchaRefresh();
             if (res.captcha) {
@@ -328,7 +329,7 @@ const processState = (eventState) => {
     }
 };
 
-const createTicket = () => {    
+const createTicket = () => {
     $('.zoia-wrap-table').hide();
     $('.zoia-wrap-new').show();
     $('.zoia-ct-field').val('');
@@ -390,6 +391,7 @@ $(document).ready(() => {
         onLoad: () => {
             $('.zoia-support-action-edit-btn').click(function() {
                 window.history.pushState({ action: 'view', id: $(this).attr('data') }, document.title, '/support?action=view&id=' + $(this).attr('data'));
+                $('#support').zoiaTable().load();
                 viewTicket($(this).attr('data'));
             });
         },

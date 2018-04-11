@@ -17,6 +17,8 @@ module.exports = function(app) {
     const log = app.get('log');
     const db = app.get('db');
     const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
+    const mailer = new(require(path.join(__dirname, '..', '..', 'core', 'mailer.js')))(app);
+    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
 
     const sortFields = ['_id', 'status', 'timestamp', 'username', 'title', 'priority'];
 
@@ -57,15 +59,20 @@ module.exports = function(app) {
             if (search) {
                 fquery = {
                     $or: [
-                        { name: { $regex: search, $options: 'i' } }
+                        { username: { $regex: search, $options: 'i' } },
+                        { specialist: { $regex: search, $options: 'i' } },
+                        { title: { $regex: search, $options: 'i' } }
                     ]
                 };
+                if (search.match(/^[0-9]+$/)) {
+                    fquery.$or.push({ _id: parseInt(search, 10) })
+                }
             }
             const total = await db.collection('support').find(fquery).count();
             const items = await db.collection('support').find(fquery, { skip: skip, limit: limit, sort: sort, projection: { _id: 1, timestamp: 1, title: 1, username: 1, status: 1, priority: 1, specialist: 1 } }).toArray();
-            for (let i in items) {
+            /*for (let i in items) {
                 items[i].title = items[i].title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;');
-            }
+            }*/
             let data = {
                 status: 1,
                 count: items.length,
@@ -629,8 +636,28 @@ module.exports = function(app) {
                     status: 0
                 }));
             }
+            let mailHTMLUser = await render.file('mail_newticket_user.html', {
+                i18n: i18n.get(),
+                locale: locale,
+                lang: JSON.stringify(i18n.get().locales[locale]),
+                config: config,
+                url: config.website.protocol + '://' + config.website.url[locale] + '/support?action=view&id=' + id,
+                id: id
+            });
+            let mailHTMLAdmin = await render.file('mail_newticket_admin.html', {
+                i18n: i18n.get(),
+                locale: locale,
+                lang: JSON.stringify(i18n.get().locales[locale]),
+                config: config,
+                id: id,
+                title: title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;'),
+                username: req.session.auth.username
+            });
+            await mailer.send(req, req.session.auth.email, i18n.get().__(locale, 'New Support Ticket'), mailHTMLUser);
+            await mailer.send(req, config.website.email.feedback, i18n.get().__(locale, 'New Support Ticket'), mailHTMLAdmin);
             res.send(JSON.stringify({
-                status: 1
+                status: 1,
+                id: id
             }));
         } catch (e) {
             log.error(e);

@@ -70,5 +70,14 @@
 	"Release": "Release",
 	"Selected support request is currently being processed by another specialist. Continue?": "Selected support request is currently being processed by another specialist. Continue?",
 	"There are unsaved changes. Save?": "There are unsaved changes. Save?",
-	"No": "No"
+	"No": "No",
+	"All Tickets": "All Tickets",
+	"Please set the appropriate title for your support ticket.": "Please set the appropriate title for your support ticket.",
+	"The priority of the ticket indicates the importance of your request or problem and may be changed by support team later.": "The priority of the ticket indicates the importance of your request or problem and may be changed by support team later.",
+	"Your ticket has been created.": "Your ticket has been created.",
+	"Ticket ID": "Ticket ID",
+	"New": "New",
+	"View ticket": "View ticket",
+	"New Support Ticket": "New Support Ticket",
+	"New ticket in support system.": "New ticket in support system."
 }
