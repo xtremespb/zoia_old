@@ -139,6 +139,7 @@ const viewTicket = (id) => {
         }
     }).done((res) => {
         if (res && res.status === 1) {
+            $('#support').zoiaTable().load();
             $('.zoia-ticket-title').html(res.data.title);
             $('.zoia-ticket-timestamp').html(new Date(res.data.timestamp * 1000).toLocaleString());
             $('.zoia-ticket-status').removeClass('za-label-success').removeClass('za-label-warning');
@@ -161,7 +162,7 @@ const viewTicket = (id) => {
                 if (res.data.messages[i].username !== currentUsername) {
                     cc = ' zoia-reply-msg';
                 }
-                messagesHTML += '<article class="za-comment za-margin za-card za-card-default za-card-small za-card-body' + cc + '"><header class="za-comment-header za-grid-medium za-flex-middle" za-grid><div class="za-width-expand""><h4 class="za-comment-title za-margin-remove"><span class="za-link-reset">' + res.data.messages[i].username + '</span></h4><ul class="za-comment-meta za-subnav za-subnav-divider za-margin-remove-top" style="border-bottom:1px solid #ddd"><li><span>' + new Date(parseInt(res.data.messages[i].timestamp) * 1000).toLocaleString() + '</span></li></ul></div></header><div class="za-comment-body"><p class="zoia-msg-text">' + res.data.messages[i].message + '</p></div></article>';
+                messagesHTML += '<article class="za-comment za-margin za-card za-card-default za-card-small za-card-body' + cc + '"><header class="za-comment-header za-grid-medium za-flex-middle" za-grid><div class="za-width-expand""><h4 class="za-comment-title za-margin-remove"><span class="za-link-reset">' + res.data.messages[i].username + '</span></h4><ul class="za-comment-meta za-subnav za-subnav-divider za-margin-remove-top" style="border-bottom:1px solid #ddd"><li><span>' + new Date(parseInt(res.data.messages[i].timestamp) * 1000).toLocaleString() + '</span></li></ul></div></header><div class="za-comment-body"><p class="zoia-msg-text">' + res.data.messages[i].message.replace(/\n/gm, '<br>') + '</p></div></article>';
             }
             let filesHTML = '';
             for (let i in res.data.files) {
@@ -362,6 +363,9 @@ $(document).ready(() => {
             title: {
                 sortable: true,
                 process: (id, item, value) => {
+                    if (item.unreadUser) {
+                        value = '<span class="za-icon-button" za-icon="icon:mail;ratio:0.6" style="background:#FFB03B;color:#fff;width:20px;height:20px;"></span>&nbsp;' + value;
+                    }
                     return value;
                 }
             },
@@ -390,8 +394,7 @@ $(document).ready(() => {
         },
         onLoad: () => {
             $('.zoia-support-action-edit-btn').click(function() {
-                window.history.pushState({ action: 'view', id: $(this).attr('data') }, document.title, '/support?action=view&id=' + $(this).attr('data'));
-                $('#support').zoiaTable().load();
+                window.history.pushState({ action: 'view', id: $(this).attr('data') }, document.title, '/support?action=view&id=' + $(this).attr('data'));                
                 viewTicket($(this).attr('data'));
             });
         },

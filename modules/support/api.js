@@ -31,7 +31,9 @@ module.exports = function(app) {
         }
         const sortField = req.query.sortField || 'timestamp';
         const sortDirection = (req.query.sortDirection === 'asc') ? 1 : -1;
-        const sort = {};
+        const sort = {
+            unreadSupport: -1
+        };
         sort[sortField] = sortDirection;
         let skip = req.query.skip || 0;
         let limit = req.query.limit || 10;
@@ -69,7 +71,7 @@ module.exports = function(app) {
                 }
             }
             const total = await db.collection('support').find(fquery).count();
-            const items = await db.collection('support').find(fquery, { skip: skip, limit: limit, sort: sort, projection: { _id: 1, timestamp: 1, title: 1, username: 1, status: 1, priority: 1, specialist: 1 } }).toArray();
+            const items = await db.collection('support').find(fquery, { skip: skip, limit: limit, sort: sort, projection: { _id: 1, timestamp: 1, title: 1, username: 1, status: 1, priority: 1, specialist: 1, unreadSupport: 1 } }).toArray();
             /*for (let i in items) {
                 items[i].title = items[i].title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;');
             }*/
@@ -97,7 +99,9 @@ module.exports = function(app) {
         }
         const sortField = req.query.sortField || 'timestamp';
         const sortDirection = (req.query.sortDirection === 'asc') ? 1 : -1;
-        const sort = {};
+        const sort = {
+            unreadUser: -1
+        };
         sort[sortField] = sortDirection;
         let skip = req.query.skip || 0;
         let limit = req.query.limit || 10;
@@ -120,10 +124,10 @@ module.exports = function(app) {
         };
         try {
             const total = await db.collection('support').find(fquery).count();
-            const items = await db.collection('support').find(fquery, { skip: skip, limit: limit, sort: sort, projection: { _id: 1, timestamp: 1, title: 1, username: 1, status: 1, priority: 1 } }).toArray();
-            for (let i in items) {
+            const items = await db.collection('support').find(fquery, { skip: skip, limit: limit, sort: sort, projection: { _id: 1, timestamp: 1, title: 1, username: 1, status: 1, priority: 1, unreadUser: 1 } }).toArray();
+            /*for (let i in items) {
                 items[i].title = items[i].title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;');
-            }
+            }*/
             let data = {
                 status: 1,
                 count: items.length,
@@ -160,7 +164,7 @@ module.exports = function(app) {
                 }));
             }
             if (!data.specialist) {
-                let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { specialist: req.session.auth.username } }, { upsert: true });
+                let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { specialist: req.session.auth.username } }, { upsert: false });
                 if (!updResult || !updResult.result || !updResult.result.ok) {
                     return res.send(JSON.stringify({
                         status: 0
@@ -168,7 +172,13 @@ module.exports = function(app) {
                 }
                 data.specialist = req.session.auth.username;
             }
-            data.title = data.title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;');
+            let updUnreadResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { unreadSupport: false } }, { upsert: false });
+            if (!updUnreadResult || !updUnreadResult.result || !updUnreadResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            // data.title = data.title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;');
             if (data.messages) {
                 for (let i in data.messages) {
                     data.messages[i].message = data.messages[i].message.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;');
@@ -244,6 +254,7 @@ module.exports = function(app) {
                 status: 0
             }));
         }
+        const locale = req.session.currentLocale;
         const id = req.body.id;
         const msgId = req.body.msgId;
         const msg = req.body.msg;
@@ -285,11 +296,28 @@ module.exports = function(app) {
                 };
                 messages.push(message);
             }
-            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { messages: messages } }, { upsert: true });
+            let setData = { messages: messages };
+            if (!msgId) {
+                setData.unreadUser = true;
+            }
+            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: setData }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0
                 }));
+            }
+            if (!data.unreadUser && !msgId) {
+                let mailHTMLUser = await render.file('mail_newmessage_user.html', {
+                    i18n: i18n.get(),
+                    locale: locale,
+                    lang: JSON.stringify(i18n.get().locales[locale]),
+                    config: config,
+                    url: config.website.protocol + '://' + config.website.url[locale] + '/support?action=view&id=' + id,
+                    id: id,
+                    title: data.title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;'),
+                    message: msg.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;').replace(/\n/gm, '<br>')
+                });
+                await mailer.send(req, req.session.auth.email, i18n.get().__(locale, 'Support Ticket Reply'), mailHTMLUser);
             }
             res.send(JSON.stringify({
                 status: 1,
@@ -630,7 +658,7 @@ module.exports = function(app) {
             }
             const id = incr.value.seq;
             const timestamp = parseInt(Date.now() / 1000, 10);
-            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { title: title, status: 0, priority: parseInt(priority, 10), messages: [{ username: req.session.auth.username, id: Math.floor(new Date().valueOf() * Math.random()), timestamp: timestamp, message: message }], timestamp: timestamp, username: req.session.auth.username } }, { upsert: true });
+            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { title: title, status: 0, priority: parseInt(priority, 10), messages: [{ username: req.session.auth.username, id: Math.floor(new Date().valueOf() * Math.random()), timestamp: timestamp, message: message }], unreadUser: false, unreadSupport: true, timestamp: timestamp, username: req.session.auth.username } }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -693,6 +721,12 @@ module.exports = function(app) {
                 for (let i in data.messages) {
                     data.messages[i].message = data.messages[i].message.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;');
                 }
+            }
+            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { unreadUser: false } }, { upsert: true });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
             }
             res.send(JSON.stringify({
                 status: 1,
@@ -885,11 +919,23 @@ module.exports = function(app) {
                 message: msg
             };
             messages.push(message);
-            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { messages: messages } }, { upsert: true });
+            let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { messages: messages, unreadSupport: true } }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0
                 }));
+            }
+            if (!data.unreadSupport) {
+                let mailHTMLAdmin = await render.file('mail_newmessage_admin.html', {
+                    i18n: i18n.get(),
+                    locale: locale,
+                    lang: JSON.stringify(i18n.get().locales[locale]),
+                    config: config,
+                    id: id,
+                    title: data.title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;'),
+                    message: msg.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;').replace(/\n/gm, '<br>')
+                });
+                await mailer.send(req, config.website.email.feedback, i18n.get().__(locale, 'Support Ticket Reply'), mailHTMLAdmin);
             }
             res.send(JSON.stringify({
                 status: 1,

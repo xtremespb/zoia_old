@@ -50,7 +50,6 @@ const bindMessageHandlers = () => {
 };
 
 const ajaxPickUp = (pickup, mute, reloadTable) => {
-    console.log('ajaxPickUp');
     $('#zoiaSpinnerWhite').show();
     $.ajax({
         type: 'POST',
@@ -125,7 +124,7 @@ const loadSupportRequest = () => {
                 if (res.data.messages[i].username !== currentUsername) {
                     cc = ' zoia-reply-msg';
                 }
-                supportMessagesHTML += '<article class="za-comment za-margin za-card za-card-default za-card-small za-card-body' + cc + '"><header class="za-comment-header za-grid-medium za-flex-middle" za-grid><div class="za-width-expand""><h4 class="za-comment-title za-margin-remove"><span class="za-link-reset">' + res.data.messages[i].username + '</span></h4><ul class="za-comment-meta za-subnav za-subnav-divider za-margin-remove-top" style="border-bottom:1px solid #ddd"><li><span>' + new Date(parseInt(res.data.messages[i].timestamp) * 1000).toLocaleString() + '</span></li><li><span class="zoia-msg-edit" data="' + res.data.messages[i].id + '">' + lang['Edit'] + '</span></li><li><span class="zoia-msg-delete" data="' + res.data.messages[i].id + '">' + lang['Delete'] + '</span></li></ul></div></header><div class="za-comment-body"><p class="zoia-msg-text" data="' + res.data.messages[i].id + '">' + res.data.messages[i].message + '</p></div></article>';
+                supportMessagesHTML += '<article class="za-comment za-margin za-card za-card-default za-card-small za-card-body' + cc + '"><header class="za-comment-header za-grid-medium za-flex-middle" za-grid><div class="za-width-expand""><h4 class="za-comment-title za-margin-remove"><span class="za-link-reset">' + res.data.messages[i].username + '</span></h4><ul class="za-comment-meta za-subnav za-subnav-divider za-margin-remove-top" style="border-bottom:1px solid #ddd"><li><span>' + new Date(parseInt(res.data.messages[i].timestamp) * 1000).toLocaleString() + '</span></li><li><span class="zoia-msg-edit" data="' + res.data.messages[i].id + '">' + lang['Edit'] + '</span></li><li><span class="zoia-msg-delete" data="' + res.data.messages[i].id + '">' + lang['Delete'] + '</span></li></ul></div></header><div class="za-comment-body"><p class="zoia-msg-text" data="' + res.data.messages[i].id + '">' + res.data.messages[i].message.replace(/\n/gm, '<br>') + '</p></div></article>';
             }
             $('#zoia_support_messages').html(supportMessagesHTML);
             let filesHTML = '';
@@ -190,7 +189,7 @@ const btnMessageSaveClickHandler = () => {
             if (currentSupportMessageID) {
                 $('.zoia-msg-text[data="' + currentSupportMessageID + '"]').html(res.message.message.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;"));
             } else {
-                const supportMessagesHTML = '<article class="za-comment za-margin za-card za-card-default za-card-small za-card-body"><header class="za-comment-header za-grid-medium za-flex-middle" za-grid><div class="za-width-expand""><h4 class="za-comment-title za-margin-remove"><span class="za-link-reset">' + res.message.username + '</span></h4><ul class="za-comment-meta za-subnav za-subnav-divider za-margin-remove-top" style="border-bottom:1px solid #ddd"><li><span>' + new Date(parseInt(res.message.timestamp) * 1000).toLocaleString() + '</span></li><li><span class="zoia-msg-edit" data="' + res.message.id + '">' + lang['Edit'] + '</span></li><li><span class="zoia-msg-delete" data="' + res.message.id + '">' + lang['Delete'] + '</span></li></ul></div></header><div class="za-comment-body"><p class="zoia-msg-text" data="' + res.message.id + '">' + res.message.message + '</p></div></article>';
+                const supportMessagesHTML = '<article class="za-comment za-margin za-card za-card-default za-card-small za-card-body"><header class="za-comment-header za-grid-medium za-flex-middle" za-grid><div class="za-width-expand""><h4 class="za-comment-title za-margin-remove"><span class="za-link-reset">' + res.message.username + '</span></h4><ul class="za-comment-meta za-subnav za-subnav-divider za-margin-remove-top" style="border-bottom:1px solid #ddd"><li><span>' + new Date(parseInt(res.message.timestamp) * 1000).toLocaleString() + '</span></li><li><span class="zoia-msg-edit" data="' + res.message.id + '">' + lang['Edit'] + '</span></li><li><span class="zoia-msg-delete" data="' + res.message.id + '">' + lang['Delete'] + '</span></li></ul></div></header><div class="za-comment-body"><p class="zoia-msg-text" data="' + res.message.id + '">' + res.message.message.replace(/\n/gm, '<br>') + '</p></div></article>';
                 $('#zoia_support_messages').prepend(supportMessagesHTML);
                 bindMessageHandlers();
             }
@@ -266,7 +265,6 @@ const initUploader = () => {
 };
 
 const btnCommonSaveClickHandler = (callback) => {
-    console.log('btnCommonSaveClickHandler');
     $('#zoia_support_title').removeClass('za-form-danger');
     const title = $('#zoia_support_title').val().trim();
     const status = $('#zoia_support_status').val();
@@ -290,6 +288,9 @@ const btnCommonSaveClickHandler = (callback) => {
             $('#zoiaSpinnerWhite').hide();
         }, 300);
         if (res && res.status === 1) {
+            currentData.status = parseInt($('#zoia_support_status').val());
+            currentData.priority = parseInt($('#zoia_support_priority').val());
+            currentData.title = $('#zoia_support_title').val();
             $zUI.notification(lang['Data has been saved successfully'], {
                 status: 'success',
                 timeout: 1500
@@ -393,6 +394,10 @@ const zoiaDeleteButtonClickHandler = (id) => {
     });
 };
 
+const supportBtnRefreshClick = () => {
+    $('#support').zoiaTable().load();
+};
+
 const pickupTicketHandler = () => {
     ajaxPickUp(true);
 };
@@ -413,6 +418,7 @@ $(document).ready(() => {
             _id: {
                 sortable: true,
                 process: (id, item, value) => {
+                    
                     return value;
                 }
             },
@@ -431,6 +437,9 @@ $(document).ready(() => {
             title: {
                 sortable: true,
                 process: (id, item, value) => {
+                    if (item.unreadSupport) {
+                        value = '<span class="za-icon-button" za-icon="icon:mail;ratio:0.6" style="background:#FFB03B;color:#fff;width:20px;height:20px;"></span>&nbsp;' + value;
+                    }
                     return value;
                 }
             },
@@ -535,5 +544,6 @@ $(document).ready(() => {
             }
         }
     });
+    $('.supportBtnRefresh').click(supportBtnRefreshClick);
     initUploader();
 });

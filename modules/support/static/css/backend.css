@@ -1,3 +1,4 @@
+.supportBtnRefresh,
 .supportBtnSelectAll,
 .supportBtnSelectNone {
     padding: 9px;
@@ -41,4 +42,13 @@
 .zoia-reply-msg {
 	background: #F5F5F5;
 	border: 1px solid #ddd;
+}
+
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
