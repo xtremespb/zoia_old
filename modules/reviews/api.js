@@ -230,7 +230,6 @@ module.exports = function(app) {
             }));
         }
         try {
-            console.log(parseInt(Date.now() / 1000, 10));
             const what = {
                 name: name,
                 text: text,

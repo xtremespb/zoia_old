@@ -112,7 +112,7 @@ module.exports = function(app) {
             };
             res.send(JSON.stringify(data));
         } catch (e) {
-            console.log(e);
+            log.error(e);
             res.send(JSON.stringify({
                 status: 0,
                 error: e.message
@@ -439,8 +439,7 @@ module.exports = function(app) {
             const account = await db.collection('hosting_accounts').findOne({ id: fields.id.value });
             const Plugin = require(path.join(__dirname, 'plugins_hosting', configModule.defaultPlugin));
             const plugin = new Plugin(app);
-            //const accountAvailable = await plugin.check(fields.id.value, configModule.hosts[configModule.hosts.indexOf(configModule.defaultHost)], locale);
-            const accountAvailable = true;
+            const accountAvailable = await plugin.check(fields.id.value, configModule.hosts[configModule.hosts.indexOf(configModule.defaultHost)], locale);
             if (account || accountAvailable !== true) {
                 return res.send(JSON.stringify({
                     status: 0,
@@ -467,8 +466,7 @@ module.exports = function(app) {
             }
             const taskID = insTaskResult.insertedId;
             setTimeout(async function() {
-                //const createResult = await plugin.create(fields.id.value, configModule.hosts[configModule.hosts.indexOf(configModule.defaultHost)], preset, fields.password.value, locale);
-                createResult = true;
+                const createResult = await plugin.create(fields.id.value, configModule.hosts[configModule.hosts.indexOf(configModule.defaultHost)], preset, fields.password.value, locale);
                 if (createResult === true) {
                     try {
                         let failed;
@@ -498,7 +496,6 @@ module.exports = function(app) {
                         }
                         await db.collection('hosting_tasks').update({ _id: new ObjectID(taskID) }, { $set: { state: failed ? 0 : 2 } }, { upsert: true });
                     } catch (e) {
-                        console.log(e);
                         log.error(e);
                     }
                 } else {
@@ -562,7 +559,6 @@ module.exports = function(app) {
                 timestamp: task.timestamp
             }));
         } catch (e) {
-            console.log(e);
             log.error(e);
             res.send(JSON.stringify({
                 status: 0,
@@ -636,8 +632,7 @@ module.exports = function(app) {
             }
             const Plugin = require(path.join(__dirname, 'plugins_hosting', configModule.defaultPlugin));
             const plugin = new Plugin(app);
-            //const start = await plugin.start(account.id, account.host, locale);
-            const start = true;
+            const start = await plugin.start(account.id, account.host, locale);
             if (start !== true) {
                 return res.send(JSON.stringify({
                     status: 0,
@@ -674,7 +669,6 @@ module.exports = function(app) {
                 days: (parseInt(days, 10) + parseInt(account.days, 10))
             }));
         } catch (e) {
-            console.log(e);
             log.error(e);
             res.send(JSON.stringify({
                 status: 0,

@@ -268,7 +268,6 @@ module.exports = function(app) {
                 } catch (e) {
                     log.error('Could not restore a backup');
                     log.error(e);
-                    console.log(e);
                     await db.collection('backup_tasks').update({ _id: new ObjectID(taskId) }, { $set: { state: 0 } }, { upsert: true });
                     try {
                         await fs.remove(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId + '.tgz'));
