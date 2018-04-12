@@ -27,7 +27,7 @@ try {
 module.exports = function(app, router) {
     const db = app.get('db');
     const log = app.get('log');
-    const i18n = new(require(path.join(__dirname, '..', '..', '..', 'core', 'i18n.js')))(path.join(__dirname, '..', '..', 'lang'), app);
+    const i18n = new(require(path.join(__dirname, '..', '..', '..', 'core', 'i18n.js')))(path.join(__dirname, '..', 'lang'), app);
     const renderModule = new(require(path.join(__dirname, '..', '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', 'views'), app);
     const renderRoot = new(require(path.join(__dirname, '..', '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', '..', 'views'), app);
     const render = new(require(path.join(__dirname, '..', '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', 'views'), app);
