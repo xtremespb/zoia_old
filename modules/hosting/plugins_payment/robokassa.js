@@ -127,13 +127,10 @@ module.exports = function(app, router) {
                 config: config,
                 sum: sum
             });
-            console.log('Sending mail to: ' + paymentData.email);
             await mailer.send(req, paymentData.email, i18n.get().__(locale, 'Successful Payment'), mailHTML);
-            console.log('Mail has been sent');
             return res.send('OK');
         } catch (e) {
             log.error(e);
-            return res.send('Exception caught');
         }
     };
 

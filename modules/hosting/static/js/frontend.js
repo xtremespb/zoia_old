@@ -1,3 +1,4 @@
+let accountExtendDialog;
 let accountCreateDialog;
 let accountProgressDialog;
 let accountExtendCost;
