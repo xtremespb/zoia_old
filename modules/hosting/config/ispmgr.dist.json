@@ -1,8 +1,8 @@
 {
     "url": {
-        "rw2": "https://rw2.re-hash.org/ispmgr",
-        "sh1": "https://sh1.re-hash.org"
+        "rw2": "https://somehost.re-hash.org/ispmgr",
+        "sh1": "https://somehost.re-hash.org"
     },
-    "username": "rehash_manager",
-    "password": "E1h9Y2c4"
+    "username": "",
+    "password": ""
 }
