@@ -25,6 +25,7 @@ module.exports = function(app) {
             names: config.i18n.localeNames,
             type: type,
             urls: config.website.url,
+            originalUrl: req.originalUrl || '',
             protocol: config.website.protocol
         });;
         return html;
