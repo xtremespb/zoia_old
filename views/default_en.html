@@ -49,9 +49,9 @@
                         {% else %}
                         <li><a href="/auth">{{ i18nc.__(locale, 'Sign In') }}</a></li>
                         <li><a href="/auth/register">{{ i18nc.__(locale, 'Register') }}</a></li>{% endif %}
-                    </ul>                    
+                    </ul>
+                    {{ req | switcherDesktopQuery }}
                 </div>
-                {{ req | switcherQuery }}
             </nav>
         </div>
         <div class="za-container zoia-wrap-content zoia-content-container">
@@ -73,6 +73,7 @@
                     <li><a href="/auth">{{ i18nc.__(locale, 'Sign In') }}</a></li>
                     <li><a href="/auth/register">{{ i18nc.__(locale, 'Register') }}</a></li>{% endif %}
                 </ul>
+                {{ req | switcherMobileQuery }}
             </div>
         </div>
     </div>
@@ -82,11 +83,11 @@
     <script src="/zoia/3rdparty/uikit/js/uikit.min.js" type="text/javascript"></script>
     <script src="/zoia/3rdparty/uikit/js/uikit-icons.min.js" type="text/javascript"></script>{% endif %}{% if extraJS %} {% for item in extraJS %}
     <script src="{{ item }}" type="text/javascript"></script>{% endfor %}{% endif %}
-     <script>
-        window.onload = function() {
-            $('.zoia-template-navbar-right').show();
-        };
-    </script> 
+    <script>
+    window.onload = function() {
+        $('.zoia-template-navbar-right').show();
+    };
+    </script>
 </body>
 
 </html>

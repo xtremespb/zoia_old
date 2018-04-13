@@ -3,15 +3,19 @@ const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const fs = require('fs');
 
-let templateSwitcher = 'switcher.html';
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateSwitcher))) {
-    templateSwitcher = 'custom_' + templateSwitcher;
+let templateSwitcherDesktop = 'switcher_desktop.html';
+if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateSwitcherDesktop))) {
+    templateSwitcherDesktop = 'custom_' + templateSwitcherDesktop;
+}
+let templateSwitcherMobile = 'switcher_mobile.html';
+if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateSwitcherMobile))) {
+    templateSwitcherMobile = 'custom_' + templateSwitcherMobile;
 }
 
 module.exports = function(app) {
     const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
 
-    const switcherAsync = async(req, type) => {
+    const switcherAsync = async(req, type, mobile) => {
         if (!req) {
             return '';
         }
@@ -19,7 +23,7 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
-        let html = await render.file(templateSwitcher, {
+        let html = await render.file(mobile ? templateSwitcherMobile : templateSwitcherDesktop, {
             locale: locale,
             locales: config.i18n.locales,
             names: config.i18n.localeNames,
@@ -43,10 +47,24 @@ module.exports = function(app) {
         });
     };
 
+    const switcherMobileQuery = (data, callback) => {
+        switcherAsync(data, 'query', true).then(function(html) {
+            callback(null, html);
+        });
+    };
+
+    const switcherMobileSubdomain = (data, callback) => {
+        switcherAsync(data, 'subdomain', true).then(function(html) {
+            callback(null, html);
+        });
+    };
+
     return {
         filters: {
-            switcherQuery: switcherQuery,
-            switcherSubdomain: switcherSubdomain
+            switcherDesktopQuery: switcherDesktopQuery,
+            switcherDesktopSubdomain: switcherDesktopSubdomain,
+            switcherMobileQuery: switcherMobileQuery,
+            switcherMobileSubdomain: switcherMobileSubdomain
         }
     };
 };
