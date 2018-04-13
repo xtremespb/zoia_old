@@ -128,17 +128,17 @@ module.exports = function(data) {
                 $set: {
                     _id: ObjectId('59953847ffa00062b54c92b4'),
                     folder: '1',
-                    name: 'support',
-                    url: 'support',
+                    name: 'development',
+                    url: 'development',
                     en: {
-                        title: 'Support',
+                        title: 'Development',
                         keywords: '',
                         description: '',
-                        content: '<h1>Support</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>You are welcome to create issues and pull requests on <a href=\'https://github.com/xtremespb/zoia\'>Github</a> page.</p>'
+                        content: '<h1>Development</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>You are welcome to create issues and pull requests on <a href=\'https://github.com/xtremespb/zoia\'>Github</a> page.</p>'
                     },
                     status: '1',
                     ru: {
-                        title: 'Поддержка',
+                        title: 'Разработка',
                         keywords: '',
                         description: '',
                         content: '<p>Вы можете создавать тикеты и pull request&#39;ы на странице в&nbsp;<a href=\'https://github.com/xtremespb/zoia\'>Github</a>.</p>'

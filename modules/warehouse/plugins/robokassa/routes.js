@@ -67,8 +67,8 @@ module.exports = function(app, router) {
         }
         const signature = crypto.createHash('md5').update(configPlugin.sMerchantLogin + ':' + orderData.costs.total + ':' + orderData._id + ':' + configPlugin.sMerchantPass1).digest('hex');
         return res.redirect(303, configPlugin.url + '?MrchLogin=' + configPlugin.sMerchantLogin + '&OutSum=' +
-            orderData.costs.total + '&InvId=' + orderData._id + '&Desc=' + 'Оплата заказа № ' +
-            orderData._id + '&SignatureValue=' + signature + '&IncCurrLabel=' + configPlugin.sIncCurrLabel +
+            orderData.costs.total + '&InvId=' + orderData._id + '&Desc=' + i18n.get().__(locale, 'Payment for Order ID') +
+            ' ' + orderData._id + '&SignatureValue=' + signature + '&IncCurrLabel=' + configPlugin.sIncCurrLabel +
             '&Culture=' + locale + '&IsTest=1&rnd=' + Math.random().toString().replace('.', ''));
     };
     /*
