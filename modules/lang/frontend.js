@@ -35,13 +35,13 @@ module.exports = function(app) {
         return html;
     };
 
-    const switcherQuery = (data, callback) => {
+    const switcherDesktopQuery = (data, callback) => {
         switcherAsync(data, 'query').then(function(html) {
             callback(null, html);
         });
     };
 
-    const switcherSubdomain = (data, callback) => {
+    const switcherDesktopSubdomain = (data, callback) => {
         switcherAsync(data, 'subdomain').then(function(html) {
             callback(null, html);
         });
