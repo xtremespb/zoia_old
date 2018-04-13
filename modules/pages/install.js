@@ -141,7 +141,7 @@ module.exports = function(data) {
                         title: 'Разработка',
                         keywords: '',
                         description: '',
-                        content: '<p>Вы можете создавать тикеты и pull request&#39;ы на странице в&nbsp;<a href=\'https://github.com/xtremespb/zoia\'>Github</a>.</p>'
+                        content: '<h1>Разработка</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Вы можете создавать тикеты и pull request&#39;ы на странице в&nbsp;<a href=\'https://github.com/xtremespb/zoia\'>Github</a>.</p>'
                     }
                 }
             }, { upsert: true });
