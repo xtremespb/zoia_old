@@ -49,8 +49,9 @@
                         {% else %}
                         <li><a href="/auth">{{ i18nc.__(locale, 'Sign In') }}</a></li>
                         <li><a href="/auth/register">{{ i18nc.__(locale, 'Register') }}</a></li>{% endif %}
-                    </ul>
+                    </ul>                    
                 </div>
+                {{ req | switcherQuery }}
             </nav>
         </div>
         <div class="za-container zoia-wrap-content zoia-content-container">
