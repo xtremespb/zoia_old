@@ -3143,6 +3143,7 @@ module.exports = function(app) {
             }));
         }
         if (!Module.isAuthorized(req) && (!req.session || req.body.captcha !== req.session.captcha)) {
+            req.session.captcha = null;
             return res.send(JSON.stringify({
                 status: 0,
                 fields: ['captcha']

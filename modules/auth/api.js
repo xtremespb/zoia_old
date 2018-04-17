@@ -39,6 +39,7 @@ module.exports = function(app) {
         if (!req.session || fields.captcha.value !== req.session.captcha) {
             output.status = -2;
             output.fields = ['captcha'];
+            req.session.captcha = null;
             return res.send(JSON.stringify(output));
         }
         req.session.captcha = Math.random().toString().substr(2, 4);
@@ -110,6 +111,7 @@ module.exports = function(app) {
         if (!req.session || fields.captcha.value !== req.session.captcha) {
             output.status = -3;
             output.fields = ['captcha'];
+            req.session.captcha = null;
             return res.send(JSON.stringify(output));
         }
         req.session.captcha = Math.random().toString().substr(2, 4);
@@ -227,6 +229,7 @@ module.exports = function(app) {
         if (!req.session || fields.captcha.value !== req.session.captcha) {
             output.status = 0;
             output.fields = ['captcha'];
+            req.session.captcha = null;
             return res.send(JSON.stringify(output));
         }
         req.session.captcha = Math.random().toString().substr(2, 4);

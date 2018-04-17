@@ -237,5 +237,6 @@
 	"Pay": "Pay",
 	"pc(s).": "pc(s).",
 	"Copy numeric values": "Copy numeric values",
-	"Synchronize numeric values": "Synchronize numeric values"
+	"Synchronize numeric values": "Synchronize numeric values",
+	"Payment for Order ID": "Payment for Order ID"
 }

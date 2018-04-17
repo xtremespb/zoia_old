@@ -237,5 +237,6 @@
 	"Pay": "Оплатить",
 	"pc(s).": "шт.",
 	"Copy numeric values": "Копировать цифровые значения",
-	"Synchronize numeric values": "Синхронизация цифровых значений"
+	"Synchronize numeric values": "Синхронизация цифровых значений",
+	"Payment for Order ID": "Оплата заказа"
 }

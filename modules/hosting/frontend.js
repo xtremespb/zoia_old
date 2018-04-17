@@ -84,7 +84,6 @@ module.exports = function(app) {
             });
             res.send(html);
         } catch (e) {
-            console.log(e);
             log.error(e);
             return next();
         }

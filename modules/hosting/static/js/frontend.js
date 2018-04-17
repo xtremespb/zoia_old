@@ -1,3 +1,4 @@
+let accountExtendDialog;
 let accountCreateDialog;
 let accountProgressDialog;
 let accountExtendCost;
@@ -47,11 +48,18 @@ const checkAccountStatus = (id) => {
         if (res && res.status === 1) {
             if (res.state && res.state === 2) {
                 accountProgressDialog.hide();
+                if ($('.zoia-accounts-empty-accounts').is(':visible')) {
+                    $('#zoia_account_table_body').html('');
+                }
+                if ($('.zoia-accounts-empty-history').is(':visible')) {
+                    $('#zoia_history_table>tbody').html('');
+                }
                 $('#zoia_account_table_body').append('<tr><td class="zoia-accounts-id">' + res.id + '</td><td data="' + res.presetID + '">' + res.preset + '</td><td>' + res.days + '</td><td><a href="" class="za-icon-button zoia-btn-extend" za-icon="plus"></a></td></tr>');
                 $('#zoia_history_table>tbody').prepend('<tr><td>' + new Date(parseInt(res.timestamp, 10) * 1000).toLocaleString() + '</td><td><span za-icon="' + (res.sum < 0 ? 'minus' : 'plus') + '-circle"></span>&nbsp;' + (configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + Math.abs(res.sum) + (configModule.currencyPosition === 'right' ? '&nbsp;' + configModule.currency[locale] : '') + '</td></tr>');
                 const total = parseFloat($('.zoia-balance').html()) - Math.abs(parseFloat(res.sum));
                 $('.zoia-balance').html(total);
                 totalFunds = total;
+                $('.zoia-btn-extend').unbind().click(btnExtendClickHandler);
                 $zUI.modal.alert(lang['Your account has been created successfully and is ready to use.'], { labels: { ok: lang['OK'] }, stack: true });
             } else {
                 setTimeout(() => {
@@ -75,6 +83,58 @@ const btnExtendClickHandler = function(e) {
     calculateExtendTotal();
     $('#zoiaAccountExtendForm').zoiaFormBuilder().resetForm();
     accountExtendDialog.show();
+};
+
+const captchaRefresh = () => {
+    $('.topup-captcha-img').attr('src', '/api/captcha?rnd=' + Math.random());
+    $('#topup_captcha').val('');
+    $('.topup-captcha-img').show();
+};
+
+const topupHandler = (e) => {
+    e.preventDefault();
+    if ($('#zoia_spinner_topup').is(':visible')) {
+        return;
+    }
+    $('.zoia-topup-field').removeClass('za-form-danger');
+    const sum = $('#topup_sum').val().trim();
+    const captcha = $('#topup_captcha').val().trim();
+    if (!sum || !sum.match(/^\d+(\.\d+)?$/)) {
+        return $('#topup_sum').addClass('za-form-danger');
+    }
+    if (!captcha || !captcha.match(/^[0-9]{4}$/)) {
+        return $('#topup_captcha').addClass('za-form-danger');
+    }
+    $('#zoia_spinner_topup').show();
+    $('#zoia_btn_topup').hide();
+    $.ajax({
+        type: 'POST',
+        url: '/hosting/payment/request',
+        data: {
+            sum: sum,
+            captcha: captcha
+        },
+        cache: false
+    }).done((res) => {
+        if (res && res.status === 1 && res.url) {
+            location.href = res.url;
+        } else {
+            $('#zoia_spinner_topup').hide();
+            $('#zoia_btn_topup').show();
+            captchaRefresh();
+            $('#topup_captcha').val('');
+            if (res.error) {
+                $zUI.modal.alert(res.error, { labels: { ok: lang['OK'] }, stack: true });
+            } else {
+                $zUI.modal.alert(lang['Unable to create top-up request. Please try again later.'], { labels: { ok: lang['OK'] }, stack: true });
+            }
+        }
+    }).fail(() => {
+        $('#zoia_spinner_topup').hide();
+        $('#zoia_btn_topup').show();
+        captchaRefresh();
+        $zUI.modal.alert(lang['Unable to create top-up request. Please try again later.'], { labels: { ok: lang['OK'] }, stack: true });
+    }, 200);
 };
 
 const accountCreateFormData = {
@@ -251,7 +311,7 @@ const accountExtendFormData = {
                 $('.zoia-balance').html(total);
                 totalFunds = total;
                 $zUI.modal.alert(lang['Prolongation was successful'], { labels: { ok: lang['OK'] }, stack: true });
-            } else {                
+            } else {
                 $zUI.modal.alert(lang['Unable to prolong account'], { labels: { ok: lang['OK'] }, stack: true });
             }
         },
@@ -373,9 +433,16 @@ $(document).ready(() => {
     $('#zoiaAccountForm_months').change(calculateCreateTotal).keypress(calculateCreateTotal);
     $('#zoiaAccountExtendForm_months').change(calculateExtendTotal).keypress(calculateExtendTotal);
     $('#zoiaAccountExtendForm_calc').parent().parent().html('<div class="za-alert-warning" za-alert id="zoiaAccountExtendInsufficientFunds" style="margin-bottom:-5px;display:none"><p>' + lang['Insufficient funds'] + '</p></div><div class="za-card za-card-default za-card-small za-card-body" style="padding-top:25px;"><p class="za-text-large">' + lang['Total'] + ':&nbsp;<span class="zoia-extend-account-total"></span></div>');
-    $('#zoia_history_table>tbody>tr').each(function() {
-        $(this).find('td:first').html(new Date(parseInt($(this).find('td:first').html(), 10) * 1000).toLocaleString());
-    });
+    if (transactionsLength) {
+        $('#zoia_history_table>tbody>tr').each(function() {
+            $(this).find('td:first').html(new Date(parseInt($(this).find('td:first').html(), 10) * 1000).toLocaleString());
+        });
+    }
     $('#zoia_history_table').show();
     $('.zoia-btn-extend').unbind().click(btnExtendClickHandler);
+    $('.topup-captcha-img').click(() => {
+        captchaRefresh();
+    });
+    captchaRefresh();
+    $('#zoia_form_topup').submit(topupHandler);
 });

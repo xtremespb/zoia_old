@@ -4,10 +4,10 @@ const nodemailer = require('nodemailer');
 const htmlToText = require('html-to-text');
 
 module.exports = class Mailer {
-    constructor(app) {
+    constructor(app, db) {
         this.transporter = nodemailer.createTransport(config.mailer);
-        this.log = app.get('log');
-        this.db = app.get('db');
+        this.log = app ? app.get('log') : null;
+        this.db = app ? app.get('db') : db;
         this.render = new(require(path.join(__dirname, 'render.js')))(path.join(__dirname, '..', 'views'));
         this.i18n = new(require(path.join(__dirname, 'i18n.js')))(path.join(__dirname, 'lang'), app);
     }
@@ -56,16 +56,20 @@ module.exports = class Mailer {
         if (config.mailer.delayed) {
             const insResult = await this.db.collection('mail').insertOne(mailOptions);
             if (!insResult || !insResult.result || !insResult.result.ok) {
-                this.log.error(insResult.result);
+                if (this.log) {
+                    this.log.error(insResult.result);
+                }
             } else {
-            	return insResult.insertedId;
+                return insResult.insertedId;
             }
         } else {
-        	let result;
+            let result;
             try {
                 result = await this._send(mailOptions);
             } catch (e) {
-                this.log.error(e);
+                if (this.log) {
+                    this.log.error(e);
+                }
             }
             return result;
         }

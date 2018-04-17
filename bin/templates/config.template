@@ -57,9 +57,9 @@
         "fallback": false
     },
     "mailer": {
-        "host": "smtp.yandex.ru",
-        "port": 465,
-        "secure": true,
+        "host": "127.0.0.1",
+        "port": 25,
+        "secure": false,
         "auth": {
             "user": "",
             "pass": ""

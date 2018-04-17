@@ -222,6 +222,7 @@ module.exports = function(app) {
         const captcha = req.body.captcha;
         if (!captcha || typeof captcha !== 'string' || !captcha.match(/^[0-9]{4}$/) ||
             !req.session || captcha !== req.session.captcha) {
+            req.session.captcha = null;
             return res.send(JSON.stringify({
                 status: 0,
                 field: 'captcha',
@@ -229,7 +230,6 @@ module.exports = function(app) {
             }));
         }
         try {
-            console.log(parseInt(Date.now() / 1000, 10));
             const what = {
                 name: name,
                 text: text,

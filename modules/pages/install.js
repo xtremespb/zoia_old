@@ -110,7 +110,7 @@ module.exports = function(data) {
                         title: 'Configuration',
                         keywords: '',
                         description: '',
-                        content: '<h1>Configuration</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Configuration files are located in <strong>./etc</strong> folder. There are the following configuration files:</p>\n\n<ul>\n\t<li>config.js: main configuration file (database, host, port etc.)</li>\n\t<li>website.js: website configuration file (website title, templates, e-mail etc.)</li>\n</ul>\n\n<p>You will need to edit config.js in order to match your server/desktop configuration.</p>'
+                        content: '<h1>Configuration</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Configuration files are located in <strong>./etc</strong> folder. There are the following configuration files:</p>\n\n<ul>\n\t<li>config.json: main configuration file (database, host, port etc.)</li>\n\t<li>website.json: website configuration file (website title, templates, e-mail etc.)</li>\n</ul>\n\n<p>You will need to edit config.json in order to match your server/desktop configuration.</p>'
                     },
                     status: '1',
                     ru: {
@@ -128,20 +128,20 @@ module.exports = function(data) {
                 $set: {
                     _id: ObjectId('59953847ffa00062b54c92b4'),
                     folder: '1',
-                    name: 'support',
-                    url: 'support',
+                    name: 'development',
+                    url: 'development',
                     en: {
-                        title: 'Support',
+                        title: 'Development',
                         keywords: '',
                         description: '',
-                        content: '<h1>Support</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>You are welcome to create issues and pull requests on <a href=\'https://github.com/xtremespb/zoia\'>Github</a> page.</p>'
+                        content: '<h1>Development</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>You are welcome to create issues and pull requests on <a href=\'https://github.com/xtremespb/zoia\'>Github</a> page.</p>'
                     },
                     status: '1',
                     ru: {
-                        title: 'Поддержка',
+                        title: 'Разработка',
                         keywords: '',
                         description: '',
-                        content: '<p>Вы можете создавать тикеты и pull request&#39;ы на странице в&nbsp;<a href=\'https://github.com/xtremespb/zoia\'>Github</a>.</p>'
+                        content: '<h1>Разработка</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Вы можете создавать тикеты и pull request&#39;ы на странице в&nbsp;<a href=\'https://github.com/xtremespb/zoia\'>Github</a>.</p>'
                     }
                 }
             }, { upsert: true });

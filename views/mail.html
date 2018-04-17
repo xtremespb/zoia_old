@@ -13,18 +13,21 @@
     a {
         -webkit-text-size-adjust: 100%;
         -ms-text-size-adjust: 100%;
+        mso-style-priority: 99;
+        color: inherit !important;
+        text-decoration: none !important;
     }
-    
+
     table,
     td {
         mso-table-lspace: 0pt;
         mso-table-rspace: 0pt;
     }
-    
+
     img {
         -ms-interpolation-mode: bicubic;
     }
-    
+
     img {
         border: 0;
         height: auto;
@@ -32,18 +35,18 @@
         outline: none;
         text-decoration: none;
     }
-    
+
     table {
         border-collapse: collapse !important;
     }
-    
+
     body {
         height: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
         width: 100% !important;
     }
-    
+
     a[x-apple-data-detectors] {
         color: inherit !important;
         text-decoration: none !important;
@@ -52,7 +55,7 @@
         font-weight: inherit !important;
         line-height: inherit !important;
     }
-    
+
     @media screen and (max-width: 525px) {
         .wrapper {
             width: 100% !important;
@@ -92,6 +95,7 @@
         .mobile-button-container {
             margin: 0 auto;
             width: 100% !important;
+            color: #ffffff;
         }
         .mobile-button {
             padding: 15px !important;
@@ -100,7 +104,7 @@
             display: block !important;
         }
     }
-    
+
     div[style*="margin: 16px 0;"] {
         margin: 0 !important;
     }
@@ -111,7 +115,7 @@
     <table border="0" cellpadding="0" cellspacing="0" width="100%">
         <tr>
             <td bgcolor="#ffffff" align="center">
-            <!--[if (gte mso 9)|(IE)]>
+                <!--[if (gte mso 9)|(IE)]>
             <table align="center" border="0" cellspacing="0" cellpadding="0" width="500">
             <tr>
             <td align="center" valign="top" width="500">
@@ -125,7 +129,7 @@
                         </td>
                     </tr>
                 </table>
-            <!--[if (gte mso 9)|(IE)]>
+                <!--[if (gte mso 9)|(IE)]>
             </td>
             </tr>
             </table>
@@ -134,7 +138,7 @@
         </tr>
         <tr>
             <td bgcolor="#ffffff" align="center" style="padding: 15px;">
-            <!--[if (gte mso 9)|(IE)]>
+                <!--[if (gte mso 9)|(IE)]>
             <table align="center" border="0" cellspacing="0" cellpadding="0" width="500">
             <tr>
             <td align="center" valign="top" width="500">
@@ -147,12 +151,12 @@
                                 <tr>
                                     <td align="center" style="font-size: 32px; font-family: Helvetica, Arial, sans-serif; color: #333333; " class="padding-copy">{{ subject }}</td>
                                 </tr>
-                                {{ content }}                                
+                                {{ content }}
                             </table>
                         </td>
                     </tr>
                 </table>
-            <!--[if (gte mso 9)|(IE)]>
+                <!--[if (gte mso 9)|(IE)]>
             </td>
             </tr>
             </table>
@@ -161,7 +165,7 @@
         </tr>
         <tr>
             <td bgcolor="#ffffff" align="center" style="padding: 20px 0px;">
-            <!--[if (gte mso 9)|(IE)]>
+                <!--[if (gte mso 9)|(IE)]>
             <table align="center" border="0" cellspacing="0" cellpadding="0" width="500">
             <tr>
             <td align="center" valign="top" width="500">
@@ -169,11 +173,11 @@
                 <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center" style="max-width: 500px;" class="responsive-table">
                     <tr>
                         <td align="center" style="font-size: 12px; line-height: 18px; font-family: Helvetica, Arial, sans-serif; color:#666666;">
-                            Zoia Web Framework
+                            {{ config.website.title[locale] }}
                         </td>
                     </tr>
                 </table>
-            <!--[if (gte mso 9)|(IE)]>
+                <!--[if (gte mso 9)|(IE)]>
             </td>
             </tr>
             </table>
