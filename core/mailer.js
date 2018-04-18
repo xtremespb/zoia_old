@@ -49,7 +49,7 @@ module.exports = class Mailer {
             html: html,
             attachments: [{
                 filename: 'logo.png',
-                path: path.join(__dirname, config.website.logo.small.path),
+                path: path.join(__dirname, config.website.logo.mail ? config.website.logo.mail.path : config.website.logo.small.path),
                 cid: 'ztSj5GyXAdxeH6VS'
             }]
         };

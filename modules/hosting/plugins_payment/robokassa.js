@@ -78,7 +78,7 @@ module.exports = function(app, router) {
             const url = configPlugin.url + '?MrchLogin=' + configPlugin.sMerchantLogin + '&OutSum=' +
                 sum + '&InvId=' + id + '&Desc=' + i18n.get().__(locale, 'Payment ID ') +
                 id + '&SignatureValue=' + signature + '&IncCurrLabel=' + configPlugin.sIncCurrLabel +
-                '&Culture=' + locale + '&IsTest=1&rnd=' + Math.random().toString().replace('.', '');
+                '&Culture=' + locale + '&IsTest=0&rnd=' + Math.random().toString().replace('.', '');
             return res.send(JSON.stringify({
                 status: 1,
                 url: url

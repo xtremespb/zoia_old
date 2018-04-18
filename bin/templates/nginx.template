@@ -12,7 +12,7 @@ server {
 
     location ~ "^/(?<module>[a-zA-Z0-9]+)/static/(?<req>.+)$" {
         rewrite ^/$module/static/$req$ $req last;
-        root /var/www/zoia/modules/;
+        root {dir}/modules/;
     }
 
     location @node {
