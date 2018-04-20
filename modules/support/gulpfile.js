@@ -23,7 +23,7 @@ gulp.task('default', async() => {
         .pipe(minifyCSS())
         .pipe(concat('backend.min.css'))
         .pipe(gulp.dest(path.join('static', 'css')));
-    // Generate warehouse.min.js
+    // Generate backend.min.js
     await new Promise((resolve) => {
         gulp.src(['../../static/zoia/core/js/jquery.zoiaFormBuilder.js', '../../static/zoia/core/js/jquery.zoiaTable.js', 'static/js/backend.js'], { base: __dirname })
             .pipe(babel({
@@ -34,9 +34,9 @@ gulp.task('default', async() => {
             .pipe(gulp.dest(path.join('static', 'js')))
             .on('end', resolve);
     });
-    // Generate catalog.min.js
+    // Generate frontend.min.js
     await new Promise((resolve) => {
-        gulp.src(['../../static/zoia/core/js/jquery.zoiaFormBuilder.js', 'static/js/frontend.js'], { base: __dirname })
+        gulp.src(['../../static/zoia/core/js/jquery.zoiaTable.js', 'static/js/frontend.js'], { base: __dirname })
             .pipe(babel({
                 presets: ['env']
             }))
