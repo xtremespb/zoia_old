@@ -445,4 +445,6 @@ $(document).ready(() => {
     });
     captchaRefresh();
     $('#zoia_form_topup').submit(topupHandler);
+    $('.zoia-loading').hide();
+    $('.zoia-wrap-everything').show();
 });

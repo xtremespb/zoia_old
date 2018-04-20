@@ -29,11 +29,11 @@
 <div id="zoiaUserDialog" style="display:none">
     <div class="za-modal-dialog">
         <div class="za-modal-header" id="zoiaUserDialogHeader">
-            <h2>{{ i18n.__(locale, 'User')}}:&nbsp;<span class="za-user-dialog-username"></span></h2>
+            <h2><span class="za-user-dialog-username"></span></h2>
         </div>
         <div class="za-modal-body za-flex za-flex-center za-flex-middle" id="zoiaUserDialogBodySpinner">
             <div za-spinner>
-            	<b>{{ i18n.__(locale, 'Current Balance')}}</b>:&nbsp;{% if configModule.currencyPosition == 'left' %}{{ configModule.currency[locale] }}{% endif %}<span class="za-user-dialog-balance"></span>{% if configModule.currencyPosition == 'right' %}&nbsp;{{ configModule.currency[locale] }}{% endif %}
+                <b>{{ i18n.__(locale, 'Current Balance')}}</b>:&nbsp;{% if configModule.currencyPosition == 'left' %}{{ configModule.currency[locale] }}{% endif %}<span class="za-user-dialog-balance"></span>{% if configModule.currencyPosition == 'right' %}&nbsp;{{ configModule.currency[locale] }}{% endif %}
             </div>
         </div>
         <div class="za-modal-body" za-overflow-auto style="display:none" id="zoiaUserDialogBody">
@@ -43,24 +43,20 @@
             </ul>
             <ul class="za-switcher za-margin">
                 <li>
-                    <div za-grid>
-                        <div class="za-width-expand za-flex za-flex-bottom za-margin-bottom">
-                        	<b>{{ i18n.__(locale, 'Current Balance')}}</b>:&nbsp;{% if configModule.currencyPosition == 'left' %}{{ configModule.currency[locale] }}{% endif %}<span class="za-user-dialog-balance"></span>{% if configModule.currencyPosition == 'right' %}&nbsp;{{ configModule.currency[locale] }}{% endif %}
-                        </div>
-                        <div>
-                            <form class="za-form-stacked" id="zoiaUserDialogCorrectionsForm">
-                                <div class="za-margin">
-                                    <label class="za-form-label" for="zoia_correction">{{ i18n.__(locale, 'Correction')}}</label>
-                                    <div class="za-form-controls">
-                                        <input class="za-input za-form-width-small" id="zoia_correction" type="text">&nbsp;
-                                        <button class="za-button za-button-default" id="zoia_btn_correction_save" style="margin-top:1px"><span za-spinner class="zoia-spinner" id="zoia_spn_correction_save" style="display:none"></span>{{ i18n.__(locale, 'Make')}}</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>                    
+                    <div class="za-margin-bottom">
+                        <b>{{ i18n.__(locale, 'Current Balance')}}</b>: {% if configModule.currencyPosition == 'left' %}{{ configModule.currency[locale] }}{% endif %}<span class="za-user-dialog-balance"></span>{% if configModule.currencyPosition == 'right' %} {{ configModule.currency[locale] }}{% endif %}
+                    </div>
                     <div class="za-panel za-panel-scrollable za-user-dialog-balance-history">
                     </div>
+                    <form class="za-form-stacked za-margin-top" id="zoiaUserDialogCorrectionsForm">
+                        <div class="za-margin">
+                            <label class="za-form-label" for="zoia_correction">{{ i18n.__(locale, 'Correction')}}</label>
+                            <div class="za-form-controls">
+                                <input class="za-input za-form-width-small" id="zoia_correction" type="text">&nbsp;
+                                <button class="za-button za-button-default" id="zoia_btn_correction_save" style="margin-top:1px"><span za-spinner class="zoia-spinner" id="zoia_spn_correction_save" style="display:none"></span>{{ i18n.__(locale, 'OK')}}</button>
+                            </div>
+                        </div>
+                    </form>
                 </li>
                 <li>
                     <button class="za-button za-button-default" id="zoia_btn_account_add">{{ i18n.__(locale, 'Add Account')}}</button>

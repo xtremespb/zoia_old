@@ -444,5 +444,5 @@ $(document).ready(() => {
         $('.zoia-wrap-table').show();
     });
     initUploader();
-    processState();
+    processState();    
 });

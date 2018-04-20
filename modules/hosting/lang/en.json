@@ -86,5 +86,20 @@
 	"Captcha": "Captcha",
 	"You will be forwarded to the payment system website. After completing your payment, you will be returned to the current page and your transaction will be processed.": "You will be forwarded to the payment system website. After completing your payment, you will be returned to the current page and your transaction will be processed.",
 	"Unable to create top-up request. Please try again later.": "Unable to create top-up request. Please try again later.",
-	"You have got no records in history.": "You have got no records in history."
+	"You have got no records in history.": "You have got no records in history.",
+	"One or more of your hosting accounts are going to expire.": "One or more of your hosting accounts are going to expire.",
+	"Expiring Accounts": "Expiring Accounts",
+	"Days&nbsp;Remain": "Days&nbsp;Remain",
+	"If you have any questions about your hosting accounts or services, please contact support to get help.": "If you have any questions about your hosting accounts or services, please contact support to get help.",
+	"Invalid captcha": "Invalid captcha",
+	"Payment ID": "Payment ID",
+	"Payment Failed": "Payment Failed",
+	"Invalid order ID, payment amount or signature value.": "Invalid order ID, payment amount or signature value.",
+	"Return to the": "Return to the",
+	"Control panel": "Control panel",
+	"Successful Payment": "Successful Payment",
+	"Thank you for your payment. You will be receiving an email shortly to confirm the transaction.": "Thank you for your payment. You will be receiving an email shortly to confirm the transaction.",
+	"The payment signature is invalid. If you believe that is wrong, please contact website support.": "The payment signature is invalid. If you believe that is wrong, please contact website support.",
+	"Could not complete your payment. Please contact website support for more information or try again.": "Could not complete your payment. Please contact website support for more information or try again.",
+	"Thank you for your payment.": "Thank you for your payment."
 }

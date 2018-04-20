@@ -86,5 +86,20 @@
 	"Captcha": "Код на картинке",
 	"You will be forwarded to the payment system website. After completing your payment, you will be returned to the current page and your transaction will be processed.": "После заполнения формы Вы будете перенаправлены на сайт платежной системы. По окончании процедуры оплаты Вы будете перенаправлены на текущую страницу.",
 	"Unable to create top-up request. Please try again later.": "Ошибка во время создания запроса на пополнение баланса. Пожалуйста, повторите попытку позднее.",
-	"You have got no records in history.": "Отсутствуют записи истории транзакций."
+	"You have got no records in history.": "Отсутствуют записи истории транзакций.",
+	"One or more of your hosting accounts are going to expire.": "Заканчивается период обслуживания одного или нескольких аккаунтов хостинга.",
+	"Expiring Accounts": "Окончание обслуживания",
+	"Days&nbsp;Remain": "Дней&nbsp;осталось",
+	"If you have any questions about your hosting accounts or services, please contact support to get help.": "Если у Вас есть какие-либо вопросы по поводу аккаунтов хостинга или других сервисов, пожалуйста, свяжитесь со службой поддержки.",
+	"Invalid captcha": "Указан неверный код с картинки",
+	"Payment ID": "Идентификатор платежа",
+	"Payment Failed": "Платеж не прошел",
+	"Invalid order ID, payment amount or signature value.": "Неверный идентификатор платежа, сумма или контрольная подпись.",
+	"Return to the": "Вернуться к",
+	"Control panel": "списку аккаунтов",
+	"Successful Payment": "Успешный платеж",
+	"Thank you for your payment. You will be receiving an email shortly to confirm the transaction.": "Спасибо за Ваш платеж! Сумма была успешно зачислена на лицевой счет. В ближайшее время Вы получите подтверждение по электронной почте.",
+	"The payment signature is invalid. If you believe that is wrong, please contact website support.": "Электронная подпись платежа является недействительной. Если Вы считаете это ошибочным, пожалуйста, свяжитесь с поддержкой.",
+	"Could not complete your payment. Please contact website support for more information or try again.": "Ошибка во время проведения платежа. Пожалуйста, обратитесь в службу поддержки или повторите попытку через некоторое время.",
+	"Thank you for your payment.": "Спасибо за Ваш платеж."
 }

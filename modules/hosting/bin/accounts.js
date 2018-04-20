@@ -1,6 +1,7 @@
 const path = require('path');
 const config = require(path.join(__dirname, '..', '..', '..', 'core', 'config.js'));
 const ObjectID = require('mongodb').ObjectID;
+const fs = require('fs');
 
 let configModule;
 try {
@@ -9,14 +10,26 @@ try {
     configModule = require(path.join(__dirname, '..', 'config', 'hosting.dist.json'));
 }
 
+const pluginsData = fs.readdirSync(path.join(__dirname, '..', 'plugins_hosting'));
+for (let i in pluginsData) { pluginsData[i] = pluginsData[i].replace(/\.js$/, ''); }
+let plugins = {};
+
 const script = async() => {
     try {
+        for (let i in pluginsData) {
+            const Plugin = require(path.join(__dirname, '..', 'plugins_hosting', pluginsData[i]));
+            plugins[pluginsData[i]] = new Plugin();
+        }
         const database = new(require(path.join(__dirname, '..', '..', '..', 'core', 'database.js')))(false, config.mongo, false);
         await database.connect();
         const db = database.get();
         const mailer = new(require(path.join(__dirname, '..', '..', '..', 'core', 'mailer.js')))(null, db);
         const render = new(require(path.join(__dirname, '..', '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', 'views'), null);
         const i18n = new(require(path.join(__dirname, '..', '..', '..', 'core', 'i18n.js')))(path.join(__dirname, '..', 'lang'), null);
+        // Get accounts where days = 1
+        const accountsExpData = await db.collection('hosting_accounts').find({
+            days: 1
+        }).toArray();        
         // Decrease days by 1
         let updResult = await db.collection('hosting_accounts').updateMany({
             days: { $gte: 1 }
@@ -28,9 +41,15 @@ const script = async() => {
         if (!updResult || !updResult.result || !updResult.result.ok) {
             throw new Error('Could not decrease days');
         }
-        // Get all accounts where days < warnDays
+        // Get all accounts where days < warnDays and days > 0
         let accounts = {};
-        const accountsData = await db.collection('hosting_accounts').find({ days: { $lte: configModule.warnDays } }).toArray();
+        let accountsDisable = {};
+        const accountsData = await db.collection('hosting_accounts').find({
+            $and: [
+                { days: { $lte: configModule.warnDays } },
+                { days: { $gt: 0 } }
+            ]
+        }).toArray();        
         for (let i in accountsData) {
             if (!accounts[accountsData[i].ref_id]) {
                 accounts[accountsData[i].ref_id] = {
@@ -48,7 +67,7 @@ const script = async() => {
             usersQuery.push({ _id: new ObjectID(i) });
         }
         let usersData = [];
-        if (usersQuery) {
+        if (usersQuery.length) {
             usersData = await db.collection('users').find({ $or: usersQuery }, { sort: {}, projection: { _id: 1, email: 1, locale: 1 } }).toArray();
         }
         for (let i in usersData) {
@@ -70,6 +89,14 @@ const script = async() => {
                     currentLocale: data.locale
                 }
             }, data.email, i18n.get().__(data.locale, 'Expiring Accounts'), mailHTML);
+        }
+        // Stop expired accounts
+        for (let i in accountsExpData) {
+            const id = accountsExpData[i].id;
+            const host = accountsExpData[i].host;
+            const plugin = accountsExpData[i].plugin;
+            const locale = accountsExpData[i].locale;
+            const res = await plugins[plugin].stop(id, host, locale);
         }
         process.exit(0);
     } catch (e) {

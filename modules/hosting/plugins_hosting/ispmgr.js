@@ -11,8 +11,9 @@ try {
 module.exports = class HostingPlugin {
     constructor(app) {
         this.app = app;
-        this.db = app.get('db');
-        this.log = app.get('log');
+        if (app) {
+            this.log = app.get('log');
+        }
     }
     async getControlPanelURL(host) {
         return configModule.url[host];
@@ -24,11 +25,15 @@ module.exports = class HostingPlugin {
             if (response && response.match(/^ERROR value\(elid\)/)) {
                 return true;
             } else {
-                this.log.error('hosting/check ' + id + ' ' + host + ' ' + response);
+                if (this.log) {
+                    this.log.error('hosting/check ' + id + ' ' + host + ' ' + response);
+                }
                 return response;
             }
         } catch (e) {
-            this.log.error(e);
+            if (this.log) {
+                this.log.error(e);
+            }
             return false;
         }
     }
@@ -39,11 +44,15 @@ module.exports = class HostingPlugin {
             if (response && response.match(/^OK/)) {
                 return true;
             } else {
-                this.log.error('hosting/create ' + id + ' ' + host + ' ' + response);
+                if (this.log) {
+                    this.log.error('hosting/create ' + id + ' ' + host + ' ' + response);
+                }
                 return response;
             }
         } catch (e) {
-            this.log.error(e);
+            if (this.log) {
+                this.log.error(e);
+            }
             return false;
         }
     }
@@ -54,11 +63,15 @@ module.exports = class HostingPlugin {
             if (response && !response.match(/^ERROR/)) {
                 return true;
             } else {
-                this.log.error('hosting/start ' + id + ' ' + host + ' ' + response);
+                if (this.log) {
+                    this.log.error('hosting/start ' + id + ' ' + host + ' ' + response);
+                }
                 return response;
             }
         } catch (e) {
-            this.log.error(e);
+            if (this.log) {
+                this.log.error(e);
+            }
             return false;
         }
     }
@@ -69,11 +82,15 @@ module.exports = class HostingPlugin {
             if (response && !response.match(/^ERROR/)) {
                 return true;
             } else {
-                this.log.error('hosting/stop ' + id + ' ' + host + ' ' + response);
+                if (this.log) {
+                    this.log.error('hosting/stop ' + id + ' ' + host + ' ' + response);
+                }
                 return response;
             }
         } catch (e) {
-            this.log.error(e);
+            if (this.log) {
+                this.log.error(e);
+            }
             return false;
         }
     }

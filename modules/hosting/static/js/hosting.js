@@ -83,7 +83,7 @@ const editItem = (id) => {
                 }
                 balanceHistoryHTML += '</div>';
                 $('.za-user-dialog-balance-history').html(balanceHistoryHTML);
-                let accountsHTML = '<div class="za-overflow-auto"><table class="za-table za-table-small za-table-divider za-table-striped za-table-middle" id="zoia_accounts_table"><thead><tr><th>' + lang['Account'] + '</th><th>' + lang['Preset'] + '</th><th>' + lang['Plugin'] + '</th><th>' + lang['Days'] + '</th><th></th></tr></thead><tbody>';
+                let accountsHTML = '<div class="za-overflow-auto"><table class="za-table za-table-small za-table-divider za-table-striped za-table-middle za-table-responsive" id="zoia_accounts_table"><thead><tr><th>' + lang['Account'] + '</th><th>' + lang['Preset'] + '</th><th>' + lang['Plugin'] + '</th><th>' + lang['Days'] + '</th><th></th></tr></thead><tbody>';
                 for (let i in res.data.accounts) {
                     accountsHTML += '<tr data-account-id="' + res.data.accounts[i]._id + '"><td>' + res.data.accounts[i].id + '</td><td>' + (presetTitles[res.data.accounts[i].preset] || res.data.accounts[i].preset) + '</td><td>' + res.data.accounts[i].plugin + '</td><td>' + res.data.accounts[i].days + '</td><td style="width:95px"><a href="" class="za-icon-button za-margin-small-right zoia-account-edit" za-icon="pencil" data="' + res.data.accounts[i]._id + '"></a><a href="" class="za-icon-button za-margin-small-right zoia-account-delete" za-icon="trash" data="' + res.data.accounts[i]._id + '"></a></td></tr>';
                 }

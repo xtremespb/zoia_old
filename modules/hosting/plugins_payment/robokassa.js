@@ -76,9 +76,9 @@ module.exports = function(app, router) {
             }
             const signature = crypto.createHash('md5').update(configPlugin.sMerchantLogin + ':' + sum + ':' + id + ':' + configPlugin.sMerchantPass1).digest('hex');
             const url = configPlugin.url + '?MrchLogin=' + configPlugin.sMerchantLogin + '&OutSum=' +
-                sum + '&InvId=' + id + '&Desc=' + i18n.get().__(locale, 'Payment ID ') +
+                sum + '&InvId=' + id + '&Desc=' + i18n.get().__(locale, 'Payment ID') + ' ' +
                 id + '&SignatureValue=' + signature + '&IncCurrLabel=' + configPlugin.sIncCurrLabel +
-                '&Culture=' + locale + '&IsTest=0&rnd=' + Math.random().toString().replace('.', '');
+                '&Culture=' + locale + '&rnd=' + Math.random().toString().replace('.', '');
             return res.send(JSON.stringify({
                 status: 1,
                 url: url
@@ -97,11 +97,11 @@ module.exports = function(app, router) {
         const crc = req.body.SignatureValue;
         if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/) ||
             !crc || typeof crc !== 'string' || !crc.match(/^[a-f0-9]{32}$/i) ||
-            !sum || typeof sum !== 'string' || !sum.match(/^\d+(\.\d{1,2})?$/)) {
+            !sum || typeof sum !== 'string' || !sum.match(/^\d+(\.\d{1,6})?$/)) {
             return res.send('Invalid order ID, payment amount or signature value');
         }
         const crcValid = crypto.createHash('md5').update(sum + ':' + id + ':' + configPlugin.sMerchantPass2).digest('hex').toLowerCase();
-        if (crc.toLowerCase() !== crcValid) {
+        if (crc.toLowerCase() !== crcValid) {   
             return res.send('Invalid signature');
         }
         try {
@@ -143,12 +143,12 @@ module.exports = function(app, router) {
         renderRoot.setFilters(filters);
         if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/) ||
             !crc || typeof crc !== 'string' || !crc.match(/^[a-f0-9]{32}$/i) ||
-            !sum || typeof sum !== 'string' || !sum.match(/^\d+(\.\d{1,2})?$/)) {
+            !sum || typeof sum !== 'string' || !sum.match(/^\d+(\.\d{1,6})?$/)) {
             return renderError(req, res, i18n.get().__(locale, 'Invalid order ID, payment amount or signature value.'));
         }
         const crcValid = crypto.createHash('md5').update(sum + ':' + id + ':' + configPlugin.sMerchantPass1).digest('hex').toLowerCase();
         if (crc.toLowerCase() !== crcValid) {
-            return renderError(req, res, i18n.get().__(locale, 'The payment signature is invalid. If you believe that\'s wrong, please contact website support.'));
+            return renderError(req, res, i18n.get().__(locale, 'The payment signature is invalid. If you believe that is wrong, please contact website support.'));
         }
         let templateHTML = await renderModule.file(templatePaymentSuccess, {
             i18n: i18n.get(),
