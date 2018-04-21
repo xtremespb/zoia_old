@@ -33,7 +33,7 @@
     </div>
     <script src="/api/lang/auth/{{ locale }}.js" type="text/javascript"></script>
     <script type="text/javascript">    
-    const redirectURL = "{{ redirect }}";
+    var redirectURL = '{{ redirect }}';
     </script>
     {% if config.production %}
     <script src="{{ prefix }}/static/js/login.min.js" type="text/javascript"></script>{% else %}
