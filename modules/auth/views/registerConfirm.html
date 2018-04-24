@@ -9,7 +9,8 @@
 <div style="display:none" id="confirmFail">
     {{ i18n.__(locale, 'Could not activate your account. Please check your link or try again in several moments.') }}
 </div>
-<script>
-var usernameConfirm = '{{ fields.username.value }}';
-var codeConfirm = '{{ fields.code.value }}';
-</script>
+<div stye="display:none">
+    <div id="zp_locale" data="{{ locale }}"></div>
+    <div id="zp_usernameConfirm" data="{{ fields.username.value }}"></div>
+    <div id="zp_codeConfirm" data="{{ fields.code.value }}"></div>
+</div>

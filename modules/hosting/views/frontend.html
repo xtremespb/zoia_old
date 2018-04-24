@@ -135,12 +135,11 @@
 <div class="zoia-loading">
     <div za-spinner style="margin-right:10px"></div>&nbsp;{{ i18n.__(locale, 'Loading data, please wait')}}...
 </div>
-<script src="/api/lang/hosting/{{ locale }}.js" type="text/javascript"></script>
-<script type="text/javascript">
-var prices = {{ pricesJSON }};
-var presets = {{ presetsJSON }};
-var totalFunds = {{ totalFunds }};
-var configModule = {{ configModuleJSON }};
-var locale = '{{ locale }}';
-var transactionsLength = {{ transactions.length }};
-</script>
+<div stye="display:none">
+    <div id="zp_locale" data="{{ locale }}"></div>
+    <div id="zp_prices" data='{{ pricesJSON }}'></div>
+    <div id="zp_presets" data='{{ presetsJSON }}'></div>
+    <div id="zp_totalFunds" data="{{ totalFunds }}"></div>
+    <div id="zp_configModule" data='{{ configModuleJSON }}'></div>
+    <div id="zp_transactionsLength" data="{{ transactions.length }}"></div>
+</div>

@@ -49,10 +49,10 @@
     {% endif %}
 </div>
 <div id="zoiaSpinnerMain" style="display:none" class="za-flex za-flex-middle za-flex-center"><span za-spinner style="color:#000"></span></div>
-<script src="/api/lang/warehouse/{{ locale }}.js" type="text/javascript"></script>
-<script type="text/javascript">
-var settings = {{ settings }};
-var deliveryData = {{ delivery }};
-var addressTemplate = {{ template }};
-var addressData = {{ addressData }};
-</script>
+<div stye="display:none">
+    <div id="zp_locale" data="{{ locale }}"></div>
+    <div id="zp_settings" data='{{ settings }}'></div>
+    <div id="zp_deliveryData" data='{{ delivery }}'></div>
+    <div id="zp_addressTemplate" data='{{ template }}'></div>
+    <div id="zp_addressData" data='{{ addressData }}'></div>
+</div>

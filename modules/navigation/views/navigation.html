@@ -44,8 +44,8 @@
         </form>
     </div>
 </div>
-<script src="/api/lang/navigation/{{ locale }}.js" type="text/javascript"></script>
-<script type="text/javascript">
-var langs = {{ langs }};
-var navigationData = {{ folders }};
-</script>
+<div stye="display:none">
+    <div id="zp_locale" data="{{ locale }}"></div>
+    <div id="zp_langs" data='{{ langs }}'></div>
+    <div id="zp_navigationData" data='{{ folders }}'></div>
+</div>

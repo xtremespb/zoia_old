@@ -264,7 +264,7 @@ module.exports = function(app) {
         urlParts.shift();
         // load parameters
         let page = req.query.p || '1';
-        if (typeof page !== 'string' || !page.match(/^[0-9]+$/)) {
+        if (!page || typeof page !== 'string' || page === '0' || !page.match(/^[0-9]+$/)) {
             page = 1;
         } else {
             page = parseInt(page, 10);
@@ -334,6 +334,7 @@ module.exports = function(app) {
         const settings = await _loadSettings(locale);
         const catalogItemsCount = await db.collection('warehouse').find(what, { projection: ffields }).count();
         const catalogItems = await db.collection('warehouse').find(what, { skip: skip, limit: configModule.itemsPerPage, projection: ffields, sort: sort }).toArray();
+
         for (let item in catalogItems) {
             if (catalogItems[item].images && catalogItems[item].images.length) {
                 catalogItems[item].firstImage = catalogItems[item].images[0].id + '.' + catalogItems[item].images[0].ext;

@@ -101,5 +101,6 @@
 	"Thank you for your payment. You will be receiving an email shortly to confirm the transaction.": "Спасибо за Ваш платеж! Сумма была успешно зачислена на лицевой счет. В ближайшее время Вы получите подтверждение по электронной почте.",
 	"The payment signature is invalid. If you believe that is wrong, please contact website support.": "Электронная подпись платежа является недействительной. Если Вы считаете это ошибочным, пожалуйста, свяжитесь с поддержкой.",
 	"Could not complete your payment. Please contact website support for more information or try again.": "Ошибка во время проведения платежа. Пожалуйста, обратитесь в службу поддержки или повторите попытку через некоторое время.",
-	"Thank you for your payment.": "Спасибо за Ваш платеж."
+	"Thank you for your payment.": "Спасибо за Ваш платеж.",
+	"Prolongation of Account": "Продление аккаунта"
 }

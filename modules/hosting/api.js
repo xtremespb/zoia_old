@@ -474,12 +474,12 @@ module.exports = function(app) {
                         if (!insTransactionResult || !insTransactionResult.result || !insTransactionResult.result.ok) {
                             failed = true;
                         }
-                        /*if (!failed) {
+                        if (!failed) {
                             const insAccountResult = await db.collection('hosting_accounts').insertOne({ ref_id: String(req.session.auth._id), plugin: configModule.defaultPlugin, preset: preset, days: days, id: fields.id.value, processing: true, locale: locale });
                             if (!insAccountResult || !insAccountResult.result || !insAccountResult.result.ok) {
                                 failed = true;
                             }
-                        }*/
+                        }
                         const password = fields.password.value[0] + fields.password.value.replace(/./gm, '*').replace(/^./, '').replace(/.$/, '') + fields.password.value[fields.password.value.length - 1];
                         if (!failed) {
                             let mailHTML = await render.file('mail_account_new.html', {
@@ -630,13 +630,13 @@ module.exports = function(app) {
                     error: i18n.get().__(locale, 'Insufficient funds')
                 }));
             }
-            const Plugin = require(path.join(__dirname, 'plugins_hosting', configModule.defaultPlugin));
+            const Plugin = require(path.join(__dirname, 'plugins_hosting', account.plugin));
             const plugin = new Plugin(app);
             const start = await plugin.start(account.id, account.host, locale);
             if (start !== true) {
                 return res.send(JSON.stringify({
                     status: 0,
-                    error: i18n.get().__(locale, 'Could not enable requested account')
+                    error: i18n.get().__(locale, 'Could not enable requested account') + ': ' + start
                 }));
             }
             const update = await db.collection('hosting_accounts').findAndModify({ id: account.id }, [], { $inc: { days: days } }, { new: true, upsert: true });

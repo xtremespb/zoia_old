@@ -2,7 +2,6 @@
 /* eslint no-undef: 0 */
 
 (() => {
-
     let supportDialog;
     let supportMessageDialog;
     let currentSupportRequestID;
@@ -411,145 +410,149 @@
 
     $(document).ready(() => {
         currentUsername = $('#zp_currentUsername').attr('data');
-        $('#support').zoiaTable({
-            url: '/api/support/list',
-            limit: 20,
-            sort: {
-                field: '_id',
-                direction: 'desc'
-            },
-            fields: {
-                _id: {
-                    sortable: true,
-                    process: (id, item, value) => {
+        const locale = $('#zp_locale').attr('data');
+        $.getScript(`/api/lang/support/${locale}.js`).done((res) => {
+            $('#support').zoiaTable({
+                url: '/api/support/list',
+                limit: 20,
+                sort: {
+                    field: '_id',
+                    direction: 'desc'
+                },
+                fields: {
+                    _id: {
+                        sortable: true,
+                        process: (id, item, value) => {
 
-                        return value;
-                    }
-                },
-                timestamp: {
-                    sortable: true,
-                    process: (id, item, value) => {
-                        return new Date(parseInt(value, 10) * 1000).toLocaleString().replace(/\s/gm, '&nbsp;');
-                    }
-                },
-                username: {
-                    sortable: true,
-                    process: (id, item, value) => {
-                        return value;
-                    }
-                },
-                title: {
-                    sortable: true,
-                    process: (id, item, value) => {
-                        if (item.unreadSupport) {
-                            value = '<span class="za-icon-button" za-icon="icon:mail;ratio:0.6" style="background:#FFB03B;color:#fff;width:20px;height:20px;"></span>&nbsp;' + value;
+                            return value;
                         }
-                        return value;
-                    }
-                },
-                status: {
-                    sortable: true,
-                    process: (id, item, value) => {
-                        return lang.statuses[value];
-                    }
-                },
-                specialist: {
-                    sortable: true,
-                    process: (id, item, value) => {
-                        return value ? value : '&ndash;';
-                    }
-                },
-                priority: {
-                    sortable: true,
-                    process: (id, item, value) => {
-                        return lang.priorities[value] ? lang.priorities[value].replace(/\s/g, '&nbsp;') : '&ndash;';
-                    }
-                },
-                actions: {
-                    sortable: false,
-                    process: (id, item) => {
-                        if (item && item.groupname === 'admin') {
-                            return '&ndash;';
+                    },
+                    timestamp: {
+                        sortable: true,
+                        process: (id, item, value) => {
+                            return new Date(parseInt(value, 10) * 1000).toLocaleString().replace(/\s/gm, '&nbsp;');
                         }
-                        return '<button class="za-icon-button zoia-support-action-edit-btn" za-icon="icon: pencil" data="' + item._id +
-                            '" style="margin-right:5px"></button><button class="za-icon-button zoia-support-action-del-btn" za-icon="icon: trash" data="' + item._id +
-                            '"></button><div style="margin-bottom:17px" class="za-hidden@m">&nbsp;</div>';
-                    }
-                }
-            },
-            onLoad: () => {
-                $('.zoia-support-action-edit-btn').click(function() {
-                    $('#zoiaSpinnerDark').show();
-                    currentSupportRequestID = $(this).attr('data');
-                    loadSupportRequest();
-                });
-                $('.zoia-support-action-del-btn').click(function() {
-                    zoiaDeleteButtonClickHandler($(this).attr('data'));
-                });
-            },
-            lang: {
-                error: lang['Could not load data from server. Please try to refresh page in a few moments.'],
-                noitems: lang['No items to display']
-            }
-        });
-        supportDialog = $zUI.modal('#supportDialog', {
-            bgClose: false,
-            escClose: false,
-            stack: true
-        });
-        supportMessageDialog = $zUI.modal('#supportMessageDialog', {
-            bgClose: false,
-            escClose: false,
-            stack: true
-        });
-        for (let i in lang.statuses) {
-            $('#zoia_support_status').append('<option value="' + i + '">' + lang.statuses[i] + '</option>');
-        }
-        for (let i in lang.priorities) {
-            $('#zoia_support_priority').append('<option value="' + i + '">' + lang.priorities[i] + '</option>');
-        }
-        $('#zoia_btn_message_add').click(() => {
-            currentSupportMessageID = null;
-            $('#zoia_support_msg').removeClass('za-form-danger').val('');
-            supportMessageDialog.show().then(() => {
-                $('#zoia_support_msg').focus();
-            });
-        });
-        $('#zoia_btn_message_save').click(btnMessageSaveClickHandler);
-        $('#zoia_common_save').click(btnCommonSaveClickHandler);
-        $('.zoiaDeleteButton').click(function() {
-            const checked = $('.supportCheckbox:checkbox:checked').map(function() {
-                return this.id;
-            }).get();
-            if (checked && checked.length > 0) {
-                zoiaDeleteButtonClickHandler(checked);
-            }
-        });
-        $('#zoia_common_pickup').click(pickupTicketHandler);
-        $('#zoia_common_release').click(releaseTicketHandler);
-        $('#zoia_btn_ticket_done').click(() => {
-            if (parseInt(currentData.status) !== parseInt($('#zoia_support_status').val()) ||
-                parseInt(currentData.priority, 10) !== parseInt($('#zoia_support_priority').val(), 10) ||
-                currentData.title !== $('#zoia_support_title').val()) {
-                $zUI.modal.confirm(lang['There are unsaved changes. Save?'], { labels: { ok: lang['Yes'], cancel: lang['No'] }, stack: true }).then(function() {
-                    btnCommonSaveClickHandler(() => {
-                        if (parseInt($('#zoia_support_status').val(), 10) === 0) {
-                            ajaxPickUp(false, true, true);
-                        } else {
-                            $('#support').zoiaTable().load();
+                    },
+                    username: {
+                        sortable: true,
+                        process: (id, item, value) => {
+                            return value;
                         }
+                    },
+                    title: {
+                        sortable: true,
+                        process: (id, item, value) => {
+                            if (item.unreadSupport) {
+                                value = '<span class="za-icon-button" za-icon="icon:mail;ratio:0.6" style="background:#FFB03B;color:#fff;width:20px;height:20px;"></span>&nbsp;' + value;
+                            }
+                            return value;
+                        }
+                    },
+                    status: {
+                        sortable: true,
+                        process: (id, item, value) => {
+                            return lang.statuses[value];
+                        }
+                    },
+                    specialist: {
+                        sortable: true,
+                        process: (id, item, value) => {
+                            return value ? value : '&ndash;';
+                        }
+                    },
+                    priority: {
+                        sortable: true,
+                        process: (id, item, value) => {
+                            return lang.priorities[value] ? lang.priorities[value].replace(/\s/g, '&nbsp;') : '&ndash;';
+                        }
+                    },
+                    actions: {
+                        sortable: false,
+                        process: (id, item) => {
+                            if (item && item.groupname === 'admin') {
+                                return '&ndash;';
+                            }
+                            return '<button class="za-icon-button zoia-support-action-edit-btn" za-icon="icon: pencil" data="' + item._id +
+                                '" style="margin-right:5px"></button><button class="za-icon-button zoia-support-action-del-btn" za-icon="icon: trash" data="' + item._id +
+                                '"></button><div style="margin-bottom:17px" class="za-hidden@m">&nbsp;</div>';
+                        }
+                    }
+                },
+                onLoad: () => {
+                    $('.zoia-support-action-edit-btn').click(function() {
+                        $('#zoiaSpinnerDark').show();
+                        currentSupportRequestID = $(this).attr('data');
+                        loadSupportRequest();
                     });
-                });
-            } else {
-                if (parseInt($('#zoia_support_status').val(), 10) === 0) {
-                    ajaxPickUp(false, true, true);
-                } else {
-                    $('#support').zoiaTable().load();
+                    $('.zoia-support-action-del-btn').click(function() {
+                        zoiaDeleteButtonClickHandler($(this).attr('data'));
+                    });
+                },
+                lang: {
+                    error: lang['Could not load data from server. Please try to refresh page in a few moments.'],
+                    noitems: lang['No items to display']
                 }
+            });
+            supportDialog = $zUI.modal('#supportDialog', {
+                bgClose: false,
+                escClose: false,
+                stack: true
+            });
+            supportMessageDialog = $zUI.modal('#supportMessageDialog', {
+                bgClose: false,
+                escClose: false,
+                stack: true
+            });
+            for (let i in lang.statuses) {
+                $('#zoia_support_status').append('<option value="' + i + '">' + lang.statuses[i] + '</option>');
             }
+            for (let i in lang.priorities) {
+                $('#zoia_support_priority').append('<option value="' + i + '">' + lang.priorities[i] + '</option>');
+            }
+            $('#zoia_btn_message_add').click(() => {
+                currentSupportMessageID = null;
+                $('#zoia_support_msg').removeClass('za-form-danger').val('');
+                supportMessageDialog.show().then(() => {
+                    $('#zoia_support_msg').focus();
+                });
+            });
+            $('#zoia_btn_message_save').click(btnMessageSaveClickHandler);
+            $('#zoia_common_save').click(btnCommonSaveClickHandler);
+            $('.zoiaDeleteButton').click(function() {
+                const checked = $('.supportCheckbox:checkbox:checked').map(function() {
+                    return this.id;
+                }).get();
+                if (checked && checked.length > 0) {
+                    zoiaDeleteButtonClickHandler(checked);
+                }
+            });
+            $('#zoia_common_pickup').click(pickupTicketHandler);
+            $('#zoia_common_release').click(releaseTicketHandler);
+            $('#zoia_btn_ticket_done').click(() => {
+                if (parseInt(currentData.status) !== parseInt($('#zoia_support_status').val()) ||
+                    parseInt(currentData.priority, 10) !== parseInt($('#zoia_support_priority').val(), 10) ||
+                    currentData.title !== $('#zoia_support_title').val()) {
+                    $zUI.modal.confirm(lang['There are unsaved changes. Save?'], { labels: { ok: lang['Yes'], cancel: lang['No'] }, stack: true }).then(function() {
+                        btnCommonSaveClickHandler(() => {
+                            if (parseInt($('#zoia_support_status').val(), 10) === 0) {
+                                ajaxPickUp(false, true, true);
+                            } else {
+                                $('#support').zoiaTable().load();
+                            }
+                        });
+                    });
+                } else {
+                    if (parseInt($('#zoia_support_status').val(), 10) === 0) {
+                        ajaxPickUp(false, true, true);
+                    } else {
+                        $('#support').zoiaTable().load();
+                    }
+                }
+            });
+            $('.supportBtnRefresh').click(supportBtnRefreshClick);
+            initUploader();
+            $('.zoia-admin-loading').hide();
+            $('#zoia_admin_panel_wrap').show();
         });
-        $('.supportBtnRefresh').click(supportBtnRefreshClick);
-        initUploader();
     });
-
 })();

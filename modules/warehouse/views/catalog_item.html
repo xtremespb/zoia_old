@@ -117,8 +117,8 @@
         </div>
     </div>    
 </div>
-<script src="/api/lang/warehouse/{{ locale }}.js" type="text/javascript"></script>
-<script type="text/javascript">
-var za_catalog_item_id = '{{ data._id }}';
-var za_catalog_cart_count = {{ cartCount }};
-</script>
+<div stye="display:none">
+    <div id="zp_locale" data="{{ locale }}"></div>
+    <div id="zp_za_catalog_item_id" data='{{ data._id }}'></div>
+    <div id="zp_za_catalog_cart_count" data="{{ cartCount }}"></div>
+</div>

@@ -88,15 +88,14 @@
     <p>{{ i18n.__(locale, 'Your order has been placed and it is being processed.')}}</p>
     <p><b>{{ i18n.__(locale, 'Order ID')}}</b>:&nbsp;<span id="za_catalog_order_success_id"></span></p>
 </div>
-<script src="/api/lang/warehouse/{{ locale }}.js" type="text/javascript"></script>
-<script type="text/javascript">
-var settings = {{ settingsJSON }};
-var addressJSON = {{ addressJSON }};
-var locale = '{{ locale }}';
-var weight = {{ weight }};
-var isAuth = {{ isAuth }};
-var currencyPosition = "{{ configModule.currencyPosition }}";
-</script>
+<div stye="display:none">
+    <div id="zp_locale" data="{{ locale }}"></div>
+    <div id="zp_settings" data='{{ settingsJSON }}'></div>
+    <div id="zp_addressJSON" data='{{ addressJSON }}'></div>
+    <div id="zp_weight" data="{{ weight }}"></div>
+    <div id="zp_isAuth" data="{{ isAuth }}"></div>
+    <div id="zp_currencyPosition" data="{{ configModule.currencyPosition }}"></div>
+</div>
 {% else %}
 <div class="uk-alert-danger" uk-alert>
     <p>{{ i18n.__(locale, 'There are no items in cart yet.')}}</p>

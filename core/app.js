@@ -16,7 +16,7 @@ const winston = require('winston');
             config.log = {};
         }
         const log = winston.createLogger({
-            level: config.logLevel,
+            level: config.log.logLevel,
             format: winston.format.printf(info => {
                 return new Date().toISOString() + ` [${info.level}] ${info.message}`;
             }),

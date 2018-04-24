@@ -110,10 +110,10 @@
         {% endif %}
     </div>
 </div>
-<script src="/api/lang/warehouse/{{ locale }}.js" type="text/javascript"></script>
-<script type="text/javascript">
-var za_catalog_cart_count = {{ cartCount }};
-var querySort = '{{ sort }}';
-var queryPage = '{{ page }}';
-var queryText = '{{ text }}';
-</script>
+<div stye="display:none">
+    <div id="zp_za_catalog_cart_count" data="{{ cartCount }}"></div>
+    <div id="zp_locale" data="{{ locale }}"></div>
+    <div id="zp_querySort" data="{{ sort }}"></div>
+    <div id="zp_queryPage" data="{{ page }}"></div>
+    <div id="zp_queryText" data="{{ text }}"></div>
+</div>

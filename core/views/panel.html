@@ -73,12 +73,6 @@
     });
     </script>{% if extraJS %} {% for item in extraJS %}
     <script src="{{ item }}" type="text/javascript"></script>{% endfor %}{% endif %}
-    <script>
-        window.onload = function() {
-            $('.zoia-admin-loading').hide();
-            $('#zoia_admin_panel_wrap').show();
-        };
-    </script>
 </body>
 
 </html>

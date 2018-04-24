@@ -12,7 +12,10 @@
             <div class="za-panel za-panel-scrollable">
                 <ul class="za-list">
                     {% for m in modules %}
-                    <li><label><input class="za-checkbox za-backup-module-checkbox" type="checkbox" data="{{ m }}" checked="checked">&nbsp;{{ m }}</label></li>
+                    <li>
+                        <label>
+                            <input class="za-checkbox za-backup-module-checkbox" type="checkbox" data="{{ m }}" checked="checked">&nbsp;{{ m }}</label>
+                    </li>
                     {% endfor %}
                 </ul>
             </div>
@@ -78,4 +81,6 @@
     </div>
 </div>
 <div id="zoiaSpinnerMain" style="display:none" class="za-flex za-flex-middle za-flex-center"><span za-spinner style="color:#000"></span></div>
-<script src="/api/lang/backup/{{ locale }}.js" type="text/javascript"></script>
+<div stye="display:none">
+    <div id="zp_locale" data="{{ locale }}"></div>
+</div>

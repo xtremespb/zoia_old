@@ -272,6 +272,12 @@ module.exports = function(app) {
                     status: 0
                 }));
             }
+            const user = await db.collection('users').findOne({ username: data.username });
+            if (!user) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
             let messages = data.messages || [];
             let message;
             if (msgId) {
@@ -306,7 +312,7 @@ module.exports = function(app) {
                     status: 0
                 }));
             }
-            if (!data.unreadUser && !msgId) {
+            if (!data.unreadUser && !msgId && user.email) {
                 let mailHTMLUser = await render.file('mail_newmessage_user.html', {
                     i18n: i18n.get(),
                     locale: locale,
@@ -317,7 +323,7 @@ module.exports = function(app) {
                     title: data.title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;'),
                     message: msg.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;').replace(/\n/gm, '<br>')
                 });
-                await mailer.send(req, req.session.auth.email, i18n.get().__(locale, 'Support Ticket Reply'), mailHTMLUser);
+                await mailer.send(req, user.email, i18n.get().__(locale, 'Support Ticket Reply'), mailHTMLUser);
             }
             res.send(JSON.stringify({
                 status: 1,
@@ -901,14 +907,14 @@ module.exports = function(app) {
         if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/) ||
             !msg || typeof id !== 'string' || msg.length < 2 || msg.lentgh > 4096) {
             return res.send(JSON.stringify({
-                status: 0
+                status: -1
             }));
         }
         try {
             const data = await db.collection('support').findOne({ _id: parseInt(id, 10) });
-            if (!data || (!data.username !== req.session.auth.username && !Module.isAuthorizedAdmin(req))) {
+            if (!data || (data.username !== req.session.auth.username && !Module.isAuthorizedAdmin(req))) {
                 return res.send(JSON.stringify({
-                    status: 0
+                    status: -2
                 }));
             }
             let messages = data.messages || [];
@@ -922,7 +928,7 @@ module.exports = function(app) {
             let updResult = await db.collection('support').update({ _id: parseInt(id, 10) }, { $set: { messages: messages, unreadSupport: true } }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
-                    status: 0
+                    status: -3
                 }));
             }
             if (!data.unreadSupport) {

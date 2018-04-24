@@ -85,9 +85,8 @@
 </div>
 <div class="hostingPagination za-margin noselect"></div>
 <div id="zoiaSpinnerWhite" style="display:none" class="za-flex za-flex-middle za-flex-center"><span za-spinner style="color:#fff"></span></div>
-<script src="/api/lang/hosting/{{ locale }}.js" type="text/javascript"></script>
-<script>
-var plugins = {{ plugins }};
-var configModule = {{ configModuleJSON }};
-var locale = '{{ locale }}';
-</script>
+<div stye="display:none">
+    <div id="zp_locale" data="{{ locale }}"></div>
+    <div id="zp_plugins" data='{{ plugins }}'></div>
+    <div id="zp_configModule" data='{{ configModuleJSON }}'></div>
+</div>

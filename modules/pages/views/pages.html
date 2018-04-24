@@ -171,10 +171,10 @@
     </div>
 </div>
 <div id="zoiaSpinnerMain" style="display:none" class="za-flex za-flex-middle za-flex-center"><span za-spinner style="color:#000"></span></div>
-<script src="/api/lang/pages/{{ locale }}.js" type="text/javascript"></script>
-<script type="text/javascript">
-var langs = {{ langs }};
-var templates = {{ templates }};
-var foldersData = {{ folders }};
-var testMode = {{ config.testMode }};
-</script>
+<div stye="display:none">
+    <div id="zp_locale" data="{{ locale }}"></div>
+    <div id="zp_langs" data='{{ langs }}'></div>
+    <div id="zp_templates" data='{{ templates }}'></div>
+    <div id="zp_foldersData" data='{{ folders }}'></div>
+    <div id="zp_testMode" data="{{ config.testMode }}"></div>
+</div>

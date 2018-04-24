@@ -1336,14 +1336,13 @@
     </div>
 </div>
 <div id="zoiaSpinnerMain" style="display:none" class="za-flex za-flex-middle za-flex-center"><span za-spinner style="color:#000"></span></div>
-<script src="/api/lang/warehouse/{{ locale }}.js" type="text/javascript"></script>
-<script type="text/javascript ">
-var langs = {{ langs }};
-var foldersData = {{ folders }};
-var testMode = {{ config.testMode }};
-var addressData = {{ address }};
-var addressJSON = {{ addressJSON }};
-var settings = {{ settings }};
-var settingsData = {{ settingsData }};
-var locale = "{{ locale }}";
-</script>
+<div stye="display:none">
+    <div id="zp_locale" data="{{ locale }}"></div>
+    <div id="zp_langs" data='{{ langs }}'></div>
+    <div id="zp_foldersData" data='{{ folders }}'></div>
+    <div id="zp_testMode" data="{{ config.testMode }}"></div>
+    <div id="zp_addressData" data='{{ address }}'></div>
+    <div id="zp_addressJSON" data='{{ addressJSON }}'></div>
+    <div id="zp_settings" data='{{ settings }}'></div>
+    <div id="zp_settingsData" data='{{ settingsData }}'></div>
+</div>
