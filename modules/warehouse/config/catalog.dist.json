@@ -1,6 +1,6 @@
 {
     "prefix": "/catalog",
-    "itemsPerPage": 1,
+    "itemsPerPage": 12,
     "thumb":
     {
         "width": 300,

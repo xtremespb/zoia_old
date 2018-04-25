@@ -14,7 +14,7 @@
 </head>
 
 <body>
-    <div id="zoia_admin_panel_wrap" style="display:none">
+    <div id="zoia_admin_panel_wrap">
         <nav class="za-navbar-container zoia-panel-navbar" za-navbar="offset:-16" za-sticky>
             <div class="za-navbar-left">
                 <a class="za-navbar-toggle za-hidden@s" href="#zoia_panel_offcanvas" za-toggle za-navbar-toggle-icon></a>
@@ -62,7 +62,7 @@
     <script src="/zoia/3rdparty/uikit/js/uikit.min.js" type="text/javascript"></script>
     <script src="/zoia/3rdparty/uikit/js/uikit-icons.min.js" type="text/javascript"></script>
     <script src="/zoia/3rdparty/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>{% endif %}
-    <script>
+    <script type="text/javascript">
     $('#admin-nav-item-{{ moduleId }}').addClass('za-nav-active');
     $('.zoia-panel-offcanvas').html($('.zoia-panel-nav-col').html());
     $('.zoia-panel-nav-col').height($(window).height() - $('.zoia-panel-navbar').height());
