@@ -20,5 +20,5 @@
 	"Could not extract the update archive": "Ошибка во время распаковки архива",
 	"could not extract update file": "Ошибка во время распаковки файла обновления",
 	"Restarting": "Перезапуск",
-	"Zoia has been updated sucessfully. The system is restaring now, please wait...": "Процесс обновления Zoia прошел успешно. Система перезапускается, пожалуйста, подождите..."
+	"Zoia has been updated sucessfully. The system is restarting now, please wait...": "Процесс обновления Zoia прошел успешно. Система перезапускается, пожалуйста, подождите..."
 }
