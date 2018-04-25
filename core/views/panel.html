@@ -19,7 +19,7 @@
             <div class="za-navbar-left">
                 <a class="za-navbar-toggle za-hidden@s" href="#zoia_panel_offcanvas" za-toggle za-navbar-toggle-icon></a>
                 <div class="za-navbar-item za-logo zoia-panel-logo">
-                    <a href="/admin"><img src="/zoia/core/images/zoia_logo_panel.png" alt="{{ i18n.__(locale, 'Zoia') }}"></a>
+                    <a href="{{ uprefix }}/"><img src="/zoia/core/images/zoia_logo_panel.png" alt="{{ i18n.__(locale, 'Zoia') }}"></a>
                 </div>
             </div>
             <div class="za-navbar-right">
@@ -28,7 +28,7 @@
                         <a href="#">{{ auth.username }}&nbsp;&#x25BE;&nbsp;&nbsp;</a>
                         <div class="za-navbar-dropdown" za-dropdown="mode:click;offset:-10">
                             <ul class="za-nav za-navbar-dropdown-nav">
-                                <li><a href="/auth/logout">{{ i18n.__(locale, 'Log out') }}</a></li>
+                                <li><a href="{{ uprefix }}{{ authPrefix }}/logout">{{ i18n.__(locale, 'Log out') }}</a></li>
                             </ul>
                         </div>
                     </li>
@@ -42,7 +42,7 @@
             <div class="za-width-small zoia-panel-nav-col za-visible@s">
                 <div class="zoia-panel-nav-wrap">
                     <ul class="za-nav za-nav-default zoia-nav-menu">{% for item in modules %}
-                        <li id="admin-nav-item-{{ item.id }}"><a href="{{ item.url }}">{% if item.icon %}<div za-icon="icon: {{ item.icon }}"></div>&nbsp;{% endif %}{{ item.title[locale] }}</a></li>{% endfor %}
+                        <li id="admin-nav-item-{{ item.id }}"><a href="{{ uprefix }}{{ item.url }}">{% if item.icon %}<div za-icon="icon: {{ item.icon }}"></div>&nbsp;{% endif %}{{ item.title[locale] }}</a></li>{% endfor %}
                     </ul>
                 </div>
             </div>

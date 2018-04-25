@@ -1,6 +1,6 @@
 <h1>{{ i18n.__(locale, 'Cart')}}</h1>
 <ul class="za-breadcrumb">
-    <li><a href="{{ configModule.prefix }}/">{{ i18n.__(locale, 'Catalog')}}</a></li>
+    <li><a href="{{ uprefix }}{{ configModule.prefix }}/">{{ i18n.__(locale, 'Catalog')}}</a></li>
 </ul>
 {% if cart.length %}
 <div id="za_catalog_cart_wrap">
@@ -37,7 +37,7 @@
         {{ i18n.__(locale, 'Cost')}}:&nbsp;<span class="za-catalog-cart-total">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ total }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</span>
     </div>
     <div class="za-margin-top">
-        <a href="{{ configModule.prefix }}/order" class="za-button za-button-primary">{{ i18n.__(locale, 'Order')}}</a>
+        <a href="{{ uprefix }}{{ configModule.prefix }}/order" class="za-button za-button-primary">{{ i18n.__(locale, 'Order')}}</a>
     </div>
 </div>
 <div style="display:none" id="za_catalog_cart_empty">

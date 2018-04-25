@@ -250,6 +250,7 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
+        const uprefix = i18n.getLanguageURLPrefix(req); 
         // Get and parse URL parts
         const param = req.params[0];
         if (!param.match(/^[a-zA-Z_0-9\-\/]+$/)) {
@@ -334,7 +335,6 @@ module.exports = function(app) {
         const settings = await _loadSettings(locale);
         const catalogItemsCount = await db.collection('warehouse').find(what, { projection: ffields }).count();
         const catalogItems = await db.collection('warehouse').find(what, { skip: skip, limit: configModule.itemsPerPage, projection: ffields, sort: sort }).toArray();
-
         for (let item in catalogItems) {
             if (catalogItems[item].images && catalogItems[item].images.length) {
                 catalogItems[item].firstImage = catalogItems[item].images[0].id + '.' + catalogItems[item].images[0].ext;
@@ -433,7 +433,8 @@ module.exports = function(app) {
             auth: req.session.auth,
             paginationData: paginationData,
             sort: sortQuery,
-            text: textQuery
+            text: textQuery,
+            uprefix: uprefix
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Catalog'), {
             content: catalogHTML,
@@ -448,6 +449,7 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
+        const uprefix = i18n.getLanguageURLPrefix(req); 
         const sku = req.params.sku;
         if (!sku || typeof sku !== 'string' || !sku.match(/^[A-Za-z0-9_\-\.]{1,64}$/)) {
             return next();
@@ -532,7 +534,8 @@ module.exports = function(app) {
             propsPostfixes: propsPostfixes,
             variants: variants,
             cartCount: cartCount,
-            auth: req.session.auth
+            auth: req.session.auth,
+            uprefix: uprefix
         });
         let html = await renderRoot.template(req, i18n, locale, data[locale].title, {
             content: catalogItemHTML,
@@ -552,6 +555,7 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
+        const uprefix = i18n.getLanguageURLPrefix(req); 
         // Load filters
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
@@ -715,7 +719,8 @@ module.exports = function(app) {
             settings: settings,
             settingsJSON: JSON.stringify(settings),
             cart: cartArr,
-            total: total
+            total: total,
+            uprefix: uprefix
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Cart'), {
             content: catalogCartHTML,
@@ -735,6 +740,7 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
+        const uprefix = i18n.getLanguageURLPrefix(req); 
         // Load filters
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
@@ -934,7 +940,8 @@ module.exports = function(app) {
             email: email,
             phone: phone,
             isAuth: req.session.auth ? 'true' : 'false',
-            addressJSON: JSON.stringify(addressData)
+            addressJSON: JSON.stringify(addressData),
+            uprefix: uprefix
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Order'), {
             content: catalogOrderHTML,
@@ -954,6 +961,7 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
+        const uprefix = i18n.getLanguageURLPrefix(req); 
         // Load filters
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
@@ -985,7 +993,8 @@ module.exports = function(app) {
             config: config,
             delivery: JSON.stringify(delivery),
             template: JSON.stringify(template),
-            addressData: JSON.stringify(_getJsonAddressSelectDataByValue(locale))
+            addressData: JSON.stringify(_getJsonAddressSelectDataByValue(locale)),
+            uprefix: uprefix
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'My Orders'), {
             content: catalogOrdersHTML,

@@ -25,8 +25,9 @@ module.exports = function(app) {
     const log = app.get('log');
 
     const list = async(req, res, next) => {
+        const uprefix = i18n.getLanguageURLPrefix(req); 
         if (!Module.isAuthorized(req)) {
-            return res.redirect(303, (config.website.authPrefix || '/auth') + '?redirect=' + moduleURL + '&_=' + Math.random().toString().replace('.', ''));
+            return res.redirect(303, (config.website.authPrefix ? uprefix + config.website.authPrefix : uprefix + '/auth') + '?redirect=' + uprefix + moduleURL + '&_=' + Math.random().toString().replace('.', ''));
         }
         let locale = config.i18n.locales[0];
         if (req.session && req.session.currentLocale) {

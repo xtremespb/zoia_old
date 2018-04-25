@@ -6,6 +6,8 @@ const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 module.exports = function(app) {
     const db = app.get('db');
     const templates = require(path.join(__dirname, 'templates.js'));
+    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
+    const log = app.get('log');
 
     const tpl = (s, d) => {
         for (let p in d) {
@@ -14,7 +16,7 @@ module.exports = function(app) {
         return s;
     };
 
-    const render = (data, prefix) => {
+    const render = (data, prefix, uprefix) => {
         let html = '';
         try {
             for (let i in data) {
@@ -24,12 +26,18 @@ module.exports = function(app) {
                     for (let n in data) {
                         let sub = data[n];
                         if (sub.parent === item.id) {
+                            if (uprefix && sub.data.url.match(/^\//)) {
+                                sub.data.url = uprefix + sub.data.url;
+                            }
                             children += tpl(templates['item_' + prefix], { id: sub.id, url: sub.data.url, title: sub.text });
                         }
                     }
                     if (children) {
                         html += tpl(templates['parent_' + prefix], { id: item.id, title: item.text, data: children });
                     } else {
+                        if (uprefix && item.data.url.match(/^\//)) {
+                            item.data.url = uprefix + item.data.url;
+                        }
                         html += tpl(templates['item_' + prefix], { id: item.id, url: item.data.url, title: item.text });
                     }
                 }
@@ -53,7 +61,7 @@ module.exports = function(app) {
         let navigation = req.body.navigation;
         if (!navigation || typeof 'navigation' !== 'string') {
             return res.send(JSON.stringify({
-                status: 0
+                status: -1
             }));
         }
         try {
@@ -61,22 +69,26 @@ module.exports = function(app) {
             let updResult = await db.collection('navigation').update({ name: 'navigation' }, { name: 'navigation', data: json }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
-                    status: 0
+                    status: -2
                 }));
             }
             for (let n in config.i18n.localeNames) {
-                let data = render(navigation[n], 'd');
+                let uprefix = '';
+                if (config.i18n.detect.url && config.i18n.locales.indexOf(n) > 0) {
+                    uprefix = '/' + n;
+                }
+                let data = render(navigation[n], 'd', uprefix);
                 updResult = await db.collection('navigation').update({ name: 'navigation_html_d_' + n }, { name: 'navigation_html_d_' + n, data: data }, { upsert: true });
                 if (!updResult || !updResult.result || !updResult.result.ok) {
                     return res.send(JSON.stringify({
-                        status: 0
+                        status: -3
                     }));
                 }
-                data = render(navigation[n], 'm');
+                data = render(navigation[n], 'm', uprefix);
                 updResult = await db.collection('navigation').update({ name: 'navigation_html_m_' + n }, { name: 'navigation_html_m_' + n, data: data }, { upsert: true });
                 if (!updResult || !updResult.result || !updResult.result.ok) {
                     return res.send(JSON.stringify({
-                        status: 0
+                        status: -4
                     }));
                 }
             }
@@ -84,6 +96,7 @@ module.exports = function(app) {
                 status: 1
             }));
         } catch (e) {
+            log.error(e);
             return res.send(JSON.stringify({
                 status: 0
             }));

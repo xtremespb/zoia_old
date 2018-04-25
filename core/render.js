@@ -59,6 +59,7 @@ module.exports = class Render {
             admin: admin,
             auth: (req && req.session && req.session.auth) ? req.session.auth : false,
             locale: locale,
+            uprefix: i18n.getLanguageURLPrefix(req),
             lang: JSON.stringify(i18n.get().locales[locale]),
             config: config,
             pageTitle: pageTitle

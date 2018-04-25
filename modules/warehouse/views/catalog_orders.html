@@ -1,7 +1,7 @@
 <h1>{{ i18n.__(locale, 'My Orders')}}</h1>
 <ul class="za-breadcrumb">
-    <li><a href="{{ configModule.prefix }}/">{{ i18n.__(locale, 'Catalog')}}</a></li>
-    <li><a href="{{ configModule.prefix }}/orders" class="za-active">{{ i18n.__(locale, 'Orders')}}</a></li>
+    <li><a href="{{ uprefix }}{{ configModule.prefix }}/">{{ i18n.__(locale, 'Catalog')}}</a></li>
+    <li><a href="{{ uprefix }}{{ configModule.prefix }}/orders" class="za-active">{{ i18n.__(locale, 'Orders')}}</a></li>
 </ul>
 <div id="wrapOrders" style="display:none">
     <table class="za-table za-table-divider za-table-striped za-table-hover za-table-responsive za-table-middle" id="orders">
@@ -44,7 +44,7 @@
     </div>
     {% if configModule.payments.enabled %}
     <div class="za-margin-large-top">
-        <a href="#" data="{{ configModule.prefix }}" class="za-button za-button-primary" id="za_order_btn_pay">{{ i18n.__(locale, 'Pay')}}</a>
+        <a href="#" data="{{ uprefix }}{{ configModule.prefix }}" class="za-button za-button-primary" id="za_order_btn_pay">{{ i18n.__(locale, 'Pay')}}</a>
     </div>
     {% endif %}
 </div>

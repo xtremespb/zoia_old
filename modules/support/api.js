@@ -258,6 +258,7 @@ module.exports = function(app) {
         const id = req.body.id;
         const msgId = req.body.msgId;
         const msg = req.body.msg;
+        const uprefix = i18n.getLanguageURLPrefix(req); 
         if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/) ||
             (msgId && (typeof msgId !== 'string' || !msgId.match(/^[0-9]+$/))) ||
             !msg || typeof id !== 'string' || msg.lentgh > 4096) {
@@ -318,7 +319,7 @@ module.exports = function(app) {
                     locale: locale,
                     lang: JSON.stringify(i18n.get().locales[locale]),
                     config: config,
-                    url: config.website.protocol + '://' + config.website.url[locale] + '/support?action=view&id=' + id,
+                    url: config.website.protocol + '://' + config.website.url[locale] + uprefix + '/support?action=view&id=' + id,
                     id: id,
                     title: data.title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;'),
                     message: msg.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;').replace(/\n/gm, '<br>')
@@ -648,6 +649,7 @@ module.exports = function(app) {
         const title = req.body.title;
         const message = req.body.message;
         const priority = req.body.priority;
+        const uprefix = i18n.getLanguageURLPrefix(req); 
         if (!priority || (priority !== '0' && priority !== '1' && priority !== '2' && priority !== '3') ||
             !title || typeof title !== 'string' || title.lentgh < 2 || title.lentgh > 128 ||
             !message || typeof message !== 'string' || message.lentgh < 2 || message.lentgh > 4096) {
@@ -675,7 +677,7 @@ module.exports = function(app) {
                 locale: locale,
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 config: config,
-                url: config.website.protocol + '://' + config.website.url[locale] + '/support?action=view&id=' + id,
+                url: config.website.protocol + '://' + config.website.url[locale] + uprefix + '/support?action=view&id=' + id,
                 id: id
             });
             let mailHTMLAdmin = await render.file('mail_newticket_admin.html', {

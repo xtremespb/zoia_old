@@ -10,6 +10,7 @@ module.exports = class Panel {
     async html(req, id, title, data, extraCSS, extraJS) {
         const locale = req.session.currentLocale;
         const auth = req.session.auth;
+        const uprefix = this.i18n.getLanguageURLPrefix(req);
         return await this.render.file('panel.html', {
             i18n: this.i18n.get(),
             locale: locale,
@@ -20,7 +21,9 @@ module.exports = class Panel {
             modules: this.app.get('backendModules'),
             auth: auth,
             extraJS: extraJS,
-            extraCSS: extraCSS
+            extraCSS: extraCSS,
+            uprefix: uprefix,
+            authPrefix: config.core.prefix.auth
         });
     }
 };

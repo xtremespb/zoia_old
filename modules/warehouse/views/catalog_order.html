@@ -1,6 +1,6 @@
 <h1>{{ i18n.__(locale, 'Order')}}</h1>
 <ul class="za-breadcrumb">
-    <li><a href="{{ configModule.prefix }}/">{{ i18n.__(locale, 'Catalog')}}</a></li>
+    <li><a href="{{ uprefix }}{{ configModule.prefix }}/">{{ i18n.__(locale, 'Catalog')}}</a></li>
 </ul>
 {% if cartCount > 0 %}
 <div id="za_catalog_order_wrap">
@@ -61,7 +61,7 @@
     </table>
     {% if not auth %}
     <div class="za-alert-warning" za-alert>
-        <p>{{ i18n.__(locale, 'You are not authorized. To check your order status and make the next order faster, please')}}&nbsp;<a href="{{ config.core.prefix.auth }}">{{ i18n.__(locale, 'authorize')}}</a>&nbsp;{{ i18n.__(locale, 'or')}}&nbsp;<a href="{{ config.core.prefix.auth }}/register">{{ i18n.__(locale, 'register')}}</a>.</p>
+        <p>{{ i18n.__(locale, 'You are not authorized. To check your order status and make the next order faster, please')}}&nbsp;<a href="{{ uprefix }}{{ config.core.prefix.auth }}">{{ i18n.__(locale, 'authorize')}}</a>&nbsp;{{ i18n.__(locale, 'or')}}&nbsp;<a href="{{ uprefix }}{{ config.core.prefix.auth }}/register">{{ i18n.__(locale, 'register')}}</a>.</p>
         <div class="za-margin">
             <label class="za-form-label" for="za_catalog_form_captcha">{{ i18n.__(locale, 'Captcha')}}:</label>
             <div class="za-grid za-grid-small">

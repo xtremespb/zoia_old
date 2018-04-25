@@ -100,6 +100,7 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
+        const uprefix = i18n.getLanguageURLPrefix(req);
         const fieldList = registerFields.getRegisterFields();
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
@@ -146,7 +147,7 @@ module.exports = function(app) {
                 locale: locale,
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 config: config,
-                url: config.website.protocol + '://' + config.website.url[locale] + '/auth/register/confirm?username=' + fields.username.value + '&code=' + activationCode
+                url: config.website.protocol + '://' + config.website.url[locale] + uprefix + config.core.prefix.auth + '/register/confirm?username=' + fields.username.value + '&code=' + activationCode
             });
             await mailer.send(req, fields.email.value, i18n.get().__(locale, 'Confirm your registration'), mailHTML);
             return res.send(JSON.stringify(output));
@@ -218,6 +219,7 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
+        const uprefix = i18n.getLanguageURLPrefix(req);
         const fieldList = resetFields.getRegisterFields();
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
@@ -257,7 +259,7 @@ module.exports = function(app) {
                 locale: locale,
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 config: config,
-                url: config.website.protocol + '://' + config.website.url[locale] + '/auth/reset/confirm?username=' + user.username + '&code=' + activationCode + '&password=password'
+                url: config.website.protocol + '://' + config.website.url[locale] + uprefix + config.core.prefix.auth + '/reset/confirm?username=' + user.username + '&code=' + activationCode + '&password=password'
             });
             await mailer.send(req, fields.email.value, i18n.get().__(locale, 'Confirm password reset'), mailHTML);
             return res.send(JSON.stringify(output));

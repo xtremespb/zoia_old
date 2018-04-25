@@ -215,7 +215,7 @@
         settings = JSON.parse($('#zp_settings').attr('data'));
         addressJSON = JSON.parse($('#zp_addressJSON').attr('data'));
         weight = parseFloat($('#zp_weight').attr('data'));
-        isAuth = Boolean($('#zp_isAuth').attr('data'));
+        isAuth = $('#zp_isAuth').attr('data') === 'true' ? true : false;
         currencyPosition = $('#zp_currencyPosition').attr('data');
         $.getScript(`/api/lang/warehouse/${locale}.js`).done((res) => {
             let formHTML = '';

@@ -8,7 +8,7 @@
     $(document).ready(() => {
         const locale = $('#zp_locale').attr('data');
         const langs = JSON.parse($('#zp_langs').attr('data'));
-        const maintenanceEnabled = Boolean($('#zp_maintenanceEnabled').attr('data'));
+        const maintenanceEnabled = $('#zp_maintenanceEnabled').attr('data') === 'true' ? true : false;
         $.getScript(`/api/lang/dashboard/${locale}.js`).done(() => {
             restartProgressDialog = $zUI.modal('#zoiaRestartProgressDialog', {
                 bgClose: false,

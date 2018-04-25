@@ -69,7 +69,11 @@ module.exports = function(app) {
                 config: config,
                 data: pageData
             };
-            let tags = pageData[locale].content.match(/\[\[(.*)\]\]/gm);
+            let tags = [];
+            const tagPattern = new RegExp(/\[\[(.*)\]\]/gm);
+            while (match = tagPattern.exec(pageData[locale].content)) {
+                tags.push(match[0]);
+            }
             for (let i in tags) {
                 let tag = tags[i];
                 let tagString = tag.trim().replace(/^\[\[/, '').replace(/\]\]$/, '');
@@ -90,8 +94,12 @@ module.exports = function(app) {
                     }
                 }
                 let out = '';
-                if (filters[fn + 'Async']) {
-                    out = await filters[fn + 'Async'](...tagParts);
+                if (fn === 'uprefix') {
+                    out = i18n.getLanguageURLPrefix(req);
+                } else {
+                    if (filters[fn + 'Async']) {
+                        out = await filters[fn + 'Async'](...tagParts);
+                    }
                 }
                 pageData[locale].content = pageData[locale].content.replace(tag, out);
             }
@@ -110,6 +118,10 @@ module.exports = function(app) {
             return '';
         }
         let locale = _locale || config.i18n.locales[0];
+        let uprefix = '';
+        if (config.i18n.detect.url && locale !== config.i18n.locales[0]) { 
+            uprefix = '/' + locale;
+        }
         try {
             let foldersData = await db.collection('pages_registry').findOne({ name: 'pagesFolders' });
             if (!foldersData) {
@@ -124,10 +136,10 @@ module.exports = function(app) {
             pathTId.shift();
             let html = '';
             let pathTUrl = '/';
-            html += tpl(templates['item'], { url: pathTUrl, title: config.website.titleShort[locale] });
+            html += tpl(templates['item'], { url: uprefix + pathTUrl, title: config.website.titleShort[locale] });
             for (let i in pathT) {
                 pathTUrl += pathTId[i] + '/';
-                html += tpl(templates['item'], { url: pathTUrl, title: pathT[i] });
+                html += tpl(templates['item'], { url: uprefix + pathTUrl, title: pathT[i] });
             }
             html += tpl(templates['itemActive'], { title: data[locale].title });
             html = tpl(templates['wrap'], { data: html });

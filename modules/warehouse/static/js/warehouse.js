@@ -417,7 +417,7 @@
                 $('#za_catalog_order_email').val(res.item.email || '');
                 $('#za_catalog_order_phone').val(res.item.phone || '');
                 $('#za_catalog_order_tracking').val(res.item.tracking || '');
-                $('#za_catalog_order_paid').prop("checked", res.item.paid);
+                $('#za_catalog_order_paid').prop('checked', res.item.paid);
                 $('#za_catalog_order_delivery').val(res.item.delivery);
                 let cartHTML = '<table class="za-table za-table-striped za-table-hover za-table-small za-table-middle za-table-responsive" id="za_catalog_order_cart_table"><tbody>';
                 for (let i in res.item.cart) {
@@ -2810,7 +2810,7 @@
         locale = $('#zp_locale').attr('data');
         langs = JSON.parse($('#zp_langs').attr('data'));
         foldersData = JSON.parse($('#zp_foldersData').attr('data'));
-        testMode = Boolean($('#zp_testMode').attr('data'));
+        testMode = $('#zp_testMode').attr('data') === 'true' ? true : false;
         addressData = JSON.parse($('#zp_addressData').attr('data'));
         addressJSON = JSON.parse($('#zp_addressJSON').attr('data'));
         settings = JSON.parse($('#zp_settings').attr('data'));

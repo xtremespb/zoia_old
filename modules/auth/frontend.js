@@ -36,10 +36,11 @@ module.exports = function(app) {
     const renderRoot = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), app);
 
     const login = async(req, res) => {
+        const uprefix = i18n.getLanguageURLPrefix(req);
         if (Module.isAuthorized(req)) {
             let url = req.query.redirect;
             if (!url || !url.match(/^[A-Za-z0-9-_.~\:\/\?#\[\]\@\!\$\&\'\(\)\*\+,;=]*$/) || url.length > 100) {
-                url = '/';
+                url = uprefix + '/';
             }
             return res.redirect(303, url);
         }
@@ -49,10 +50,11 @@ module.exports = function(app) {
         }
         let url = req.query.redirect || req.headers.referer;
         if (!url || !url.match(/^[A-Za-z0-9-_.~\:\/\?#\[\]\@\!\$\&\'\(\)\*\+,;=]*$/) || url.length > 100) {
-            url = '/';
+            url = uprefix + '/';
         }
         let html = await renderAuth.file(templateLogin, {
             i18n: i18n.get(),
+            uprefix: uprefix,
             locale: locale,
             lang: JSON.stringify(i18n.get().locales[locale]),
             config: config,
@@ -63,20 +65,22 @@ module.exports = function(app) {
     };
 
     const logout = async(req, res) => {
+        const uprefix = i18n.getLanguageURLPrefix(req);
         if (!Module.isAuthorized(req)) {
-            return res.redirect(303, config.core.prefix.auth + '/?rnd=' + Math.random().toString().replace('.', ''));
+            return res.redirect(303, uprefix + config.core.prefix.auth + '/?rnd=' + Math.random().toString().replace('.', ''));
         }
         let url = req.query.redirect;
         if (!url || !url.match(/^[A-Za-z0-9-_.~\:\/\?#\[\]\@\!\$\&\'\(\)\*\+,;=]*$/) || url.length > 100) {
-            url = '/';
+            url = uprefix + '/';
         }
         Module.logout(req);
         res.redirect(303, url);
     };
 
     const register = async(req, res) => {
+        const uprefix = i18n.getLanguageURLPrefix(req);
         if (Module.isAuthorized(req)) {
-            return res.redirect(303, '/');
+            return res.redirect(303, uprefix + '/');
         }
         let locale = config.i18n.locales[0];
         if (req.session && req.session.currentLocale) {
@@ -89,6 +93,7 @@ module.exports = function(app) {
             locale: locale,
             lang: JSON.stringify(i18n.get().locales[locale]),
             prefix: config.core.prefix.auth,
+            uprefix: uprefix,
             config: config
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Register'), {
@@ -100,8 +105,9 @@ module.exports = function(app) {
     };
 
     const registerConfirm = async(req, res) => {
+        const uprefix = i18n.getLanguageURLPrefix(req);
         if (Module.isAuthorized(req)) {
-            return res.redirect(303, '/');
+            return res.redirect(303, uprefix + '/');
         }
         let locale = config.i18n.locales[0];
         if (req.session && req.session.currentLocale) {
@@ -121,9 +127,10 @@ module.exports = function(app) {
             lang: JSON.stringify(i18n.get().locales[locale]),
             config: config,
             prefix: config.core.prefix.auth,
+            uprefix: uprefix,
             fields: fields
         });
-        let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Confirm registraton'), {
+        let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Confirm registration'), {
             content: confirmHTML,
             extraCSS: config.production ? ['/auth/static/css/registerConfirm.min.css'] : ['/auth/static/css/registerConfirm.css'],
             extraJS: config.production ? ['/auth/static/js/registerConfirm.min.js'] : ['/auth/static/js/registerConfirm.js']
@@ -132,8 +139,9 @@ module.exports = function(app) {
     };
 
     const reset = async(req, res) => {
+        const uprefix = i18n.getLanguageURLPrefix(req);
         if (Module.isAuthorized(req)) {
-            return res.redirect(303, '/');
+            return res.redirect(303, uprefix + '/');
         }
         let locale = config.i18n.locales[0];
         if (req.session && req.session.currentLocale) {
@@ -146,6 +154,7 @@ module.exports = function(app) {
             locale: locale,
             lang: JSON.stringify(i18n.get().locales[locale]),
             prefix: config.core.prefix.auth,
+            uprefix: uprefix,
             config: config
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Reset password'), {
@@ -157,8 +166,9 @@ module.exports = function(app) {
     };
 
     const resetConfirm = async(req, res) => {
+        const uprefix = i18n.getLanguageURLPrefix(req);
         if (Module.isAuthorized(req)) {
-            return res.redirect(303, '/');
+            return res.redirect(303, uprefix + '/');
         }
         let locale = config.i18n.locales[0];
         if (req.session && req.session.currentLocale) {
@@ -179,6 +189,7 @@ module.exports = function(app) {
             config: config,
             username: fields.username.value,
             prefix: config.core.prefix.auth,
+            uprefix: uprefix,
             code: fields.code.value
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Set new password'), {

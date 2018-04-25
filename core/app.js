@@ -59,11 +59,15 @@ const winston = require('winston');
         log.info('Loading ' + modules.length + ' module(s)...');
         for (let m in modules) {
             const moduleLoaded = require(path.join(__dirname, '..', 'modules', modules[m], 'module'))(app);
-
             if (moduleLoaded) {
                 if (moduleLoaded.frontend) {
                     if (moduleLoaded.frontend.routes) {
                         app.use(moduleLoaded.frontend.prefix, moduleLoaded.frontend.routes);
+                        if (config.i18n.detect.url) {
+                            for (let i in config.i18n.locales) {
+                                app.use('/' + config.i18n.locales[i] + moduleLoaded.frontend.prefix, moduleLoaded.frontend.routes);
+                            }
+                        }
                     }
                     if (moduleLoaded.frontend.filters) {
                         for (let f in moduleLoaded.frontend.filters) {
@@ -76,6 +80,11 @@ const winston = require('winston');
                         backendModules.push(moduleLoaded.backend.info);
                     }
                     app.use('/admin' + moduleLoaded.backend.prefix, moduleLoaded.backend.routes);
+                    if (config.i18n.detect.url) {
+                        for (let i in config.i18n.locales) {
+                            app.use('/' + config.i18n.locales[i] + '/admin' + moduleLoaded.backend.prefix, moduleLoaded.backend.routes);
+                        }
+                    }
                 }
                 if (moduleLoaded.api && moduleLoaded.api.routes) {
                     app.use('/api' + moduleLoaded.api.prefix, moduleLoaded.api.routes);

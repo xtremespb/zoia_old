@@ -50,7 +50,8 @@
         "detect": {
             "subdomain": false,
             "query": true,
-            "cookie": false
+            "cookie": false,
+            "url": false
         },
         "dev": true,
         "cookieName": "zoiaLang",
