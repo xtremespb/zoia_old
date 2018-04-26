@@ -20,21 +20,24 @@ module.exports = class I18N {
         }
         let detected = false;
         if (config.i18n.detect.subdomain) {
-            this.i18n.setLocaleFromSubdomain(req);
+            if (req.subdomains && req.subdomains.length > 0) {
+                this.i18n.setLocale(req.subdomains[req.subdomains.length - 1]);
+            } else {
+                this.i18n.setLocale(config.i18n.locales[0]);
+            }
             detected = true;
         }
-        if (config.i18n.detect.query) {
-            // this.i18n.setLocaleFromQuery(req);
+        if (!detected && config.i18n.detect.query) {
             if (req.query && req.query.lang && typeof req.query.lang === 'string' && req.query.lang.match(/^[a-z]{2}$/)) {
                 this.i18n.setLocale(req.query.lang);
                 detected = true;
             }
         }
-        if (config.i18n.detect.cookie) {
+        if (!detected && config.i18n.detect.cookie) {
             this.i18n.setLocaleFromCookie(req);
             detected = true;
         }
-        if (config.i18n.detect.url) {
+        if (!detected && config.i18n.detect.url) {
             /* eslint no-unused-vars: 0 */
             const [dummy, lng] = req.url.split(/\//);
             if (!req.url.match(/^\/(api)/) && !req.url.match(/\/(static)\//)) {
