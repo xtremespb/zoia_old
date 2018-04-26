@@ -913,7 +913,7 @@ module.exports = function(app) {
                         if (properties[p].pid === item.properties[i]) {
                             propertiesData[properties[p].pid] = {
                                 title: properties[p].title[locale],
-                                type: parseInt(properties[p].type)
+                                type: parseInt(properties[p].type, 10)
                             };
                         }
                     }

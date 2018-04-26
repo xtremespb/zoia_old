@@ -12,7 +12,6 @@ module.exports = function(app) {
     const db = app.get('db');
 
     const create = async(req, res) => {
-        const locale = req.session.currentLocale;
         const modulesBackup = req.body.modules;
         if (modulesBackup && typeof modulesBackup !== 'object') {
             return res.send(JSON.stringify({
@@ -127,12 +126,12 @@ module.exports = function(app) {
                     await db.collection('backup_tasks').update({ _id: new ObjectID(taskId) }, { $set: { state: 0 } }, { upsert: true });
                     try {
                         await fs.remove(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId + '.tgz'));
-                    } catch (e) {
+                    } catch (ex) {
                         // Ignored
                     }
                     try {
                         await fs.remove(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId));
-                    } catch (e) {
+                    } catch (ex) {
                         // Ignored
                     }
                 }
@@ -244,12 +243,12 @@ module.exports = function(app) {
                                 break;
                             case 'mongo':
                                 const dbdata = await fs.readJson(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId, item.module, item.from));
-                                for (let i in dbdata) {
-                                    if (dbdata[i]._id) {
+                                for (let j in dbdata) {
+                                    if (dbdata[j]._id) {
                                         try {
-                                            const oid = new ObjectID(dbdata[i]._id);
-                                            dbdata[i]._id = oid;
-                                        } catch (e) {
+                                            const oid = new ObjectID(dbdata[j]._id);
+                                            dbdata[j]._id = oid;
+                                        } catch (ex) {
                                             // ignore
                                         }
                                     }
@@ -271,12 +270,12 @@ module.exports = function(app) {
                     await db.collection('backup_tasks').update({ _id: new ObjectID(taskId) }, { $set: { state: 0 } }, { upsert: true });
                     try {
                         await fs.remove(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId + '.tgz'));
-                    } catch (e) {
+                    } catch (ex) {
                         // Ignored
                     }
                     try {
                         await fs.remove(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId));
-                    } catch (e) {
+                    } catch (ex) {
                         // Ignored
                     }
                 }
@@ -295,11 +294,6 @@ module.exports = function(app) {
 
     const restoreState = async(req, res) => {
         res.contentType('application/json');
-        /*if (!Module.isAuthorizedAdmin(req)) {
-            return res.send(JSON.stringify({
-                status: 0
-            }));
-        }*/
         const id = req.query.id;
         if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
             return res.send(JSON.stringify({

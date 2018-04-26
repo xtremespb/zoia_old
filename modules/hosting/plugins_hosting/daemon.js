@@ -1,3 +1,5 @@
+/* eslint no-unused-vars: 0 */
+
 const rp = require('request-promise');
 const path = require('path');
 
@@ -8,15 +10,14 @@ try {
     configModule = require(path.join(__dirname, '..', 'config', 'daemon.dist.json'));
 }
 
-const process = async (id, host, locale, cmd) => {
+const process = async(id, host, locale, cmd) => {
     try {
         const url = configModule.url[host] + '?key=' + configModule.key + '&id=' + id + '&command=' + cmd;
         const response = await rp(url, { json: true, rejectUnauthorized: false });
         if (response && response.status === 1) {
             return true;
-        } else {
-            return response;
         }
+        return response;
     } catch (e) {
         return false;
     }

@@ -155,7 +155,7 @@
         deliveryData = JSON.parse($('#zp_deliveryData').attr('data'));
         addressTemplate = JSON.parse($('#zp_addressTemplate').attr('data'));
         addressData = JSON.parse($('#zp_addressData').attr('data'));
-        $.getScript(`/api/lang/warehouse/${locale}.js`).done((res) => {
+        $.getScript(`/api/lang/warehouse/${locale}.js`).done(() => {
             const ordersTableData = {
                 url: '/api/warehouse/orders',
                 limit: 20,

@@ -6,7 +6,6 @@ const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 module.exports = function(app) {
     const db = app.get('db');
     const templates = require(path.join(__dirname, 'templates.js'));
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
     const log = app.get('log');
 
     const tpl = (s, d) => {

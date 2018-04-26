@@ -4,7 +4,6 @@ const path = require('path');
 module.exports = function(data) {
     return async() => {
         const db = data.db;
-        const config = data.config;
         console.log('  └── Creating collection: support...');
         try {
             await db.createCollection('support');

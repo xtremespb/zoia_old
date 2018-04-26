@@ -1,4 +1,5 @@
 /* eslint max-len: 0 */
+
 module.exports = function(data) {
     return async() => {
         const db = data.db;

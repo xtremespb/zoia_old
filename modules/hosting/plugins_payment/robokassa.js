@@ -22,7 +22,7 @@ try {
     configModule = require(path.join(__dirname, '..', 'config', 'hosting.json'));
 } catch (e) {
     configModule = require(path.join(__dirname, '..', 'config', 'hosting.dist.json'));
-} 
+}
 
 module.exports = function(app, router) {
     const db = app.get('db');
@@ -54,23 +54,22 @@ module.exports = function(app, router) {
         let captcha = req.query.captcha || req.body.captcha;
         res.contentType('application/json');
         if (!captcha || typeof captcha !== 'string' || !captcha.match(/^[0-9]{4}$/) ||
-            !Module.isAuthorized(req) || !req.session || !req.session.captcha || parseInt(captcha) !== parseInt(req.session.captcha)) {
+            !Module.isAuthorized(req) || !req.session || !req.session.captcha || parseInt(captcha, 10) !== parseInt(req.session.captcha, 10)) {
             req.session.captcha = null;
             return res.send(JSON.stringify({ status: 0, error: i18n.get().__(locale, 'Invalid captcha') }));
         }
         req.session.captcha = null;
         if (!sum || typeof sum !== 'string' || !sum.match(/^\d+(\.\d+)?$/)) {
             return res.send(JSON.stringify({ status: 0, error: i18n.get().__(locale, 'Invalid sum, please check form data and try again.') }));
-        } else {
-            sum = parseFloat(sum);
         }
+        sum = parseFloat(sum);
         try {
             const incr = await db.collection('hosting_counters').findAndModify({ _id: 'payment' }, [], { $inc: { seq: 1 } }, { new: true, upsert: true });
             if (!incr || !incr.value || !incr.value.seq) {
                 return res.send(JSON.stringify({ status: 0 }));
             }
             const id = incr.value.seq;
-            const insResult = await db.collection('hosting_payments').insertOne({ _id: id, sum: sum, timestamp: parseInt(Date.now() / 1000), user_id: String(req.session.auth._id), locale: locale, email: req.session.auth.email });
+            const insResult = await db.collection('hosting_payments').insertOne({ _id: id, sum: sum, timestamp: parseInt(Date.now() / 1000, 10), user_id: String(req.session.auth._id), locale: locale, email: req.session.auth.email });
             if (!insResult || !insResult.result || !insResult.result.ok) {
                 return res.send(JSON.stringify({ status: 0 }));
             }
@@ -101,7 +100,7 @@ module.exports = function(app, router) {
             return res.send('Invalid order ID, payment amount or signature value');
         }
         const crcValid = crypto.createHash('md5').update(sum + ':' + id + ':' + configPlugin.sMerchantPass2).digest('hex').toLowerCase();
-        if (crc.toLowerCase() !== crcValid) {   
+        if (crc.toLowerCase() !== crcValid) {
             return res.send('Invalid signature');
         }
         try {
@@ -113,19 +112,19 @@ module.exports = function(app, router) {
             if (!delResult || !delResult.result || !delResult.result.ok) {
                 return res.send('Could not update the database record');
             }
-            const timestamp = parseInt(Date.now() / 1000);
+            const timestamp = parseInt(Date.now() / 1000, 10);
             const insResult = await db.collection('hosting_transactions').insertOne({ ref_id: paymentData.user_id, timestamp: timestamp, sum: parseFloat(paymentData.sum) });
             if (!insResult || !insResult.result || !insResult.result.ok) {
                 return res.send('Could not update the database record');
             }
             const locale = paymentData.locale;
-            const sum = (configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + paymentData.sum + (configModule.currencyPosition === 'right' ? ' ' + configModule.currency[locale] : '');
+            const sumText = (configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + paymentData.sum + (configModule.currencyPosition === 'right' ? ' ' + configModule.currency[locale] : '');
             let mailHTML = await render.file('mail_topup.html', {
                 i18n: i18n.get(),
                 locale: locale,
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 config: config,
-                sum: sum
+                sum: sumText
             });
             await mailer.send(req, paymentData.email, i18n.get().__(locale, 'Successful Payment'), mailHTML);
             return res.send('OK');
@@ -134,7 +133,7 @@ module.exports = function(app, router) {
         }
     };
 
-    const dataComplete = async(req, res, next) => {
+    const dataComplete = async(req, res) => {
         const id = req.body.InvId || req.query.InvId;
         const sum = req.body.OutSum || req.query.OutSum;
         const crc = req.body.SignatureValue || req.query.SignatureValue;
@@ -162,7 +161,7 @@ module.exports = function(app, router) {
         res.send(html);
     };
 
-    const dataFailed = async(req, res, next) => {
+    const dataFailed = async(req, res) => {
         const locale = req.session.currentLocale;
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);

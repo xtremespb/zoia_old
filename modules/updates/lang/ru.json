@@ -8,7 +8,7 @@
 	"Could not get version information from remote server": "Ошибка во время получения номера актуальной версии",
 	"Your system is up to date": "Поздравляем, у Вас установлена последняя версия!",
 	"New version available": "Доступна более новая версия",
-	"There is a newer version of Zoia availble": "Доступно обновление на более новую версию Zoia",
+	"There is a newer version of Zoia available": "Доступно обновление на более новую версию Zoia",
 	"Cancel": "Отмена",
 	"Update": "Обновить",
 	"Changelog": "Список изменений",
@@ -20,5 +20,5 @@
 	"Could not extract the update archive": "Ошибка во время распаковки архива",
 	"could not extract update file": "Ошибка во время распаковки файла обновления",
 	"Restarting": "Перезапуск",
-	"Zoia has been updated sucessfully. The system is restarting now, please wait...": "Процесс обновления Zoia прошел успешно. Система перезапускается, пожалуйста, подождите..."
+	"Zoia has been updated successfully. The system is restarting now, please wait...": "Процесс обновления Zoia прошел успешно. Система перезапускается, пожалуйста, подождите..."
 }

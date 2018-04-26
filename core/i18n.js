@@ -35,6 +35,7 @@ module.exports = class I18N {
             detected = true;
         }
         if (config.i18n.detect.url) {
+            /* eslint no-unused-vars: 0 */
             const [dummy, lng] = req.url.split(/\//);
             if (!req.url.match(/^\/(api)/) && !req.url.match(/\/(static)\//)) {
                 if (lng && lng.match(/^[a-z]{2}$/) && config.i18n.locales.indexOf(lng) > -1) {
@@ -42,10 +43,8 @@ module.exports = class I18N {
                 } else {
                     this.i18n.setLocale(config.i18n.locales[0]);
                 }
-            } else {
-                if (req.session.currentLocale) {
-                    this.i18n.setLocale(req.session.currentLocale);
-                }
+            } else if (req.session.currentLocale) {
+                this.i18n.setLocale(req.session.currentLocale);
             }
             detected = true;
         }

@@ -27,7 +27,7 @@
         currencyPosition = $('#zp_currencyPosition').attr('data');
         settings = JSON.parse($('#zp_settings').attr('data'));
         locale = $('#zp_locale').attr('data');
-        $.getScript(`/api/lang/warehouse/${locale}.js`).done((res) => {
+        $.getScript(`/api/lang/warehouse/${locale}.js`).done(() => {
             _setSpinnerSize();
             $('.za-catalog-cart-count').keyup(_debounce(function() {
                 let val = $(this).val().trim();

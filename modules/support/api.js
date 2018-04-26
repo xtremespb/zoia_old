@@ -1,7 +1,8 @@
+/* eslint max-len: 0 */
+
 const path = require('path');
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
-const ObjectID = require('mongodb').ObjectID;
 const crypto = require('crypto');
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const fs = require('fs-extra');
@@ -67,14 +68,11 @@ module.exports = function(app) {
                     ]
                 };
                 if (search.match(/^[0-9]+$/)) {
-                    fquery.$or.push({ _id: parseInt(search, 10) })
+                    fquery.$or.push({ _id: parseInt(search, 10) });
                 }
             }
             const total = await db.collection('support').find(fquery).count();
             const items = await db.collection('support').find(fquery, { skip: skip, limit: limit, sort: sort, projection: { _id: 1, timestamp: 1, title: 1, username: 1, status: 1, priority: 1, specialist: 1, unreadSupport: 1 } }).toArray();
-            /*for (let i in items) {
-                items[i].title = items[i].title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;');
-            }*/
             let data = {
                 status: 1,
                 count: items.length,
@@ -125,9 +123,6 @@ module.exports = function(app) {
         try {
             const total = await db.collection('support').find(fquery).count();
             const items = await db.collection('support').find(fquery, { skip: skip, limit: limit, sort: sort, projection: { _id: 1, timestamp: 1, title: 1, username: 1, status: 1, priority: 1, unreadUser: 1 } }).toArray();
-            /*for (let i in items) {
-                items[i].title = items[i].title.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;');
-            }*/
             let data = {
                 status: 1,
                 count: items.length,
@@ -224,7 +219,7 @@ module.exports = function(app) {
             }
             did.push({ _id: parseInt(id, 10) });
             try {
-                await fs.remove(path.join(__dirname, 'storage', String(id)))
+                await fs.remove(path.join(__dirname, 'storage', String(id)));
             } catch (e) {
                 log.error(e);
             }
@@ -258,7 +253,7 @@ module.exports = function(app) {
         const id = req.body.id;
         const msgId = req.body.msgId;
         const msg = req.body.msg;
-        const uprefix = i18n.getLanguageURLPrefix(req); 
+        const uprefix = i18n.getLanguageURLPrefix(req);
         if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/) ||
             (msgId && (typeof msgId !== 'string' || !msgId.match(/^[0-9]+$/))) ||
             !msg || typeof id !== 'string' || msg.lentgh > 4096) {
@@ -649,7 +644,7 @@ module.exports = function(app) {
         const title = req.body.title;
         const message = req.body.message;
         const priority = req.body.priority;
-        const uprefix = i18n.getLanguageURLPrefix(req); 
+        const uprefix = i18n.getLanguageURLPrefix(req);
         if (!priority || (priority !== '0' && priority !== '1' && priority !== '2' && priority !== '3') ||
             !title || typeof title !== 'string' || title.lentgh < 2 || title.lentgh > 128 ||
             !message || typeof message !== 'string' || message.lentgh < 2 || message.lentgh > 4096) {
@@ -972,7 +967,7 @@ module.exports = function(app) {
     router.post('/frontend/create', frontendCreateRequest);
     router.get('/frontend/load', frontendLoadRequest);
     router.post('/frontend/upload', frontendAttachmentUpload);
-    router.post('/frontend/attachment/delete', deleteAttachment);
+    router.post('/frontend/attachment/delete', frontendDeleteAttachment);
     router.post('/frontend/message', frontendSaveMessage);
     router.post('/request/pickup', requestPickupRelease);
 

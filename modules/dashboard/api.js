@@ -6,10 +6,8 @@ const fs = require('fs-extra');
 
 module.exports = function(app) {
     const log = app.get('log');
-    const db = app.get('db');
 
     const restart = async(req, res) => {
-        const locale = req.session.currentLocale;
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
             return res.send(JSON.stringify({
@@ -25,7 +23,6 @@ module.exports = function(app) {
     };
 
     const settingsSave = async(req, res) => {
-        const locale = req.session.currentLocale;
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
             return res.send(JSON.stringify({
@@ -54,7 +51,6 @@ module.exports = function(app) {
     };
 
     const maintenance = async(req, res) => {
-        const locale = req.session.currentLocale;
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
             return res.send(JSON.stringify({
@@ -85,7 +81,7 @@ module.exports = function(app) {
     let router = Router();
     router.get('/restart', restart);
     router.post('/settings/save', settingsSave);
-    router.post('/settings/maintenance', maintenance)
+    router.post('/settings/maintenance', maintenance);
     return {
         routes: router
     };

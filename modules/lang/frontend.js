@@ -1,6 +1,5 @@
 const path = require('path');
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const fs = require('fs');
 
 let templateSwitcherDesktop = 'switcher_desktop.html';
@@ -14,7 +13,7 @@ if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateSwitcherMobi
 
 module.exports = function(app) {
     const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
+    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, '..', '..', 'core', 'lang'), app);
 
     const switcherAsync = async(req, type, mobile) => {
         if (!req) {
@@ -35,7 +34,6 @@ module.exports = function(app) {
                     langUrls[lng] = req.originalUrl.replace(expr, '');
                     continue;
                 }
-                const expr = new RegExp(rlng);
                 langUrls[lng] = req.originalUrl.replace(rlng, lng);
             }
         } else {
@@ -58,7 +56,7 @@ module.exports = function(app) {
             protocol: config.website.protocol,
             langUrls: langUrls,
             uprefix: i18n.getLanguageURLPrefix(req)
-        });;
+        });
         return html;
     };
 

@@ -2,7 +2,6 @@
 /* eslint no-undef: 0 */
 
 (() => {
-
     let accountExtendDialog;
     let accountCreateDialog;
     let accountProgressDialog;
@@ -15,55 +14,6 @@
     let configModule;
     let totalFunds;
     let transactionsLength;
-
-    const checkAccountStatus = (id) => {
-        $.ajax({
-            type: 'GET',
-            url: '/api/hosting/account/create/status',
-            data: {
-                id: id
-            },
-            cache: false
-        }).done((res) => {
-            if (res && res.status === 1) {
-                if (res.state && res.state === 2) {
-                    accountProgressDialog.hide();
-                    if ($('.zoia-accounts-empty-accounts').is(':visible')) {
-                        $('#zoia_account_table_body').html('');
-                    }
-                    if ($('.zoia-accounts-empty-history').is(':visible')) {
-                        $('#zoia_history_table>tbody').html('');
-                    }
-                    $('#zoia_account_table_body').append('<tr><td class="zoia-accounts-id">' + res.id + '</td><td data="' + res.presetID + '">' + res.preset + '</td><td>' + res.days + '</td><td><a href="" class="za-icon-button zoia-btn-extend" za-icon="plus"></a></td></tr>');
-                    $('#zoia_history_table>tbody').prepend('<tr><td>' + new Date(parseInt(res.timestamp, 10) * 1000).toLocaleString() + '</td><td><span za-icon="' + (res.sum < 0 ? 'minus' : 'plus') + '-circle"></span>&nbsp;' + (configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + Math.abs(res.sum) + (configModule.currencyPosition === 'right' ? '&nbsp;' + configModule.currency[locale] : '') + '</td></tr>');
-                    const total = parseFloat($('.zoia-balance').html()) - Math.abs(parseFloat(res.sum));
-                    $('.zoia-balance').html(total);
-                    totalFunds = total;
-                    $('.zoia-btn-extend').unbind().click(btnExtendClickHandler);
-                    $zUI.modal.alert(lang['Your account has been created successfully and is ready to use.'], { labels: { ok: lang['OK'] }, stack: true });
-                } else {
-                    setTimeout(() => {
-                        checkAccountStatus(id);
-                    }, 3000);
-                }
-            } else {
-                accountProgressDialog.hide();
-                $zUI.modal.alert(lang['Unable to create new account'], { labels: { ok: lang['OK'] }, stack: true });
-            }
-        }).fail(() => {
-            accountProgressDialog.hide();
-            $zUI.modal.alert(lang['Unable to create new account'], { labels: { ok: lang['OK'] }, stack: true });
-        }, 200);
-    };
-
-    const btnExtendClickHandler = function(e) {
-        e.preventDefault();
-        accountExtendCost = parseFloat(prices[$(this).parent().parent().find('td:eq(1)').attr('data')]);
-        accountExtendID = $(this).parent().parent().find('td:eq(0)').html();
-        calculateExtendTotal();
-        $('#zoiaAccountExtendForm').zoiaFormBuilder().resetForm();
-        accountExtendDialog.show();
-    };
 
     const captchaRefresh = () => {
         $('.topup-captcha-img').attr('src', '/api/captcha?rnd=' + Math.random());
@@ -142,6 +92,55 @@
             $('#zoiaAccountExtendInsufficientFunds').hide();
         }
         $('.zoia-extend-account-total').html((configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + total + (configModule.currencyPosition === 'right' ? '&nbsp;' + configModule.currency[locale] : ''));
+    };
+
+    const btnExtendClickHandler = function(e) {
+        e.preventDefault();
+        accountExtendCost = parseFloat(prices[$(this).parent().parent().find('td:eq(1)').attr('data')]);
+        accountExtendID = $(this).parent().parent().find('td:eq(0)').html();
+        calculateExtendTotal();
+        $('#zoiaAccountExtendForm').zoiaFormBuilder().resetForm();
+        accountExtendDialog.show();
+    };
+
+    const checkAccountStatus = (id) => {
+        $.ajax({
+            type: 'GET',
+            url: '/api/hosting/account/create/status',
+            data: {
+                id: id
+            },
+            cache: false
+        }).done((res) => {
+            if (res && res.status === 1) {
+                if (res.state && res.state === 2) {
+                    accountProgressDialog.hide();
+                    if ($('.zoia-accounts-empty-accounts').is(':visible')) {
+                        $('#zoia_account_table_body').html('');
+                    }
+                    if ($('.zoia-accounts-empty-history').is(':visible')) {
+                        $('#zoia_history_table>tbody').html('');
+                    }
+                    $('#zoia_account_table_body').append('<tr><td class="zoia-accounts-id">' + res.id + '</td><td data="' + res.presetID + '">' + res.preset + '</td><td>' + res.days + '</td><td><a href="" class="za-icon-button zoia-btn-extend" za-icon="plus"></a></td></tr>');
+                    $('#zoia_history_table>tbody').prepend('<tr><td>' + new Date(parseInt(res.timestamp, 10) * 1000).toLocaleString() + '</td><td><span za-icon="' + (res.sum < 0 ? 'minus' : 'plus') + '-circle"></span>&nbsp;' + (configModule.currencyPosition === 'left' ? configModule.currency[locale] : '') + Math.abs(res.sum) + (configModule.currencyPosition === 'right' ? '&nbsp;' + configModule.currency[locale] : '') + '</td></tr>');
+                    const total = parseFloat($('.zoia-balance').html()) - Math.abs(parseFloat(res.sum));
+                    $('.zoia-balance').html(total);
+                    totalFunds = total;
+                    $('.zoia-btn-extend').unbind().click(btnExtendClickHandler);
+                    $zUI.modal.alert(lang['Your account has been created successfully and is ready to use.'], { labels: { ok: lang['OK'] }, stack: true });
+                } else {
+                    setTimeout(() => {
+                        checkAccountStatus(id);
+                    }, 3000);
+                }
+            } else {
+                accountProgressDialog.hide();
+                $zUI.modal.alert(lang['Unable to create new account'], { labels: { ok: lang['OK'] }, stack: true });
+            }
+        }).fail(() => {
+            accountProgressDialog.hide();
+            $zUI.modal.alert(lang['Unable to create new account'], { labels: { ok: lang['OK'] }, stack: true });
+        }, 200);
     };
 
     $(document).ready(() => {
@@ -263,7 +262,7 @@
                         autofocus: false,
                         values: presets,
                         validation: {
-                            mandatoryCreate: true,
+                            mandatoryCreate: true
                         }
                     },
                     password: {
@@ -299,7 +298,7 @@
                             9: '9',
                             10: '10',
                             11: '11',
-                            12: '12',
+                            12: '12'
                         },
                         validation: {
                             mandatoryCreate: true
@@ -397,7 +396,7 @@
                             9: '9',
                             10: '10',
                             11: '11',
-                            12: '12',
+                            12: '12'
                         },
                         validation: {
                             mandatoryCreate: true
@@ -464,5 +463,4 @@
             $('.zoia-wrap-everything').show();
         });
     });
-
 })();

@@ -1,6 +1,7 @@
 /* eslint no-undef: 0 */
 /* eslint no-use-before-define: 0 */
 /* eslint max-len: 0 */
+
 (() => {
     let deleteDialog;
     let deletePropertyDialog;
@@ -51,7 +52,6 @@
     let locale;
     let langs;
     let foldersData;
-    let testMode;
     let addressData;
     let addressJSON;
     let settings;
@@ -1902,7 +1902,7 @@
             const id = ids[i];
             const pid = data[id].pid;
             const title = data[id].title;
-            const type = parseInt(data[id].type);
+            const type = parseInt(data[id].type, 10);
             if (type > 1) {
                 $('#editForm_properties_wrap').append('<div class="za-flex za-width-1-2@l za-width-1-1@m za-card za-card-default za-card-small za-card-body editForm-properties-item"><span class="za-sortable-handle za-margin-small-right" za-icon="icon: table"></span><div class="za-width-1-1"><button type="button" class="selectPropertyItemClose" za-close style="float:right"></button><label class="za-form-label formBuilder-valueslist-par">' + title + '</label><div><div class="za-inline za-form-width-medium"><span class="za-form-icon za-form-icon-flip">' + settings.currency + '</span><input placeholder="' + lang['Value'] + '" type="number" step="0.01" class="za-input za-width-1-1 formBuilder-valueslist-val" value="" data-postfix="' + settings.currency + '" data="' + pid + '"></div></div></div></div>');
             } else {
@@ -2649,7 +2649,6 @@
             }
         });
         $('.za-catalog-item-select').each(function() {
-            const id = $(this).attr('data-id');
             let val = $(this).val();
             selects.push($(this).attr('data-id') + '|' + val);
         });
@@ -2815,7 +2814,7 @@
         addressJSON = JSON.parse($('#zp_addressJSON').attr('data'));
         settings = JSON.parse($('#zp_settings').attr('data'));
         settingsData = JSON.parse($('#zp_settingsData').attr('data'));
-        $.getScript(`/api/lang/warehouse/${locale}.js`).done((res) => {
+        $.getScript(`/api/lang/warehouse/${locale}.js`).done(() => {
             const formBuilderHTML = {
                 helpText: '<div class="za-text-meta">{text}</div>',
                 text: '<div class="za-margin-bottom"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><br><div class="za-form-controls"><input class="za-input {prefix}-form-field{css}" id="{prefix}_{name}" type="{type}" placeholder=""{autofocus}><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>',
@@ -3107,7 +3106,7 @@
                                 return item.trim();
                             }
                         },
-                        helpText: lang['Requried, max. 128 characters']
+                        helpText: lang['Required, max. 128 characters']
                     },
                     price: {
                         type: 'text',
@@ -4792,8 +4791,8 @@
             $('.zoiaRemoveAllProperties').click(() => {
                 $('#editForm_properties_wrap').empty();
             });
-            $('.zoiaPropertiesCopyNumeric').click(zoiaPropertiesCopyNumericClick)
-            $('.zoiaPropertiesSyncNumeric').click(zoiaPropertiesSyncNumericClick)
+            $('.zoiaPropertiesCopyNumeric').click(zoiaPropertiesCopyNumericClick);
+            $('.zoiaPropertiesSyncNumeric').click(zoiaPropertiesSyncNumericClick);
             $('.zoiaRemoveAllVariants').click(() => {
                 $('#editForm_variants_wrap').empty();
             });

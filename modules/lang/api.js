@@ -3,7 +3,6 @@ const Router = require('co-router');
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 
 module.exports = function(app) {
-
     const log = app.get('log');
     const modules = app.get('modules');
     let langData = {};
@@ -14,14 +13,13 @@ module.exports = function(app) {
             let locale = config.i18n.locales[j];
             try {
                 langData[module][locale] = require(path.join(__dirname, '..', '..', 'modules', module, 'lang', locale + '.json'));
-            } catch(e) {
+            } catch (e) {
                 log.debug('Could not load locale data ' + module + '/' + locale);
             }
         }
     }
 
     const lang = async(req, res) => {
-        const locale = req.session.currentLocale;
         const module = req.params.module;
         const lng = req.params.lang;
         res.contentType('text/javascript');
@@ -29,7 +27,7 @@ module.exports = function(app) {
             !lng || typeof lng !== 'string' ||
             !langData[module] || !langData[module][lng]) {
             return res.send('var lang = {};');
-        }        
+        }
         res.send('var lang = ' + JSON.stringify(langData[module][lng]) + ';');
     };
 

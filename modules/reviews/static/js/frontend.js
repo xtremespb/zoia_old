@@ -1,5 +1,7 @@
 /* eslint max-len: 0 */
 /* eslint no-undef: 0 */
+/* eslint max-nested-callbacks: 0 */
+
 (() => {
     let zoiaReviewDialog;
 
@@ -82,7 +84,7 @@
                 $('.zoia-rfield').val('').removeClass('za-form-danger');
                 zoiaReviewDialog.show().then(() => {
                     $('#rf_name').focus();
-                })
+                });
             });
             $('#zoia_review_form').submit(function(e) {
                 e.preventDefault();

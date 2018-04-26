@@ -3,7 +3,6 @@
 
 
 (() => {
-
     let currentEditID;
     let currentEditAccountID;
     let userDialog;
@@ -15,6 +14,11 @@
     let locale;
     let configModule;
     let plugins;
+
+    const editAccount = () => {
+        $('#zoiaSpinnerWhite').show();
+        $('#zoiaAccountForm').zoiaFormBuilder().loadData({ id: currentEditAccountID });
+    };
 
     const bindAccountButtonHandlers = () => {
         $('.zoia-account-edit').unbind().click(function(e) {
@@ -94,7 +98,7 @@
                     for (let i in res.data.accounts) {
                         accountsHTML += '<tr data-account-id="' + res.data.accounts[i]._id + '"><td>' + res.data.accounts[i].id + '</td><td>' + (presetTitles[res.data.accounts[i].preset] || res.data.accounts[i].preset) + '</td><td>' + res.data.accounts[i].plugin + '</td><td>' + res.data.accounts[i].days + '</td><td style="width:95px"><a href="" class="za-icon-button za-margin-small-right zoia-account-edit" za-icon="pencil" data="' + res.data.accounts[i]._id + '"></a><a href="" class="za-icon-button za-margin-small-right zoia-account-delete" za-icon="trash" data="' + res.data.accounts[i]._id + '"></a><div style="width:1px;height:30px"></div></td></tr>';
                     }
-                    accountsHTML += '</tbody></table></div>'
+                    accountsHTML += '</tbody></table></div>';
                     $('#zoiaUserAccounts').html(accountsHTML);
                     bindAccountButtonHandlers();
                     $zUI.tab('#za_catalog_user_tabs').show(0);
@@ -113,11 +117,6 @@
                 });
             }, 200);
         });
-    };
-
-    const editAccount = () => {
-        $('#zoiaSpinnerWhite').show();
-        $('#zoiaAccountForm').zoiaFormBuilder().loadData({ id: currentEditAccountID });
     };
 
     const zoiaBtnCorrectionSaveClickHandler = () => {
@@ -311,7 +310,7 @@
                     autofocus: false,
                     values: presetTitles,
                     validation: {
-                        mandatoryCreate: true,
+                        mandatoryCreate: true
                     }
                 },
                 host: {
@@ -321,7 +320,7 @@
                     autofocus: false,
                     values: hosts,
                     validation: {
-                        mandatoryCreate: true,
+                        mandatoryCreate: true
                     }
                 },
                 plugin: {
@@ -331,7 +330,7 @@
                     autofocus: false,
                     values: pluginTitles,
                     validation: {
-                        mandatoryCreate: true,
+                        mandatoryCreate: true
                     }
                 },
                 buttons: {
@@ -437,5 +436,4 @@
             $('#zoia_admin_panel_wrap').show();
         });
     });
-
 })();

@@ -1,5 +1,6 @@
 /* eslint no-undef: 0 */
 /* eslint no-use-before-define: 0 */
+/* eslint max-nested-callbacks: 0 */
 
 (() => {
     let za_catalog_cart_count;
@@ -19,7 +20,7 @@
         querySort = $('#zp_querySort').attr('data');
         queryPage = parseInt($('#zp_queryPage').attr('data'), 10);
         queryText = $('#zp_queryText').attr('data');
-        $.getScript(`/api/lang/warehouse/${locale}.js`).done((res) => {
+        $.getScript(`/api/lang/warehouse/${locale}.js`).done(() => {
             if (za_catalog_cart_count) {
                 $('.za-catalog-cart-count').html(za_catalog_cart_count).show();
             }
@@ -39,7 +40,7 @@
                         id: $(that).attr('data')
                     },
                     cache: false
-                }).done((res) => {
+                }).done(() => {
                     $('.za-catalog-item-button-spinner[data="' + $(that).attr('data') + '"]').hide();
                     if (res.status === 1) {
                         $zUI.notification(lang['Added to your cart'], {

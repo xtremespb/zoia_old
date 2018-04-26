@@ -9,7 +9,7 @@ module.exports = function(app) {
             prefix: '/support',
             routes: frontend.routes,
             filters: frontend.filters
-        }, 
+        },
         backend: {
             prefix: '/support',
             routes: backend.routes,

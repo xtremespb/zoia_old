@@ -233,7 +233,7 @@ const configs = async() => {
             zConfig.production = zoiaProduction.val;
             zConfig.trustProxy = zoiaTrustProxy.val;
             zConfig.log.stackTrace = zoiaStackTrace.val;
-            zConfig.logLevel = zoiaLogLevel.val;
+            zConfig.log.logLevel = zoiaLogLevel.val;
             zConfig.mongo.url = zoiaMongoURL.val;
             zConfig.mongo.database = zoiaMongoDB.val;
         } else {

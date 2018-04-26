@@ -52,6 +52,5 @@
 	"Should not be empty": "Не должен быть пустым",
 	"Too short": "Слишком короткий",
 	"Doesn't match required format": "Не соответствует заданному формату",
-	"Passwords do not match": "Пароли не совпадают",
-	"Confirm registraton": "Confirm registraton"
+	"Passwords do not match": "Пароли не совпадают"
 }

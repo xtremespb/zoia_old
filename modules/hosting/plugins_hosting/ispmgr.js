@@ -24,12 +24,11 @@ module.exports = class HostingPlugin {
             const response = await rp(url, { rejectUnauthorized: false });
             if (response && response.match(/^ERROR value\(elid\)/)) {
                 return true;
-            } else {
-                if (this.log) {
-                    this.log.error('hosting/check ' + id + ' ' + host + ' ' + response);
-                }
-                return response;
             }
+            if (this.log) {
+                this.log.error('hosting/check ' + id + ' ' + host + ' ' + response);
+            }
+            return response;
         } catch (e) {
             if (this.log) {
                 this.log.error(e);
@@ -43,12 +42,11 @@ module.exports = class HostingPlugin {
             const response = await rp(url, { rejectUnauthorized: false });
             if (response && response.match(/^OK/)) {
                 return true;
-            } else {
-                if (this.log) {
-                    this.log.error('hosting/create ' + id + ' ' + host + ' ' + response);
-                }
-                return response;
             }
+            if (this.log) {
+                this.log.error('hosting/create ' + id + ' ' + host + ' ' + response);
+            }
+            return response;
         } catch (e) {
             if (this.log) {
                 this.log.error(e);
@@ -62,12 +60,11 @@ module.exports = class HostingPlugin {
             const response = await rp(url, { rejectUnauthorized: false });
             if (response && !response.match(/^ERROR/)) {
                 return true;
-            } else {
-                if (this.log) {
-                    this.log.error('hosting/start ' + id + ' ' + host + ' ' + response);
-                }
-                return response;
             }
+            if (this.log) {
+                this.log.error('hosting/start ' + id + ' ' + host + ' ' + response);
+            }
+            return response;
         } catch (e) {
             if (this.log) {
                 this.log.error(e);
@@ -81,12 +78,11 @@ module.exports = class HostingPlugin {
             const response = await rp(url, { rejectUnauthorized: false });
             if (response && !response.match(/^ERROR/)) {
                 return true;
-            } else {
-                if (this.log) {
-                    this.log.error('hosting/stop ' + id + ' ' + host + ' ' + response);
-                }
-                return response;
             }
+            if (this.log) {
+                this.log.error('hosting/stop ' + id + ' ' + host + ' ' + response);
+            }
+            return response;
         } catch (e) {
             if (this.log) {
                 this.log.error(e);

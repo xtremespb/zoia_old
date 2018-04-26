@@ -9,7 +9,7 @@ try {
     configModule = require(path.join(__dirname, 'config', 'support.json'));
 } catch (e) {
     configModule = require(path.join(__dirname, 'config', 'support.dist.json'));
-} 
+}
 
 const moduleURL = '/support';
 let templateList = 'frontend.html';
@@ -17,16 +17,14 @@ if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateList))) {
     templateList = 'custom_' + templateList;
 }
 
-
 module.exports = function(app) {
     const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
-    const db = app.get('db');
     const renderHosting = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
     const renderRoot = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), app);
     const log = app.get('log');
 
     const list = async(req, res, next) => {
-        const uprefix = i18n.getLanguageURLPrefix(req); 
+        const uprefix = i18n.getLanguageURLPrefix(req);
         if (!Module.isAuthorized(req)) {
             return res.redirect(303, (config.website.authPrefix ? uprefix + config.website.authPrefix : uprefix + '/auth') + '?redirect=' + uprefix + moduleURL + '&_=' + Math.random().toString().replace('.', ''));
         }

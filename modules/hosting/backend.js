@@ -7,7 +7,9 @@ const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
 const fs = require('fs');
 const plugins = fs.readdirSync(path.join(__dirname, 'plugins_hosting'));
-for (let i in plugins) { plugins[i] = plugins[i].replace(/\.js$/, ''); }
+for (let i in plugins) {
+    plugins[i] = plugins[i].replace(/\.js$/, '');
+}
 let configModule;
 try {
     configModule = require(path.join(__dirname, 'config', 'hosting.json'));
@@ -25,7 +27,7 @@ module.exports = function(app) {
             const uprefix = i18n.getLanguageURLPrefix(req);
             if (!Module.isAuthorizedAdmin(req)) {
                 Module.logout(req);
-                return res.redirect(303, (config.website.authPrefix ? uprefix + config.website.authPrefix : uprefix + '/auth')  + '?redirect=' + uprefix + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
+                return res.redirect(303, (config.website.authPrefix ? uprefix + config.website.authPrefix : uprefix + '/auth') + '?redirect=' + uprefix + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
             }
             const locale = req.session.currentLocale;
             let html = await render.file('hosting.html', {

@@ -1,8 +1,8 @@
+/* eslint max-nested-callbacks: 0 */
 /* eslint no-undef: 0 */
 
 (() => {
     $(document).ready(() => {
-        const locale = $('#zp_locale').attr('data');
         const usernameConfirm = $('#zp_usernameConfirm').attr('data');
         const codeConfirm = $('#zp_codeConfirm').attr('data');
         if (!usernameConfirm || !codeConfirm) {
@@ -34,5 +34,5 @@
                 $('#confirmFail').show();
             }, 1000);
         });
-    });    
+    });
 })();

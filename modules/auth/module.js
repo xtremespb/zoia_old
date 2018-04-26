@@ -1,6 +1,6 @@
 module.exports = function(app) {
     const path = require('path');
-    const config = require(path.join(__dirname, '..', '..', 'core', 'config.js')); 
+    const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
     const api = require(path.join(__dirname, 'api.js'))(app);
     const frontend = require(path.join(__dirname, 'frontend.js'))(app);
     app.get('log').info('[auth] module loaded');

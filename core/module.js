@@ -13,7 +13,14 @@ const isLeadSurrogate = (code) => {
         return false;
     }
     return (code & 0xfc00) === 0xd800;
-}
+};
+
+const isTrailSurrogate = (code) => {
+    if (code === -1) {
+        return false;
+    }
+    return (code & 0xdfff) === 0xdc00;
+};
 
 const truncate = (string, limit) => {
     if (string.length * 4 < limit) {
@@ -27,14 +34,11 @@ const truncate = (string, limit) => {
             len++;
         } else if (code <= 0x7ff) {
             len += 2;
+        } else if (isTrailSurrogate(code) && isLeadSurrogate(previous)) {
+            len += 1;
         } else {
-            if (isTrailSurrogate(code) && isLeadSurrogate(previous)) {
-                len += 1;
-            } else {
-                len += 3;
-            }
+            len += 3;
         }
-
         if (len > limit) {
             if (isTrailSurrogate(code) && isLeadSurrogate(previous)) {
                 return string.slice(0, i - 1);
@@ -44,7 +48,7 @@ const truncate = (string, limit) => {
         previous = code;
     }
     return string;
-}
+};
 
 module.exports = class Module {
     constructor(app) {
@@ -58,7 +62,7 @@ module.exports = class Module {
         return titles;
     }
     static isAuthorized(req) {
-        if (req && req.session && req.session.auth && req.session.auth._id && req.session.auth.status && parseInt(req.session.auth.status) >= '1') {
+        if (req && req.session && req.session.auth && req.session.auth._id && req.session.auth.status && parseInt(req.session.auth.status, 10) >= '1') {
             return true;
         }
         return false;
@@ -90,7 +94,7 @@ module.exports = class Module {
     static stem(str, locale) {
         natural.PorterStemmer.attach();
         let words = str.tokenizeAndStem();
-        if (locale != 'en') {
+        if (locale !== 'en') {
             let stop = false;
             switch (locale) {
                 case 'ru':

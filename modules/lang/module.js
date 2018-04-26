@@ -4,7 +4,7 @@ module.exports = function(app) {
     const frontend = require(path.join(__dirname, 'frontend.js'))(app);
     app.get('log').info('[lang] module loaded');
     return {
-    	frontend: {
+        frontend: {
             prefix: '/',
             filters: frontend.filters
         },

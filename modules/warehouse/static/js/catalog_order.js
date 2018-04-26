@@ -2,6 +2,9 @@
 /* eslint max-len: 0 */
 /* eslint no-use-before-define: 0 */
 /* eslint max-nested-callbacks: 0 */
+/* eslint no-loop-func: 0 */
+/* eslint no-nested-ternary: 0 */
+
 (() => {
     let totalWares = 0;
     let loading = false;
@@ -217,7 +220,7 @@
         weight = parseFloat($('#zp_weight').attr('data'));
         isAuth = $('#zp_isAuth').attr('data') === 'true' ? true : false;
         currencyPosition = $('#zp_currencyPosition').attr('data');
-        $.getScript(`/api/lang/warehouse/${locale}.js`).done((res) => {
+        $.getScript(`/api/lang/warehouse/${locale}.js`).done(() => {
             let formHTML = '';
             for (let i in addressJSON) {
                 let item = addressJSON[i];

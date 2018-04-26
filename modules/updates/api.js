@@ -1,7 +1,6 @@
 const path = require('path');
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
-const ObjectID = require('mongodb').ObjectID;
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const rp = require('request-promise');
 const fs = require('fs-extra');
@@ -9,8 +8,6 @@ const md5File = require('md5-file/promise');
 const targz = require('tar');
 
 module.exports = function(app) {
-    const log = app.get('log');
-    const db = app.get('db');
     const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
 
     const check = async(req, res) => {
@@ -24,8 +21,8 @@ module.exports = function(app) {
             const response = await rp('https://xtremespb.github.io/zoia/version.json');
             const data = JSON.parse(response);
             let update;
-            const versionLocal = parseInt(config.version.replace(/\./g, ''));
-            const versionRemote = parseInt(data.code.replace(/\./g, ''));
+            const versionLocal = parseInt(config.version.replace(/\./g, ''), 10);
+            const versionRemote = parseInt(data.code.replace(/\./g, ''), 10);
             if (versionRemote > versionLocal) {
                 update = {
                     version: data.code,
@@ -52,9 +49,10 @@ module.exports = function(app) {
             }));
         }
         const locale = req.session.currentLocale;
+        let data;
         try {
             const response = await rp('https://xtremespb.github.io/zoia/version.json');
-            const data = JSON.parse(response);
+            data = JSON.parse(response);
             const buf = await rp({
                 method: 'GET',
                 url: data.url,
@@ -73,9 +71,11 @@ module.exports = function(app) {
             }));
         } catch (e) {
             try {
-                await fs.access(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'), fs.constants.F_OK);
-                await fs.remove(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'));
-            } catch (e) {
+                if (data) {
+                    await fs.access(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'), fs.constants.F_OK);
+                    await fs.remove(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'));
+                }
+            } catch (ex) {
                 // Ignore
             }
             return res.send(JSON.stringify({
@@ -84,7 +84,7 @@ module.exports = function(app) {
             }));
         }
     };
-    
+
     const extract = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
@@ -93,9 +93,10 @@ module.exports = function(app) {
             }));
         }
         const locale = req.session.currentLocale;
+        let data;
         try {
             const response = await rp('https://xtremespb.github.io/zoia/version.json');
-            const data = JSON.parse(response);
+            data = JSON.parse(response);
             await targz.x({
                 file: path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'),
                 C: path.join(__dirname, '..', '..')
@@ -107,9 +108,11 @@ module.exports = function(app) {
             }));
         } catch (e) {
             try {
-                await fs.access(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'), fs.constants.F_OK);
-                await fs.remove(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'));
-            } catch (e) {
+                if (data) {
+                    await fs.access(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'), fs.constants.F_OK);
+                    await fs.remove(path.join(__dirname, '..', '..', 'temp', data.checksum + '.tar.gz'));
+                }
+            } catch (ex) {
                 // Ignore
             }
             return res.send(JSON.stringify({

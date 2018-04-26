@@ -1,5 +1,7 @@
-(() => {
+/* eslint no-undef: 0 */
+/* eslint max-nested-callbacks: 0 */
 
+(() => {
     let dialogBackup;
     let dialogBackupOptions;
     let dialogRestore;
@@ -237,5 +239,4 @@
             $('#zoia_admin_panel_wrap').show();
         });
     });
-
 })();

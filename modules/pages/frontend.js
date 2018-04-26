@@ -69,11 +69,8 @@ module.exports = function(app) {
                 config: config,
                 data: pageData
             };
-            let tags = [];
             const tagPattern = new RegExp(/\[\[(.*)\]\]/gm);
-            while (match = tagPattern.exec(pageData[locale].content)) {
-                tags.push(match[0]);
-            }
+            const tags = pageData[locale].content.match(tagPattern);
             for (let i in tags) {
                 let tag = tags[i];
                 let tagString = tag.trim().replace(/^\[\[/, '').replace(/\]\]$/, '');
@@ -96,10 +93,9 @@ module.exports = function(app) {
                 let out = '';
                 if (fn === 'uprefix') {
                     out = i18n.getLanguageURLPrefix(req);
-                } else {
-                    if (filters[fn + 'Async']) {
-                        out = await filters[fn + 'Async'](...tagParts);
-                    }
+                }
+                if (filters[fn + 'Async']) {
+                    out = await filters[fn + 'Async'](...tagParts);
                 }
                 pageData[locale].content = pageData[locale].content.replace(tag, out);
             }
@@ -119,7 +115,7 @@ module.exports = function(app) {
         }
         let locale = _locale || config.i18n.locales[0];
         let uprefix = '';
-        if (config.i18n.detect.url && locale !== config.i18n.locales[0]) { 
+        if (config.i18n.detect.url && locale !== config.i18n.locales[0]) {
             uprefix = '/' + locale;
         }
         try {

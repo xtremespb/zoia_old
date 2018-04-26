@@ -737,7 +737,7 @@
                                 return item.trim();
                             }
                         },
-                        helpText: lang['Requried, max. 128 characters']
+                        helpText: lang['Required, max. 128 characters']
                     },
                     status: {
                         type: 'select',

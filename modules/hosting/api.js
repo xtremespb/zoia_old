@@ -1,3 +1,5 @@
+/* eslint max-len: 0 */
+
 const path = require('path');
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js')))();
@@ -8,7 +10,9 @@ const accountFields = require(path.join(__dirname, 'schemas', 'accountFields.js'
 const newAccountFields = require(path.join(__dirname, 'schemas', 'newAccountFields.js'));
 const fs = require('fs');
 const plugins = fs.readdirSync(path.join(__dirname, 'plugins_hosting'));
-for (let i in plugins) { plugins[i] = plugins[i].replace(/\.js$/, ''); }
+for (let i in plugins) {
+    plugins[i] = plugins[i].replace(/\.js$/, '');
+}
 let configModule;
 try {
     configModule = require(path.join(__dirname, 'config', 'hosting.json'));
@@ -81,14 +85,14 @@ module.exports = function(app) {
                         $group: {
                             _id: { ref_id: '$ref_id' },
                             total: {
-                                $sum: "$sum"
+                                $sum: '$sum'
                             }
                         }
                     }
                 ]).toArray();
                 let amtTransactions = {};
                 for (let i in agr) {
-                    amtTransactions[agr[i]._id.ref_id] = agr[i].total
+                    amtTransactions[agr[i]._id.ref_id] = agr[i].total;
                 }
                 const accounts = await db.collection('hosting_accounts').find({ $or: ids }).toArray();
                 let amtAccounts = {};
@@ -194,11 +198,12 @@ module.exports = function(app) {
                     status: 0
                 }));
             }
-            const timestamp = parseInt(Date.now() / 1000);
+            const timestamp = parseInt(Date.now() / 1000, 10);
             const insResult = await db.collection('hosting_transactions').insertOne({ ref_id: id, timestamp: timestamp, sum: parseFloat(sum) });
             if (!insResult || !insResult.result || !insResult.result.ok) {
-                output.status = 0;
-                return res.send(JSON.stringify(output));
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
             }
             res.send(JSON.stringify({
                 status: 1,
@@ -306,7 +311,7 @@ module.exports = function(app) {
                 }));
             }
 
-            const update = await db.collection('hosting_accounts').findAndModify(_id ? { _id: new ObjectID(_id) } : { id: fields.account.value }, [], { id: fields.account.value, ref_id: id, plugin: fields.plugin.value, preset: fields.preset.value, host: fields.host.value, locale: locale, days: parseInt(fields.days.value) }, { new: true, upsert: true });
+            const update = await db.collection('hosting_accounts').findAndModify(_id ? { _id: new ObjectID(_id) } : { id: fields.account.value }, [], { id: fields.account.value, ref_id: id, plugin: fields.plugin.value, preset: fields.preset.value, host: fields.host.value, locale: locale, days: parseInt(fields.days.value, 10) }, { new: true, upsert: true });
             if (!update || !update.value || !update.value._id) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -419,7 +424,7 @@ module.exports = function(app) {
                     $group: {
                         _id: null,
                         total: {
-                            $sum: "$sum"
+                            $sum: '$sum'
                         }
                     }
                 }
@@ -526,7 +531,6 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        const locale = req.session.currentLocale;
         const id = req.query.id;
         if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
             return res.send(JSON.stringify({

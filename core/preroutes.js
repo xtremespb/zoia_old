@@ -9,7 +9,6 @@ module.exports = function(app) {
     const i18n = new(require(path.join(__dirname, 'i18n.js')))(path.join(__dirname, 'lang'), app);
     return {
         setLocale: async(req, res, next) => {
-            const i18n = new(require(path.join(__dirname, 'i18n.js')))(path.join(__dirname, 'lang'), app);
             if (req.session) {
                 req.session.currentLocale = i18n.detectLanguage(req);
             }

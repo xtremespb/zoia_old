@@ -250,7 +250,7 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
-        const uprefix = i18n.getLanguageURLPrefix(req); 
+        const uprefix = i18n.getLanguageURLPrefix(req);
         // Get and parse URL parts
         const param = req.params[0];
         if (!param.match(/^[a-zA-Z_0-9\-\/]+$/)) {
@@ -323,12 +323,12 @@ module.exports = function(app) {
             or2.push(item);
         }
         if (or2.length) {
-        	what.$and.push({
-        		$or: or2
-        	});
+            what.$and.push({
+                $or: or2
+            });
         }
         if (!what.$and.length) {
-        	delete what.$and;
+            delete what.$and;
         }
         let ffields = { _id: 1, folder: 1, sku: 1, status: 1, price: 1, images: 1 };
         ffields[locale + '.title'] = 1;
@@ -449,7 +449,7 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
-        const uprefix = i18n.getLanguageURLPrefix(req); 
+        const uprefix = i18n.getLanguageURLPrefix(req);
         const sku = req.params.sku;
         if (!sku || typeof sku !== 'string' || !sku.match(/^[A-Za-z0-9_\-\.]{1,64}$/)) {
             return next();
@@ -472,7 +472,6 @@ module.exports = function(app) {
         let props = {};
         let propsType = {};
         let propsValues = {};
-        let propsFloats = {};
         let propsPostfixes = {};
         if (data[locale]) {
             for (let i in data[locale].properties) {
@@ -555,7 +554,7 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
-        const uprefix = i18n.getLanguageURLPrefix(req); 
+        const uprefix = i18n.getLanguageURLPrefix(req);
         // Load filters
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
@@ -592,7 +591,6 @@ module.exports = function(app) {
             let ffields = { _id: 1, price: 1, variants: 1 };
             ffields[locale + '.title'] = 1;
             ffields[locale + '.properties'] = 1;
-            const what = { $or: query };
             const cartDB = await db.collection('warehouse').find({ $or: query }, { sort: {}, projection: ffields }).toArray();
             if (cartDB && cartDB.length) {
                 let propertiesData = {};
@@ -740,7 +738,7 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
-        const uprefix = i18n.getLanguageURLPrefix(req); 
+        const uprefix = i18n.getLanguageURLPrefix(req);
         // Load filters
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
@@ -961,7 +959,7 @@ module.exports = function(app) {
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
-        const uprefix = i18n.getLanguageURLPrefix(req); 
+        const uprefix = i18n.getLanguageURLPrefix(req);
         // Load filters
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);

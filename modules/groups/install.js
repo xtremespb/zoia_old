@@ -1,9 +1,7 @@
-const crypto = require('crypto');
 
 module.exports = function(data) {
     return async() => {
         const db = data.db;
-        const config = data.config;
         console.log('  └── Creating collection: groups...');
         try {
             await db.createCollection('groups');

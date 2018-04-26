@@ -2,9 +2,7 @@ const path = require('path');
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const Router = require('co-router');
 const fs = require('fs');
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 
-const moduleURL = '/reviews';
 let templateList = 'frontend.html';
 if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateList))) {
     templateList = 'custom_' + templateList;
@@ -34,7 +32,7 @@ module.exports = function(app) {
         if (!page || typeof page !== 'string' || !parseInt(page, 10) || parseInt(page, 10) < 1) {
             page = 1;
         } else {
-            page = parseInt(page);
+            page = parseInt(page, 10);
         }
         const skip = (page - 1) * configModule.itemsPerPage;
         try {
@@ -60,7 +58,6 @@ module.exports = function(app) {
             });
             res.send(html);
         } catch (e) {
-            log.error(e);
             return next();
         }
     };

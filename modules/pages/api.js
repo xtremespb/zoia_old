@@ -1,10 +1,10 @@
-const path = require('path');
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
-const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js')))();
+const pathM = require('path');
+const Module = require(pathM.join(__dirname, '..', '..', 'core', 'module.js'));
+const validation = new(require(pathM.join(__dirname, '..', '..', 'core', 'validation.js')))();
 const Router = require('co-router');
 const ObjectID = require('mongodb').ObjectID;
-const pagesFields = require(path.join(__dirname, 'schemas', 'pagesFields.js'));
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const pagesFields = require(pathM.join(__dirname, 'schemas', 'pagesFields.js'));
+const config = require(pathM.join(__dirname, '..', '..', 'core', 'config.js'));
 const fs = require('fs-extra');
 const Jimp = require('jimp');
 const imageType = require('image-type');
@@ -120,7 +120,7 @@ module.exports = function(app) {
         }
     };
 
-    const folders = async(req, res) => {
+    const foldersFunc = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
             return res.send(JSON.stringify({
@@ -312,7 +312,7 @@ module.exports = function(app) {
                 dir = dir.trim();
             }
             let dirArr = [__dirname, 'static', 'storage'].concat(dir.split('/'));
-            let browsePath = path.join(...dirArr);
+            let browsePath = pathM.join(...dirArr);
             try {
                 await fs.access(browsePath, fs.constants.F_OK);
             } catch (e) {
@@ -327,7 +327,7 @@ module.exports = function(app) {
                     continue;
                 }
                 let item = {};
-                let stat = await fs.lstat(path.join(...dirArr, filesData[f]));
+                let stat = await fs.lstat(pathM.join(...dirArr, filesData[f]));
                 item.filename = filesData[f];
                 if (stat.isFile()) {
                     item.type = 'f';
@@ -338,12 +338,12 @@ module.exports = function(app) {
                 if (!item.type) {
                     item.type = 'o';
                 }
-                item.ext = path.extname(filesData[f]);
+                item.ext = pathM.extname(filesData[f]);
                 if (item.ext && typeof item.ext === 'string') {
                     item.ext = item.ext.replace(/^\./, '').toLowerCase();
                 }
                 try {
-                    await fs.access(path.join(...dirArr, '___tn_' + filesData[f]), fs.constants.F_OK);
+                    await fs.access(pathM.join(...dirArr, '___tn_' + filesData[f]), fs.constants.F_OK);
                     item.thumb = true;
                 } catch (e) {
                     // Ignore
@@ -391,7 +391,7 @@ module.exports = function(app) {
                 dir = dir.trim();
             }
             let dirArr = [__dirname, 'static', 'storage'].concat(dir.split('/'));
-            let browsePath = path.join(...dirArr);
+            let browsePath = pathM.join(...dirArr);
             try {
                 await fs.access(browsePath, fs.constants.F_OK);
             } catch (e) {
@@ -399,7 +399,7 @@ module.exports = function(app) {
                     status: -1
                 }));
             }
-            await fs.mkdir(path.join(browsePath, name));
+            await fs.mkdir(pathM.join(browsePath, name));
             return res.send(JSON.stringify({
                 status: 1
             }));
@@ -433,7 +433,7 @@ module.exports = function(app) {
                 dir = dir.trim();
             }
             let dirArr = [__dirname, 'static', 'storage'].concat(dir.split('/'));
-            let browsePath = path.join(...dirArr);
+            let browsePath = pathM.join(...dirArr);
             try {
                 await fs.access(browsePath, fs.constants.F_OK);
             } catch (e) {
@@ -441,9 +441,9 @@ module.exports = function(app) {
                     status: -1
                 }));
             }
-            await fs.rename(path.join(browsePath, nameOld), path.join(browsePath, nameNew));
+            await fs.rename(pathM.join(browsePath, nameOld), pathM.join(browsePath, nameNew));
             try {
-                await fs.rename(path.join(browsePath, '___tn_' + nameOld), path.join(browsePath, '___tn_' + nameNew));
+                await fs.rename(pathM.join(browsePath, '___tn_' + nameOld), pathM.join(browsePath, '___tn_' + nameNew));
             } catch (e) {
                 // Ignore
             }
@@ -486,7 +486,7 @@ module.exports = function(app) {
                 dir = dir.trim();
             }
             let dirArr = [__dirname, 'static', 'storage'].concat(dir.split('/'));
-            let browsePath = path.join(...dirArr);
+            let browsePath = pathM.join(...dirArr);
             try {
                 await fs.access(browsePath, fs.constants.F_OK);
             } catch (e) {
@@ -496,7 +496,7 @@ module.exports = function(app) {
             }
             for (let i in files) {
                 let file = files[i];
-                await fs.remove(path.join(browsePath, file));
+                await fs.remove(pathM.join(browsePath, file));
             }
             return res.send(JSON.stringify({
                 status: 1
@@ -549,8 +549,8 @@ module.exports = function(app) {
             }
             let dirSrcArr = [__dirname, 'static', 'storage'].concat(dirSrc.split('/'));
             let dirDestArr = [__dirname, 'static', 'storage'].concat(dirDest.split('/'));
-            let browseSrcPath = path.join(...dirSrcArr);
-            let browseDestPath = path.join(...dirDestArr);
+            let browseSrcPath = pathM.join(...dirSrcArr);
+            let browseDestPath = pathM.join(...dirDestArr);
             try {
                 await fs.access(browseSrcPath, fs.constants.F_OK);
                 await fs.access(browseDestPath, fs.constants.F_OK);
@@ -562,16 +562,16 @@ module.exports = function(app) {
             for (let i in files) {
                 let file = files[i];
                 if (operation === 'copy') {
-                    await fs.copy(path.join(browseSrcPath, file), path.join(browseDestPath, file));
+                    await fs.copy(pathM.join(browseSrcPath, file), pathM.join(browseDestPath, file));
                     try {
-                        await fs.copy(path.join(browseSrcPath, '___tn_' + file), path.join(browseDestPath, '___tn_' + file));
+                        await fs.copy(pathM.join(browseSrcPath, '___tn_' + file), pathM.join(browseDestPath, '___tn_' + file));
                     } catch (e) {
                         // Ignore
                     }
                 } else {
-                    await fs.move(path.join(browseSrcPath, file), path.join(browseDestPath, file), { overwrite: true });
+                    await fs.move(pathM.join(browseSrcPath, file), pathM.join(browseDestPath, file), { overwrite: true });
                     try {
-                        await fs.move(path.join(browseSrcPath, '___tn_' + file), path.join(browseDestPath, '___tn_' + file), { overwrite: true });
+                        await fs.move(pathM.join(browseSrcPath, '___tn_' + file), pathM.join(browseDestPath, '___tn_' + file), { overwrite: true });
                     } catch (e) {
                         // Ignore
                     }
@@ -627,7 +627,7 @@ module.exports = function(app) {
             }));
         }
         let dirArr = [__dirname, 'static', 'storage'].concat(dir.split('/'));
-        let browsePath = path.join(...dirArr);
+        let browsePath = pathM.join(...dirArr);
         try {
             await fs.access(browsePath, fs.constants.F_OK);
             let imgType = imageType(req.files.file.data);
@@ -639,14 +639,14 @@ module.exports = function(app) {
                         img.quality(60);
                         let buf = await _buf(img);
                         if (buf) {
-                            await fs.writeFile(path.join(browsePath, '___tn_' + req.files.file.name), buf);
+                            await fs.writeFile(pathM.join(browsePath, '___tn_' + req.files.file.name), buf);
                         }
                     }
                 } catch (e) {
                     // Ignore
                 }
             }
-            await fs.writeFile(path.join(browsePath, req.files.file.name), req.files.file.data);
+            await fs.writeFile(pathM.join(browsePath, req.files.file.name), req.files.file.data);
         } catch (e) {
             return res.send(JSON.stringify({
                 status: -3
@@ -684,14 +684,14 @@ module.exports = function(app) {
             let path = _treePath(folders, folder);
             path = path.reverse();
             path.shift();
-            path = path.join('/');
+            path = pathM.join('/');
             let farr = [];
             for (let i in folders) {
                 farr.push({
                     folder: {
                         $ne: folders[i].id
                     }
-                })
+                });
             }
             const count = await db.collection('pages').find({ $and: farr }, { _id: 1 }).count();
             if (count) {
@@ -734,7 +734,7 @@ module.exports = function(app) {
                     let path = _treePath(folders, item.folder);
                     path = path.reverse();
                     path.shift();
-                    path = path.join('/');
+                    path = pathM.join('/');
                     if (item.url !== path) {
                         const updResult = await db.collection('pages').update({ _id: item._id }, { $set: { url: path } }, { upsert: true });
                         if (!updResult || !updResult.result || !updResult.result.ok) {
@@ -760,7 +760,7 @@ module.exports = function(app) {
     router.get('/load', load);
     router.post('/save', save);
     router.post('/delete', del);
-    router.post('/folders', folders);
+    router.post('/folders', foldersFunc);
     router.post('/repair', repair);
     router.post('/rebuild', rebuild);
     router.all('/browse/list', browseList);

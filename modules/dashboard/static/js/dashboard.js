@@ -1,8 +1,8 @@
 /* eslint max-len: 0 */
 /* eslint no-undef: 0 */
+/* eslint max-nested-callbacks: 0 */
 
 (() => {
-
     let restartProgressDialog;
 
     $(document).ready(() => {
@@ -129,5 +129,4 @@
             $('#zoia_admin_panel_wrap').show();
         });
     });
-
 })();

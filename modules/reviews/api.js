@@ -4,7 +4,6 @@ const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validat
 const Router = require('co-router');
 const ObjectID = require('mongodb').ObjectID;
 const reviewsFields = require(path.join(__dirname, 'schemas', 'reviewsFields.js'));
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 
 module.exports = function(app) {
     const log = app.get('log');
@@ -130,7 +129,7 @@ module.exports = function(app) {
             output.fields = fieldsFailed;
             return res.send(JSON.stringify(output));
         }
-        fields.text.value = fields.text.value && typeof fields.text.value === 'string' ? fields.text.value.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;") : '';
+        fields.text.value = fields.text.value && typeof fields.text.value === 'string' ? fields.text.value.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/\"/g, '&quot;') : '';
         try {
             let update = {
                 name: fields.name.value,
@@ -218,7 +217,7 @@ module.exports = function(app) {
                 error: i18n.get().__(locale, 'Text is missing or is too long')
             }));
         }
-        text = text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+        text = text.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/\"/g, '&quot;');
         const captcha = req.body.captcha;
         if (!captcha || typeof captcha !== 'string' || !captcha.match(/^[0-9]{4}$/) ||
             !req.session || captcha !== req.session.captcha) {

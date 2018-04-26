@@ -3,7 +3,7 @@ const Router = require('co-router');
 const captcha = new(require(path.join(__dirname, '..', '..', 'core', 'captcha.js')))();
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 
-module.exports = function(app) {
+module.exports = function() {
     const getCaptcha = async(req, res) => {
         let code = Math.random().toString().substr(2, 4);
         if (config.testMode) {

@@ -48,7 +48,7 @@
         za_catalog_item_id = $('#zp_za_catalog_item_id').attr('data');
         za_catalog_cart_count = parseInt($('#zp_za_catalog_cart_count').attr('data'), 10);
         const locale = $('#zp_locale').attr('data');
-        $.getScript(`/api/lang/warehouse/${locale}.js`).done((res) => {
+        $.getScript(`/api/lang/warehouse/${locale}.js`).done(() => {
             if (za_catalog_cart_count) {
                 $('.za-catalog-cart-count').html(za_catalog_cart_count).show();
             }

@@ -8,7 +8,7 @@
 	"Could not get version information from remote server": "Could not get version information from remote server",
 	"Your system is up to date": "Your system is up to date",
 	"New version available": "New version available",
-	"There is a newer version of Zoia availble": "There is a newer version of Zoia availble",
+	"There is a newer version of Zoia available": "There is a newer version of Zoia available",
 	"Cancel": "Cancel",
 	"Update": "Update",
 	"Changelog": "Changelog",
@@ -20,5 +20,5 @@
 	"Could not extract the update archive": "Could not extract the update archive",
 	"could not extract update file": "could not extract update file",
 	"Restarting": "Restarting",
-	"Zoia has been updated sucessfully. The system is restarting now, please wait...": "Zoia has been updated sucessfully. The system is restarting now, please wait..."
+	"Zoia has been updated successfully. The system is restarting now, please wait...": "Zoia has been updated successfully. The system is restarting now, please wait..."
 }

@@ -68,14 +68,16 @@
             cache: false
         }).done((res) => {
             if (res && res.status === 1) {
-                window.progressbar && (progressbar.value = 100);
+                if (window.progressbar) {
+                    progressbar.value = 100;
+                }
                 setTimeout(() => {
                     restartProgressDialog.show();
                     updateRestart();
                     setTimeout(() => {
                         restartProgressDialog.hide();
                         location.href = '/admin?rnd=' + Date.now();
-                    }, 30000)
+                    }, 30000);
                 }, 1000);
             } else {
                 updateProgressDialog.hide();
@@ -100,7 +102,9 @@
             cache: false
         }).done((res) => {
             if (res && res.status === 1) {
-                window.progressbar && (progressbar.value = 50);
+                if (window.progressbar) {
+                    progressbar.value = 50;
+                }
             } else {
                 updateProgressDialog.hide();
                 $zUI.notification(lang['Could not download new version from remote server'] + (res.error ? ': ' + res.error : ''), {
@@ -121,7 +125,9 @@
 
     const btnUpdateStartHandler = () => {
         updateDialog.hide();
-        window.progressbar && (progressbar.value = 10);
+        if (window.progressbar) {
+            progressbar.value = 10;
+        }
         updateProgressDialog.show().then(() => {
             updateDownload();
         });
@@ -129,7 +135,7 @@
 
     $(document).ready(() => {
         const locale = $('#zp_locale').attr('data');
-        $.getScript(`/api/lang/updates/${locale}.js`).done((res) => {
+        $.getScript(`/api/lang/updates/${locale}.js`).done(() => {
             $('#btnCheckUpdates').click(btnCheckUpdatesHandler);
             $('#btnUpdateStart').click(btnUpdateStartHandler);
             updateDialog = $zUI.modal('#zoiaUpdateDialog', {

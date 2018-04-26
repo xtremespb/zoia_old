@@ -48,7 +48,7 @@
 	"Keywords": "Ключевые слова",
 	"Description": "Описание",
 	"Latin characters and numbers only (1-64 chars), leave blank for root page": "Лат. символы и цифры (1-64), оставьте пустым для корневой страницы",
-	"Requried, max. 128 characters": "Обязательно, до 128 символов",
+	"Required, max. 128 characters": "Обязательно, до 128 символов",
 	"Optional, max. 128 characters": "Необязательно, до 128 символов",
 	"Content": "Описание",
 	"Zoia": "Zoia",

@@ -25,7 +25,7 @@ module.exports = function(app) {
     const log = app.get('log');
 
     const list = async(req, res, next) => {
-        const uprefix = i18n.getLanguageURLPrefix(req); 
+        const uprefix = i18n.getLanguageURLPrefix(req);
         if (!Module.isAuthorized(req)) {
             return res.redirect(303, (config.website.authPrefix ? uprefix + config.website.authPrefix : uprefix + '/auth') + '?redirect=' + uprefix + moduleURL + '&_=' + Math.random().toString().replace('.', ''));
         }
@@ -48,7 +48,6 @@ module.exports = function(app) {
         } catch (e) {
             log.error(e);
         }
-        let sum = 0;
         try {
             const transactions = await db.collection('hosting_transactions').find({ ref_id: String(req.session.auth._id) }, { sort: { timestamp: -1 }, limit: 50, projection: { _id: 0, timestamp: 1, sum: 1 } }).toArray() || [];
             const ar = await db.collection('hosting_transactions').aggregate([

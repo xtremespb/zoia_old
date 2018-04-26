@@ -20,7 +20,7 @@ module.exports = class Render {
             for (let n in filters) {
                 try {
                     this.env.getFilter(n);
-                } catch(e) {
+                } catch (e) {
                     this.env.addFilter(n, filters[n], true);
                 }
             }

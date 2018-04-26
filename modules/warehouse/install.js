@@ -13,11 +13,10 @@ module.exports = function(data) {
             await npm.install(['csvtojson@1.1.9'], {
                 cwd: path.join(__dirname, '..', '..'),
                 save: false
-            })
+            });
         } catch (e) {
             console.log('      Error: ' + e);
         }
-        //await _npmInstall(['csvtojson@1.1.9']);
         console.log('      Creating collection: warehouse...');
         try {
             await db.createCollection('warehouse');
