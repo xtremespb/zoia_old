@@ -1,7 +1,6 @@
 /* eslint max-len: 0 */
 /* eslint no-undef: 0 */
 /* eslint no-nested-ternary: 0 */
-/* eslint no-lonely-if: 0 */
 /* eslint no-use-before-define: 0 */
 
 (() => {
@@ -245,21 +244,19 @@
                     }
                     $('#zoia_attachments').html(filesHTML);
                     bindDeleteAttachmentHandlers();
-                } else {
-                    if (res.error) {
-                        $zUI.modal.alert(res.error, { labels: { ok: lang['OK'] }, stack: true });
-                        if (res.files) {
-                            let filesHTML = '';
-                            for (let i in res.files) {
-                                const file = res.files[i];
-                                filesHTML += '<div><span za-icon="icon:trash" class="zoia-attachment-delete" data-id="' + currentSupportRequestID + '" data-fid="' + file.id + '"></span>&nbsp;<a href="/api/support/download?id=' + currentSupportRequestID + '&fid=' + file.id + '" target="_blank">' + file.filename + '</a></div>';
-                            }
-                            $('#zoia_attachments').html(filesHTML);
-                            bindDeleteAttachmentHandlers();
+                } else if (res.error) {
+                    $zUI.modal.alert(res.error, { labels: { ok: lang['OK'] }, stack: true });
+                    if (res.files) {
+                        let filesHTML = '';
+                        for (let i in res.files) {
+                            const file = res.files[i];
+                            filesHTML += '<div><span za-icon="icon:trash" class="zoia-attachment-delete" data-id="' + currentSupportRequestID + '" data-fid="' + file.id + '"></span>&nbsp;<a href="/api/support/download?id=' + currentSupportRequestID + '&fid=' + file.id + '" target="_blank">' + file.filename + '</a></div>';
                         }
-                    } else {
-                        $zUI.modal.alert(lang['Could not upload file to server. Please check file name and size, then try again.'], { labels: { ok: lang['OK'] }, stack: true });
+                        $('#zoia_attachments').html(filesHTML);
+                        bindDeleteAttachmentHandlers();
                     }
+                } else {
+                    $zUI.modal.alert(lang['Could not upload file to server. Please check file name and size, then try again.'], { labels: { ok: lang['OK'] }, stack: true });
                 }
                 setTimeout(function() {
                     bar.setAttribute('hidden', 'hidden');

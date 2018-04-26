@@ -2,7 +2,6 @@
 /* eslint no-undef: 0 */
 /* eslint max-nested-callbacks: 0 */
 /* eslint no-nested-ternary: 0 */
-/* eslint no-lonely-if: 0 */
 
 (() => {
     let supportDialog;
@@ -290,12 +289,10 @@
                     }
                     $('#zoia_attachments').html(filesHTML);
                     bindDeleteAttachmentHandlers();
+                } else if (res.error) {
+                    $zUI.modal.alert(res.error, { labels: { ok: lang['OK'] }, stack: true });
                 } else {
-                    if (res.error) {
-                        $zUI.modal.alert(res.error, { labels: { ok: lang['OK'] }, stack: true });
-                    } else {
-                        $zUI.modal.alert(lang['Could not upload file to server. Please check file name and size, then try again.'], { labels: { ok: lang['OK'] }, stack: true });
-                    }
+                    $zUI.modal.alert(lang['Could not upload file to server. Please check file name and size, then try again.'], { labels: { ok: lang['OK'] }, stack: true });
                 }
                 setTimeout(function() {
                     bar.setAttribute('hidden', 'hidden');
@@ -545,12 +542,10 @@
                             }
                         });
                     });
+                } else if (parseInt($('#zoia_support_status').val(), 10) === 0) {
+                    ajaxPickUp(false, true, true);
                 } else {
-                    if (parseInt($('#zoia_support_status').val(), 10) === 0) {
-                        ajaxPickUp(false, true, true);
-                    } else {
-                        $('#support').zoiaTable().load();
-                    }
+                    $('#support').zoiaTable().load();
                 }
             });
             $('.supportBtnRefresh').click(supportBtnRefreshClick);
