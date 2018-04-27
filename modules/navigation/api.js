@@ -15,7 +15,8 @@ module.exports = function(app) {
         return s;
     };
 
-    const render = (data, prefix, uprefix) => {
+    const render = (_data, prefix, uprefix) => {
+        const data = JSON.parse(JSON.stringify(_data));
         let html = '';
         try {
             for (let i in data) {
