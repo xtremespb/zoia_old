@@ -1,7 +1,8 @@
-.zoiaButtonSpinner {
+.zoiaButtonSpinner>svg {
+    width: 15px;
     margin-top: 4px;
-    margin-right: 20px;
-}
+    margin-right: 10px;
+} 
 
 #zoiaUpdateDialogVersion {
 	font-size: 120%;
