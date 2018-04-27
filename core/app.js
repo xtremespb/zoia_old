@@ -45,7 +45,7 @@ const winston = require('winston');
         await db.connect();
         app.set('db', db.get());
         // Init parsers and other stuff
-        app.use(bodyParser.json(), bodyParser.urlencoded({ extended: true }), cookieParser(), fileUpload(), express.static(path.join(__dirname, '..', 'static')));
+        app.use(bodyParser.json(), bodyParser.urlencoded({ extended: true, limit: config.maxUploadSizeMB + 'mb' }), cookieParser(), fileUpload(), express.static(path.join(__dirname, '..', 'static')));
         // Load preroutes
         const preroutes = new(require(path.join(__dirname, 'preroutes.js')))(app);
         for (let key of Object.keys(preroutes)) {
