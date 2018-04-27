@@ -146,7 +146,7 @@
         }).done((res) => {
             if (res && res.status === 1 && res.data) {
                 currentData = res.data;
-                $('#zoia_support_timestamp').html(new Date(parseInt(res.data.timestamp, 1000) * 1000).toLocaleString());
+                $('#zoia_support_timestamp').html(new Date(parseInt(res.data.timestamp, 10) * 1000).toLocaleString());
                 $('#zoia_support_username').html(res.data.username);
                 $('#zoia_support_specialist').html(res.data.specialist);
                 $('#zoia_support_status').val(res.data.status);
