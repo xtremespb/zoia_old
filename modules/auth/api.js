@@ -135,6 +135,7 @@ module.exports = function(app) {
                 username: fields.username.value,
                 email: fields.email.value,
                 password: passwordHash,
+                timestamp: parseInt(Date.now() / 1000, 10),
                 status: 0,
                 activationCode: activationCode
             });

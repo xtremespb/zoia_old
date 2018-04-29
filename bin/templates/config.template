@@ -53,7 +53,7 @@
             "cookie": false,
             "url": false
         },
-        "dev": true,
+        "dev": false,
         "cookieName": "zoiaLang",
         "fallback": false
     },

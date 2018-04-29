@@ -60,3 +60,7 @@ typings/
 # Configuration files
 etc/config.json
 etc/website.json
+
+# User avatars
+modules/users/static/pictures/small_*.jpg
+modules/users/static/pictures/large_*.jpg
