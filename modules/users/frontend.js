@@ -23,10 +23,10 @@ module.exports = function(app) {
     const log = app.get('log');
 
     const account = async(req, res, next) => {
+        const uprefix = i18n.getLanguageURLPrefix(req);
         if (!Module.isAuthorized(req)) {
             return res.redirect(303, (config.website.authPrefix ? uprefix + config.website.authPrefix : uprefix + '/auth') + '?redirect=' + uprefix + moduleURL + '&_=' + Math.random().toString().replace('.', ''));
-        }
-        const uprefix = i18n.getLanguageURLPrefix(req);
+        }        
         let pictureURL = '/users/static/pictures/large_' + req.session.auth._id + '.jpg';
         try {
             await fs.access(path.join(__dirname, 'static', 'pictures', 'large_' + req.session.auth._id + '.jpg'), fs.constants.F_OK);
@@ -49,6 +49,7 @@ module.exports = function(app) {
                 account: req.session.auth,
                 isAdmin: Module.isAuthorizedAdmin(req) ? true : null,
                 uprefix: uprefix,
+                aprefix: config.core.prefix.auth,
                 pictureURL: pictureURL
             });
             let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Your Account'), {

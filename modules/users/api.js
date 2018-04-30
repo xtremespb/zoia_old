@@ -20,6 +20,9 @@ try {
 module.exports = function(app) {
     const log = app.get('log');
     const db = app.get('db');
+    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
+    const mailer = new(require(path.join(__dirname, '..', '..', 'core', 'mailer.js')))(app);
+    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
 
     const sortFields = ['username', 'email', 'status', 'groups'];
 
@@ -351,6 +354,18 @@ module.exports = function(app) {
         }
     };
 
+    const removeSpecialCharacters = (str) => {
+        const lower = str.toLowerCase();
+        const upper = str.toUpperCase();
+        let res = '';
+        for (let i = 0; i < lower.length; ++i) {
+            if (lower[i] !== upper[i] || lower[i].trim() === '' || lower[i] === '.' || lower[i].match(/[\u{0080}-\u{FFFF}]/gu)) {
+                res += str[i];
+            }
+        }
+        return res;
+    };
+
     const profileCommonSave = async(req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorized(req)) {
@@ -364,8 +379,9 @@ module.exports = function(app) {
                 status: -2,
             }));
         }
-        realname = realname.length ? realname : ''; 
-        realname = realname.replace(/[\n\r\t\"]+/gm, '');
+        realname = realname.length ? realname : '';
+        // realname = realname.replace(/[\n\r\t\"]+/gm, '');
+        realname = removeSpecialCharacters(realname);
         try {
             let updResult = await db.collection('users').update({ _id: new ObjectID(req.session.auth._id) }, { $set: { realname: realname } }, { upsert: false });
             if (!updResult || !updResult.result || !updResult.result.ok) {
@@ -373,6 +389,177 @@ module.exports = function(app) {
                     status: -2
                 }));
             }
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            log.error(e);
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+    };
+
+    const changePassword = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorized(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const passwordCurrent = req.body.passwordCurrent;
+        const passwordNew = req.body.passwordNew;
+        if (!passwordCurrent || typeof passwordCurrent !== 'string' || passwordCurrent.length > 50 || passwordCurrent < 5 ||
+            !passwordNew || typeof passwordNew !== 'string' || passwordNew.length > 50 || passwordNew < 8) {
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+        const passwordCurrentHash = crypto.createHash('md5').update(config.salt + passwordCurrent).digest('hex');
+        if (passwordCurrentHash !== req.session.auth.password) {
+            return res.send(JSON.stringify({
+                status: -3
+            }));
+        }
+        const passwordNewHash = crypto.createHash('md5').update(config.salt + passwordNew).digest('hex');
+        try {
+            let updResult = await db.collection('users').update({ _id: new ObjectID(req.session.auth._id) }, { $set: { password: passwordNewHash } }, { upsert: false });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: -2
+                }));
+            }
+            req.session.auth = null;
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            log.error(e);
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+    };
+
+    const randomFixedInteger = (length) => {
+        return Math.floor(Math.pow(10, length - 1) + Math.random() * (Math.pow(10, length) - Math.pow(10, length - 1) - 1));
+    };
+
+    const changeEmailStep1 = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorized(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const email = req.body.emailNew;
+        const locale = req.session.currentLocale;
+        if (!email || typeof email !== 'string' || email.length > 129 || email.length < 6 ||
+            !email.match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/) ||
+            email === req.session.auth.email) {
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+        try {
+            const code1 = randomFixedInteger(6);
+            const code2 = randomFixedInteger(6);
+            let updResult = await db.collection('users').update({ _id: new ObjectID(req.session.auth._id) }, {
+                $set: {
+                    emailChange: {
+                        email: email.toLowerCase(),
+                        code1: String(code1),
+                        code2: String(code2),
+                    },
+                    emailChangeTry: 0
+                }
+            }, { upsert: false });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: -2
+                }));
+            }
+            let mailCode1 = await render.file('mail_code.html', {
+                i18n: i18n.get(),
+                locale: locale,
+                lang: JSON.stringify(i18n.get().locales[locale]),
+                config: config,
+                email: req.session.auth.email,
+                code: code1
+            });
+            let mailCode2 = await render.file('mail_code.html', {
+                i18n: i18n.get(),
+                locale: locale,
+                lang: JSON.stringify(i18n.get().locales[locale]),
+                config: config,
+                email: email,
+                code: code2
+            });
+            await mailer.send(req, req.session.auth.email, i18n.get().__(locale, 'Change E-Mail Address'), mailCode1);
+            await mailer.send(req, email, i18n.get().__(locale, 'Change E-Mail Address'), mailCode2);
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            log.error(e);
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+    };
+
+    const changeEmailStep2 = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorized(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const code1 = req.body.code1;
+        const code2 = req.body.code2;
+        if (!code1 || typeof code1 !== 'string' || !code1.match(/^[0-9]{1,6}$/) ||
+            !code2 || typeof code2 !== 'string' || !code2.match(/^[0-9]{1,6}$/)) {
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+        try {
+            if (req.session.auth.emailChangeTry && req.session.auth.emailChangeTry > 5) {
+                req.session.auth = null;
+                return res.send(JSON.stringify({
+                    status: -4
+                }));
+            }
+            if (!req.session.auth.emailChange || !req.session.auth.emailChange.email ||
+                req.session.auth.emailChange.code1 !== code1 ||
+                req.session.auth.emailChange.code2 !== code2) {
+                let updResult = await db.collection('users').update({ _id: new ObjectID(req.session.auth._id) }, {
+                    $inc: {
+                        emailChangeTry: 1
+                    }
+                }, { upsert: false });
+                if (!updResult || !updResult.result || !updResult.result.ok) {
+                    return res.send(JSON.stringify({
+                        status: -2
+                    }));
+                }
+                return res.send(JSON.stringify({
+                    status: -3
+                }));
+            }
+            let updResult = await db.collection('users').update({ _id: new ObjectID(req.session.auth._id) }, {
+                $set: {
+                    email: req.session.auth.emailChange.email,
+                    emailChange: null,
+                    emailChangeTry: null
+                }
+            }, { upsert: false });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: -5
+                }));
+            }
+            req.session.auth = null;
             return res.send(JSON.stringify({
                 status: 1
             }));
@@ -392,6 +579,9 @@ module.exports = function(app) {
     router.post('/picture/upload', pictureUpload);
     router.post('/picture/delete', pictureDelete);
     router.post('/profile/common/save', profileCommonSave);
+    router.post('/profile/password/save', changePassword);
+    router.post('/profile/email/step1', changeEmailStep1);
+    router.post('/profile/email/step2', changeEmailStep2);
 
     return {
         routes: router

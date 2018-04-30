@@ -317,7 +317,7 @@
                     password: {
                         type: 'passwordConfirm',
                         label: lang['Password'],
-                        helpText: lang['Minimal length: 5 characters, type twice to verify'],
+                        helpText: lang['Minimal length: 8 characters, type twice to verify'],
                         validation: {
                             mandatoryCreate: true,
                             mandatoryEdit: false,

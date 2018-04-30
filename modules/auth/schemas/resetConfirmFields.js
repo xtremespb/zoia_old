@@ -32,7 +32,7 @@
             password: {
                 mandatoryCreate: true,
                 length: {
-                    min: 5,
+                    min: 8,
                     max: 50
                 },
                 type: 'string',

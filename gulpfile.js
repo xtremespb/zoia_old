@@ -11,6 +11,8 @@ gulp.task('cleanup', async() => {
     fs.unlinkSync(path.join(__dirname, 'static', 'zoia', 'core', 'js', 'panel.min.js'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'users', 'static', 'css', 'users.min.css'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'users', 'static', 'js', 'users.min.js'));
+    fs.unlinkSync(path.join(__dirname, 'modules', 'users', 'static', 'css', 'frontend.min.css'));
+    fs.unlinkSync(path.join(__dirname, 'modules', 'users', 'static', 'js', 'frontend.min.js'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'groups', 'static', 'css', 'groups.min.css'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'groups', 'static', 'js', 'groups.min.js'));
     fs.unlinkSync(path.join(__dirname, 'modules', 'auth', 'static', 'css', 'login.min.css'));
@@ -72,12 +74,24 @@ gulp.task('users', async() => {
         .pipe(minifyCSS())
         .pipe(concat('users.min.css'))
         .pipe(gulp.dest(path.join('modules', 'users', 'static', 'css')));
+    gulp.src(['modules/users/static/css/frontend.css'], { base: __dirname })
+        .pipe(minifyCSS())
+        .pipe(concat('frontend.min.css'))
+        .pipe(gulp.dest(path.join('modules', 'users', 'static', 'css')));
     // Generate users.min.js
     gulp.src(['static/zoia/core/js/jquery.zoiaFormBuilder.js', 'static/zoia/core/js/jquery.zoiaTable.js', 'modules/users/static/js/users.js'], { base: __dirname })
         .pipe(babel({
             presets: ['env']
         }))
         .pipe(concat('users.min.js'))
+        .pipe(uglify())
+        .pipe(gulp.dest(path.join('modules', 'users', 'static', 'js')));
+    // Generate frontend.min.js
+    gulp.src(['modules/users/static/js/frontend.js'], { base: __dirname })
+        .pipe(babel({
+            presets: ['env']
+        }))
+        .pipe(concat('frontend.min.js'))
         .pipe(uglify())
         .pipe(gulp.dest(path.join('modules', 'users', 'static', 'js')));
 });
@@ -351,5 +365,5 @@ gulp.task('default', function() {
     gulp.start('pages');
     gulp.start('navigation');
     gulp.start('updates');
-    gulp.start('backup');    
+    gulp.start('backup');
 });

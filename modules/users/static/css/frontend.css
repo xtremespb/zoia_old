@@ -1,10 +1,10 @@
-#zoia_account_tabs > * > a {
-	text-decoration: none;
+#zoia_account_tabs>*>a {
+    text-decoration: none;
 }
 
 .zoia-account-id-mobile {
-	margin: 0 0 -20px 0;
-	font-size: 120%;
+    margin: 0 0 -20px 0;
+    font-size: 120%;
 }
 
 .za-notification-message {
@@ -20,4 +20,19 @@
     width: 15px;
     margin-top: -1px;
     margin-right: 10px;
-} 
+}
+
+.zoia-form-error-message {
+    margin-top: 3px;
+}
+
+.zoia-form-error-message>span {
+    padding: 2px 4px 2px 4px;
+    border-radius: 3px;
+}
+
+@media (max-width: 450px) {
+    #zoia_act_password_confirm {
+        margin-top: 3px;
+    }
+}
