@@ -8,7 +8,6 @@
 		"username": "Invalid username",
 		"password": "Invalid password",
 		"passwordsNotMatch": "Passwords do not match",
-		"captcha": "Invalid code",
 		"email": "Invalid e-mail address",
 		"usernameTaken": "Already registered",
 		"emailTaken": "Already registered"
@@ -52,5 +51,6 @@
 	"Should not be empty": "Should not be empty",
 	"Too short": "Too short",
 	"Doesn't match required format": "Doesn't match required format",
-	"Passwords do not match": "Passwords do not match"
+	"Passwords do not match": "Passwords do not match",
+	"Too many requests": "Too many requests"
 }

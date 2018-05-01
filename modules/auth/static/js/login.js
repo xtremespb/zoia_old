@@ -61,10 +61,6 @@
                                 $('#zoiaAuth_username').addClass('za-form-danger').focus();
                                 $('#zoiaAuth_password').addClass('za-form-danger');
                                 break;
-                            case -2:
-                                $('#zoiaAuth_captcha_error_text > span').html(lang.fieldErrors.captcha).show();
-                                $('#zoiaAuth_captcha_error_text').show();
-                                break;
                             default:
                                 $zUI.notification(lang['Error while authorizing'], {
                                     status: 'danger'
@@ -101,21 +97,6 @@
                                 min: 5,
                                 max: 50
                             },
-                            process: (item) => {
-                                return item.trim();
-                            }
-                        }
-                    },
-                    captcha: {
-                        type: 'captcha',
-                        label: lang.Code,
-                        validation: {
-                            mandatoryCreate: true,
-                            length: {
-                                min: 4,
-                                max: 4
-                            },
-                            regexp: /^[0-9]+$/,
                             process: (item) => {
                                 return item.trim();
                             }

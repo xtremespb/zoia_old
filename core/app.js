@@ -40,10 +40,12 @@ const winston = require('winston');
         app.set('log', log);
         log.info('Starting Zoia version ' + config.version);
         app.set('trust proxy', config.trustProxy);
+        app.disable('x-powered-by');
         // Init database
         const db = new(require(path.join(__dirname, 'database.js')))(app, config.mongo, config.session);
         await db.connect();
         app.set('db', db.get());
+        app.set('bruteforceStore', db.bruteforceStore);
         // Init parsers and other stuff
         app.use(bodyParser.json(), bodyParser.urlencoded({ extended: true, limit: config.maxUploadSizeMB + 'mb' }), cookieParser(), fileUpload(), express.static(path.join(__dirname, '..', 'static')));
         // Load preroutes

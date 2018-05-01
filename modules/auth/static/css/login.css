@@ -40,18 +40,6 @@ html {
     color: #444;
 }
 
-.zoiaAuth-captcha-img {
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-#zoiaAuth_captcha {
-    height: 50px;
-    width: 80px;
-    text-align: center;
-}
-
 #zoiaAuth_passwordConfirm {
     margin-left: 5px;
 }

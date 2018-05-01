@@ -9,60 +9,69 @@ const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validat
 const Router = require('co-router');
 const crypto = require('crypto');
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const ExpressBrute = require('express-brute');
 
 module.exports = function(app) {
     const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
     const mailer = new(require(path.join(__dirname, '..', '..', 'core', 'mailer.js')))(app);
     const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
     const log = app.get('log');
+    const db = app.get('db');
+
+    const failCallback = function(req, res, next, nextValidRequestDate) {
+        const locale = req.session.currentLocale;
+        return res.send(JSON.stringify({
+            status: 0,
+            error: i18n.get().__(locale, 'Too many requests')
+        }));
+    };
+
+    const authBruteforce = new ExpressBrute(app.get('bruteforceStore'), {
+        freeRetries: 5,
+        minWait: 500,
+        maxWait: 60 * 1000, // 1 hour,
+        failCallback: failCallback
+    });
 
     /*
-
-    Log in an user
-
+        Log in an user
     */
 
     const login = async(req, res) => {
-        const db = app.get('db');
         res.contentType('application/json');
-        let output = {
-            status: 1
-        };
         const fieldList = loginFields.getLoginFields();
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
-            output.status = 0;
-            output.fields = fieldsFailed;
-            return res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: 0,
+                fields: fieldsFailed
+            }));
         }
-        if (!req.session || fields.captcha.value !== req.session.captcha) {
-            output.status = -2;
-            output.fields = ['captcha'];
-            req.session.captcha = null;
-            return res.send(JSON.stringify(output));
-        }
-        req.session.captcha = Math.random().toString().substr(2, 4);
         try {
             const passwordHash = crypto.createHash('md5').update(config.salt + fields.password.value).digest('hex');
             const user = await db.collection('users').findOne({ username: fields.username.value, password: passwordHash });
-            if (user === null || !user.status) {
-                output.status = -1;
-            } else {
-                req.session.auth = user;
+            if (!user || !user.status) {
+                return res.send(JSON.stringify({
+                    status: -1,
+                    fields: fieldsFailed
+                }));
             }
-            return res.send(JSON.stringify(output));
+            req.session.auth = user;
+            req.brute.reset(function() {
+                return res.send(JSON.stringify({ status: 1 }));
+            });
         } catch (e) {
-            output.status = 0;
-            output.error = e.message;
-            res.send(JSON.stringify(output));
+            log.error(e);
+            return JSON.stringify({
+                status: 0,
+                error: e.message
+            });
         }
     };
 
     /*
-
-    Log out an user
-    
+        Log out an user
     */
 
     const logout = async(req, res) => {
@@ -85,13 +94,10 @@ module.exports = function(app) {
     };
 
     /*
-
-    Register
-    
+        Register    
     */
 
     const register = async(req, res) => {
-        const db = app.get('db');
         res.contentType('application/json');
         let output = {
             status: 1
@@ -160,13 +166,10 @@ module.exports = function(app) {
     };
 
     /*
-
-    Register сonfirmation
-    
+        Register сonfirmation    
     */
 
     const registerConfirm = async(req, res) => {
-        const db = app.get('db');
         res.contentType('application/json');
         let output = {
             status: 1
@@ -205,13 +208,10 @@ module.exports = function(app) {
     };
 
     /*
-
-    Password reset
-    
+        Password reset    
     */
 
     const reset = async(req, res) => {
-        const db = app.get('db');
         res.contentType('application/json');
         let output = {
             status: 1
@@ -272,13 +272,10 @@ module.exports = function(app) {
     };
 
     /*
-
-    Confirm password reset
-    
+        Confirm password reset    
     */
 
     const resetConfirm = async(req, res) => {
-        const db = app.get('db');
         res.contentType('application/json');
         let output = {
             status: 1
@@ -319,7 +316,13 @@ module.exports = function(app) {
     };
 
     let router = Router();
-    router.post('/login', login);
+    router.post('/login',
+        authBruteforce.getMiddleware({
+            key: function(req, res, next) {
+                next(req.body.username);
+            }
+        }), login
+    );
     router.all('/logout', logout);
     router.all('/register', register);
     router.all('/register/confirm', registerConfirm);

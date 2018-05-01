@@ -1,6 +1,7 @@
 const MongoClient = require('mongodb').MongoClient;
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
+const MongoStoreBrute = require('express-brute-mongo');
 
 module.exports = class Database {
     constructor(app, mongo, _session) {
@@ -31,6 +32,9 @@ module.exports = class Database {
                 store: new MongoStore({ db: this.db, collection: this.mongo.sessionCollection })
             }));
         }
+        this.bruteforceStore = new MongoStoreBrute((ready) => {
+            ready(dbObj.db(this.mongo.database).collection('bruteforce_store'));
+        });
         let that = this;
         this.db.on('close', function() {
             if (that.log) {
