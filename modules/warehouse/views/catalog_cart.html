@@ -22,11 +22,11 @@
                 <br>{{ item.selectsTitles[slt] }}: {{ item.selectsValues[slt] }}
                 {% endfor %}
                 </td>
-                <td class="za-table-shrink">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ item.price }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
+                <td class="za-table-shrink">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{% if item.price !== 'NaN' %}{{ item.price }}{% else %}0{% endif %}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
                 <td class="za-table-shrink">
                     <input class="za-input za-form-width-xsmall za-catalog-cart-count" type="text" data="{{ item.id }}" data-prev="{{ item.count }}" value="{{ item.count }}" data-variant="{{ item.variant }}">
                 </td>
-                <td class="za-table-shrink za-catalog-cart-subtotal" data="{{ item.id }}" data-val="{{ item.subtotal }}" data-variant="{{ item.variant }}">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ item.subtotal }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
+                <td class="za-table-shrink za-catalog-cart-subtotal" data="{{ item.id }}" data-val="{{ item.subtotal }}" data-variant="{{ item.variant }}">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{% if item.subtotal !== 'NaN' %}{{ item.subtotal }}{% else %}0{% endif %}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
                 <td class="za-table-shrink"><span data="{{ item.id }}" data-variant="{{ item.variant }}" class="za-icon-button za-button-danger za-catalog-cart-btn-del" za-icon="icon:trash"></span></span>
                 </td>
             </tr>
@@ -34,7 +34,7 @@
         </tbody>
     </table>
     <div class="za-margin-top za-catalog-cart-total-wrap">
-        {{ i18n.__(locale, 'Cost')}}:&nbsp;<span class="za-catalog-cart-total">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ total }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</span>
+        {{ i18n.__(locale, 'Cost')}}:&nbsp;<span class="za-catalog-cart-total">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{% if total !== 'NaN' %}{{ total }}{% else %}0{% endif %}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</span>
     </div>
     <div class="za-margin-top">
         <a href="{{ uprefix }}{{ configModule.prefix }}/order" class="za-button za-button-primary">{{ i18n.__(locale, 'Order')}}</a>

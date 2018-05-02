@@ -1,18 +1,3 @@
-.zoia-ct-captcha-img {
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    cursor: pointer;
-    height: 43px;
-    margin-bottom: 8px
-}
-
-.zoia-captcha-field {
-    width: 100px;
-    text-align: center;
-    font-size: 120%;
-    margin-bottom: 6px;
-}
-
 #zoia_ct_btn_create_spinner>svg {
     width: 15px;
     margin-top: -3px;

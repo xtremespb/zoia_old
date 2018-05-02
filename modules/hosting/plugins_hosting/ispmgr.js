@@ -22,7 +22,7 @@ module.exports = class HostingPlugin {
         try {
             const url = configModule.url[host] + '?authinfo=' + configModule.username + ':' + configModule.password + '&out=text&func=user.edit&elid=' + id + '&lang=' + locale;
             const response = await rp(url, { rejectUnauthorized: false });
-            if (response && response.match(/^ERROR value\(elid\)/)) {
+            if (typeof response === 'string' &&  response.match(/^ERROR value\(elid\)/)) {
                 return true;
             }
             if (this.log) {
@@ -40,7 +40,7 @@ module.exports = class HostingPlugin {
         try {
             const url = configModule.url[host] + '?authinfo=' + configModule.username + ':' + configModule.password + '&out=text&func=user.edit&sok=ok&name=' + id + '&preset=' + preset + '&passwd=' + password + '&lang=' + locale;
             const response = await rp(url, { rejectUnauthorized: false });
-            if (response && response.match(/^OK/)) {
+            if (typeof response === 'string' && response.match(/^OK/)) {
                 return true;
             }
             if (this.log) {
@@ -58,7 +58,7 @@ module.exports = class HostingPlugin {
         try {
             const url = configModule.url[host] + '?authinfo=' + configModule.username + ':' + configModule.password + '&out=text&func=user.resume&elid=' + id + '&lang=' + locale;
             const response = await rp(url, { rejectUnauthorized: false });
-            if (response && !response.match(/^ERROR/)) {
+            if (typeof response === 'string' && !response.match(/^ERROR/)) {
                 return true;
             }
             if (this.log) {
@@ -76,7 +76,7 @@ module.exports = class HostingPlugin {
         try {
             const url = configModule.url[host] + '?authinfo=' + configModule.username + ':' + configModule.password + '&out=text&func=user.suspend&elid=' + id + '&lang=' + locale;
             const response = await rp(url, { rejectUnauthorized: false });
-            if (response && !response.match(/^ERROR/)) {
+            if (typeof response === 'string' && !response.match(/^ERROR/)) {
                 return true;
             }
             if (this.log) {

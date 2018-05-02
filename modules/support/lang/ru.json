@@ -58,7 +58,6 @@
 	"A short description, length: 2-128 characters": "Краткое описание, длина: 2-128 символов",
 	"A long description, length: 2-4096 characters": "Подробное описание, длина: 2-4096 символов",
 	"Click the image if you cannot see code": "Щелкните по картинке, если не видите код",
-	"Invalid captcha code": "Введен неверный код с картинки",
 	"Ticket": "Тикет",
 	"Invalid Ticket ID.": "Неверный ID тикета.",
 	"Too many files for this ticket.": "Превышен лимит файлов для тикета.",

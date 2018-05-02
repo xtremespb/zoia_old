@@ -189,12 +189,18 @@
                     if (costWeight) {
                         subtotal += costWeight * weight;
                     }
+                    if (!subtotal) {
+                        subtotal = 0;
+                    }
                     total += parseFloat(subtotal);
-                    costs[id === 'delivery' ? lang['Delivery'] : getAddressLabel(id)] = currencyPosition === 'right' ? (parseFloat(subtotal).toFixed(2) + '&nbsp;' + settings.currency) : (settings.currency + parseFloat(subtotal).toFixed(2));
+                    costs[id === 'delivery' ? lang['Delivery'] : getAddressLabel(id)] = currencyPosition === 'right' ? (parseFloat(subtotal).toFixed(2).replace(/\.00$/gm, '') + '&nbsp;' + settings.currency) : (settings.currency + parseFloat(subtotal).toFixed(2).replace(/\.00$/gm, ''));
                 }
             });
         }
-        total = parseFloat(total).toFixed(2);
+        if (!total) {
+            total = 0;
+        }
+        total = parseFloat(total).toFixed(2).replace(/\.00$/gm, '');
         $('.za-catalog-cart-extra').remove();
         let extraHTML = '';
         for (let i in costs) {

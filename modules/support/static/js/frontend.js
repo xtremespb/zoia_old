@@ -11,12 +11,6 @@
     let currentUsername;
     let uprefix;
 
-    const captchaRefresh = () => {
-        $('.zoia-ct-captcha-img').attr('src', '/api/captcha?rnd=' + Math.random());
-        $('#zoia_ct_captcha').val('');
-        $('.zoia-ct-captcha-img').show();
-    };
-
     const bindDeleteAttachmentHandlers = () => {
         $('.zoia-attachment-delete').unbind().click(function() {
             const filename = $(this).parent().find('a').html();
@@ -140,7 +134,6 @@
         const title = $('#zoia_ct_title').val().trim();
         const message = $('#zoia_ct_message').val().trim();
         const priority = parseInt($('#zoia_ct_priority').val(), 10);
-        const captcha = $('#zoia_ct_captcha').val().trim();
         $('.zoia-ct-field').removeClass('za-form-danger');
         $('#zoia_ct_form_error').hide();
         if (!title || title.length < 2 || title.length > 128) {
@@ -151,10 +144,6 @@
             $('#zoia_ct_form_error').show();
             return $('#zoia_ct_message').focus().addClass('za-form-danger');
         }
-        if (!captcha || !captcha.match(/^[0-9]{4}$/)) {
-            $('#zoia_ct_form_error').show();
-            return $('#zoia_ct_captcha').focus().addClass('za-form-danger');
-        }
         $('#zoia_ct_btn_create_spinner').show();
         $.ajax({
             type: 'POST',
@@ -163,8 +152,7 @@
             data: {
                 title: title,
                 message: message,
-                priority: priority,
-                captcha: captcha
+                priority: priority
             }
         }).done((res) => {
             $('#zoia_ct_btn_create_spinner').hide();
@@ -172,17 +160,12 @@
                 window.history.pushState({ action: 'view', id: res.id }, document.title, uprefix + '/support?action=view&id=' + res.id);
                 viewTicket(String(res.id));
             } else {
-                captchaRefresh();
-                if (res.captcha) {
-                    $('#zoia_ct_captcha').focus().addClass('za-form-danger');
-                }
                 $zUI.notification(res.error ? res.error : lang['Error while loading data'], {
                     status: 'danger',
                     timeout: 1500
                 });
             }
         }).fail(() => {
-            captchaRefresh();
             $('#zoia_ct_btn_create_spinner').hide();
             $zUI.notification(lang['Error while loading data'], {
                 status: 'danger',
@@ -268,12 +251,8 @@
     const btnMessageSaveClickHandler = () => {
         $('.zoia-md-field').removeClass('za-form-danger');
         const msg = $('#zoia_md_message').val().trim();
-        const captcha = $('#zoia_md_captcha').val().trim();
         if (!msg || msg.length < 2 || msg.length > 4096) {
             return $('#zoia_md_message').addClass('za-form-danger').focus();
-        }
-        if (!captcha || !captcha.match(/^[0-9]{4}$/)) {
-            return $('#zoia_md_captcha').addClass('za-form-danger').focus();
         }
         $('.zoia-md-button').hide();
         $('#zoia_btn_message_save_spinner').show();
@@ -283,23 +262,16 @@
             cache: false,
             data: {
                 id: currentSupportRequestID,
-                captcha: captcha,
                 message: msg
             }
         }).done((res) => {
             $('.zoia-md-button').show();
             $('#zoia_btn_message_save_spinner').hide();
             if (res && res.status === 1) {
-                $('#zoia_md_captcha').val('');
                 const supportMessagesHTML = '<article class="za-comment za-margin za-card za-card-default za-card-small za-card-body"><header class="za-comment-header za-grid-medium za-flex-middle" za-grid><div class="za-width-expand""><h4 class="za-comment-title za-margin-remove"><span class="za-link-reset">' + res.message.username + '</span></h4><ul class="za-comment-meta za-subnav za-subnav-divider za-margin-remove-top" style="border-bottom:1px solid #ddd"><li><span>' + new Date(parseInt(res.message.timestamp, 10) * 1000).toLocaleString() + '</span></li></ul></div></header><div class="za-comment-body"><p class="zoia-msg-text">' + res.message.message + '</p></div></article>';
                 $('.zoia-ticket-messages').prepend(supportMessagesHTML);
                 supportMessageDialog.hide();
             } else {
-                if (res.captcha) {
-                    $('#zoia_md_captcha').addClass('za-form-danger').focus();
-                }
-                captchaRefresh();
-                $('#zoia_md_captcha').val('');
                 $zUI.notification(res.error ? res.error : lang['Error while loading data'], {
                     status: 'danger',
                     timeout: 1500
@@ -308,8 +280,6 @@
         }).fail(() => {
             $('.zoia-md-button').show();
             $('#zoia_btn_message_save_spinner').hide();
-            captchaRefresh();
-            $('#zoia_md_captcha').val('');
             $zUI.notification(lang['Error while loading data'], {
                 status: 'danger',
                 timeout: 1500
@@ -417,8 +387,6 @@
             for (let i in lang.priorities) {
                 $('#zoia_ct_priority').append('<option value="' + i + '">' + lang.priorities[i] + '</option>');
             }
-            captchaRefresh();
-            $('.zoia-ct-captcha-img').click(captchaRefresh);
             $('#zoia_ct_btn_cancel').click(function(e) {
                 e.preventDefault();
                 $('.zoia-wrap-new').hide();

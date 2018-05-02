@@ -58,7 +58,6 @@
 	"A short description, length: 2-128 characters": "A short description, length: 2-128 characters",
 	"A long description, length: 2-4096 characters": "A long description, length: 2-4096 characters",
 	"Click the image if you cannot see code": "Click the image if you cannot see code",
-	"Invalid captcha code": "Invalid captcha code",
 	"Ticket": "Ticket",
 	"Invalid Ticket ID.": "Invalid Ticket ID.",
 	"Too many files for this ticket.": "Too many files for this ticket.",
@@ -83,5 +82,7 @@
 	"Your ticket has been commented by our support team. You can see the comment below, please click the \"View ticket\" button to view your ticket.": "Your ticket has been commented by our support team. You can see the comment below, please click the \"View ticket\" button to view your ticket.",
 	"Support Ticket Reply": "Support Ticket Reply",
 	"The ticket has been commented by user.": "The ticket has been commented by user.",
-	"Refresh": "Refresh"
+	"Refresh": "Refresh",
+	"Please wait some time before you create another ticket": "Please wait some time before you create another ticket",
+	"Please wait some time before you create another message": "Please wait some time before you create another message"
 }

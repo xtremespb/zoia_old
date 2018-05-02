@@ -61,11 +61,17 @@
                         if (res.count !== val) {
                             $(that).val(res.count);
                         }
+                        if (!res.subtotal || res.subtotal === 'NaN') {
+                            res.subtotal = 0;
+                        }
                         $('.za-catalog-cart-subtotal[data="' + res.id + '"][data-variant="' + res.variant + '"]').html(currencyPosition === 'right' ? (res.subtotal + '&nbsp;' + settings.currency) : (settings.currency + res.subtotal)).attr('data-val', res.subtotal);
                         let total = 0;
                         $('.za-catalog-cart-subtotal').each(function() {
                             total += parseFloat($(this).attr('data-val'));
                         });
+                        if (!total) {
+                            total = 0;
+                        }
                         $('.za-catalog-cart-total').html(currencyPosition === 'right' ? (parseFloat(total).toFixed(2) + '&nbsp;' + settings.currency) : (settings.currency + parseFloat(total).toFixed(2)));
                     }
                 }).fail(() => {

@@ -12,9 +12,9 @@ try {
 }
 
 const moduleURL = '/support';
-let templateList = 'frontend.html';
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateList))) {
-    templateList = 'custom_' + templateList;
+let templateFrontend = 'frontend.html';
+if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateFrontend))) {
+    templateFrontend = 'custom_' + templateFrontend;
 }
 
 module.exports = function(app) {
@@ -23,7 +23,7 @@ module.exports = function(app) {
     const renderRoot = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), app);
     const log = app.get('log');
 
-    const list = async(req, res, next) => {
+    const frontend = async(req, res, next) => {
         const uprefix = i18n.getLanguageURLPrefix(req);
         if (!Module.isAuthorized(req)) {
             return res.redirect(303, (config.website.authPrefix ? uprefix + config.website.authPrefix : uprefix + '/auth') + '?redirect=' + uprefix + moduleURL + '&_=' + Math.random().toString().replace('.', ''));
@@ -35,7 +35,7 @@ module.exports = function(app) {
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
         try {
-            let listHTML = await renderHosting.file(templateList, {
+            let listHTML = await renderHosting.file(templateFrontend, {
                 i18n: i18n.get(),
                 locale: locale,
                 lang: JSON.stringify(i18n.get().locales[locale]),
@@ -57,7 +57,7 @@ module.exports = function(app) {
     };
 
     let router = Router();
-    router.get('/', list);
+    router.get('/', frontend);
 
     return {
         routes: router

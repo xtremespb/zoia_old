@@ -15,12 +15,6 @@
     let totalFunds;
     let transactionsLength;
 
-    const captchaRefresh = () => {
-        $('.topup-captcha-img').attr('src', '/api/captcha?rnd=' + Math.random());
-        $('#topup_captcha').val('');
-        $('.topup-captcha-img').show();
-    };
-
     const topupHandler = (e) => {
         e.preventDefault();
         if ($('#zoia_spinner_topup').is(':visible')) {
@@ -28,12 +22,8 @@
         }
         $('.zoia-topup-field').removeClass('za-form-danger');
         const sum = $('#topup_sum').val().trim();
-        const captcha = $('#topup_captcha').val().trim();
         if (!sum || !sum.match(/^\d+(\.\d+)?$/)) {
             return $('#topup_sum').addClass('za-form-danger');
-        }
-        if (!captcha || !captcha.match(/^[0-9]{4}$/)) {
-            return $('#topup_captcha').addClass('za-form-danger');
         }
         $('#zoia_spinner_topup').show();
         $('#zoia_btn_topup').hide();
@@ -41,8 +31,7 @@
             type: 'POST',
             url: '/hosting/payment/request',
             data: {
-                sum: sum,
-                captcha: captcha
+                sum: sum
             },
             cache: false
         }).done((res) => {
@@ -51,8 +40,6 @@
             } else {
                 $('#zoia_spinner_topup').hide();
                 $('#zoia_btn_topup').show();
-                captchaRefresh();
-                $('#topup_captcha').val('');
                 if (res.error) {
                     $zUI.modal.alert(res.error, { labels: { ok: lang['OK'] }, stack: true });
                 } else {
@@ -62,7 +49,6 @@
         }).fail(() => {
             $('#zoia_spinner_topup').hide();
             $('#zoia_btn_topup').show();
-            captchaRefresh();
             $zUI.modal.alert(lang['Unable to create top-up request. Please try again later.'], { labels: { ok: lang['OK'] }, stack: true });
         }, 200);
     };
@@ -454,10 +440,6 @@
             }
             $('#zoia_history_table').show();
             $('.zoia-btn-extend').unbind().click(btnExtendClickHandler);
-            $('.topup-captcha-img').click(() => {
-                captchaRefresh();
-            });
-            captchaRefresh();
             $('#zoia_form_topup').submit(topupHandler);
             $('.zoia-loading').hide();
             $('.zoia-wrap-everything').show();

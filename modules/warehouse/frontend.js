@@ -459,7 +459,7 @@ module.exports = function(app) {
         if (!data) {
             return next();
         }
-        data.price = parseFloat(data.price).toFixed(2);
+        data.price = parseFloat(data.price).toFixed(2).replace(/\.00$/gm, '');
         // Load filters
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
@@ -690,8 +690,8 @@ module.exports = function(app) {
                         variantTitle: variantsData[variant],
                         text: cartData[id].text,
                         count: itemCart.count,
-                        price: parseFloat(price).toFixed(2),
-                        subtotal: parseFloat(price * itemCart.count).toFixed(2),
+                        price: parseFloat(price).toFixed(2).replace(/\.00$/gm, ''),
+                        subtotal: parseFloat(price * itemCart.count).toFixed(2).replace(/\.00$/gm, ''),
                         checkboxes: itemCart.checkboxes,
                         integers: itemCart.integers,
                         integersID: integersID,
@@ -704,7 +704,7 @@ module.exports = function(app) {
                     });
                     total += price * itemCart.count;
                 }
-                total = parseFloat(total).toFixed(2);
+                total = parseFloat(total).toFixed(2).replace(/\.00$/gm, '');
             }
         }
         // Render
@@ -876,8 +876,8 @@ module.exports = function(app) {
                         variantTitle: variantsData[variant],
                         text: cartData[id].text,
                         count: itemCart.count,
-                        price: parseFloat(price).toFixed(2),
-                        subtotal: parseFloat(price * itemCart.count).toFixed(2),
+                        price: parseFloat(price).toFixed(2).replace(/\.00$/gm, ''),
+                        subtotal: parseFloat(price * itemCart.count).toFixed(2).replace(/\.00$/gm, ''),
                         checkboxes: itemCart.checkboxes,
                         integers: itemCart.integers,
                         integersID: integersID,
@@ -891,7 +891,7 @@ module.exports = function(app) {
                     total += price * itemCart.count;
                     weight += itemCart.count * cartData[id].weight;
                 }
-                total = parseFloat(total).toFixed(2);
+                total = parseFloat(total).toFixed(2).replace(/\.00$/gm, '');
             }
         }
         const delivery = await db.collection('warehouse_delivery').find({ status: '1' }).toArray();

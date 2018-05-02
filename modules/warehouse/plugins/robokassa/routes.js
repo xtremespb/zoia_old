@@ -83,7 +83,7 @@ module.exports = function(app, router) {
         const crc = req.body.SignatureValue;
         if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/) ||
             !crc || typeof crc !== 'string' || !crc.match(/^[a-f0-9]{32}$/i) ||
-            !sum || typeof sum !== 'string' || !sum.match(/^\d+(\.\d{1,2})?$/)) {
+            !sum || typeof sum !== 'string' || !sum.match(/^\d+(\.\d{1,6})?$/)) {
             return res.send('Invalid order ID, payment amount or signature value');
         }
         const crcValid = crypto.createHash('md5').update(sum + ':' + id + ':' + configPlugin.sMerchantPass2).digest('hex').toLowerCase();
@@ -115,7 +115,7 @@ module.exports = function(app, router) {
         renderRoot.setFilters(filters);
         if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/) ||
             !crc || typeof crc !== 'string' || !crc.match(/^[a-f0-9]{32}$/i) ||
-            !sum || typeof sum !== 'string' || !sum.match(/^\d+(\.\d{1,2})?$/)) {
+            !sum || typeof sum !== 'string' || !sum.match(/^\d+(\.\d{1,6})?$/)) {
             return renderError(req, res, i18n.get().__(locale, 'Invalid order ID, payment amount or signature value.'));
         }
         const crcValid = crypto.createHash('md5').update(sum + ':' + id + ':' + configPlugin.sMerchantPass1).digest('hex').toLowerCase();

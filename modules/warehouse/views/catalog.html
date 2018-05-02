@@ -75,7 +75,7 @@
                     <div class="za-catalog-item-img-placeholder za-flex za-flex-center za-flex-middle"><a href="{{ uprefix }}{{ configModule.prefix }}/item/{{ item.sku }}"><span class="za-catalog-item-img-placeholder-icon" za-icon="icon:image;ratio:4"></span></a></div>
                     {% endif %}</div>
                 <div class="za-catalog-item-text za-text-truncate"><a href="{{ uprefix }}{{ configModule.prefix }}/item/{{ item.sku }}">{{ item[locale].title }}</a></div>
-                <div class="za-catalog-item-price">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ item.price }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</div>
+                <div class="za-catalog-item-price">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{% if item.price %}{{ item.price }}{% else %}0{% endif %}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</div>
                 {% if configModule.cart %}
                 <div class="za-catalog-item-buttons">
                     <button class="za-button za-button-primary za-button-small za-catalog-item-button" data="{{ item._id }}">

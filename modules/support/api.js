@@ -20,6 +20,7 @@ module.exports = function(app) {
     const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
     const mailer = new(require(path.join(__dirname, '..', '..', 'core', 'mailer.js')))(app);
     const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
+    const security = new(require(path.join(__dirname, '..', '..', 'core', 'security.js')))(app);
 
     const sortFields = ['_id', 'status', 'timestamp', 'username', 'title', 'priority'];
 
@@ -633,14 +634,6 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        if (!req.session || req.body.captcha !== req.session.captcha) {
-            req.session.captcha = null;
-            return res.send(JSON.stringify({
-                status: 0,
-                error: i18n.get().__(locale, 'Invalid captcha code'),
-                captcha: true
-            }));
-        }
         const title = req.body.title;
         const message = req.body.message;
         const priority = req.body.priority;
@@ -653,6 +646,13 @@ module.exports = function(app) {
             }));
         }
         try {
+            const allowed = await security.checkActionInterval(req, 'createSupportRequest', 10);
+            if (!allowed) {
+                return res.send(JSON.stringify({
+                    status: 0,
+                    error: i18n.get().__(locale, 'Please wait some time before you create another ticket')
+                }));
+            }
             const incr = await db.collection('support_counters').findAndModify({ _id: 'requests' }, [], { $inc: { seq: 1 } }, { new: true, upsert: true });
             if (!incr || !incr.value || !incr.value.seq) {
                 return res.send(JSON.stringify({
@@ -891,14 +891,6 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        if (!req.session || req.body.captcha !== req.session.captcha) {
-            req.session.captcha = null;
-            return res.send(JSON.stringify({
-                status: 0,
-                error: i18n.get().__(locale, 'Invalid captcha code'),
-                captcha: true
-            }));
-        }
         const id = req.body.id;
         const msg = req.body.message;
         if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/) ||
@@ -908,6 +900,13 @@ module.exports = function(app) {
             }));
         }
         try {
+            const allowed = await security.checkActionInterval(req, 'createSupportMessage', 5);
+            if (!allowed) {
+                return res.send(JSON.stringify({
+                    status: 0,
+                    error: i18n.get().__(locale, 'Please wait some time before you create another message')
+                }));
+            }
             const data = await db.collection('support').findOne({ _id: parseInt(id, 10) });
             if (!data || (data.username !== req.session.auth.username && !Module.isAuthorizedAdmin(req))) {
                 return res.send(JSON.stringify({

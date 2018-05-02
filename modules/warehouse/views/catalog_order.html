@@ -52,9 +52,9 @@
                     <br>{{ item.propertiesData[cbx] }} {% endfor %} {% for itg in item.integersID %}
                     <br>{{ item.propertiesData[itg] }}&nbsp;({{ item.propertiesCount[itg] }}) {% endfor %} {% for slt in item.selectsID %}
                     <br>{{ item.selectsTitles[slt] }}: {{ item.selectsValues[slt] }} {% endfor %}</td>
-                <td class="za-table-shrink">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ item.price }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
+                <td class="za-table-shrink">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{% if item.price !== 'NaN' %}{{ item.price }}{% else %}0{% endif %}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
                 <td class="za-table-shrink"><div class="za-text-center za-visible@m">{{ item.count }}</div><div class="za-hidden@m">{{ item.count }}&nbsp;{{ i18n.__(locale, 'pc(s).')}}</div></td>
-                <td class="za-table-shrink za-catalog-order-subtotal" data="{{ item.id }}" data-val="{{ item.subtotal }}">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ item.subtotal }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
+                <td class="za-table-shrink za-catalog-order-subtotal" data="{{ item.id }}" data-val="{{ item.subtotal }}">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{% if item.subtotal !== 'NaN' %}{{ item.subtotal }}{% else %}0{% endif %}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
             </tr>
             {% endfor %}
         </tbody>

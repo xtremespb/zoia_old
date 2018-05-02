@@ -9,6 +9,9 @@
     let deliveryData;
     let addressTemplate;
     let addressData;
+    let prefix;
+    let uprefix;
+    let currencyPosition; 
 
     const getUrlParam = (sParam) => {
         let sPageURL = decodeURIComponent(window.location.search.substring(1));
@@ -99,12 +102,12 @@
                 cartHTML += '</tbody></table>';
                 $('#za_order_cart').html(cartHTML);
                 let costsHTML = '<table class="za-table za-table-striped za-table-small za-table-middle za-table-responsive" id="za_catalog_order_costs_table"><tbody>';
-                costsHTML += '<tr><td class="za-table-expand">' + lang['Wares cost'] + '</td><td class="za-table-shrink">' + order.costs.totalWares + '&nbsp;' + settings.currency + '</td><td class="za-table-shrink"></td></tr>';
-                costsHTML += '<tr><td class="za-table-expand">' + lang['Delivery'] + '</td><td class="za-table-shrink">' + order.costs.delivery + '&nbsp;' + settings.currency + '</td><td class="za-table-shrink"></td></tr>';
+                costsHTML += '<tr><td class="za-table-expand">' + lang['Wares cost'] + '</td><td class="za-table-shrink">' + (currencyPosition === 'left' ? settings.currency : '') + (order.costs.totalWares !== 'NaN' ? order.costs.totalWares : 0) + (currencyPosition === 'right' ? '&nbsp;' + settings.currency : '') + '</td><td class="za-table-shrink"></td></tr>';
+                costsHTML += '<tr><td class="za-table-expand">' + lang['Delivery'] + '</td><td class="za-table-shrink">' + (currencyPosition === 'left' ? settings.currency : '') + (order.costs.delivery !== 'NaN' ? order.costs.delivery : 0) + (currencyPosition === 'right' ? '&nbsp;' + settings.currency : '') + '</td><td class="za-table-shrink"></td></tr>';
                 for (let i in order.costs.extra) {
-                    costsHTML += '<tr><td class="za-table-expand">' + res.addressData[i] + '</td><td class="za-table-shrink">' + order.costs.extra[i] + '&nbsp;' + settings.currency + '</td><td class="za-table-shrink"></td></tr>';
+                    costsHTML += '<tr><td class="za-table-expand">' + res.addressData[i] + '</td><td class="za-table-shrink">' + (currencyPosition === 'left' ? settings.currency : '') + (order.costs.extra[i] !== 'NaN' ? order.costs.extra[i] : 0) + (currencyPosition === 'right' ? '&nbsp;' + settings.currency : '') + '</td><td class="za-table-shrink"></td></tr>';
                 }
-                costsHTML += '<tr><td class="za-table-expand">' + lang['Total'] + '</td><td class="za-table-shrink">' + order.costs.total + '&nbsp;' + settings.currency + '</td><td class="za-table-shrink"></td></tr>';
+                costsHTML += '<tr><td class="za-table-expand">' + lang['Total'] + '</td><td class="za-table-shrink">' + (currencyPosition === 'left' ? settings.currency : '') + (order.costs.total !== 'NaN' ? order.costs.total : 0) + (currencyPosition === 'right' ? '&nbsp;' + settings.currency : '') + '</td><td class="za-table-shrink"></td></tr>';
                 costsHTML += '</tbody></table>';
                 $('#za_order_costs').html(costsHTML);
                 let addressHTML = '';
@@ -155,6 +158,9 @@
         deliveryData = JSON.parse($('#zp_deliveryData').attr('data'));
         addressTemplate = JSON.parse($('#zp_addressTemplate').attr('data'));
         addressData = JSON.parse($('#zp_addressData').attr('data'));
+        prefix = $('#zp_prefix').attr('data');
+        uprefix = $('#zp_uprefix').attr('data');
+        currencyPosition = $('#zp_currencyPosition').attr('data');
         $.getScript(`/api/lang/warehouse/${locale}.js`).done(() => {
             const ordersTableData = {
                 url: '/api/warehouse/orders',
@@ -179,7 +185,7 @@
                     costs: {
                         sortable: false,
                         process: (id, item, value) => {
-                            return value.total + '&nbsp;' + settings.currency;
+                            return (currencyPosition === 'left' ? settings.currency : '') + (value.total !== 'NaN' ? value.total : 0) + (currencyPosition === 'right' ? '&nbsp;' + settings.currency : '');
                         }
                     },
                     status: {
@@ -198,7 +204,7 @@
                 },
                 onLoad: () => {
                     $('.zoia-order-view-btn').unbind().click(function() {
-                        window.history.pushState({ action: 'view', id: $(this).attr('data') }, document.title, '/catalog/orders?action=view&id=' + $(this).attr('data'));
+                        window.history.pushState({ action: 'view', id: $(this).attr('data') }, document.title, uprefix + prefix + '/orders?action=view&id=' + $(this).attr('data'));
                         viewOrder($(this).attr('data'));
                     });
                 },

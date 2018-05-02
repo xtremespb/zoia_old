@@ -71,14 +71,6 @@
                     <div class="za-text-muted za-text-small">{{ i18n.__(locale, 'A long description, length: 2-4096 characters')}}</div>
                 </div>
                 <div class="za-margin">
-                    <label class="za-form-label" for="zoia_ct_captcha">{{ i18n.__(locale, 'Captcha') }}:</label>
-                    <div class="za-form-controls">
-                        <img src="/api/captcha/" class="zoia-ct-captcha-img" style="display:none">&nbsp;
-                        <input class="za-input za-form-width-small zoia-ct-field zoia-captcha-field" id="zoia_ct_captcha" type="text">
-                    </div>
-                    <div class="za-text-muted za-text-small">{{ i18n.__(locale, 'Click the image if you cannot see code')}}</div>
-                </div>
-                <div class="za-margin">
                     <button class="za-button za-button-primary" id="zoia_ct_btn_create" type="submit">
                         <div za-spinner id="zoia_ct_btn_create_spinner" style="display:none"></div>{{ i18n.__(locale, 'Create')}}</button>
                     <a href="" class="za-button za-button-default" id="zoia_ct_btn_cancel" type="button">{{ i18n.__(locale, 'Cancel')}}</a>
@@ -149,16 +141,6 @@
                     <textarea class="za-textarea zoia-md-field" id="zoia_md_message" rows="5"></textarea>
                 </div>
                 <div class="za-text-muted za-text-small">{{ i18n.__(locale, 'A long description, length: 2-4096 characters')}}</div>
-            </div>
-            <div class="za-margin">
-                <label class="za-form-label" for="zoia_md_captcha">{{ i18n.__(locale, 'Captcha') }}:</label>
-                <div>
-                    <div class="za-form-controls za-flex-inline">
-                        <img src="/api/captcha/" class="zoia-ct-captcha-img">&nbsp;
-                        <input class="za-input za-form-width-small zoia-captcha-field zoia-md-field" id="zoia_md_captcha" type="text">
-                    </div>
-                </div>
-                <div class="za-text-muted za-text-small">{{ i18n.__(locale, 'Click the image if you cannot see code')}}</div>
             </div>
         </div>
         <div class="za-modal-footer za-text-right">

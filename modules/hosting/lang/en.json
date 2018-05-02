@@ -91,7 +91,6 @@
 	"Expiring Accounts": "Expiring Accounts",
 	"Days&nbsp;Remain": "Days&nbsp;Remain",
 	"If you have any questions about your hosting accounts or services, please contact support to get help.": "If you have any questions about your hosting accounts or services, please contact support to get help.",
-	"Invalid captcha": "Invalid captcha",
 	"Payment ID": "Payment ID",
 	"Payment Failed": "Payment Failed",
 	"Invalid order ID, payment amount or signature value.": "Invalid order ID, payment amount or signature value.",
@@ -102,5 +101,6 @@
 	"The payment signature is invalid. If you believe that is wrong, please contact website support.": "The payment signature is invalid. If you believe that is wrong, please contact website support.",
 	"Could not complete your payment. Please contact website support for more information or try again.": "Could not complete your payment. Please contact website support for more information or try again.",
 	"Thank you for your payment.": "Thank you for your payment.",
-	"Prolongation of Account": "Prolongation of Account"
+	"Prolongation of Account": "Prolongation of Account",
+	"Please wait some time before you create another payment request.": "Please wait some time before you create another payment request."
 }

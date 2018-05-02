@@ -3796,6 +3796,7 @@ module.exports = function(app) {
                 status: 0
             }));
         }
+        const locale = req.session.currentLocale;
         let id = req.body.id;
         const data = req.body.data;
         if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/) ||
@@ -3807,11 +3808,39 @@ module.exports = function(app) {
         data.paid = data.paid === 'true' ? true : false;
         id = parseInt(id, 10);
         try {
+            const order = await db.collection('warehouse_orders').findOne({ _id: id });
+            if (!order) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            let diff = {};
+            if (order.status !== data.status) {
+                diff.status = i18n.get().__(locale, 'orderStatuses')[data.status];
+            }
+            if (order.tracking !== data.tracking) {
+                diff.tracking = data.tracking;
+            }
+            if (order.paid !== data.paid) {
+                diff.paid = data.paid ? 2 : 1;
+            }
+            console.log(diff);
             const updResult = await db.collection('warehouse_orders').update({ _id: id }, { $set: data }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0
                 }));
+            }
+            if (Object.keys(diff).length && data.email) {
+                let mailUserHTML = await render.file('mail_orderchanged_user.html', {
+                    i18n: i18n.get(),
+                    locale: locale,
+                    lang: JSON.stringify(i18n.get().locales[locale]),
+                    config: config,
+                    diff: diff,
+                    orderData: order
+                });
+                await mailer.send(req, data.email, i18n.get().__(locale, 'Order Update'), mailUserHTML);
             }
             return res.send(JSON.stringify({
                 status: 1

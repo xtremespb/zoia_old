@@ -40,7 +40,7 @@
                         id: $(that).attr('data')
                     },
                     cache: false
-                }).done(() => {
+                }).done((res) => {
                     $('.za-catalog-item-button-spinner[data="' + $(that).attr('data') + '"]').hide();
                     if (res.status === 1) {
                         $zUI.notification(lang['Added to your cart'], {

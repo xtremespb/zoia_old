@@ -32,6 +32,7 @@ module.exports = function(app, router) {
     const renderRoot = new(require(path.join(__dirname, '..', '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', '..', 'views'), app);
     const render = new(require(path.join(__dirname, '..', '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', 'views'), app);
     const mailer = new(require(path.join(__dirname, '..', '..', '..', 'core', 'mailer.js')))(app);
+    const security = new(require(path.join(__dirname, '..', '..', '..', 'core', 'security.js')))(app);
 
     const renderError = async(req, res, msg) => {
         const locale = req.session.currentLocale;
@@ -53,10 +54,9 @@ module.exports = function(app, router) {
         let sum = req.query.sum || req.body.sum;
         let captcha = req.query.captcha || req.body.captcha;
         res.contentType('application/json');
-        if (!captcha || typeof captcha !== 'string' || !captcha.match(/^[0-9]{4}$/) ||
-            !Module.isAuthorized(req) || !req.session || !req.session.captcha || parseInt(captcha, 10) !== parseInt(req.session.captcha, 10)) {
-            req.session.captcha = null;
-            return res.send(JSON.stringify({ status: 0, error: i18n.get().__(locale, 'Invalid captcha') }));
+        const allowed = await security.checkActionInterval(req, 'createTopUpRequest', 10);
+        if (!allowed) {
+            return res.send(JSON.stringify({ status: 0, error: i18n.get().__(locale, 'Please wait some time before you create another payment request.') }));
         }
         req.session.captcha = null;
         if (!sum || typeof sum !== 'string' || !sum.match(/^\d+(\.\d+)?$/)) {
