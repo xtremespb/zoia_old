@@ -12,6 +12,12 @@ let templateFrontendItem = 'frontend_item.html';
 if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateFrontendItem))) {
     templateFrontendItem = 'custom_' + templateFrontendItem;
 }
+let configModule;
+try {
+    configModule = require(path.join(__dirname, 'config', 'portfolio.json'));
+} catch (e) {
+    configModule = require(path.join(__dirname, 'config', 'portfolio.dist.json'));
+}
 
 const files = fs.readdirSync(path.join(__dirname, 'data'));
 let portfolioData = [];
@@ -22,7 +28,7 @@ for (let i in files) {
 }
 portfolioData.sort(function(a, b) {
     return (a.year > b.year) ? -1 : ((b.year > a.year) ? 1 : 0);
-}); 
+});
 
 module.exports = function(app) {
     const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
@@ -45,6 +51,7 @@ module.exports = function(app) {
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 config: config,
                 uprefix: uprefix,
+                prefix: configModule.prefix,
                 portfolioData: portfolioData
             });
             let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Portfolio'), {
@@ -86,6 +93,7 @@ module.exports = function(app) {
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 config: config,
                 uprefix: uprefix,
+                prefix: configModule.prefix,
                 item: data
             });
             let html = await renderRoot.template(req, i18n, locale, data.lang[locale].title || i18n.get().__(locale, 'Portfolio'), {
