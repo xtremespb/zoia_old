@@ -229,8 +229,8 @@
             return $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);
         }
         editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
-        if (editShadow[editLanguage].enabled && editShadow[editLanguage].data
-            && editShadow[editLanguage].data.status) {
+        if (editShadow[editLanguage].enabled && editShadow[editLanguage].data &&
+            editShadow[editLanguage].data.status) {
             let saveStatus = editShadow[editLanguage].data.status;
             let saveTemplate = editShadow[editLanguage].data.template;
             editShadow[lng].data.template = saveTemplate;
@@ -519,6 +519,16 @@
                     passwordsNotMatch: lang['Passwords do not match']
                 }
             });
+            for (let lng in langs) {
+                $('#zoiaEditLanguages').append('<li data="' + lng + '"><a href="#">' + langs[lng] + '</a></li>');
+                editShadow[lng] = {
+                    enabled: true,
+                    data: {}
+                };
+                if (!editLanguage) {
+                    editLanguage = lng;
+                }
+            }
             $('#blog').zoiaTable({
                 url: '/api/blog/list',
                 limit: 20,
