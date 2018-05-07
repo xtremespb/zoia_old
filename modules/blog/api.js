@@ -12,7 +12,7 @@ const imageType = require('image-type');
 module.exports = function(app) {
     const log = app.get('log');
     const db = app.get('db');
-    const sortFields = ['date', 'title', 'status'];
+    const sortFields = ['timestamp', 'title', 'status', '_id'];
 
     const list = async(req, res) => {
         const locale = req.session.currentLocale;
@@ -57,7 +57,7 @@ module.exports = function(app) {
                 tfq[locale + '.title'] = { $regex: search, $options: 'i' };
                 fquery.$or.push(tfq);
             }
-            let ffields = { _id: 1, status: 1 };
+            let ffields = { _id: 1, status: 1, timestamp: 1 };
             ffields[locale + '.title'] = 1;
             const total = await db.collection('blog').find(fquery).count();
             const items = await db.collection('blog').find(fquery, { skip: skip, limit: limit, sort: sort, projection: ffields }).toArray();
@@ -91,13 +91,13 @@ module.exports = function(app) {
             }));
         }
         const id = req.query.id;
-        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+        if (!id || typeof id !== 'string' || !id.match(/^[0-9]{1,10}$/)) {
             return res.send(JSON.stringify({
                 status: 0
             }));
         }
         try {
-            const item = await db.collection('blog').findOne({ _id: new ObjectID(id) });
+            const item = await db.collection('blog').findOne({ _id: parseInt(id, 10) });
             if (!item) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -122,8 +122,8 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        const id = req.body.id;
-        if (id && (typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/))) {
+        const postId = req.body.id;
+        if (postId && (typeof postId !== 'string' || !postId.match(/^[0-9]{1,10}$/))) {
             return res.send(JSON.stringify({
                 status: 0
             }));
@@ -153,14 +153,21 @@ module.exports = function(app) {
                     data.template = fields.template.value;
                 }
             }
-            if (id) {
-                let page = await db.collection('blog').findOne({ _id: new ObjectID(id) });
+            data.timestamp = parseInt(Date.now() / 1000);
+            if (postId) {
+                let page = await db.collection('blog').findOne({ _id: parseInt(postId) });
                 if (!page) {
                     output.status = -1;
                     return res.send(JSON.stringify(output));
                 }
             }
-            let what = id ? { _id: new ObjectID(id) } : { dummy: true };
+            const incr = await db.collection('blog_counters').findAndModify({ _id: 'posts' }, [], { $inc: { seq: 1 } }, { new: true, upsert: true });
+            if (!incr || !incr.value || !incr.value.seq) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            let what = postId ? { _id: parseInt(postId, 10) } : { _id: parseInt(incr.value.seq, 10) };
             let updResult = await db.collection('blog').update(what, { $set: data }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 output.status = 0;
@@ -196,11 +203,11 @@ module.exports = function(app) {
         let did = [];
         for (let i in ids) {
             const id = ids[i];
-            if (!id.match(/^[a-f0-9]{24}$/)) {
+            if (!id.match(/^[0-9]{1,10}$/)) {
                 output.status = -2;
                 return res.send(JSON.stringify(output));
             }
-            did.push({ _id: new ObjectID(id) });
+            did.push({ _id: parseInt(id, 10) });
         }
         try {
             const delResult = await db.collection('blog').deleteMany({

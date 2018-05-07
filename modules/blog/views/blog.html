@@ -48,7 +48,7 @@
             <tr>
                 <th id="blogID" class="za-table-shrink"></th>
                 <th id="blog__id" class="za-table-shrink">{{ i18n.__(locale, 'ID')}}</th>
-                <th id="blog_date" class="za-table-shrink">{{ i18n.__(locale, 'Date')}}</th>
+                <th id="blog_timestamp" class="za-table-shrink">{{ i18n.__(locale, 'Date')}}</th>
                 <th id="blog_title">{{ i18n.__(locale, 'Title')}}</th>
                 <th id="blog_status" class="za-table-shrink">{{ i18n.__(locale, 'Status')}}</th>
                 <th id="blog_actions" class="za-table-shrink">{{ i18n.__(locale, 'Actions')}}</th>
@@ -94,8 +94,10 @@
     </div>
 </div>
 <div id="zoiaSpinnerMain" style="display:none" class="za-flex za-flex-middle za-flex-center"><span za-spinner style="color:#000"></span></div>
+<script src="https://uicdn.toast.com/tui-editor/latest/tui-editor-Editor.js"></script>
 <div stye="display:none">
     <div id="zp_locale" data="{{ locale }}"></div>
+    <div id="zp_uprefix" data="{{ uprefix }}"></div>
     <div id="zp_langs" data='{{ langs }}'></div>
     <div id="zp_templates" data='{{ templates }}'></div>
     <div id="zp_foldersData" data='{{ folders }}'></div>

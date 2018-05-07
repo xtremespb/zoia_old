@@ -13,6 +13,7 @@
     let locale;
     let langs;
     let templates;
+    let uprefix;
     // let testMode;
 
     const getUrlParam = (sParam) => {
@@ -72,7 +73,7 @@
     };
 
     const editItem = (id) => {
-        if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
+        if (!id || typeof id !== 'string' || !id.match(/^[0-9]{1,10}$/)) {
             return showTable();
         }
         currentEditID = id;
@@ -192,22 +193,18 @@
         }
     };
 
-    const initCKEditor = () => {
+    const initEditor = () => {
         window.setTimeout(function() {
-            ckeditor = $('#editForm_content').ckeditor({
-                filebrowserImageBrowseUrl: '/admin/blog/browse',
-                filebrowserBrowseUrl: '/admin/blog/browse',
-                filebrowserWindowWidth: 800,
-                filebrowserWindowHeight: 500,
-                allowedContent: true
-            }).editor;
-            ckeditor.on('instanceReady', function() {
-                $(window).bind('popstate',
-                    (event) => {
-                        processState(event.originalEvent.state);
-                    });
-                processState();
-            });
+            /*$('#editForm_content').tuiEditor({
+                initialEditType: 'markdown',
+                previewStyle: 'vertical',
+                height: '300px'
+            });*/
+            $(window).bind('popstate',
+                (event) => {
+                    processState(event.originalEvent.state);
+                });
+            processState();
         }, 0);
     };
 
@@ -245,6 +242,7 @@
 
     $(document).ready(() => {
         locale = $('#zp_locale').attr('data');
+        uprefix = $('#zp_uprefix').attr('data');
         langs = JSON.parse($('#zp_langs').attr('data'));
         templates = JSON.parse($('#zp_templates').attr('data'));
         // testMode = Boolean($('#zp_testMode').attr('data'));
@@ -325,7 +323,7 @@
                         $('#blog').zoiaTable().load();
                         $('#zoiaEdit').hide();
                         $('#wrapTable').show();
-                        window.history.pushState({ action: '' }, document.title, '/admin/blog');
+                        window.history.pushState({ action: '' }, document.title, uprefix + '/admin/blog');
                     },
                     onSaveError: (res) => {
                         editSpinner(false);
@@ -533,14 +531,20 @@
                 url: '/api/blog/list',
                 limit: 20,
                 sort: {
-                    field: 'date',
-                    direction: 'asc'
+                    field: 'timestamp',
+                    direction: 'desc'
                 },
                 fields: {
-                    date: {
+                    _id: {
                         sortable: true,
                         process: (id, item, value) => {
                             return value || '&ndash;';
+                        }
+                    },
+                    timestamp: {
+                        sortable: true,
+                        process: (id, item, value) => {
+                            return value ? new Date(value * 1000).toLocaleString().replace(/\s/gm, '&nbsp;') : '&ndash;';
                         }
                     },
                     title: {
@@ -566,7 +570,7 @@
                 },
                 onLoad: () => {
                     $('.zoia-blog-action-edit-btn').click(function() {
-                        window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, '/admin/blog?action=edit&id=' + $(this).attr('data'));
+                        window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, uprefix + '/admin/blog?action=edit&id=' + $(this).attr('data'));
                         editItem($(this).attr('data'));
                     });
                     $('.zoia-blog-action-del-btn').click(function() {
@@ -579,11 +583,11 @@
                 }
             });
             $('.zoiaAdd').click(() => {
-                window.history.pushState({ action: 'create' }, document.title, '/admin/blog?action=create');
+                window.history.pushState({ action: 'create' }, document.title, uprefix + '/admin/blog?action=create');
                 createItem();
             });
             $('#editForm_btnCancel').click(() => {
-                window.history.pushState({ action: '' }, document.title, '/admin/blog');
+                window.history.pushState({ action: '' }, document.title, uprefix + '/admin/blog');
                 $('#zoiaEdit').hide();
                 $('#wrapTable').show();
             });
@@ -593,7 +597,7 @@
             $('#zoiaEditLanguageCheckbox').click(function() {
                 onEditLanguageCheckboxClickEvent();
             });
-            initCKEditor();
+            initEditor();
             $('.zoia-admin-loading').hide();
             $('#zoia_admin_panel_wrap').show();
         });
