@@ -33,6 +33,7 @@ module.exports = function(app) {
                 templates: JSON.stringify(templatesHash),
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 langs: JSON.stringify(config.i18n.localeNames),
+                uprefix: uprefix,
                 folders: folders ? folders.data : JSON.stringify([{ id: '1', text: '/', parent: '#', type: 'root' }])
             });
             res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, config.production ? ['/pages/static/css/pages.min.css'] : ['/zoia/3rdparty/jstree/themes/default/style.min.css', '/pages/static/css/pages.css'],

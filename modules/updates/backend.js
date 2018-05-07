@@ -23,7 +23,8 @@ module.exports = function(app) {
                 config: config,
                 dirname: path.join(__dirname, '..', '..'),
                 locale: locale,
-                lang: JSON.stringify(i18n.get().locales[locale])
+                lang: JSON.stringify(i18n.get().locales[locale]),
+                uprefix: uprefix
             });
             res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, config.production ? ['/updates/static/css/updates.min.css'] : ['/updates/static/css/updates.css'],
                 config.production ? ['/updates/static/js/updates.min.js'] : ['/updates/static/js/updates.js']));

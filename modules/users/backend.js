@@ -34,6 +34,7 @@ module.exports = function(app) {
                 config: config,
                 locale: locale,
                 groups: JSON.stringify(groups),
+                uprefix: uprefix,
                 lang: JSON.stringify(i18n.get().locales[locale])
             });
             res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, config.production ? ['/users/static/css/users.min.css'] : ['/users/static/css/users.css'],

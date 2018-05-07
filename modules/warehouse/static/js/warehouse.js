@@ -56,6 +56,7 @@
     let addressJSON;
     let settings;
     let settingsData;
+    let uprefix;
 
     const getUrlParam = (sParam) => {
         let sPageURL = decodeURIComponent(window.location.search.substring(1));
@@ -136,9 +137,9 @@
 
     const initCKEditor = () => {
         window.setTimeout(function() {
-            ckeditor = $('#editForm_content').ckeditor({
-                filebrowserImageBrowseUrl: '/admin/warehouse/browse',
-                filebrowserBrowseUrl: '/admin/warehouse/browse',
+            const ckeditor = $('#editForm_content').ckeditor({
+                filebrowserImageBrowseUrl: uprefix + uprefix + '/admin/warehouse/browse',
+                filebrowserBrowseUrl: uprefix + uprefix + '/admin/warehouse/browse',
                 filebrowserWindowWidth: 800,
                 filebrowserWindowHeight: 500,
                 allowedContent: true
@@ -1712,7 +1713,7 @@
     };
 
     const editFormBtnCancelHandler = () => {
-        window.history.pushState({ action: '' }, document.title, '/admin/warehouse');
+        window.history.pushState({ action: '' }, document.title, uprefix + '/admin/warehouse');
         if (!editMode) {
             $.ajax({
                 type: 'POST',
@@ -1776,7 +1777,7 @@
     };
 
     const addHandler = () => {
-        window.history.pushState({ action: 'create' }, document.title, '/admin/warehouse?action=create');
+        window.history.pushState({ action: 'create' }, document.title, uprefix + '/admin/warehouse?action=create');
         createItem();
     };
 
@@ -2807,6 +2808,7 @@
 
     $(document).ready(() => {
         locale = $('#zp_locale').attr('data');
+        uprefix = $('#zp_uprefix').attr('data');
         langs = JSON.parse($('#zp_langs').attr('data'));
         foldersData = JSON.parse($('#zp_foldersData').attr('data'));
         testMode = $('#zp_testMode').attr('data') === 'true' ? true : false;
@@ -2916,7 +2918,7 @@
                         $('#warehouse').zoiaTable().load();
                         $('#zoiaEdit').hide();
                         $('#wrapTable').show();
-                        window.history.pushState({ action: '' }, document.title, '/admin/warehouse');
+                        window.history.pushState({ action: '' }, document.title, uprefix + '/admin/warehouse');
                     },
                     onSaveError: (res) => {
                         editSpinner(false);
@@ -4226,7 +4228,7 @@
                 },
                 onLoad: () => {
                     $('.zoia-warehouse-action-edit-btn').click(function() {
-                        window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, '/admin/warehouse?action=edit&id=' + $(this).attr('data'));
+                        window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, uprefix + '/admin/warehouse?action=edit&id=' + $(this).attr('data'));
                         editItem($(this).attr('data'));
                     });
                     $('.zoia-warehouse-action-del-btn').click(function() {

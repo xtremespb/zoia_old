@@ -23,6 +23,7 @@ module.exports = function(app) {
                 i18n: i18n.get(),
                 config: config,
                 locale: locale,
+                uprefix: uprefix,
                 langs: JSON.stringify(config.i18n.locales),
                 maintenanceEnabled: config.website.maintenance,
                 os: os

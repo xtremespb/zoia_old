@@ -176,6 +176,7 @@
 
     $(document).ready(() => {
         const locale = $('#zp_locale').attr('data');
+        const uprefix = $('#zp_uprefix').attr('data');
         $.getScript(`/api/lang/reviews/${locale}.js`).done(() => {
             editDialog = $zUI.modal('#zoiaEditDialog', {
                 bgClose: false,
@@ -234,7 +235,7 @@
                             timeout: 1500
                         });
                         $('#reviews').zoiaTable().load();
-                        window.history.pushState({ action: '' }, document.title, '/admin/reviews');
+                        window.history.pushState({ action: '' }, document.title, uprefix + '/admin/reviews');
                     },
                     onSaveError: (res) => {
                         editFormSpinner(false);
@@ -399,7 +400,7 @@
                 },
                 onLoad: () => {
                     $('.zoia-reviews-action-edit-btn').click(function() {
-                        window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, '/admin/reviews?action=edit&id=' + $(this).attr('data'));
+                        window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, uprefix + '/admin/reviews?action=edit&id=' + $(this).attr('data'));
                         editItem($(this).attr('data'));
                     });
                     $('.zoia-reviews-action-del-btn').click(function() {
@@ -412,10 +413,10 @@
                 }
             });
             $('#editForm_btnCancel').click(() => {
-                window.history.pushState({ action: '' }, document.title, '/admin/reviews');
+                window.history.pushState({ action: '' }, document.title, uprefix + '/admin/reviews');
             });
             $('.zoiaAdd').click(() => {
-                window.history.pushState({ action: 'create' }, document.title, '/admin/reviews?action=create');
+                window.history.pushState({ action: 'create' }, document.title, uprefix + '/admin/reviews?action=create');
                 createItem();
             });
             $(window).bind('popstate',

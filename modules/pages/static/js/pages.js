@@ -21,6 +21,7 @@
     let langs;
     let templates;
     let foldersData;
+    let uprefix;
     // let testMode;
 
     const getUrlParam = (sParam) => {
@@ -428,9 +429,9 @@
 
     const initCKEditor = () => {
         window.setTimeout(function() {
-            ckeditor = $('#editForm_content').ckeditor({
-                filebrowserImageBrowseUrl: '/admin/pages/browse',
-                filebrowserBrowseUrl: '/admin/pages/browse',
+            const ckeditor = $('#editForm_content').ckeditor({
+                filebrowserImageBrowseUrl: uprefix + '/admin/pages/browse',
+                filebrowserBrowseUrl: uprefix + '/admin/pages/browse',
                 filebrowserWindowWidth: 800,
                 filebrowserWindowHeight: 500,
                 allowedContent: true
@@ -484,6 +485,7 @@
 
     $(document).ready(() => {
         locale = $('#zp_locale').attr('data');
+        uprefix = $('#zp_uprefix').attr('data');
         langs = JSON.parse($('#zp_langs').attr('data'));
         templates = JSON.parse($('#zp_templates').attr('data'));
         foldersData = JSON.parse($('#zp_foldersData').attr('data'));
@@ -590,7 +592,7 @@
                         $('#pages').zoiaTable().load();
                         $('#zoiaEdit').hide();
                         $('#wrapTable').show();
-                        window.history.pushState({ action: '' }, document.title, '/admin/pages');
+                        window.history.pushState({ action: '' }, document.title, uprefix + '/admin/pages');
                     },
                     onSaveError: (res) => {
                         editSpinner(false);
@@ -1014,7 +1016,7 @@
                 },
                 onLoad: () => {
                     $('.zoia-pages-action-edit-btn').click(function() {
-                        window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, '/admin/pages?action=edit&id=' + $(this).attr('data'));
+                        window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, uprefix + '/admin/pages?action=edit&id=' + $(this).attr('data'));
                         editItem($(this).attr('data'));
                     });
                     $('.zoia-pages-action-del-btn').click(function() {
@@ -1027,7 +1029,7 @@
                 }
             });
             $('.zoiaAdd').click(() => {
-                window.history.pushState({ action: 'create' }, document.title, '/admin/pages?action=create');
+                window.history.pushState({ action: 'create' }, document.title, uprefix + '/admin/pages?action=create');
                 createItem();
             });
             $('#editForm_folder_btn').click(() => {
@@ -1107,7 +1109,7 @@
                 }
             });
             $('#editForm_btnCancel').click(() => {
-                window.history.pushState({ action: '' }, document.title, '/admin/pages');
+                window.history.pushState({ action: '' }, document.title, uprefix + '/admin/pages');
                 $('#zoiaEdit').hide();
                 $('#wrapTable').show();
             });

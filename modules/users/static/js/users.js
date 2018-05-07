@@ -8,6 +8,7 @@
     let currentDeleteID;
 
     let zoiaGroups;
+    let uprefix;
 
     const getUrlParam = (sParam) => {
         let sPageURL = decodeURIComponent(window.location.search.substring(1));
@@ -171,6 +172,7 @@
     $(document).ready(() => {
         const locale = $('#zp_locale').attr('data');
         zoiaGroups = JSON.parse($('#zp_zoiaGroups').attr('data'));
+        uprefix = $('#zp_uprefix').attr('data');
         $.getScript(`/api/lang/users/${locale}.js`).done(() => {
             editDialog = $zUI.modal('#zoiaEditDialog', {
                 bgClose: false,
@@ -232,7 +234,7 @@
                             timeout: 1500
                         });
                         $('#users').zoiaTable().load();
-                        window.history.pushState({ action: '' }, document.title, '/admin/users');
+                        window.history.pushState({ action: '' }, document.title, uprefix + '/admin/users');
                     },
                     onSaveError: () => {
                         editFormSpinner(false);
@@ -429,7 +431,7 @@
                 },
                 onLoad: () => {
                     $('.zoia-users-action-edit-btn').click(function() {
-                        window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, '/admin/users?action=edit&id=' + $(this).attr('data'));
+                        window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, uprefix + '/admin/users?action=edit&id=' + $(this).attr('data'));
                         editItem($(this).attr('data'));
                     });
                     $('.zoia-users-action-del-btn').click(function() {
@@ -442,11 +444,11 @@
                 }
             });
             $('#editForm_btnCancel').click(() => {
-                window.history.pushState({ action: '' }, document.title, '/admin/users');
+                window.history.pushState({ action: '' }, document.title, uprefix + '/admin/users');
                 $('#editForm_groups_wrap').scrollTop(0);
             });
             $('.zoiaAdd').click(() => {
-                window.history.pushState({ action: 'create' }, document.title, '/admin/users?action=create');
+                window.history.pushState({ action: 'create' }, document.title, uprefix + '/admin/users?action=create');
                 createItem();
             });
             $(window).bind('popstate',

@@ -23,7 +23,8 @@ module.exports = function(app) {
                 i18n: i18n.get(),
                 config: config,
                 locale: locale,
-                lang: JSON.stringify(i18n.get().locales[locale])
+                lang: JSON.stringify(i18n.get().locales[locale]),
+                uprefix: uprefix
             });
             res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, config.production ? ['/reviews/static/css/reviews.min.css'] : ['/reviews/static/css/reviews.css'],
                 config.production ? ['/reviews/static/js/reviews.min.js'] : ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/zoia/core/js/jquery.zoiaTable.js', '/reviews/static/js/reviews.js']));

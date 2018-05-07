@@ -22,6 +22,7 @@ module.exports = function(app) {
                 i18n: i18n.get(),
                 config: config,
                 locale: locale,
+                uprefix: uprefix,
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 modules: app.get('modules'),
                 rnd: Date.now()

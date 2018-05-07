@@ -135,6 +135,7 @@
 
     $(document).ready(() => {
         const locale = $('#zp_locale').attr('data');
+        const uprefix = $('#zp_uprefix').attr('data');
         $.getScript(`/api/lang/updates/${locale}.js`).done(() => {
             $('#btnCheckUpdates').click(btnCheckUpdatesHandler);
             $('#btnUpdateStart').click(btnUpdateStartHandler);

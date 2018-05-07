@@ -23,6 +23,7 @@ module.exports = function(app) {
                 i18n: i18n.get(),
                 config: config,
                 locale: locale,
+                uprefix: uprefix,
                 lang: JSON.stringify(i18n.get().locales[locale])
             });
             res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, config.production ? ['/groups/static/css/groups.min.css'] : ['/groups/static/css/groups.css'],

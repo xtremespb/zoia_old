@@ -412,7 +412,7 @@
             },
             onLoad: () => {
                 $('.zoia-hosting-action-edit-btn').click(function() {
-                    window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, '/admin/hosting?action=edit&id=' + $(this).attr('data'));
+                    window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, uprefix + '/admin/hosting?action=edit&id=' + $(this).attr('data'));
                     editItem($(this).attr('data'));
                 });
                 $('.zoia-hosting-action-del-btn').click(function() {
@@ -428,6 +428,7 @@
 
     $(document).ready(() => {
         locale = $('#zp_locale').attr('data');
+        uprefix = $('#zp_uprefix').attr('data');
         configModule = JSON.parse($('#zp_configModule').attr('data'));
         plugins = JSON.parse($('#zp_plugins').attr('data'));
         $.getScript(`/api/lang/hosting/${locale}.js`).done(() => {
