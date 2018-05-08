@@ -2,12 +2,8 @@ const pathM = require('path');
 const Module = require(pathM.join(__dirname, '..', '..', 'core', 'module.js'));
 const validation = new(require(pathM.join(__dirname, '..', '..', 'core', 'validation.js')))();
 const Router = require('co-router');
-const ObjectID = require('mongodb').ObjectID;
 const blogFields = require(pathM.join(__dirname, 'schemas', 'blogFields.js'));
 const config = require(pathM.join(__dirname, '..', '..', 'core', 'config.js'));
-const fs = require('fs-extra');
-const Jimp = require('jimp');
-const imageType = require('image-type');
 
 module.exports = function(app) {
     const log = app.get('log');
@@ -103,6 +99,13 @@ module.exports = function(app) {
                     status: 0
                 }));
             }
+            for (let i in config.i18n.locales) {
+                let lng = config.i18n.locales[i];
+                item[lng].content = item[lng].content_p1 + (item[lng].content_p2.length ? '{{cut}}' + item[lng].content_p2 : '');
+                delete item[lng].content_p1;
+                delete item[lng].content_p2;
+                item[lng].keywords = item[lng].keywords.join(',');
+            }
             return res.send(JSON.stringify({
                 status: 1,
                 item: item
@@ -143,23 +146,30 @@ module.exports = function(app) {
                         output.fields = fieldsFailed;
                         return res.send(JSON.stringify(output));
                     }
+                    let content_p1 = fields.content.value;
+                    let content_p2 = '';
+                    if (fields.content.value.match(/{{cut}}/) ) {
+                        [content_p1, content_p2] = fields.content.value.split(/{{cut}}/);
+                    }
+                    const keywords = fields.keywords.value.split(/,/);
                     data[lng] = {
                         title: fields.title.value,
-                        keywords: (fields.keywords ? fields.keywords.value : ''),
-                        description: (fields.description ? fields.description.value : ''),
-                        content: (fields.content ? fields.content.value : '')
+                        keywords: keywords,
+                        content_p1: content_p1,
+                        content_p2: content_p2,
                     };
                     data.status = fields.status.value;
                     data.template = fields.template.value;
                 }
             }
-            data.timestamp = parseInt(Date.now() / 1000);
             if (postId) {
                 let page = await db.collection('blog').findOne({ _id: parseInt(postId) });
                 if (!page) {
                     output.status = -1;
                     return res.send(JSON.stringify(output));
                 }
+            } else {
+                data.timestamp = parseInt(Date.now() / 1000);
             }
             const incr = await db.collection('blog_counters').findAndModify({ _id: 'posts' }, [], { $inc: { seq: 1 } }, { new: true, upsert: true });
             if (!incr || !incr.value || !incr.value.seq) {

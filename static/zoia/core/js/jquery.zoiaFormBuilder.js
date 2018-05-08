@@ -71,7 +71,7 @@
         this._defaults = defaults;
         this._name = pluginName;
         this._prefix = this.element.id;
-        this._formTypes = ['text', 'email', 'password', 'select', 'passwordConfirm', 'captcha', 'launcher', 'textarea', 'checkboxlist', 'valueslist', 'valueslistfixed', 'valueslisteditable'];
+        this._formTypes = ['text', 'email', 'password', 'tags', 'select', 'passwordConfirm', 'captcha', 'launcher', 'textarea', 'checkboxlist', 'valueslist', 'valueslistfixed', 'valueslisteditable'];
         this._saving = false;
         this.init();
     };
@@ -91,6 +91,7 @@
                     case 'text':
                     case 'email':
                     case 'password':
+                    case 'tags':
                         fieldsHTML += this._template(this.settings.html.text, {
                             prefix: this._prefix,
                             name: n,
@@ -407,7 +408,7 @@
         },
         resetForm() {
             this.clearErrors();
-            let that = this;
+            let that = this;            
             $('.' + this._prefix + '-form-field').not('.zoiaFormBuilder-no-reset').val('');
             $('select.' + this._prefix + '-form-field').prop('selectedIndex', 0);
             $('.formBuilder-valueslist-val').val('');

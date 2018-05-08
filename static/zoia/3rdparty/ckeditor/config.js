@@ -7,4 +7,6 @@ CKEDITOR.editorConfig = function( config ) {
 	// Define changes to default configuration here. For example:
 	// config.language = 'fr';
 	// config.uiColor = '#AADC6E';
+	config.extraPlugins = 'blogcut';
+	config.enterMode = CKEDITOR.ENTER_BR;
 };

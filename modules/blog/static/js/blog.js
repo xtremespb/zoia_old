@@ -9,11 +9,13 @@
     let currentDeleteID;
     let editShadow = {};
     let editLanguage;
+    let keywords;
 
     let locale;
     let langs;
     let templates;
     let uprefix;
+    let codemirror;
     // let testMode;
 
     const getUrlParam = (sParam) => {
@@ -65,6 +67,13 @@
         // $('#zoiaEditLanguages > li[data=' + editLanguage + ']').click();
         markZoiaLanguagesTab(editLanguage);
         $('#editForm_content').val('');
+        keywords.setValue('');
+        if (!codemirror) {
+            codemirror = CodeMirror.fromTextArea(document.getElementById('editForm_content'), {
+                mode: 'htmlmixed',
+                lineNumbers: true
+            });
+        }
     };
 
     const showTable = () => {
@@ -173,6 +182,7 @@
     const onEditLanguageCheckboxClickEvent = () => {
         if ($('#zoiaEditLanguageCheckbox').prop('checked')) {
             $('#editForm').zoiaFormBuilder().resetForm();
+            keywords.setValue('');
             editShadow[editLanguage].enabled = true;
             editShadow[editLanguage].data = {};
             for (let lng in langs) {
@@ -195,10 +205,19 @@
 
     const initEditor = () => {
         window.setTimeout(function() {
-            /*$('#editForm_content').tuiEditor({
-                initialEditType: 'markdown',
-                previewStyle: 'vertical',
-                height: '300px'
+            /*const ckeditor = $('#editForm_content').ckeditor({
+                filebrowserImageBrowseUrl: uprefix + '/admin/pages/browse',
+                filebrowserBrowseUrl: uprefix + '/admin/pages/browse',
+                filebrowserWindowWidth: 800,
+                filebrowserWindowHeight: 500,
+                allowedContent: true
+            }).editor;
+            ckeditor.on('instanceReady', function() {
+                $(window).bind('popstate',
+                    (event) => {
+                        processState(event.originalEvent.state);
+                    });
+                processState();
             });*/
             $(window).bind('popstate',
                 (event) => {
@@ -237,6 +256,7 @@
         markZoiaLanguagesTab(editLanguage);
         $('#editForm').zoiaFormBuilder().resetForm();
         $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);
+        keywords.setValue(editShadow[editLanguage].data.keywords.value);
         $('#editForm').show();
     };
 
@@ -378,10 +398,6 @@
                                 type: 'text',
                                 value: data.item[n].keywords
                             };
-                            editShadow[n].data.description = {
-                                type: 'text',
-                                value: data.item[n].description
-                            };
                             editShadow[n].data.content = {
                                 type: 'textarea',
                                 value: data.item[n].content
@@ -391,11 +407,18 @@
                         for (let n in langs) {
                             if (editShadow[n].enabled) {
                                 $('#zoiaEditLanguages > li[data=' + n + ']').click();
+                                keywords.setValue(editShadow[editLanguage].data.keywords.value);
                                 break;
                             }
                         }
                         $('#zoiaEdit').show();
                         $('#zoiaSpinnerMain').hide();
+                        if (!codemirror) {
+                            codemirror = CodeMirror.fromTextArea(document.getElementById('editForm_content'), {
+                                mode: 'htmlmixed',
+                                lineNumbers: true
+                            });
+                        }
                     },
                     onLoadError: () => {
                         $('#zoiaSpinnerMain').hide();
@@ -451,26 +474,9 @@
                         default: templates[0]
                     },
                     keywords: {
-                        type: 'text',
+                        type: 'tags',
                         label: lang['Keywords'],
-                        css: 'za-width-large@m',
-                        validation: {
-                            mandatoryCreate: false,
-                            mandatoryEdit: false,
-                            length: {
-                                min: 1,
-                                max: 128
-                            },
-                            process: (item) => {
-                                return item.trim();
-                            }
-                        },
-                        helpText: lang['Optional, max. 128 characters']
-                    },
-                    description: {
-                        type: 'text',
-                        label: lang['Description'],
-                        css: 'za-width-large@m',
+                        css: 'za-width-1-1',
                         validation: {
                             mandatoryCreate: false,
                             mandatoryEdit: false,
@@ -582,6 +588,7 @@
                     noitems: lang['No items to display']
                 }
             });
+            keywords = tagsInput(document.querySelector('#editForm_keywords'));
             $('.zoiaAdd').click(() => {
                 window.history.pushState({ action: 'create' }, document.title, uprefix + '/admin/blog?action=create');
                 createItem();
