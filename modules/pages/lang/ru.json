@@ -80,5 +80,6 @@
 	"Loading data, please wait": "Загрузка данных, пожалуйста, подождите",
 	"In demo mode, you cannot edit or delete the index page. That's not an error.": "В демо-режиме Вы не можете редактировать или удалять главную страницу. Это не является ошибкой.",
 	"Template": "Шаблон",
-	"Done": "Готово"
+	"Done": "Готово",
+	"Insert Image": "Вставить изображение"
 }

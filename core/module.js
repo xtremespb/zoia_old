@@ -91,6 +91,14 @@ module.exports = class Module {
             .replace(windowsTrailingRe, replacement);
         return truncate(sanitized, 200);
     }
+    static sanitizeString(str, len) {
+        const replacement = '';
+        const sanitized = str
+            .replace(illegalRe, replacement)
+            .replace(controlRe, replacement)
+            .replace(reservedRe, replacement)
+        return truncate(sanitized, len);
+    }
     static stem(str, locale) {
         natural.PorterStemmer.attach();
         let words = str.tokenizeAndStem();

@@ -24,6 +24,7 @@
     },
     "maxUploadSizeMB": 100,
     "testMode": false,
+    "codemirror": false,
     "mongo": {
         "url": "mongodb://127.0.0.1:27017/zoia",
         "database": "zoia",

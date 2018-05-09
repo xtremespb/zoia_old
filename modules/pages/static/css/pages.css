@@ -160,3 +160,11 @@
     opacity: .7;
     z-index: 900;
 }
+
+.CodeMirror {
+    border: 1px solid #ccc;
+}
+
+.za-icon-button {
+    cursor: pointer;
+}

@@ -506,7 +506,17 @@
                     }
                     url = '/pages/static/storage' + url;
                     let funcNum = getUrlParam('CKEditorFuncNum');
-                    window.opener.CKEDITOR.tools.callFunction(funcNum, url);
+                    if (window.opener.zoiaCodeMirror) {
+                        const doc = window.opener.zoiaCodeMirror.getDoc();
+                        const cursor = doc.getCursor();
+                        const pos = {
+                            line: cursor.line,
+                            ch: cursor.ch
+                        };
+                        doc.replaceRange(`<img src="${url}" alt="">`, pos);
+                    } else {
+                        window.opener.CKEDITOR.tools.callFunction(funcNum, url);
+                    }
                     window.close();
                 }
             });

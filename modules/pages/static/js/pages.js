@@ -16,8 +16,10 @@
     let foldersEditMode = false;
     let editShadow = {};
     let editLanguage;
+    let codemirror;
 
     let locale;
+    let useCodemirror;
     let langs;
     let templates;
     let foldersData;
@@ -93,6 +95,17 @@
         // $('#zoiaEditLanguages > li[data=' + editLanguage + ']').click();
         markZoiaLanguagesTab(editLanguage);
         $('#editForm_content').val('');
+        if (useCodemirror && !codemirror) {
+            codemirror = CodeMirror.fromTextArea(document.getElementById('editForm_content'), {
+                mode: 'htmlmixed',
+                lineNumbers: true
+            });
+            window.zoiaCodeMirror = codemirror;
+            codemirror.setSize($('#zoia_edit_form_footer').outerWidth() - 3, 300);
+        }
+        if (useCodemirror) {
+            codemirror.setValue('');
+        }
     };
 
     const showTable = () => {
@@ -400,6 +413,9 @@
     const onEditLanguageCheckboxClickEvent = () => {
         if ($('#zoiaEditLanguageCheckbox').prop('checked')) {
             $('#editForm').zoiaFormBuilder().resetForm();
+            if (useCodemirror) {
+                codemirror.setValue('');
+            }
             editShadow[editLanguage].enabled = true;
             editShadow[editLanguage].data = {};
             for (let lng in langs) {
@@ -423,26 +439,42 @@
             $('#editForm').show();
         } else {
             editShadow[editLanguage].enabled = false;
+            if (useCodemirror) {
+                codemirror.setValue('');
+            }
             $('#editForm').hide();
         }
     };
 
-    const initCKEditor = () => {
+    const initEditor = () => {
         window.setTimeout(function() {
-            const ckeditor = $('#editForm_content').ckeditor({
-                filebrowserImageBrowseUrl: uprefix + '/admin/pages/browse',
-                filebrowserBrowseUrl: uprefix + '/admin/pages/browse',
-                filebrowserWindowWidth: 800,
-                filebrowserWindowHeight: 500,
-                allowedContent: true
-            }).editor;
-            ckeditor.on('instanceReady', function() {
+            if (useCodemirror) {
                 $(window).bind('popstate',
                     (event) => {
                         processState(event.originalEvent.state);
                     });
+                $(window).resize(function() {
+                    if (codemirror) {
+                        codemirror.setSize($('#zoia_edit_form_footer').outerWidth() - 3, 300);
+                    }
+                });
                 processState();
-            });
+            } else {
+                const ckeditor = $('#editForm_content').ckeditor({
+                    filebrowserImageBrowseUrl: uprefix + '/admin/pages/browse',
+                    filebrowserBrowseUrl: uprefix + '/admin/pages/browse',
+                    filebrowserWindowWidth: 800,
+                    filebrowserWindowHeight: 500,
+                    allowedContent: true
+                }).editor;
+                ckeditor.on('instanceReady', function() {
+                    $(window).bind('popstate',
+                        (event) => {
+                            processState(event.originalEvent.state);
+                        });
+                    processState();
+                });
+            }
         }, 0);
     };
 
@@ -475,16 +507,23 @@
             editShadow[lng].data.name = saveName;
             editShadow[lng].data.template = saveTemplate;
             editShadow[lng].data.status = saveStatus;
+            if (useCodemirror) {
+                editShadow[editLanguage].data.content.value = codemirror.getValue();
+            } 
         }
         editLanguage = lng;
         markZoiaLanguagesTab(editLanguage);
         $('#editForm').zoiaFormBuilder().resetForm();
         $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);
+        if (useCodemirror) {
+            codemirror.setValue(editShadow[editLanguage].data.content.value);
+        } 
         $('#editForm').show();
     };
 
     $(document).ready(() => {
         locale = $('#zp_locale').attr('data');
+        useCodemirror = $('#zp_codemirror').attr('data') === 'true' ? true : false;
         uprefix = $('#zp_uprefix').attr('data');
         langs = JSON.parse($('#zp_langs').attr('data'));
         templates = JSON.parse($('#zp_templates').attr('data'));
@@ -553,6 +592,9 @@
                 events: {
                     onSaveValidate: (data) => {
                         editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
+                        if (useCodemirror) {
+                            editShadow[editLanguage].data.content.value = codemirror.getValue();
+                        } 
                         let saveFolder = editShadow[editLanguage].data.folder.id;
                         let saveURL = editShadow[editLanguage].data.folder.value;
                         let saveName = editShadow[editLanguage].data.name.value;
@@ -678,15 +720,26 @@
                                 value: data.item[n].content
                             };
                         }
-                        $('#zoiaEditLanguageCheckbox').prop('checked', editShadow[editLanguage].enabled);
+                        $('#zoiaEditLanguageCheckbox').prop('checked', editShadow[editLanguage].enabled);                        
+                        $('#zoiaEdit').show();
+                        $('#zoiaSpinnerMain').hide();
+                        if (useCodemirror && !codemirror) {
+                            codemirror = CodeMirror.fromTextArea(document.getElementById('editForm_content'), {
+                                mode: 'htmlmixed',
+                                lineNumbers: true
+                            });
+                            window.zoiaCodeMirror = codemirror;
+                            codemirror.setSize($('#zoia_edit_form_footer').outerWidth() - 3, 300);
+                        } 
                         for (let n in langs) {
                             if (editShadow[n].enabled) {
                                 $('#zoiaEditLanguages > li[data=' + n + ']').click();
+                                if (useCodemirror) {
+                                    codemirror.setValue(editShadow[editLanguage].data.content.value);
+                                } 
                                 break;
                             }
                         }
-                        $('#zoiaEdit').show();
-                        $('#zoiaSpinnerMain').hide();
                     },
                     onLoadError: () => {
                         $('#zoiaSpinnerMain').hide();
@@ -1028,6 +1081,18 @@
                     noitems: lang['No items to display']
                 }
             });
+            if (useCodemirror) {
+                $('#editForm_content').parent().prepend('<div class="za-width-1-1" style="height:40px"><span href="" class="za-icon-button" za-icon="image" style="margin-right:3px" id="zoia_codemirror_image" za-tooltip="' + lang['Insert Image'] + '"></span></div>');
+                $('#zoia_codemirror_image').click(() => {
+                    const wLeft = window.screenLeft ? window.screenLeft : window.screenX;
+                    const wTop = window.screenTop ? window.screenTop : window.screenY;
+                    const left = wLeft + (window.innerWidth / 2) - (800 / 2);
+                    const top = wTop + (window.innerHeight / 2) - (500 / 2);
+                    window.open(uprefix + '/admin/pages/browse', 'targetWindow',
+                        `toolbar=no, location = no, status = no, menubar = no, scrollbars = yes, resizable = yes, width = 800, height = 500, top = ${top}, left = ${left}`
+                    );
+                });
+            } 
             $('.zoiaAdd').click(() => {
                 window.history.pushState({ action: 'create' }, document.title, uprefix + '/admin/pages?action=create');
                 createItem();
@@ -1126,7 +1191,7 @@
             $('.pagesBtnRebuild').click(() => {
                 ajaxRebuildDatabase();
             });
-            initCKEditor();
+            initEditor();
             $('.zoia-admin-loading').hide();
             $('#zoia_admin_panel_wrap').show();
         });
