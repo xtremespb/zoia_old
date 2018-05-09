@@ -1,1 +1,36 @@
-<h1>{{ i18n.__(locale, 'title')}}</h1>
+{% for item in items %}
+<article class="za-article za-margin">
+    <h1 class="za-article-title"><a class="za-link-reset" href="{{ uprefix }}/blog/post/{{ item._id }}">{{ item[locale].title }}</a></h1>
+    <p class="za-article-meta">{{ i18n.__(locale, 'Published')}}:&nbsp;{{ item.timestamp }}</p>
+    {{ item[locale].content_p1 }}
+    {% if item[locale].cut %}
+    <p>
+        <a class="za-button za-button-default" href="{{ uprefix }}/blog/post/{{ item._id }}">{{ i18n.__(locale, 'Read more')}}</a>
+    </p>
+    {% endif %}
+    {% if item[locale].keywords.length %}
+    <p>
+    	{% for tag in item[locale].keywords %}
+    	<a class="za-link-reset za-label zoia-blog-label" href="?tag={{ tag }}">{{ tag }}</a>
+    	{% endfor %}
+    </p>
+    {% endif %}
+</article>
+{% endfor %} {% if paginationData.length %}
+<ul class="za-pagination" za-margin>
+    {% for item in paginationData %}{% if item.type === 'prev' %}
+    <li><a href="?page={{ item.page }}&tag={{ tag }}"><span za-pagination-previous></span></a></li>
+    {% endif %}{% if item.type === 'item' %}{% if item.status === 'active' %}
+    <li class="za-active"><span>{{ item.page }}</span></li>
+    {% else %}
+    <li><a href="?page={{ item.page }}&tag={{ tag }}">{{ item.page }}</a></li>
+    {% endif %}{% endif %}{% if item.type === 'dots' %}
+    <li class="za-disabled"><span>...</span></li>
+    {% endif %}{% if item.type === 'next' %}
+    <li><a href="?page={{ item.page }}&tag={{ tag }}"><span za-pagination-next></span></a></li>
+    {% endif %}{% endfor %}
+</ul>
+{% endif %}
+<div stye="display:none">
+    <div id="zp_locale" data="{{ locale }}"></div>
+</div>

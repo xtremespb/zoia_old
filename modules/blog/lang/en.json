@@ -81,5 +81,10 @@
 	"In demo mode, you cannot edit or delete the index page. That's not an error.": "In demo mode, you cannot edit or delete the index page. That's not an error.",
 	"Template": "Template",
 	"The following page(s) will be removed from the database": "The following page(s) will be removed from the database",
-	"Date": "Date"
+	"Date": "Date",
+	"Insert Image": "Insert Image",
+	"Insert Blog Cut": "Insert Blog Cut",
+	"Blog": "Blog",
+	"Published": "Published",
+	"Read more": "Read more"
 }

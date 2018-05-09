@@ -104,7 +104,7 @@ module.exports = function(app) {
                 item[lng].content = item[lng].content_p1 + (item[lng].content_p2.length ? '{{cut}}' + item[lng].content_p2 : '');
                 delete item[lng].content_p1;
                 delete item[lng].content_p2;
-                item[lng].keywords = item[lng].keywords.join(',');
+                item[lng].keywords = Array.isArray(item[lng].keywords) ? item[lng].keywords.join(',') : '';
             }
             return res.send(JSON.stringify({
                 status: 1,
@@ -148,8 +148,10 @@ module.exports = function(app) {
                     }
                     let content_p1 = fields.content.value;
                     let content_p2 = '';
+                    let cut = false;
                     if (fields.content.value.match(/{{cut}}/) ) {
                         [content_p1, content_p2] = fields.content.value.split(/{{cut}}/);
+                        cut = true;
                     }
                     const keywords = fields.keywords.value.split(/,/);
                     data[lng] = {
@@ -157,6 +159,7 @@ module.exports = function(app) {
                         keywords: keywords,
                         content_p1: content_p1,
                         content_p2: content_p2,
+                        cut: cut
                     };
                     data.status = fields.status.value;
                     data.template = fields.template.value;

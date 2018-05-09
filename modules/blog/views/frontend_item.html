@@ -1,0 +1,15 @@
+<article class="za-article za-margin">
+    <h1 class="za-article-title"><a class="za-link-reset" href="{{ uprefix }}/blog/post/{{ item._id }}">{{ item[locale].title }}</a></h1>
+    <p class="za-article-meta">{{ i18n.__(locale, 'Published')}}:&nbsp;{{ item.timestamp }}</p>
+    {{ item[locale].content_p1 }}{{ item[locale].content_p2 }}
+    {% if item[locale].keywords.length %}
+    <p>
+    	{% for tag in item[locale].keywords %}
+    	<a class="za-link-reset za-label zoia-blog-label" href="?tag={{ tag }}">{{ tag }}</a>
+    	{% endfor %}
+    </p>
+    {% endif %}
+</article>
+<div stye="display:none">
+    <div id="zp_locale" data="{{ locale }}"></div>
+</div>

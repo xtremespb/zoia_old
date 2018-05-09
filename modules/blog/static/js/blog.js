@@ -12,6 +12,7 @@
     let keywords;
 
     let locale;
+    let useCodemirror;
     let langs;
     let templates;
     let uprefix;
@@ -68,11 +69,16 @@
         markZoiaLanguagesTab(editLanguage);
         $('#editForm_content').val('');
         keywords.setValue('');
-        if (!codemirror) {
+        if (useCodemirror && !codemirror) {
             codemirror = CodeMirror.fromTextArea(document.getElementById('editForm_content'), {
                 mode: 'htmlmixed',
                 lineNumbers: true
             });
+            window.zoiaCodeMirror = codemirror;
+            codemirror.setSize($('#zoia_edit_form_footer').outerWidth() - 3, 300);
+        }
+        if (useCodemirror) {
+            codemirror.setValue('');
         }
     };
 
@@ -183,6 +189,9 @@
         if ($('#zoiaEditLanguageCheckbox').prop('checked')) {
             $('#editForm').zoiaFormBuilder().resetForm();
             keywords.setValue('');
+            if (useCodemirror) {
+                codemirror.setValue('');
+            }
             editShadow[editLanguage].enabled = true;
             editShadow[editLanguage].data = {};
             for (let lng in langs) {
@@ -199,31 +208,42 @@
             $('#editForm').show();
         } else {
             editShadow[editLanguage].enabled = false;
+            if (useCodemirror) {
+                codemirror.setValue('');
+            }
             $('#editForm').hide();
         }
     };
 
     const initEditor = () => {
         window.setTimeout(function() {
-            /*const ckeditor = $('#editForm_content').ckeditor({
-                filebrowserImageBrowseUrl: uprefix + '/admin/pages/browse',
-                filebrowserBrowseUrl: uprefix + '/admin/pages/browse',
-                filebrowserWindowWidth: 800,
-                filebrowserWindowHeight: 500,
-                allowedContent: true
-            }).editor;
-            ckeditor.on('instanceReady', function() {
+            if (useCodemirror) {
                 $(window).bind('popstate',
                     (event) => {
                         processState(event.originalEvent.state);
                     });
-                processState();
-            });*/
-            $(window).bind('popstate',
-                (event) => {
-                    processState(event.originalEvent.state);
+                $(window).resize(function() {
+                    if (codemirror) {
+                        codemirror.setSize($('#zoia_edit_form_footer').outerWidth() - 3, 300);
+                    }
                 });
-            processState();
+                processState();
+            } else {
+                const ckeditor = $('#editForm_content').ckeditor({
+                    filebrowserImageBrowseUrl: uprefix + '/admin/pages/browse',
+                    filebrowserBrowseUrl: uprefix + '/admin/pages/browse',
+                    filebrowserWindowWidth: 800,
+                    filebrowserWindowHeight: 500,
+                    allowedContent: true
+                }).editor;
+                ckeditor.on('instanceReady', function() {
+                    $(window).bind('popstate',
+                        (event) => {
+                            processState(event.originalEvent.state);
+                        });
+                    processState();
+                });
+            }
         }, 0);
     };
 
@@ -247,21 +267,28 @@
         editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
         if (editShadow[editLanguage].enabled && editShadow[editLanguage].data &&
             editShadow[editLanguage].data.status) {
-            let saveStatus = editShadow[editLanguage].data.status;
-            let saveTemplate = editShadow[editLanguage].data.template;
+            const saveStatus = editShadow[editLanguage].data.status;
+            const saveTemplate = editShadow[editLanguage].data.template;
             editShadow[lng].data.template = saveTemplate;
             editShadow[lng].data.status = saveStatus;
+            if (useCodemirror) {
+                editShadow[editLanguage].data.content.value = codemirror.getValue();
+            }
         }
         editLanguage = lng;
         markZoiaLanguagesTab(editLanguage);
         $('#editForm').zoiaFormBuilder().resetForm();
         $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);
         keywords.setValue(editShadow[editLanguage].data.keywords.value);
+        if (useCodemirror) {
+            codemirror.setValue(editShadow[editLanguage].data.content.value);
+        }
         $('#editForm').show();
     };
 
     $(document).ready(() => {
         locale = $('#zp_locale').attr('data');
+        useCodemirror = $('#zp_codemirror').attr('data') === 'true' ? true : false;
         uprefix = $('#zp_uprefix').attr('data');
         langs = JSON.parse($('#zp_langs').attr('data'));
         templates = JSON.parse($('#zp_templates').attr('data'));
@@ -310,6 +337,9 @@
                 events: {
                     onSaveValidate: (data) => {
                         editShadow[editLanguage].data = $('#editForm').zoiaFormBuilder().serialize();
+                        if (useCodemirror) {
+                            editShadow[editLanguage].data.content.value = codemirror.getValue();
+                        }
                         let saveTemplate = editShadow[editLanguage].data.template.value;
                         let saveStatus = editShadow[editLanguage].data.status.value;
                         for (let n in editShadow) {
@@ -404,20 +434,25 @@
                             };
                         }
                         $('#zoiaEditLanguageCheckbox').prop('checked', editShadow[editLanguage].enabled);
-                        for (let n in langs) {
-                            if (editShadow[n].enabled) {
-                                $('#zoiaEditLanguages > li[data=' + n + ']').click();
-                                keywords.setValue(editShadow[editLanguage].data.keywords.value);
-                                break;
-                            }
-                        }
                         $('#zoiaEdit').show();
                         $('#zoiaSpinnerMain').hide();
-                        if (!codemirror) {
+                        if (useCodemirror && !codemirror) {
                             codemirror = CodeMirror.fromTextArea(document.getElementById('editForm_content'), {
                                 mode: 'htmlmixed',
                                 lineNumbers: true
                             });
+                            window.zoiaCodeMirror = codemirror;
+                            codemirror.setSize($('#zoia_edit_form_footer').outerWidth() - 3, 300);
+                        }
+                        for (let n in langs) {
+                            if (editShadow[n].enabled) {
+                                $('#zoiaEditLanguages > li[data=' + n + ']').click();
+                                keywords.setValue(editShadow[editLanguage].data.keywords.value);
+                                if (useCodemirror) {
+                                    codemirror.setValue(editShadow[editLanguage].data.content.value);
+                                }
+                                break;
+                            }
                         }
                     },
                     onLoadError: () => {
@@ -588,6 +623,28 @@
                     noitems: lang['No items to display']
                 }
             });
+            if (useCodemirror) {
+                $('#editForm_content').parent().prepend('<div class="za-width-1-1" style="height:40px"><span href="" class="za-icon-button" za-icon="image" style="margin-right:3px" id="zoia_codemirror_image" za-tooltip="' + lang['Insert Image'] + '"></span><span href="" class="za-icon-button" za-icon="more" id="zoia_codemirror_cut" za-tooltip="' + lang['Insert Blog Cut'] + '"></span></div>');
+                $('#zoia_codemirror_cut').click(() => {
+                    const doc = codemirror.getDoc();
+                    const cursor = doc.getCursor();
+                    const pos = {
+                        line: cursor.line,
+                        ch: cursor.ch
+                    };
+                    doc.replaceRange('{{cut}}', pos);
+                    codemirror.focus();
+                });
+                $('#zoia_codemirror_image').click(() => {
+                    const wLeft = window.screenLeft ? window.screenLeft : window.screenX;
+                    const wTop = window.screenTop ? window.screenTop : window.screenY;
+                    const left = wLeft + (window.innerWidth / 2) - (800 / 2);
+                    const top = wTop + (window.innerHeight / 2) - (500 / 2);
+                    window.open(uprefix + '/admin/pages/browse', 'targetWindow',
+                        `toolbar=no, location = no, status = no, menubar = no, scrollbars = yes, resizable = yes, width = 800, height = 500, top = ${top}, left = ${left}`
+                    );
+                });
+            }
             keywords = tagsInput(document.querySelector('#editForm_keywords'));
             $('.zoiaAdd').click(() => {
                 window.history.pushState({ action: 'create' }, document.title, uprefix + '/admin/blog?action=create');

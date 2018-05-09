@@ -180,3 +180,11 @@
 .tags-input .selected~input {
     opacity: .3
 }
+
+.CodeMirror {
+    border: 1px solid #ccc;
+}
+
+.za-icon-button {
+    cursor: pointer;
+}
