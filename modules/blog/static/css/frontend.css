@@ -18,3 +18,9 @@
 .za-article-meta {
 	color: #777;
 }
+
+.zoiaButtonSpinner>svg {
+    width: 15px;
+    margin-top: -2px;
+    margin-right: 10px;
+}

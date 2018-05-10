@@ -149,7 +149,7 @@ module.exports = function(app) {
                     let content_p1 = fields.content.value;
                     let content_p2 = '';
                     let cut = false;
-                    if (fields.content.value.match(/{{cut}}/) ) {
+                    if (fields.content.value.match(/{{cut}}/)) {
                         [content_p1, content_p2] = fields.content.value.split(/{{cut}}/);
                         cut = true;
                     }
@@ -240,11 +240,60 @@ module.exports = function(app) {
         }
     };
 
+    const commentAdd = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorized(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let comment = req.body.comment;
+        if (!comment || typeof comment !== 'string' || comment.length > 512) {
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+        try {
+            const timestamp = parseInt(Date.now() / 1000, 10);
+            const insResult = await db.collection('blog_comments').insertOne({
+                userId: String(req.session.auth._id),
+                comment: comment,
+                timestamp: timestamp
+            });
+            if (!insResult || !insResult.result || !insResult.result.ok || !insResult.insertedId) {
+                return res.send(JSON.stringify({
+                    status: -2
+                }));
+            }
+            let url = '/users/static/pictures/large_default.png';
+            try {
+                await fs.access(path.join(__dirname, '..', 'users', 'static', 'pictures', 'small_' + req.session.auth._id + '.jpg'), fs.constants.F_OK);
+                userData[item.authorId].url = '/users/static/pictures/small_' + req.session.auth._id + '.jpg';
+            } catch (e) {
+                // Ignore
+            }
+            return res.send(JSON.stringify({
+                status: 1,
+                parendId: insResult.insertedId,
+                url: url,
+                comment: comment,
+                timestamp: timestamp,
+                username: req.session.auth.realname || req.session.auth.username
+            }));
+        } catch (e) {
+            log.error(e);
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
     let router = Router();
     router.get('/list', list);
     router.get('/load', load);
     router.post('/save', save);
     router.post('/delete', del);
+    router.post('/comment/add', commentAdd);
 
     return {
         routes: router
