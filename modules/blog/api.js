@@ -173,6 +173,7 @@ module.exports = function(app) {
                 }
             } else {
                 data.timestamp = parseInt(Date.now() / 1000);
+                data.authorId = String(req.session.auth._id);
             }
             const incr = await db.collection('blog_counters').findAndModify({ _id: 'posts' }, [], { $inc: { seq: 1 } }, { new: true, upsert: true });
             if (!incr || !incr.value || !incr.value.seq) {

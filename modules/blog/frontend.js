@@ -1,9 +1,10 @@
 const path = require('path');
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
 const Router = require('co-router');
-const fs = require('fs');
+const fs = require('fs-extra');
 const moment = require('moment');
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+const ObjectID = require('mongodb').ObjectID;
 
 try {
     configModule = require(path.join(__dirname, 'config', 'blog.json'));
@@ -47,6 +48,12 @@ module.exports = function(app) {
         }
         const skip = (page - 1) * configModule.itemsPerPage;
         const uprefix = i18n.getLanguageURLPrefix(req);
+        let pictureURL = '/users/static/pictures/small_' + req.session.auth._id + '.jpg';
+        try {
+            await fs.access(path.join(__dirname, 'static', 'pictures', 'large_' + req.session.auth._id + '.jpg'), fs.constants.F_OK);
+        } catch (e) {
+            pictureURL = '/users/static/pictures/large_default.png';
+        }
         try {
             let what = {
                 status: '1'
@@ -54,13 +61,38 @@ module.exports = function(app) {
             if (tag) {
                 what[locale + '.keywords'] = { $in: [tag] };
             }
-            let ffields = { _id: 1, title: 1, timestamp: 1, status: 1 };
+            let ffields = { _id: 1, title: 1, timestamp: 1, status: 1, authorId: 1 };
             ffields[locale + '.title'] = 1;
             ffields[locale + '.content_p1'] = 1;
             ffields[locale + '.cut'] = 1;
             ffields[locale + '.keywords'] = 1;
             const blogItemsCount = await db.collection('blog').find(what, { projection: ffields }).count();
             const blogItems = await db.collection('blog').find(what, { skip: skip, projection: ffields, limit: configModule.itemsPerPage, sort: { timestamp: -1 } }).toArray();
+            // Get user names and avatars
+            let usersData = {};
+            let usersQuery = [];
+            for (let i in blogItems) {
+                if (!usersData[blogItems[i].authorId]) {
+                    usersQuery.push({ _id: new ObjectID(blogItems[i].authorId) });
+                }
+                usersData[blogItems[i].authorId] = {
+                    url: '/users/static/pictures/large_default.png'
+                };
+                try {
+                    await fs.access(path.join(__dirname, '..', 'users', 'static', 'pictures', 'small_' + blogItems[i].authorId + '.jpg'), fs.constants.F_OK);
+                    usersData[blogItems[i].authorId].url = '/users/static/pictures/small_' + blogItems[i].authorId + '.jpg';
+                } catch (e) {
+                    // Ignore
+                }
+            }
+            if (usersQuery.length) {
+                const users = await db.collection('users').find({ $or: usersQuery }).toArray();
+                if (users && users.length) {
+                    for (let i in users) {
+                        usersData[String(users[i]._id)].username = users[i].realname || users[i].username;
+                    }
+                }
+            }
             // Pagination
             let paginationData = [];
             const numPages = Math.ceil(blogItemsCount / configModule.itemsPerPage);
@@ -149,6 +181,7 @@ module.exports = function(app) {
                 auth: req.session.auth,
                 paginationData: paginationData,
                 tag: tag,
+                usersData: usersData,
                 uprefix: uprefix
             });
             let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Blog'), {
@@ -179,6 +212,23 @@ module.exports = function(app) {
             if (!item) {
                 return next();
             }
+            // Get user names and avatars
+            let userData = {};
+            let usersQuery = [];
+            // usersQuery.push({ _id: new ObjectID(blogItems[i].authorId) });
+            userData[item.authorId] = {
+                url: '/users/static/pictures/large_default.png'
+            };
+            try {
+                await fs.access(path.join(__dirname, '..', 'users', 'static', 'pictures', 'small_' + item.authorId + '.jpg'), fs.constants.F_OK);
+                userData[item.authorId].url = '/users/static/pictures/small_' + item.authorId + '.jpg';
+            } catch (e) {
+                // Ignore
+            }
+            const user = await db.collection('users').findOne({ _id: new ObjectID(item.authorId) });
+            if (user) {
+                userData[String(user._id)].username = user.realname || user.username;
+            }
             // Render
             item.timestamp = parseInt(Date.now() / 1000, 10) - item.timestamp > 604800 ? moment(item.timestamp * 1000).locale(locale).format('LLLL') : moment(item.timestamp * 1000).locale(locale).fromNow();
             let blogHTML = await renderBlog.file(templateBlogItem, {
@@ -189,7 +239,8 @@ module.exports = function(app) {
                 config: config,
                 item: item,
                 auth: req.session.auth,
-                uprefix: uprefix
+                uprefix: uprefix,
+                userData: userData
             });
             let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Blog'), {
                 content: blogHTML,

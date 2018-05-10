@@ -1,20 +1,20 @@
 {% for item in items %}
-<article class="za-article za-margin">
-    <h1 class="za-article-title"><a class="za-link-reset" href="{{ uprefix }}/blog/post/{{ item._id }}">{{ item[locale].title }}</a></h1>
-    <p class="za-article-meta">{{ i18n.__(locale, 'Published')}}:&nbsp;{{ item.timestamp }}</p>
-    {{ item[locale].content_p1 }}
-    {% if item[locale].cut %}
-    <p>
-        <a class="za-button za-button-default" href="{{ uprefix }}/blog/post/{{ item._id }}">{{ i18n.__(locale, 'Read more')}}</a>
-    </p>
-    {% endif %}
+<article class="za-article za-margin{% if loop.first == false %} zoia-blog-article{% endif %}">
+    <div class="za-article-meta"><img src="{{ usersData[item.authorId].url }}" class="za-border-circle" style="width:24px;height:24px;margin-top:-3px">&nbsp;{{ usersData[item.authorId].username }}&nbsp;{{ item.timestamp }}</div>
+    <div class="za-article-title"><a class="za-link-reset" href="{{ uprefix }}/blog/post/{{ item._id }}">{{ item[locale].title }}</a></div>
     {% if item[locale].keywords.length %}
-    <p>
-    	{% for tag in item[locale].keywords %}
-    	<a class="za-link-reset za-label zoia-blog-label" href="?tag={{ tag }}">{{ tag }}</a>
-    	{% endfor %}
-    </p>
+    <div class="za-text-small">
+        {% for tag in item[locale].keywords %}
+        <a class="zoia-blog-tag" href="?tag={{ tag }}">{{ tag }}</a>{% if loop.last != true %},{% endif %} {% endfor %}
+    </div>
     {% endif %}
+    <div class="za-margin-top">
+        {{ item[locale].content_p1 }} {% if item[locale].cut %}
+        <p>
+            <a class="za-button za-button-default za-margin-top" href="{{ uprefix }}/blog/post/{{ item._id }}">{{ i18n.__(locale, 'Read more')}}</a>
+        </p>
+        {% endif %}
+    </div>
 </article>
 {% endfor %} {% if paginationData.length %}
 <ul class="za-pagination" za-margin>

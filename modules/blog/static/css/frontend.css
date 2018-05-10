@@ -2,3 +2,19 @@
 	background: #dadada;
 	color: #444;
 }
+
+.za-article-title {
+	color: #444;
+}
+
+.zoia-blog-article {
+	padding-top: 20px;
+}
+
+.zoia-blog-tag {
+	text-decoration: none;
+}
+
+.za-article-meta {
+	color: #777;
+}
