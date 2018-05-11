@@ -248,15 +248,22 @@ module.exports = function(app) {
             }));
         }
         let comment = req.body.comment;
-        if (!comment || typeof comment !== 'string' || comment.length > 512) {
+        let parentId = req.body.parentId || null;
+        let postId = req.body.postId;
+        if (!comment || typeof comment !== 'string' || comment.length > 512 ||
+            !postId || typeof postId !== 'string' || !postId.match(/^[0-9]{1,10}$/) ||
+            parentId && (typeof parentId !== 'string' || !parentId.match(/^[a-f0-9]{24}$/))) {
             return res.send(JSON.stringify({
                 status: -1
             }));
         }
         try {
+            // TODO: check if parent comment exists!
             const timestamp = parseInt(Date.now() / 1000, 10);
             const insResult = await db.collection('blog_comments').insertOne({
                 userId: String(req.session.auth._id),
+                postId: parseInt(postId, 10),
+                parentId: parentId,
                 comment: comment,
                 timestamp: timestamp
             });
@@ -288,12 +295,45 @@ module.exports = function(app) {
         }
     };
 
+    const loadComments = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorized(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let postId = req.body.postId || req.query.postId;
+        if (!postId || typeof postId !== 'string' || !postId.match(/^[0-9]{1,10}$/)) {
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+        try {
+            const comments = await db.collection('blog_comments').find({ postId: parseInt(postId, 10) }).toArray();
+            if (!comments) {
+                return res.send(JSON.stringify({
+                    status: -1
+                }));
+            }
+            return res.send(JSON.stringify({
+                status: 1,
+                comments: comments
+            }));
+        } catch (e) {
+            log.error(e);
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
     let router = Router();
     router.get('/list', list);
     router.get('/load', load);
     router.post('/save', save);
     router.post('/delete', del);
-    router.post('/comment/add', commentAdd);
+    router.post('/comments/add', commentAdd);
+    router.post('/comments/load', loadComments);
 
     return {
         routes: router
