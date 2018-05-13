@@ -225,10 +225,7 @@ module.exports = function(app) {
             } catch (e) {
                 // Ignore
             }
-            const user = await db.collection('users').findOne({ _id: new ObjectID(item.authorId) });
-            if (user) {
-                userData[String(user._id)].username = user.realname || user.username;
-            }
+            userData[String(req.session.auth._id)].username = req.session.auth.realname || req.session.auth.username;
             // Render
             item.timestamp = parseInt(Date.now() / 1000, 10) - item.timestamp > 604800 ? moment(item.timestamp * 1000).locale(locale).format('LLLL') : moment(item.timestamp * 1000).locale(locale).fromNow();
             let blogHTML = await renderBlog.file(templateBlogItem, {
@@ -240,12 +237,13 @@ module.exports = function(app) {
                 item: item,
                 auth: req.session.auth,
                 uprefix: uprefix,
-                userData: userData
+                userData: userData,
+                userDataJSON: JSON.stringify(userData[item.authorId])
             });
             let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Blog'), {
                 content: blogHTML,
                 extraCSS: config.production ? ['/blog/static/css/frontend.min.css'] : ['/blog/static/css/frontend.css'],
-                extraJS: []
+                extraJS: config.production ? ['/blog/static/js/frontend_item.min.js'] : ['/blog/static/js/frontend_item.js']
             });
             res.send(html);
         } catch (e) {
