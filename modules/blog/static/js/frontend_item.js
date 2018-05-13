@@ -6,6 +6,34 @@
     let userData;
     let uprefix;
     let postId;
+    let commentTemplate;
+
+    const tpl = (s, d) => {
+        for (let p in d) {
+            s = s.replace(new RegExp('{' + p + '}', 'g'), d[p]);
+        }
+        return s;
+    };
+
+    const addCommentHTML = (comment) => {
+        let level = 1;
+        if (comment.parentId) {
+            const parentLevel = parseInt($(`.za-comment[data-id="${comment.parentId}"]`).attr('data-level'));
+            level = parentLevel + 1;
+        }
+        const offset = (level - 1) * 20;
+        const commentHTML = tpl(commentTemplate, {
+            id: comment.id,
+            level: level,
+            offset: offset,
+            comment: comment.comment
+        })
+        if (comment.parentId) {
+            $(`.za-comment[data-id="${comment.parentId}"]`).parent().append(commentHTML);
+        } else {
+            $('#zoia_comments').append(commentHTML);
+        }
+    };
 
     const addComment = (e, parentId) => {
         if ($('#zoia_btn_addcomment_spinner').is(':visible')) {
@@ -17,9 +45,6 @@
             $('#zoia_comment').addClass('za-form-danger');
         }
         $('#zoia_btn_addcomment_spinner').show();
-        console.log(comment);
-        console.log(postId);
-        console.log(parentId);
         $.ajax({
             type: 'POST',
             url: '/api/blog/comments/add',
@@ -29,7 +54,15 @@
                 postId: postId
             },
             cache: false
-        }).done((res) => {}).fail(() => {});
+        }).done((res) => {
+            if (res && res.status === 1) {
+                $('#zoia_btn_addcomment_spinner').show();
+                addCommentHTML({
+                    comment: res.comment,
+                    id: res.id
+                });
+            }
+        }).fail(() => {});
     };
 
     const loadComments = () => {
@@ -45,19 +78,7 @@
                 // Render comments
                 for (let i in res.comments) {
                     const comment = res.comments[i];
-                    let level = 1;
-                    if (comment.parentId) {
-                        const parentLevel = parseInt($(`.za-comment[data-id="${comment.parentId}"]`).attr('data-level'));
-                        console.log('ParentLevel: ' + parentLevel);
-                        level = parentLevel + 1;
-                    }
-                    const offset = (level - 1) * 20;
-                    const commentHTML = `<div><article class="za-comment za-margin-bottom" data-id="${comment._id}" data-level="${level}" style="margin-left:${offset}px"><div class='za-comment-meta'><img class="za-comment-avatar" src="/users/static/pictures/large_default.png" style="width:24px;height:24px;margin-top:-4px" alt="">&nbsp;Author</div><div>${comment.comment}</div></article></div>`;
-                    if (comment.parentId) {
-                        $(`.za-comment[data-id="${comment.parentId}"]`).parent().append(commentHTML);
-                    } else {
-                        $('#zoia_comments').append(commentHTML);
-                    }
+                    addCommentHTML(comment);
                 }
                 // Finally
                 $('#zoia_comments_loading').hide();
@@ -70,6 +91,7 @@
         locale = $('#zp_locale').attr('data');
         userData = JSON.parse($('#zp_userData').attr('data'));
         uprefix = $('#zp_uprefix').attr('data');
+        commentTemplate = $('#zp_comment').attr('data');
         postId = $('#zp_postId').attr('data');
         $.getScript(`/api/lang/blog/${locale}.js`).done(() => {
             $('#zoia_btn_addcomment').click(addComment);

@@ -281,7 +281,7 @@ module.exports = function(app) {
             }
             return res.send(JSON.stringify({
                 status: 1,
-                parendId: insResult.insertedId,
+                id: insResult.insertedId,
                 url: url,
                 comment: comment,
                 timestamp: timestamp,
