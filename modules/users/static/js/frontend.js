@@ -191,7 +191,7 @@
         $('.zoia-form-error-message').hide();
         const emailNew = $('#zoia_act_email_new').val().trim();
         if (!emailNew.length || emailNew.length > 129 || emailNew.length < 6 ||
-            !emailNew.match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)) {
+            !emailNew.match(/^(?:[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-])+@(?:[a-zA-Z0-9]|[^\u0000-\u007F])(?:(?:[a-zA-Z0-9-]|[^\u0000-\u007F]){0,61}(?:[a-zA-Z0-9]|[^\u0000-\u007F]))?(?:\.(?:[a-zA-Z0-9]|[^\u0000-\u007F])(?:(?:[a-zA-Z0-9-]|[^\u0000-\u007F]){0,61}(?:[a-zA-Z0-9]|[^\u0000-\u007F]))?)*$/)) {
             $('#zoia_act_email_new_error>span').html(lang['Doesn\'t match required format']);
             $('#zoia_act_email_new_error').show();
             return $('#zoia_act_email_new').focus().addClass('za-form-danger');

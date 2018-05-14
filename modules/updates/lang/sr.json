@@ -20,5 +20,7 @@
 	"Could not extract the update archive": "Грешка приликом распакивања архиве унапређења",
 	"could not extract update file": "Грешка при распаковању датотеке за унапређење",
 	"Restarting": "Поновно покретање",
-	"Zoia has been updated sucessfully. The system is restaring now, please wait...": "Процес унапређења Зоиа је био успешан. Систем се поново покреће, молимо вас да сачекате ..."
+	"Zoia has been updated sucessfully. The system is restaring now, please wait...": "Процес унапређења Зоиа је био успешан. Систем се поново покреће, молимо вас да сачекате ...",
+	"There is a newer version of Zoia available": "There is a newer version of Zoia available",
+	"Zoia has been updated successfully. The system is restarting now, please wait...": "Zoia has been updated successfully. The system is restarting now, please wait..."
 }

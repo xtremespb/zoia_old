@@ -15,7 +15,7 @@
                     max: 20
                 },
                 type: 'string',
-                regexp: /^[A-Za-z0-9_\-]+$/,
+                regexp: /^[a-z0-9\u0400-\u04FF\u00C0-\u02AF\u0370-\u07BF\u0900-\u097F\u0980-\u09FF\u0A00-\u0A7F\u0B00-\u0B7F]+$/,
                 process: function(item) {
                     return item.trim().toLowerCase();
                 }
@@ -27,7 +27,7 @@
                     max: 129
                 },
                 type: 'string',
-                regexp: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                regexp: /^(?:[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-])+@(?:[a-zA-Z0-9]|[^\u0000-\u007F])(?:(?:[a-zA-Z0-9-]|[^\u0000-\u007F]){0,61}(?:[a-zA-Z0-9]|[^\u0000-\u007F]))?(?:\.(?:[a-zA-Z0-9]|[^\u0000-\u007F])(?:(?:[a-zA-Z0-9-]|[^\u0000-\u007F]){0,61}(?:[a-zA-Z0-9]|[^\u0000-\u007F]))?)*$/,
                 process: function(item) {
                     return item.trim().toLowerCase();
                 }

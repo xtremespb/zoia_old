@@ -43,10 +43,11 @@
         }
     },
     "i18n": {
-        "locales": ["en", "ru"],
+        "locales": ["en", "ru", "sr"],
         "localeNames": {
             "en": "English",
-            "ru": "Русский"
+            "ru": "Русский",
+            "sr": "Српски"
         },
         "detect": {
             "subdomain": false,
@@ -69,7 +70,12 @@
     },
     "core": {
         "prefix": {
-            "auth": "/auth"
+            "auth": "/auth",
+            "logout": "/logout",
+            "register": "/register",
+            "registerConfirm": "/register/confirm",
+            "reset": "/reset",
+            "resetConfirm": "/reset/confirm"
         }
     }
 }
