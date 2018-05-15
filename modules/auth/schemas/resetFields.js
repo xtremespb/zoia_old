@@ -3,7 +3,7 @@
         global[i] = vars[i];
     }
 })({
-    getRegisterFields: function() {
+    getRestFields: function() {
         return {
             email: {
                 mandatoryCreate: true,

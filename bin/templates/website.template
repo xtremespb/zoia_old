@@ -2,7 +2,8 @@
     "protocol": "http",    
     "url": {
         "en": "127.0.0.1:3000",
-        "ru": "127.0.0.1:3000"
+        "ru": "127.0.0.1:3000",
+        "sr": "127.0.0.1:3000"
     },
     "logo": {
         "normal": {
@@ -32,11 +33,13 @@
     },
     "title": {
         "en": "Example Website powered by Zoia Web Framework",
-        "ru": "Тестовый сайт на основе Zoia Web Framework"
+        "ru": "Тестовый сайт на основе Zoia Web Framework",
+        "sr": "Пример вебсајта заснованог на Зоиа веб окружењу"
     },
     "titleShort": {
         "en": "Example Website",
-        "ru": "Тестовый сайт"
+        "ru": "Тестовый сайт",
+        "sr": "Пробни вебсајт"
     },
     "templates": ["default"],
     "email": {

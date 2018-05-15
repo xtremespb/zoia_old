@@ -138,7 +138,7 @@ module.exports = function(app) {
             }));
         }
         let output = {};
-        const fieldList = usersFields.getUsersFields(id ? false : true);
+        const fieldList = usersFields.getUsersFields(id ? false : true, config.core && config.core.regexp && config.core.regexp.username ? JSON.stringify(config.core.regexp) : '{"username":"^[A-Za-z0-9_\\\\-]+$"}');
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {

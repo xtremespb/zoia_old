@@ -39,7 +39,7 @@ module.exports = function(app) {
 
     const login = async(req, res) => {
         res.contentType('application/json');
-        const fieldList = loginFields.getLoginFields();
+        const fieldList = loginFields.getLoginFields(config.core && config.core.regexp && config.core.regexp.username ? JSON.stringify(config.core.regexp) : '{"username":"^[A-Za-z0-9_\\\\-]+$"}');
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
@@ -107,7 +107,7 @@ module.exports = function(app) {
             locale = req.session.currentLocale;
         }
         const uprefix = i18n.getLanguageURLPrefix(req);
-        const fieldList = registerFields.getRegisterFields();
+        const fieldList = registerFields.getRegisterFields(config.core && config.core.regexp && config.core.regexp.username ? JSON.stringify(config.core.regexp) : '{"username":"^[A-Za-z0-9_\\\\-]+$"}');
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
@@ -174,7 +174,7 @@ module.exports = function(app) {
         let output = {
             status: 1
         };
-        const fieldList = registerConfirmFields.getConfirmFields();
+        const fieldList = registerConfirmFields.getConfirmFields(config.core && config.core.regexp && config.core.regexp.username ? JSON.stringify(config.core.regexp) : '{"username":"^[A-Za-z0-9_\\\\-]+$"}');
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
@@ -221,7 +221,7 @@ module.exports = function(app) {
             locale = req.session.currentLocale;
         }
         const uprefix = i18n.getLanguageURLPrefix(req);
-        const fieldList = resetFields.getRegisterFields();
+        const fieldList = resetFields.getResetFields();
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
@@ -280,7 +280,7 @@ module.exports = function(app) {
         let output = {
             status: 1
         };
-        const fieldList = resetConfirmFields.getResetConfirmFields();
+        const fieldList = resetConfirmFields.getResetConfirmFields(config.core && config.core.regexp && config.core.regexp.username ? JSON.stringify(config.core.regexp) : '{"username":"^[A-Za-z0-9_\\\\-]+$"}');
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {

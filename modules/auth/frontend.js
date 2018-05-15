@@ -59,6 +59,7 @@ module.exports = function(app) {
             lang: JSON.stringify(i18n.get().locales[locale]),
             config: config,
             prefix: config.core.prefix.auth,
+            rxp: config.core && config.core.regexp && config.core.regexp.username ? JSON.stringify(config.core.regexp) : '{"username":"^[A-Za-z0-9_\\\\-]+$"}',
             redirect: url
         });
         res.send(html);
@@ -94,6 +95,7 @@ module.exports = function(app) {
             lang: JSON.stringify(i18n.get().locales[locale]),
             prefix: config.core.prefix.auth,
             uprefix: uprefix,
+            rxp: config.core && config.core.regexp && config.core.regexp.username ? JSON.stringify(config.core.regexp) : '{"username":"^[A-Za-z0-9_\\\\-]+$"}',
             config: config
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Register'), {
@@ -128,6 +130,7 @@ module.exports = function(app) {
             config: config,
             prefix: config.core.prefix.auth,
             uprefix: uprefix,
+            rxp: config.core && config.core.regexp && config.core.regexp.username ? JSON.stringify(config.core.regexp) : '{"username":"^[A-Za-z0-9_\\\\-]+$"}',
             fields: fields
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Confirm registration'), {
@@ -155,6 +158,7 @@ module.exports = function(app) {
             lang: JSON.stringify(i18n.get().locales[locale]),
             prefix: config.core.prefix.auth,
             uprefix: uprefix,
+            rxp: config.core && config.core.regexp && config.core.regexp.username ? JSON.stringify(config.core.regexp) : '{"username":"^[A-Za-z0-9_\\\\-]+$"}',
             config: config
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Reset password'), {
@@ -190,6 +194,7 @@ module.exports = function(app) {
             username: fields.username.value,
             prefix: config.core.prefix.auth,
             uprefix: uprefix,
+            rxp: config.core && config.core.regexp && config.core.regexp.username ? JSON.stringify(config.core.regexp) : '{"username":"^[A-Za-z0-9_\\\\-]+$"}',
             code: fields.code.value
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Set new password'), {

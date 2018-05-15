@@ -3,7 +3,7 @@
         global[i] = vars[i];
     }
 })({
-    getRegisterFields: function() {
+    getRegisterFields: function(rxp) {
         return {
             username: {
                 mandatoryCreate: true,
@@ -12,7 +12,7 @@
                     max: 20
                 },
                 type: 'string',
-                regexp: /^[a-z0-9\u0400-\u04FF\u00C0-\u02AF\u0370-\u07BF\u0900-\u097F\u0980-\u09FF\u0A00-\u0A7F\u0B00-\u0B7F]+$/,
+                regexp: rxp.username,
                 process: function(item) {
                     return item.trim().toLowerCase();
                 }

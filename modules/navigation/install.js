@@ -64,6 +64,24 @@ module.exports = function(data) {
         if (!upd || !upd.result || !upd.result.ok) {
             throw new Error('Could not run db.collection(\'navigation\').update');
         }
+        upd = await db.collection('navigation').update({ name: 'navigation_html_d_sr' }, {
+            $set: {
+                name: 'navigation_html_d_sr',
+                data: '<li><a href=\'/\'>Почетна</a></li><li><a href=\'#\'>Документација&nbsp;<span za-icon=\'icon:chevron-down\'></span></a><div class=\'za-navbar-dropdown\'><ul class=\'za-nav za-navbar-dropdown-nav\'><li><a href=\'/manual/installation\'>Уградња</a></li><li><a href=\'/manual/configuration\'>Подешавање</a></li></ul></div></li><li><a href=\'/development\'>Развој</a></li>'
+            }
+        }, { upsert: true });
+        if (!upd || !upd.result || !upd.result.ok) {
+            throw new Error('Could not run db.collection(\'navigation\').update');
+        }
+        upd = await db.collection('navigation').update({ name: 'navigation_html_m_sr' }, {
+            $set: {
+                name: 'navigation_html_m_sr',
+                data: '<li><a href=\'/\'>Почетна</a></li><li class=\'za-parent\'><a href=\'#\'>Документација</a><ul class=\'za-nav-sub\'><li><a href=\'/manual/installation\'>Уградња</a></li><li><a href=\'/manual/configuration\'>Подешавање</a></li></ul></li><li><a href=\'/development\'>Развој</a></li>'
+            }
+        }, { upsert: true });
+        if (!upd || !upd.result || !upd.result.ok) {
+            throw new Error('Could not run db.collection(\'navigation\').update');
+        }
         console.log('      Module is installed!');
     };
 };

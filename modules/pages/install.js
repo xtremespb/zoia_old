@@ -58,18 +58,25 @@ module.exports = function(data) {
                     folder: '1',
                     name: '',
                     url: '',
+                    status: '1',
+                    template: 'default',
                     en: {
                         title: 'Home page',
                         keywords: 'zoia, framework, node, mongo, cms',
                         description: 'Zoia is the Web Framework for rapid development',
                         content: '<h1>Welcome</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Installation has been successfully completed, the website is up and running.</p>'
                     },
-                    status: '1',
                     ru: {
                         title: 'Главная страница',
                         keywords: 'zoia, framework, node, mongo, cms',
                         description: 'Zoia - веб-фреймворк для быстрой разработки',
                         content: '<h1>Добро пожаловать</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Инсталляция выполнена успешно, тестовый веб-сайт запущен.</p>'
+                    },
+                    sr: {
+                        title: 'Почетна страница',
+                        keywords: 'ЗОИА, радно окружење, ноде, монго, цмс',
+                        description: 'ЗОИА - веб окружење за развој',
+                        content: '<h1>Добро дошли</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Уградња је успешно завршена, пробни веб сајт је стартован.</p>'
                     }
                 }
             }, { upsert: true });
@@ -82,18 +89,25 @@ module.exports = function(data) {
                     folder: '1502985623',
                     name: 'installation',
                     url: 'manual/installation',
+                    status: '1',
+                    template: 'default',
                     en: {
                         title: 'Installation',
                         keywords: '',
                         description: '',
                         content: '<h1>Installation</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>To install Zoia on your server or desktop, you will need the following&nbsp;prerequisites:</p>\n\n<ul>\n\t<li>Node.js version 7 and later</li>\n\t<li>MongoDB 3 and later</li>\n</ul>\n\n<p>Please follow the <a href="https://github.com/xtremespb/zoia/wiki/Installation" target="_blank">installation manual</a> for any further information.</p>\n\n<p>Default address for Zoia webserver is <a href=\'http://127.0.0.1:3000/\'>http://127.0.0.1:3000/</a>. You may also login to Administrator panel by opening the URL: <a href=\'http://127.0.0.1:3000/admin/\'>http://127.0.0.1:3000/admin/</a> (default username and password is admin/admin).</p>'
-                    },
-                    status: '1',
+                    },                    
                     ru: {
                         title: 'Установка',
                         keywords: '',
                         description: '',
                         content: '<h1>Установка</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Перевод для данной страницы в настоящий момент отсутствует.</p>'
+                    },
+                    sr: {
+                        title: 'Уградња',
+                        keywords: '',
+                        description: '',
+                        content: '<h1>Уградња</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Превод за ову страницу тренутно није доступан.</p>'
                     }
                 }
             }, { upsert: true });
@@ -106,18 +120,25 @@ module.exports = function(data) {
                     folder: '1502985623',
                     name: 'configuration',
                     url: 'manual/configuration',
+                    status: '1',
+                    template: 'default',
                     en: {
                         title: 'Configuration',
                         keywords: '',
                         description: '',
                         content: '<h1>Configuration</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Configuration files are located in <strong>./etc</strong> folder. There are the following configuration files:</p>\n\n<ul>\n\t<li>config.json: main configuration file (database, host, port etc.)</li>\n\t<li>website.json: website configuration file (website title, templates, e-mail etc.)</li>\n</ul>\n\n<p>You will need to edit config.json in order to match your server/desktop configuration.</p>'
-                    },
-                    status: '1',
+                    },                    
                     ru: {
                         title: 'Конфигурация',
                         keywords: '',
                         description: '',
                         content: '<h1>Конфигурация</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Перевод для данной страницы в настоящий момент отсутствует.</p>'
+                    },
+                    sr: {
+                        title: 'Подешавање',
+                        keywords: '',
+                        description: '',
+                        content: '<h1>Подешавање</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Превод за ову страницу тренутно није доступан.</p>'
                     }
                 }
             }, { upsert: true });
@@ -130,18 +151,25 @@ module.exports = function(data) {
                     folder: '1',
                     name: 'development',
                     url: 'development',
+                    status: '1',
+                    template: 'default',
                     en: {
                         title: 'Development',
                         keywords: '',
                         description: '',
                         content: '<h1>Development</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>You are welcome to create issues and pull requests on <a href=\'https://github.com/xtremespb/zoia\'>Github</a> page.</p>'
                     },
-                    status: '1',
                     ru: {
                         title: 'Разработка',
                         keywords: '',
                         description: '',
                         content: '<h1>Разработка</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Вы можете создавать тикеты и pull request&#39;ы на странице в&nbsp;<a href=\'https://github.com/xtremespb/zoia\'>Github</a>.</p>'
+                    },
+                    sr: {
+                        title: 'Развој',
+                        keywords: '',
+                        description: '',
+                        content: '<h1>Развој</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Можете поставити питање или направити захтев &#39;на страници&nbsp;<a href=\'https://github.com/xtremespb/zoia\'>Гитхаб</a>.</p>'
                     }
                 }
             }, { upsert: true });
@@ -153,19 +181,26 @@ module.exports = function(data) {
                     _id: ObjectId('5995685cffa00062b54cb2c0'),
                     folder: '1502985623',
                     name: '',
+                    status: '1',
+                    template: 'default',
+                    url: 'manual',
                     en: {
                         title: 'Manual',
                         keywords: '',
                         description: '',
                         content: '<h1>Manual</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>The following documentation is currently available:</p>\n\n<ul>\n\t<li><a href=\'/manual/installation\'>Installation</a></li>\n\t<li><a href=\'/manual/configuration\'>Configuration</a></li>\n</ul>'
                     },
-                    url: 'manual',
-                    status: '1',
                     ru: {
                         title: 'Руководство',
                         keywords: '',
                         description: '',
                         content: '<h1>Руководство</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Доступна следующая документация:</p>\n\n<ul>\n\t<li><a href=\'/manual/installation\'>Установка</a></li>\n\t<li><a href=\'/manual/configuration\'>Конфигурация</a></li>\n</ul>'
+                    },
+                    sr: {
+                        title: 'Упутство',
+                        keywords: '',
+                        description: '',
+                        content: '<h1>Упутство</h1>\n\n<p>[[data|locale|breadcrumbs]]</p>\n\n<p>Доступна су следећа упутства:</p>\n\n<ul>\n\t<li><a href=\'/manual/installation\'>Уградња</a></li>\n\t<li><a href=\'/manual/configuration\'>Подешавање</a></li>\n</ul>'
                     }
                 }
             }, { upsert: true });
