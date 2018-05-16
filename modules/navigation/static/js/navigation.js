@@ -139,6 +139,7 @@
         locale = $('#zp_locale').attr('data');
         langs = JSON.parse($('#zp_langs').attr('data'));
         navigationData = eval('(' + $('#zp_navigationData').attr('data') + ')');
+		rxp = JSON.parse($('#zp_rxp').attr('data'));
         $.getScript(`/api/lang/navigation/${locale}.js`).done(() => {
             navigationDialog = $zUI.modal('#zoiaNavigationDialog', {
                 bgClose: false,
@@ -232,7 +233,7 @@
                                 min: 1,
                                 max: 64
                             },
-                            regexp: /^[A-Za-z0-9_\-\/]+$/,
+                            regexp: rxp.pageURL,
                             process: (item) => {
                                 return item.trim();
                             }

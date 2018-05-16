@@ -31,6 +31,8 @@ module.exports = function(app) {
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 langs: JSON.stringify(config.i18n.localeNames),
                 uprefix: uprefix,
+                rxp: config.core && config.core.regexp && config.core.regexp.pageID ? JSON.stringify(config.core.regexp) : '{"pageID":"^[A-Za-z0-9_\\\\-]+$", "pageURL":"^[A-Za-z0-9_\-\/]+$"}',
+                corePrefix: JSON.stringify(config.core.prefix),
                 folders: folders ? folders.data : JSON.stringify(defaultFolders)
             });
             res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, config.production ? ['/navigation/static/css/navigation.min.css'] : ['/zoia/3rdparty/jstree/themes/default/style.min.css', '/navigation/static/css/navigation.css'],
