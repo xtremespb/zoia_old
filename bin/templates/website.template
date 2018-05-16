@@ -46,6 +46,5 @@
         "noreply": "Zoia Web Framework <info@zoiajs.org>",
         "feedback": "info@zoiajs.org"
     },
-    "authPrefix": "/auth",
     "maintenance": false
 }

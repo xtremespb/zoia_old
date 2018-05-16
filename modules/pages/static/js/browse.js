@@ -280,7 +280,7 @@
     const formSubmitHandler = () => {
         let name = $('#zoiaFileDialogInput').val();
         if (!name || typeof name !== 'string' || name.length > 40 || !name.match(/^[a-zA-Z0-9_\-\.;\s]+$/)) {
-            $zUI.notification(lang['Invalid name, please use latin characters and numbers only'], {
+            $zUI.notification(lang['Invalid name, please use characters and numbers only'], {
                 status: 'danger',
                 timeout: 1500
             });

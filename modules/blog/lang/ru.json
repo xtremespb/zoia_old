@@ -1,3 +1,17 @@
 {
-	"title": "Блог"
+	"title": "Блог",
+	"Add": "Add",
+	"Delete": "Delete",
+	"Select all": "Select all",
+	"Select none": "Select none",
+	"Search": "Search",
+	"ID": "ID",
+	"Date": "Date",
+	"Title": "Title",
+	"Status": "Status",
+	"Actions": "Actions",
+	"Loading data, please wait": "Loading data, please wait",
+	"Enable language": "Enable language",
+	"The following page(s) will be removed from the database": "The following page(s) will be removed from the database",
+	"Cancel": "Cancel"
 }

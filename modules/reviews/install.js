@@ -17,11 +17,6 @@ module.exports = function(data) {
         console.log('      Creating indexes...');
         await db.collection('reviews').createIndex({ name: 1, status: 1 });
         await db.collection('reviews').createIndex({ name: -1, status: -1 });
-        console.log('      Creating/resetting admin review...');
-        let upd = await db.collection('reviews').update({ name: 'admin' }, { $set: { status: 1 } }, { upsert: true });
-        if (!upd || !upd.result || !upd.result.ok) {
-            throw new Error('Could not run db.collection(\'reviews\').update');
-        }
         console.log('      Module is installed!');
     };
 };

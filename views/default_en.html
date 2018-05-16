@@ -39,16 +39,17 @@
                         <li>
                             <a href="#">{{ auth.username }}&nbsp;<span za-icon="icon:chevron-down"></a>
                             <div class="za-navbar-dropdown">
-                                <ul class="za-nav za-navbar-dropdown-nav">{% if admin %}
-                                    <li><a href="{{ uprefix }}/admin">{{ i18nc.__(locale, 'Administration panel') }}</a></li>
+                                <ul class="za-nav za-navbar-dropdown-nav">
+                                    <li><a href="{{ uprefix }}{{ config.core.prefix.account }}">{{ i18nc.__(locale, 'Your Account') }}</a></li>{% if admin %}
+                                    <li><a href="{{ uprefix }}{{ config.core.prefix.admin }}">{{ i18nc.__(locale, 'Administration panel') }}</a></li>
                                     <li class="za-nav-divider"></li>{% endif %}
-                                    <li><a href="{{ uprefix }}/auth/logout">{{ i18nc.__(locale, 'Log out') }}</a></li>
+                                    <li><a href="{{ uprefix }}{{ config.core.prefix.auth }}{{ config.core.prefix.authLogout }}">{{ i18nc.__(locale, 'Log out') }}</a></li>
                                 </ul>
                             </div>
                         </li>
                         {% else %}
-                        <li><a href="{{ uprefix }}/auth">{{ i18nc.__(locale, 'Sign In') }}</a></li>
-                        <li><a href="{{ uprefix }}/auth/register">{{ i18nc.__(locale, 'Register') }}</a></li>{% endif %}
+                        <li><a href="{{ uprefix }}{{ config.core.prefix.auth }}">{{ i18nc.__(locale, 'Sign In') }}</a></li>
+                        <li><a href="{{ uprefix }}{{ config.core.prefix.auth }}{{ config.core.prefix.authRegister }}">{{ i18nc.__(locale, 'Register') }}</a></li>{% endif %}
                     </ul>
                     {{ req | switcherDesktopQuery }}
                 </div>
@@ -67,11 +68,12 @@
                 <ul class="za-nav za-nav-default">
                     {{ req | navigationMobile }}
                     <li class="za-nav-divider"></li>{% if auth %}
-                    <li class="za-nav-header">{{ auth.username }}</li>{% if admin %}
-                    <li><a href="{{ uprefix }}/admin">{{ i18nc.__(locale, 'Administration panel') }}</a></li>{% endif %}
-                    <li><a href="{{ uprefix }}/auth/logout">{{ i18nc.__(locale, 'Log out') }}</a></li>{% else %}
-                    <li><a href="{{ uprefix }}/auth">{{ i18nc.__(locale, 'Sign In') }}</a></li>
-                    <li><a href="{{ uprefix }}/auth/register">{{ i18nc.__(locale, 'Register') }}</a></li>{% endif %}
+                    <li class="za-nav-header">{{ auth.username }}</li>
+                    <li><a href="{{ uprefix }}{{ config.core.prefix.account }}">{{ i18nc.__(locale, 'Your Account') }}</a></li>{% if admin %}
+                    <li><a href="{{ uprefix }}{{ config.core.prefix.admin }}">{{ i18nc.__(locale, 'Administration panel') }}</a></li>{% endif %}
+                    <li><a href="{{ uprefix }}{{ config.core.prefix.auth }}{{ config.core.prefix.authLogout }}">{{ i18nc.__(locale, 'Log out') }}</a></li>{% else %}
+                    <li><a href="{{ uprefix }}{{ config.core.prefix.auth }}">{{ i18nc.__(locale, 'Sign In') }}</a></li>
+                    <li><a href="{{ uprefix }}{{ config.core.prefix.auth }}{{ config.core.prefix.authRegister }}">{{ i18nc.__(locale, 'Register') }}</a></li>{% endif %}
                 </ul>
                 {{ req | switcherMobileQuery }}
             </div>

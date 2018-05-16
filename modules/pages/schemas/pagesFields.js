@@ -3,7 +3,7 @@
         global[i] = vars[i];
     }
 })({
-    getPagesFields: function() {
+    getPagesFields: function(rxp) {
         return {
             title: {
                 mandatoryCreate: true,
@@ -23,7 +23,7 @@
                     max: 64
                 },
                 type: 'string',
-                regexp: /^[A-Za-z0-9_\-]+$/,
+                regexp: rxp.pageID,
                 process: function(item) {
                     return item.trim();
                 }
@@ -47,7 +47,7 @@
                     max: 64
                 },
                 type: 'string',
-                regexp: /^[A-Za-z0-9_\-\/]+/,
+                regexp: rxp.pageURL,
                 process: function(item) {
                     return item.trim();
                 }

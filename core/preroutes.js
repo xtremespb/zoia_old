@@ -22,10 +22,10 @@ module.exports = function(app) {
             try {
                 if (db && req.session && req.session.auth && req.session.auth._id) {
                     let user = await db.collection('users').findOne({ _id: new ObjectID(req.session.auth._id) });
-                    if (user !== null) {
-                        req.session.auth = user;
-                    } else {
+                    if (!user || user.status === '0') {
                         req.session.auth = undefined;
+                    } else {
+                        req.session.auth = user;
                     }
                 }
             } catch (e) {

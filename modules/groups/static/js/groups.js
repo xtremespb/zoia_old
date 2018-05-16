@@ -9,6 +9,7 @@
     let currentDeleteID;
 
     let uprefix;
+    let corePrefix;
 
     const getUrlParam = (sParam) => {
         let sPageURL = decodeURIComponent(window.location.search.substring(1));
@@ -178,6 +179,7 @@
 
     $(document).ready(() => {
         const locale = $('#zp_locale').attr('data');
+        corePrefix = JSON.parse($('#zp_corePrefix').attr('data'));
         uprefix = $('#zp_uprefix').attr('data');
         $.getScript(`/api/lang/groups/${locale}.js`).done(() => {
             editDialog = $zUI.modal('#zoiaEditDialog', {
@@ -237,7 +239,7 @@
                             timeout: 1500
                         });
                         $('#groups').zoiaTable().load();
-                        window.history.pushState({ action: '' }, document.title, uprefix + '/admin/groups');
+                        window.history.pushState({ action: '' }, document.title, uprefix + corePrefix.admin + '/groups');
                     },
                     onSaveError: (res) => {
                         editFormSpinner(false);
@@ -380,7 +382,7 @@
                 },
                 onLoad: () => {
                     $('.zoia-groups-action-edit-btn').click(function() {
-                        window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, uprefix + '/admin/groups?action=edit&id=' + $(this).attr('data'));
+                        window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, uprefix + corePrefix.admin + '/groups?action=edit&id=' + $(this).attr('data'));
                         editItem($(this).attr('data'));
                     });
                     $('.zoia-groups-action-del-btn').click(function() {
@@ -393,10 +395,10 @@
                 }
             });
             $('#editForm_btnCancel').click(() => {
-                window.history.pushState({ action: '' }, document.title, uprefix + '/admin/groups');
+                window.history.pushState({ action: '' }, document.title, uprefix + corePrefix.admin + '/groups');
             });
             $('.zoiaAdd').click(() => {
-                window.history.pushState({ action: 'create' }, document.title, uprefix + '/admin/groups?action=create');
+                window.history.pushState({ action: 'create' }, document.title, uprefix + corePrefix.admin + '/groups?action=create');
                 createItem();
             });
             $(window).bind('popstate',

@@ -8,7 +8,7 @@
 </form>
 <div id="resetConfirmSuccessful" style="display:none">
     <p>{{ i18n.__(locale, 'Password change was successful. You may login to the website using your new password right now.') }}</p>
-    <p><a class="za-button za-button-default" href="/auth">{{ i18n.__(locale, 'Login') }}</a></p>
+    <p><a class="za-button za-button-default" href="{{ config.core.prefix.auth }}">{{ i18n.__(locale, 'Login') }}</a></p>
 </div>
 <div stye="display:none">
     <div id="zp_locale" data="{{ locale }}"></div>

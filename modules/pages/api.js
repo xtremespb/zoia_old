@@ -164,7 +164,7 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        const fieldList = pagesFields.getPagesFields();
+        const fieldList = pagesFields.getPagesFields(config.core && config.core.regexp && config.core.regexp.pageID ? JSON.stringify(config.core.regexp) : '{"pageID":"^[A-Za-z0-9_\\\\-]+$","pageURL":"^[A-Za-z0-9_\\\\-\\/]+$"}');
         let output = {};
         let data = {};
         try {

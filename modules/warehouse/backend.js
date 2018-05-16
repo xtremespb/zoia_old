@@ -1,7 +1,7 @@
 const moduleId = 'warehouse';
-const moduleURL = '/admin/warehouse';
 const path = require('path');
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const moduleURL = config.core.prefix.admin + '/warehouse';
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
 let jsonAddress;
@@ -51,7 +51,7 @@ module.exports = function(app) {
             const uprefix = i18n.getLanguageURLPrefix(req);
             if (!Module.isAuthorizedAdmin(req)) {
                 Module.logout(req);
-                return res.redirect(303, (config.website.authPrefix ? uprefix + config.website.authPrefix : uprefix + '/auth') + '?redirect=' + uprefix + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
+                return res.redirect(303, (config.core.prefix.auth ? uprefix + config.core.prefix.auth : uprefix + '/auth') + '?redirect=' + uprefix + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
             }
             const locale = req.session.currentLocale;
             const folders = await db.collection('warehouse_registry').findOne({ name: 'warehouseFolders' });
@@ -82,6 +82,8 @@ module.exports = function(app) {
                 settingsData: settingsData ? settingsData.data : JSON.stringify({}),
                 addressJSON: JSON.stringify(addressData),
                 delivery: delivery,
+                corePrefix: JSON.stringify(config.core.prefix),
+                uprefix: uprefix,
                 configModule: configModule
             });
             res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, config.production ? ['/warehouse/static/css/warehouse.min.css'] : ['/zoia/3rdparty/jstree/themes/default/style.min.css', '/warehouse/static/css/warehouse.css'],
@@ -98,7 +100,7 @@ module.exports = function(app) {
             const uprefix = i18n.getLanguageURLPrefix(req);
             if (!Module.isAuthorizedAdmin(req)) {
                 Module.logout(req);
-                return res.redirect(303, (config.website.authPrefix ? uprefix + config.website.authPrefix : uprefix + '/auth') + '?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
+                return res.redirect(303, (config.core.prefix.auth ? uprefix + config.core.prefix.auth : uprefix + '/auth') + '?redirect=' + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
             }
             const locale = req.session.currentLocale;
             let html = await render.file('browse.html', {

@@ -1,8 +1,8 @@
 const moduleId = 'blog';
-const moduleURL = '/admin/blog';
-
 const path = require('path');
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const moduleURL = config.core.prefix.admin + '/blog';
+
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
 
@@ -17,7 +17,7 @@ module.exports = function(app) {
             const uprefix = i18n.getLanguageURLPrefix(req);
             if (!Module.isAuthorizedAdmin(req)) {
                 Module.logout(req);
-                return res.redirect(303, (config.website.authPrefix ? uprefix + config.website.authPrefix : uprefix + '/auth') + '?redirect=' + uprefix + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
+                return res.redirect(303, (config.core.prefix.auth ? uprefix + config.core.prefix.auth : uprefix + '/auth') + '?redirect=' + uprefix + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
             }
             const locale = req.session.currentLocale;
             let folders = await db.collection('blog_registry').findOne({ name: 'blogFolders' });
@@ -34,6 +34,7 @@ module.exports = function(app) {
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 langs: JSON.stringify(config.i18n.localeNames),
                 uprefix: uprefix,
+                corePrefix: JSON.stringify(config.core.prefix),
                 folders: folders ? folders.data : JSON.stringify([{ id: '1', text: '/', parent: '#', type: 'root' }])
             });
             res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, config.production ? ['/blog/static/css/blog.min.css'] : [config.codemirror ? '/zoia/3rdparty/codemirror/codemirror.css' : null, '/blog/static/css/blog.css'],

@@ -50,6 +50,7 @@
     let ordersItemCacheData = {};
 
     let locale;
+    let corePrefix;
     let langs;
     let foldersData;
     let addressData;
@@ -138,8 +139,8 @@
     const initCKEditor = () => {
         window.setTimeout(function() {
             const ckeditor = $('#editForm_content').ckeditor({
-                filebrowserImageBrowseUrl: uprefix + uprefix + '/admin/warehouse/browse',
-                filebrowserBrowseUrl: uprefix + uprefix + '/admin/warehouse/browse',
+                filebrowserImageBrowseUrl: uprefix + uprefix + corePrefix.admin + '/warehouse/browse',
+                filebrowserBrowseUrl: uprefix + uprefix + corePrefix.admin + '/warehouse/browse',
                 filebrowserWindowWidth: 800,
                 filebrowserWindowHeight: 500,
                 allowedContent: true
@@ -1713,7 +1714,7 @@
     };
 
     const editFormBtnCancelHandler = () => {
-        window.history.pushState({ action: '' }, document.title, uprefix + '/admin/warehouse');
+        window.history.pushState({ action: '' }, document.title, uprefix + corePrefix.admin + '/warehouse');
         if (!editMode) {
             $.ajax({
                 type: 'POST',
@@ -1777,7 +1778,7 @@
     };
 
     const addHandler = () => {
-        window.history.pushState({ action: 'create' }, document.title, uprefix + '/admin/warehouse?action=create');
+        window.history.pushState({ action: 'create' }, document.title, uprefix + corePrefix.admin + '/warehouse?action=create');
         createItem();
     };
 
@@ -2808,6 +2809,7 @@
 
     $(document).ready(() => {
         locale = $('#zp_locale').attr('data');
+        corePrefix = JSON.parse($('#zp_corePrefix').attr('data'));
         uprefix = $('#zp_uprefix').attr('data');
         langs = JSON.parse($('#zp_langs').attr('data'));
         foldersData = JSON.parse($('#zp_foldersData').attr('data'));
@@ -2918,7 +2920,7 @@
                         $('#warehouse').zoiaTable().load();
                         $('#zoiaEdit').hide();
                         $('#wrapTable').show();
-                        window.history.pushState({ action: '' }, document.title, uprefix + '/admin/warehouse');
+                        window.history.pushState({ action: '' }, document.title, uprefix + corePrefix.admin + '/warehouse');
                     },
                     onSaveError: (res) => {
                         editSpinner(false);
@@ -2947,6 +2949,9 @@
                     },
                     onLoadSuccess: (data) => {
                         for (let n in langs) {
+                            if (!data.item[n]) {
+                                data.item[n] = {};
+                            }
                             if (Object.keys(data.item[n]).length === 0) {
                                 editShadow[n] = {
                                     enabled: false
@@ -4228,7 +4233,7 @@
                 },
                 onLoad: () => {
                     $('.zoia-warehouse-action-edit-btn').click(function() {
-                        window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, uprefix + '/admin/warehouse?action=edit&id=' + $(this).attr('data'));
+                        window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, uprefix + corePrefix.admin + '/warehouse?action=edit&id=' + $(this).attr('data'));
                         editItem($(this).attr('data'));
                     });
                     $('.zoia-warehouse-action-del-btn').click(function() {

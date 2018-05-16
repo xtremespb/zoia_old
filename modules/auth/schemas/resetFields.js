@@ -3,7 +3,7 @@
         global[i] = vars[i];
     }
 })({
-    getRestFields: function() {
+    getResetFields: function() {
         return {
             email: {
                 mandatoryCreate: true,

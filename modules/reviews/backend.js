@@ -1,8 +1,7 @@
 const moduleId = 'reviews';
-const moduleURL = '/admin/reviews';
-
 const path = require('path');
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const moduleURL = config.core.prefix.admin + '/reviews';
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
 
@@ -16,7 +15,7 @@ module.exports = function(app) {
             const uprefix = i18n.getLanguageURLPrefix(req);
             if (!Module.isAuthorizedAdmin(req)) {
                 Module.logout(req);
-                return res.redirect(303, (config.website.authPrefix ? uprefix + config.website.authPrefix : uprefix + '/auth') + '?redirect=' + uprefix + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
+                return res.redirect(303, (config.core.prefix.auth ? uprefix + config.core.prefix.auth : uprefix + '/auth') + '?redirect=' + uprefix + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
             }
             const locale = req.session.currentLocale;
             let html = await render.file('reviews.html', {
@@ -24,6 +23,7 @@ module.exports = function(app) {
                 config: config,
                 locale: locale,
                 lang: JSON.stringify(i18n.get().locales[locale]),
+                corePrefix: JSON.stringify(config.core.prefix),
                 uprefix: uprefix
             });
             res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, config.production ? ['/reviews/static/css/reviews.min.css'] : ['/reviews/static/css/reviews.css'],

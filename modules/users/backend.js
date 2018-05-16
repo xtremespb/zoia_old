@@ -1,8 +1,7 @@
 const moduleId = 'users';
-const moduleURL = '/admin/users';
-
 const path = require('path');
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const moduleURL = config.core.prefix.admin + '/users';
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');
 
@@ -17,7 +16,7 @@ module.exports = function(app) {
             const uprefix = i18n.getLanguageURLPrefix(req);
             if (!Module.isAuthorizedAdmin(req)) {
                 Module.logout(req);
-                return res.redirect(303, (config.website.authPrefix ? uprefix + config.website.authPrefix : uprefix + '/auth') + '?redirect=' + uprefix + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
+                return res.redirect(303, (config.core.prefix.auth ? uprefix + config.core.prefix.auth : uprefix + '/auth') + '?redirect=' + uprefix + moduleURL + '&rnd=' + Math.random().toString().replace('.', ''));
             }
             let groups = [];
             try {
@@ -36,6 +35,7 @@ module.exports = function(app) {
                 groups: JSON.stringify(groups),
                 uprefix: uprefix,
                 rxp: config.core && config.core.regexp && config.core.regexp.username ? JSON.stringify(config.core.regexp) : '{"username":"^[A-Za-z0-9_\\\\-]+$"}',
+                corePrefix: JSON.stringify(config.core.prefix),
                 lang: JSON.stringify(i18n.get().locales[locale])
             });
             res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, config.production ? ['/users/static/css/users.min.css'] : ['/users/static/css/users.css'],

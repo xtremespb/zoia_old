@@ -7,6 +7,8 @@
     let updateProgressDialog;
     let restartProgressDialog;
 
+    let corePrefix;
+
     const btnCheckUpdatesHandler = () => {
         if (flagCheckUpdates) {
             return;
@@ -76,7 +78,7 @@
                     updateRestart();
                     setTimeout(() => {
                         restartProgressDialog.hide();
-                        location.href = '/admin?rnd=' + Date.now();
+                        location.href = corePrefix.admin + '?rnd=' + Date.now();
                     }, 30000);
                 }, 1000);
             } else {
@@ -136,6 +138,7 @@
     $(document).ready(() => {
         const locale = $('#zp_locale').attr('data');
         const uprefix = $('#zp_uprefix').attr('data');
+        corePrefix = JSON.parse($('#zp_corePrefix').attr('data'));
         $.getScript(`/api/lang/updates/${locale}.js`).done(() => {
             $('#btnCheckUpdates').click(btnCheckUpdatesHandler);
             $('#btnUpdateStart').click(btnUpdateStartHandler);

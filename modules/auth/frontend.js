@@ -117,7 +117,7 @@ module.exports = function(app) {
         }
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
-        const fieldList = registerConfirmFields.getConfirmFields();
+        const fieldList = registerConfirmFields.getConfirmFields(config.core && config.core.regexp && config.core.regexp.username ? JSON.stringify(config.core.regexp) : '{"username":"^[A-Za-z0-9_\\\\-]+$"}');
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
@@ -180,7 +180,7 @@ module.exports = function(app) {
         }
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
-        const fieldList = resetConfirmFields.getResetConfirmFields();
+        const fieldList = resetConfirmFields.getResetConfirmFields(config.core && config.core.regexp && config.core.regexp.username ? JSON.stringify(config.core.regexp) : '{"username":"^[A-Za-z0-9_\\\\-]+$"}');
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
@@ -199,20 +199,20 @@ module.exports = function(app) {
         });
         let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Set new password'), {
             content: resetConfirmHTML,
-            extraCSS: config.production ? ['/auth/static/css/resetConfirm.min.css'] : ['/auth/static/css/resetConfirm.css'],
+            extraCSS: config.production ? ['static/css/resetConfirm.min.css'] : ['/auth/static/css/resetConfirm.css'],
             extraJS: config.production ? ['/auth/static/js/resetConfirm.min.js'] : ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/auth/static/js/resetConfirm.js']
         });
         res.send(html);
     };
 
-    app.use(config.core.prefix.auth + '/static', app.get('express').static(path.join(__dirname, 'static')));
+    app.use('/auth/static', app.get('express').static(path.join(__dirname, 'static')));
     let router = Router();
     router.get('/', login);
-    router.get('/logout', logout);
-    router.get('/register', register);
-    router.get('/register/confirm', registerConfirm);
-    router.get('/reset', reset);
-    router.get('/reset/confirm', resetConfirm);
+    router.get(config.core.prefix.authLogout, logout);
+    router.get(config.core.prefix.authRegister, register);
+    router.get(config.core.prefix.authRegisterConfirm, registerConfirm);
+    router.get(config.core.prefix.authReset, reset);
+    router.get(config.core.prefix.authResetConfirm, resetConfirm);
 
     return {
         routes: router

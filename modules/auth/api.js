@@ -154,7 +154,7 @@ module.exports = function(app) {
                 locale: locale,
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 config: config,
-                url: config.website.protocol + '://' + config.website.url[locale] + uprefix + config.core.prefix.auth + '/register/confirm?username=' + fields.username.value + '&code=' + activationCode
+                url: config.website.protocol + '://' + config.website.url[locale] + uprefix + config.core.prefix.auth + config.core.prefix.authRegisterConfirm + '?username=' + fields.username.value + '&code=' + activationCode
             });
             await mailer.send(req, fields.email.value, i18n.get().__(locale, 'Confirm your registration'), mailHTML);
             return res.send(JSON.stringify(output));
@@ -173,7 +173,7 @@ module.exports = function(app) {
         res.contentType('application/json');
         let output = {
             status: 1
-        };
+        };        
         const fieldList = registerConfirmFields.getConfirmFields(config.core && config.core.regexp && config.core.regexp.username ? JSON.stringify(config.core.regexp) : '{"username":"^[A-Za-z0-9_\\\\-]+$"}');
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
@@ -260,7 +260,7 @@ module.exports = function(app) {
                 locale: locale,
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 config: config,
-                url: config.website.protocol + '://' + config.website.url[locale] + uprefix + config.core.prefix.auth + '/reset/confirm?username=' + user.username + '&code=' + activationCode + '&password=password'
+                url: config.website.protocol + '://' + config.website.url[locale] + uprefix + config.core.prefix.auth + config.core.prefix.authResetConfirm + '?username=' + user.username + '&code=' + activationCode + '&password=password'
             });
             await mailer.send(req, fields.email.value, i18n.get().__(locale, 'Confirm password reset'), mailHTML);
             return res.send(JSON.stringify(output));

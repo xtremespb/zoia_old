@@ -81,10 +81,10 @@ const winston = require('winston');
                     if (moduleLoaded.backend.info) {
                         backendModules.push(moduleLoaded.backend.info);
                     }
-                    app.use('/admin' + moduleLoaded.backend.prefix, moduleLoaded.backend.routes);
+                    app.use(config.core.prefix.admin + moduleLoaded.backend.prefix, moduleLoaded.backend.routes);
                     if (config.i18n.detect.url) {
                         for (let i in config.i18n.locales) {
-                            app.use('/' + config.i18n.locales[i] + '/admin' + moduleLoaded.backend.prefix, moduleLoaded.backend.routes);
+                            app.use('/' + config.i18n.locales[i] + config.core.prefix.admin +  moduleLoaded.backend.prefix, moduleLoaded.backend.routes);
                         }
                     }
                 }

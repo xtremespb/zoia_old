@@ -17,6 +17,7 @@
     let templates;
     let uprefix;
     let codemirror;
+    let corePrefix;
     // let testMode;
 
     const getUrlParam = (sParam) => {
@@ -230,8 +231,8 @@
                 processState();
             } else {
                 const ckeditor = $('#editForm_content').ckeditor({
-                    filebrowserImageBrowseUrl: uprefix + '/admin/pages/browse',
-                    filebrowserBrowseUrl: uprefix + '/admin/pages/browse',
+                    filebrowserImageBrowseUrl: uprefix + corePrefix.admin + '/pages/browse',
+                    filebrowserBrowseUrl: uprefix + corePrefix.admin + '/pages/browse',
                     filebrowserWindowWidth: 800,
                     filebrowserWindowHeight: 500,
                     allowedContent: true
@@ -292,6 +293,7 @@
         uprefix = $('#zp_uprefix').attr('data');
         langs = JSON.parse($('#zp_langs').attr('data'));
         templates = JSON.parse($('#zp_templates').attr('data'));
+        corePrefix = JSON.parse($('#zp_corePrefix').attr('data'));
         // testMode = Boolean($('#zp_testMode').attr('data'));
         $.getScript(`/api/lang/blog/${locale}.js`).done(() => {
             deleteDialog = $zUI.modal('#zoiaDeleteDialog', {
@@ -373,7 +375,7 @@
                         $('#blog').zoiaTable().load();
                         $('#zoiaEdit').hide();
                         $('#wrapTable').show();
-                        window.history.pushState({ action: '' }, document.title, uprefix + '/admin/blog');
+                        window.history.pushState({ action: '' }, document.title, uprefix + corePrefix.admin + '/blog');
                     },
                     onSaveError: (res) => {
                         editSpinner(false);
@@ -611,7 +613,7 @@
                 },
                 onLoad: () => {
                     $('.zoia-blog-action-edit-btn').click(function() {
-                        window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, uprefix + '/admin/blog?action=edit&id=' + $(this).attr('data'));
+                        window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, uprefix + corePrefix.admin + '/blog?action=edit&id=' + $(this).attr('data'));
                         editItem($(this).attr('data'));
                     });
                     $('.zoia-blog-action-del-btn').click(function() {
@@ -640,18 +642,18 @@
                     const wTop = window.screenTop ? window.screenTop : window.screenY;
                     const left = wLeft + (window.innerWidth / 2) - (800 / 2);
                     const top = wTop + (window.innerHeight / 2) - (500 / 2);
-                    window.open(uprefix + '/admin/pages/browse', 'targetWindow',
+                    window.open(uprefix + corePrefix.admin + '/pages/browse', 'targetWindow',
                         `toolbar=no, location = no, status = no, menubar = no, scrollbars = yes, resizable = yes, width = 800, height = 500, top = ${top}, left = ${left}`
                     );
                 });
             }
             keywords = tagsInput(document.querySelector('#editForm_keywords'));
             $('.zoiaAdd').click(() => {
-                window.history.pushState({ action: 'create' }, document.title, uprefix + '/admin/blog?action=create');
+                window.history.pushState({ action: 'create' }, document.title, uprefix + corePrefix.admin + '/blog?action=create');
                 createItem();
             });
             $('#editForm_btnCancel').click(() => {
-                window.history.pushState({ action: '' }, document.title, uprefix + '/admin/blog');
+                window.history.pushState({ action: '' }, document.title, uprefix + corePrefix.admin + '/blog');
                 $('#zoiaEdit').hide();
                 $('#wrapTable').show();
             });

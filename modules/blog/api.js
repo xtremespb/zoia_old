@@ -101,6 +101,12 @@ module.exports = function(app) {
             }
             for (let i in config.i18n.locales) {
                 let lng = config.i18n.locales[i];
+                if (!item[lng]) {
+                    item[lng] = {
+                        content_p1: '',
+                        content_p2: ''
+                    };
+                }
                 item[lng].content = item[lng].content_p1 + (item[lng].content_p2.length ? '{{cut}}' + item[lng].content_p2 : '');
                 delete item[lng].content_p1;
                 delete item[lng].content_p2;

@@ -24,6 +24,8 @@
     let templates;
     let foldersData;
     let uprefix;
+    let rxp;
+    let corePrefix;
     // let testMode;
 
     const getUrlParam = (sParam) => {
@@ -461,8 +463,8 @@
                 processState();
             } else {
                 const ckeditor = $('#editForm_content').ckeditor({
-                    filebrowserImageBrowseUrl: uprefix + '/admin/pages/browse',
-                    filebrowserBrowseUrl: uprefix + '/admin/pages/browse',
+                    filebrowserImageBrowseUrl: uprefix + corePrefix.admin + '/pages/browse',
+                    filebrowserBrowseUrl: uprefix + corePrefix.admin + '/pages/browse',
                     filebrowserWindowWidth: 800,
                     filebrowserWindowHeight: 500,
                     allowedContent: true
@@ -528,6 +530,8 @@
         langs = JSON.parse($('#zp_langs').attr('data'));
         templates = JSON.parse($('#zp_templates').attr('data'));
         foldersData = JSON.parse($('#zp_foldersData').attr('data'));
+        corePrefix = JSON.parse($('#zp_corePrefix').attr('data'));
+        rxp = JSON.parse($('#zp_rxp').attr('data'));
         // testMode = Boolean($('#zp_testMode').attr('data'));
         $.getScript(`/api/lang/pages/${locale}.js`).done(() => {
             deleteDialog = $zUI.modal('#zoiaDeleteDialog', {
@@ -634,7 +638,7 @@
                         $('#pages').zoiaTable().load();
                         $('#zoiaEdit').hide();
                         $('#wrapTable').show();
-                        window.history.pushState({ action: '' }, document.title, uprefix + '/admin/pages');
+                        window.history.pushState({ action: '' }, document.title, uprefix + corePrefix.admin + '/pages');
                     },
                     onSaveError: (res) => {
                         editSpinner(false);
@@ -663,6 +667,9 @@
                     },
                     onLoadSuccess: (data) => {
                         for (let n in langs) {
+                            if (!data.item[n]) {
+                                data.item[n] = {};
+                            }
                             if (Object.keys(data.item[n]).length === 0) {
                                 editShadow[n] = {
                                     enabled: false
@@ -770,12 +777,12 @@
                                 min: 1,
                                 max: 64
                             },
-                            regexp: /^[A-Za-z0-9_\-]+$/,
+                            regexp: rxp.pageID,
                             process: (item) => {
                                 return item.trim();
                             }
                         },
-                        helpText: lang['Latin characters and numbers only (1-64 chars), leave blank for root page']
+                        helpText: lang['Characters and numbers only (1-64 chars), leave blank for root page']
                     },
                     title: {
                         type: 'text',
@@ -900,7 +907,7 @@
                             min: 1,
                             max: 64
                         },
-                        regexp: /^[A-Za-z0-9_\-]+$/,
+                        regexp: rxp.pageFolder,
                         process: (item) => {
                             return item.trim();
                         }
@@ -1069,7 +1076,7 @@
                 },
                 onLoad: () => {
                     $('.zoia-pages-action-edit-btn').click(function() {
-                        window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, uprefix + '/admin/pages?action=edit&id=' + $(this).attr('data'));
+                        window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, uprefix + corePrefix.admin + '/pages?action=edit&id=' + $(this).attr('data'));
                         editItem($(this).attr('data'));
                     });
                     $('.zoia-pages-action-del-btn').click(function() {
@@ -1088,13 +1095,13 @@
                     const wTop = window.screenTop ? window.screenTop : window.screenY;
                     const left = wLeft + (window.innerWidth / 2) - (800 / 2);
                     const top = wTop + (window.innerHeight / 2) - (500 / 2);
-                    window.open(uprefix + '/admin/pages/browse', 'targetWindow',
+                    window.open(uprefix + corePrefix.admin + '/pages/browse', 'targetWindow',
                         `toolbar=no, location = no, status = no, menubar = no, scrollbars = yes, resizable = yes, width = 800, height = 500, top = ${top}, left = ${left}`
                     );
                 });
             } 
             $('.zoiaAdd').click(() => {
-                window.history.pushState({ action: 'create' }, document.title, uprefix + '/admin/pages?action=create');
+                window.history.pushState({ action: 'create' }, document.title, uprefix + corePrefix.admin + '/pages?action=create');
                 createItem();
             });
             $('#editForm_folder_btn').click(() => {
@@ -1174,7 +1181,7 @@
                 }
             });
             $('#editForm_btnCancel').click(() => {
-                window.history.pushState({ action: '' }, document.title, uprefix + '/admin/pages');
+                window.history.pushState({ action: '' }, document.title, uprefix + corePrefix.admin + '/pages');
                 $('#zoiaEdit').hide();
                 $('#wrapTable').show();
             });

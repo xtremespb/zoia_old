@@ -47,7 +47,7 @@
     "Enable language": "Језик је активан",
     "Keywords": "Кључне речи",
     "Description": "Опис",
-    "Latin characters and numbers only (1-64 chars), leave blank for root page": "Лат. симболи и бројеви (1-64), оставите празно за почетну страницу",
+    "Characters and numbers only (1-64 chars), leave blank for root page": "Симболи и бројеви (1-64), оставите празно за почетну страницу",
     "Required, max. 128 characters": "Захтевано, до 128 карактера",
     "Optional, max. 128 characters": "Опционо, до 128 карактера",
     "Content": "Опис",

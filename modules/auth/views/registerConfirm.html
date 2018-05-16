@@ -4,7 +4,7 @@
 </div>
 <div style="display:none" id="confirmSuccess">
     <p>{{ i18n.__(locale, 'Your e-mail has been confirmed and the account has been activated successfully.') }}</p>
-    <p><a class="za-button za-button-default" href="/auth">{{ i18n.__(locale, 'Login') }}</a></p>
+    <p><a class="za-button za-button-default" href="{{ config.core.prefix.auth }}">{{ i18n.__(locale, 'Login') }}</a></p>
 </div>
 <div style="display:none" id="confirmFail">
     {{ i18n.__(locale, 'Could not activate your account. Please check your link or try again in several moments.') }}
