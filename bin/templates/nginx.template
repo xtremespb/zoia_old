@@ -1,6 +1,7 @@
 server {
 
     listen {ip}:{port};
+    client_max_body_size 32m;
     server_name {serverName} www.{serverName};
     access_log {dir}/logs/nginx_access.log;
     error_log {dir}/logs/nginx_error.log;

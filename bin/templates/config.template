@@ -22,7 +22,7 @@
         "meta": false,
         "json": false
     },
-    "maxUploadSizeMB": 100,
+    "maxUploadSizeMB": 32,
     "testMode": false,
     "codemirror": false,
     "mongo": {

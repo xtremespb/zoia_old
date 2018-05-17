@@ -8,6 +8,8 @@
     let postId;
     let commentTemplate;
 
+    let parentCommentID;
+
     const tpl = (s, d) => {
         for (let p in d) {
             s = s.replace(new RegExp('{' + p + '}', 'g'), d[p]);
@@ -15,7 +17,7 @@
         return s;
     };
 
-    const addCommentHTML = (comment) => {
+    const addCommentHTML = (comment, usersData) => {
         let level = 1;
         if (comment.parentId) {
             const parentLevel = parseInt($(`.za-comment[data-id="${comment.parentId}"]`).attr('data-level'));
@@ -23,10 +25,12 @@
         }
         const offset = (level - 1) * 20;
         const commentHTML = tpl(commentTemplate, {
-            id: comment.id,
+            id: comment._id,
             level: level,
             offset: offset,
-            comment: comment.comment
+            comment: comment.comment,
+            username: comment.username,
+            picture: comment.picture
         })
         if (comment.parentId) {
             $(`.za-comment[data-id="${comment.parentId}"]`).parent().append(commentHTML);
@@ -39,10 +43,11 @@
         if ($('#zoia_btn_addcomment_spinner').is(':visible')) {
             return;
         }
+        parentId = parentId || parentCommentID;
         $('#zoia_comment').removeClass('za-form-danger');
         const comment = $('#zoia_comment').val().trim();
         if (!comment || comment.length > 512) {
-            $('#zoia_comment').addClass('za-form-danger');
+            return $('#zoia_comment').addClass('za-form-danger').focus();
         }
         $('#zoia_btn_addcomment_spinner').show();
         $.ajax({
@@ -56,13 +61,28 @@
             cache: false
         }).done((res) => {
             if (res && res.status === 1) {
-                $('#zoia_btn_addcomment_spinner').show();
+                $('#zoia_btn_addcomment_spinner').hide();
                 addCommentHTML({
                     comment: res.comment,
-                    id: res.id
+                    _id: res._id,
+                    parentId: parentId,
+                    username: res.username,
+                    picture: res.picture
                 });
+                newCommentClickHandler('nofocus');
+                $('html, body').animate({
+                    scrollTop: $('#' + res._id).offset().top
+                }, 200);
+                $('#' + res._id).addClass('zoia-comment-new');
+                $('#' + res._id).css('background', '#F5F1D5');
+                setTimeout(() => {
+                    $('#' + res._id).css('background', '');
+                }, 500);
+                $('.zoia-comment-reply').unbind().click(addReplyClickHandler);
             }
-        }).fail(() => {});
+        }).fail(() => {
+            $('#zoia_btn_addcomment_spinner').hide();
+        });
     };
 
     const loadComments = () => {
@@ -77,14 +97,41 @@
             if (res && res.status === 1) {
                 // Render comments
                 for (let i in res.comments) {
-                    const comment = res.comments[i];
+                    let comment = res.comments[i];
+                    comment.username = res.usersData[comment.userId].username;
+                    comment.picture = res.usersData[comment.userId].picture;
                     addCommentHTML(comment);
                 }
-                // Finally
+                // Bind handlers
+                $('.zoia-comment-reply').unbind().click(addReplyClickHandler);
+                // Finally                
                 $('#zoia_comments_loading').hide();
                 $('#zoia_comments_wrap').show();
             }
         }).fail(() => {});
+    };
+
+    const addReplyClickHandler = (e) => {
+        e.preventDefault();
+        $('.zoia-comment-reply').show();
+        $('#zoia_btn_newcomment').show();
+        const id = $(e.target).attr('data-id');
+        const form = $('.zoia-comment-form').detach();
+        $('.zoia-comment-reply[data-id="' + id + '"]').hide().parent().append(form);
+        parentCommentID = id;
+        $('#zoia_comment').val('').focus();
+    };
+
+    const newCommentClickHandler = (nofocus) => {
+        $('.zoia-comment-reply').show();
+        const form = $('.zoia-comment-form').detach();
+        $('#zoia_btn_newcomment').parent().prepend(form);
+        $('#zoia_btn_newcomment').hide();
+        $('#zoia_comment').val('');
+        parentCommentID = null;
+        if (!nofocus) {
+            $('#zoia_comment').focus();
+        }
     };
 
     $(document).ready(() => {
@@ -95,6 +142,7 @@
         postId = $('#zp_postId').attr('data');
         $.getScript(`/api/lang/blog/${locale}.js`).done(() => {
             $('#zoia_btn_addcomment').click(addComment);
+            $('#zoia_btn_newcomment').click(newCommentClickHandler);
             loadComments();
         });
     });

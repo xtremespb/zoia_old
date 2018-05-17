@@ -47,12 +47,10 @@ module.exports = function(app) {
             }
         }
         const skip = (page - 1) * configModule.itemsPerPage;
-        const uprefix = i18n.getLanguageURLPrefix(req);
-        let pictureURL = '/users/static/pictures/small_' + req.session.auth._id + '.jpg';
-        try {
-            await fs.access(path.join(__dirname, 'static', 'pictures', 'large_' + req.session.auth._id + '.jpg'), fs.constants.F_OK);
-        } catch (e) {
-            pictureURL = '/users/static/pictures/large_default.png';
+        const uprefix = i18n.getLanguageURLPrefix(req);        
+        let pictureURL = '/users/static/pictures/small_default.png';
+        if (req.session.auth && req.session.auth.avatarSet) {
+            pictureURL = '/users/static/pictures/small_' + req.session.auth._id + '.jpg';
         }
         try {
             let what = {
@@ -212,22 +210,17 @@ module.exports = function(app) {
             if (!item) {
                 return next();
             }
-            // Get user names and avatars
-            let userData = {};
-            let usersQuery = [];
-            // usersQuery.push({ _id: new ObjectID(blogItems[i].authorId) });
-            userData[item.authorId] = {
-                url: '/users/static/pictures/large_default.png'
-            };
-            try {
-                await fs.access(path.join(__dirname, '..', 'users', 'static', 'pictures', 'small_' + item.authorId + '.jpg'), fs.constants.F_OK);
-                userData[item.authorId].url = '/users/static/pictures/small_' + item.authorId + '.jpg';
-            } catch (e) {
-                // Ignore
+            // Get user names and avatars            
+            const user = await db.collection('users').findOne({ _id: new ObjectID(item.authorId) });
+            if (!user) {
+                return next();
             }
-            userData[String(req.session.auth._id)].username = req.session.auth.realname || req.session.auth.username;
-            // Render
+            let userData = {};
+            userData[item.authorId] = {};
+            userData[item.authorId].url = user.avatarSet ? '/users/static/pictures/small_' + String(user._id) + '.jpg' : '/users/static/pictures/small_default.png';
+            userData[item.authorId].username = user.realname || user.username;
             item.timestamp = parseInt(Date.now() / 1000, 10) - item.timestamp > 604800 ? moment(item.timestamp * 1000).locale(locale).format('LLLL') : moment(item.timestamp * 1000).locale(locale).fromNow();
+            // Render            
             let blogHTML = await renderBlog.file(templateBlogItem, {
                 i18n: i18n.get(),
                 locale: locale,

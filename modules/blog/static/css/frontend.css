@@ -1,26 +1,36 @@
 .zoia-blog-label {
-	background: #dadada;
-	color: #444;
+    background: #dadada;
+    color: #444;
 }
 
 .za-article-title {
-	color: #444;
+    color: #444;
 }
 
 .zoia-blog-article {
-	padding-top: 20px;
+    padding-top: 20px;
 }
 
 .zoia-blog-tag {
-	text-decoration: none;
+    text-decoration: none;
 }
 
 .za-article-meta {
-	color: #777;
+    color: #777;
 }
 
 .zoiaButtonSpinner>svg {
     width: 15px;
     margin-top: -2px;
     margin-right: 10px;
+}
+
+.zoia-comment-text {
+    margin-top: 2px;
+    margin-bottom: 5px;
+}
+
+.zoia-comment-new {
+    transition-property: background;
+    transition-duration: 0.5s;
 }

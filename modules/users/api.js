@@ -300,6 +300,11 @@ module.exports = function(app) {
                             status: -5
                         }));
                     }
+                    let updResult = await db.collection('users').update({ _id: new ObjectID(req.session.auth._id) }, { $set: { avatarSet: true } }, { upsert: true });
+                    if (!updResult || !updResult.result || !updResult.result.ok) {
+                        output.status = -6;
+                        return res.send(JSON.stringify(output));
+                    }
                     return res.send(JSON.stringify({
                         status: 1,
                         pictureURL: '/users/static/pictures/large_' + req.session.auth._id + '.jpg'
@@ -341,6 +346,11 @@ module.exports = function(app) {
                 fs.remove(small);
             } catch (e) {
                 // Ignore
+            }
+            let updResult = await db.collection('users').update(what, { $set: { avatarSet: null } }, { upsert: true });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                output.status = -6;
+                return res.send(JSON.stringify(output));
             }
             return res.send(JSON.stringify({
                 status: 1,

@@ -4,6 +4,7 @@ const validation = new(require(pathM.join(__dirname, '..', '..', 'core', 'valida
 const Router = require('co-router');
 const blogFields = require(pathM.join(__dirname, 'schemas', 'blogFields.js'));
 const config = require(pathM.join(__dirname, '..', '..', 'core', 'config.js'));
+const ObjectID = require('mongodb').ObjectID;
 
 module.exports = function(app) {
     const log = app.get('log');
@@ -278,17 +279,12 @@ module.exports = function(app) {
                     status: -2
                 }));
             }
-            let url = '/users/static/pictures/large_default.png';
-            try {
-                await fs.access(path.join(__dirname, '..', 'users', 'static', 'pictures', 'small_' + req.session.auth._id + '.jpg'), fs.constants.F_OK);
-                userData[item.authorId].url = '/users/static/pictures/small_' + req.session.auth._id + '.jpg';
-            } catch (e) {
-                // Ignore
-            }
+            let picture = req.session.auth.avatarSet ? '/users/static/pictures/small_' + req.session.auth._id + '.jpg' : '/users/static/pictures/small_default.png';
             return res.send(JSON.stringify({
                 status: 1,
-                id: insResult.insertedId,
-                url: url,
+                _id: insResult.insertedId,
+                picture: picture,
+                parentId: parentId,
                 comment: comment,
                 timestamp: timestamp,
                 username: req.session.auth.realname || req.session.auth.username
@@ -303,11 +299,6 @@ module.exports = function(app) {
 
     const loadComments = async(req, res) => {
         res.contentType('application/json');
-        if (!Module.isAuthorized(req)) {
-            return res.send(JSON.stringify({
-                status: 0
-            }));
-        }
         let postId = req.body.postId || req.query.postId;
         if (!postId || typeof postId !== 'string' || !postId.match(/^[0-9]{1,10}$/)) {
             return res.send(JSON.stringify({
@@ -321,9 +312,30 @@ module.exports = function(app) {
                     status: -1
                 }));
             }
+            let usersQuery = [];
+            let usersData = {};
+            for (let i in comments) {
+                if (!usersData[comments[i].userId]) {
+                    usersData[comments[i].userId] = {};
+                    usersQuery.push({ _id: new ObjectID(comments[i].userId) });
+                }
+            }
+            if (usersQuery.length) {
+                const users = await db.collection('users').find({ $or: usersQuery }, { projection: { _id: 1, username: 1, realname: 1, avatarSet: 1 } }).toArray();
+                if (users) {
+                    for (let i in users) {
+                        const user = users[i];
+                        usersData[String(user._id)] = {
+                            username: user.realname || user.username,
+                            picture: user.avatarSet ? '/users/static/pictures/small_' + String(user._id) + '.jpg' : '/users/static/pictures/small_default.png'
+                        };
+                    }
+                }
+            }
             return res.send(JSON.stringify({
                 status: 1,
-                comments: comments
+                comments: comments,
+                usersData: usersData
             }));
         } catch (e) {
             log.error(e);
