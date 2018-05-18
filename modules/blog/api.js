@@ -264,6 +264,7 @@ module.exports = function(app) {
                 status: -1
             }));
         }
+        
         try {
             // TODO: check if parent comment exists!
             const timestamp = parseInt(Date.now() / 1000, 10);

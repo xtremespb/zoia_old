@@ -233,10 +233,10 @@ module.exports = function(app) {
                 userData: userData,
                 userDataJSON: JSON.stringify(userData[item.authorId])
             });
-            let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Blog'), {
+            let html = await renderRoot.template(req, i18n, locale, item[locale].title + ' | ' + i18n.get().__(locale, 'Blog'), {
                 content: blogHTML,
                 extraCSS: config.production ? ['/blog/static/css/frontend.min.css'] : ['/blog/static/css/frontend.css'],
-                extraJS: config.production ? ['/blog/static/js/frontend_item.min.js'] : ['/blog/static/js/frontend_item.js']
+                extraJS: config.production ? ['/blog/static/js/frontend_item.min.js'] : ['/zoia/3rdparty/moment/moment.min.js', '/blog/static/js/frontend_item.js']
             });
             res.send(html);
         } catch (e) {

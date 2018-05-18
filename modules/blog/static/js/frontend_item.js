@@ -24,13 +24,15 @@
             level = parentLevel + 1;
         }
         const offset = (level - 1) * 20;
+        const timestamp = moment(parseInt(comment.timestamp, 10) * 1000).locale(locale).format('L [' + lang['at'] + '] LT');;
         const commentHTML = tpl(commentTemplate, {
             id: comment._id,
             level: level,
             offset: offset,
             comment: comment.comment,
             username: comment.username,
-            picture: comment.picture
+            picture: comment.picture,
+            timestamp: timestamp
         })
         if (comment.parentId) {
             $(`.za-comment[data-id="${comment.parentId}"]`).parent().append(commentHTML);
@@ -67,9 +69,10 @@
                     _id: res._id,
                     parentId: parentId,
                     username: res.username,
-                    picture: res.picture
+                    picture: res.picture,
+                    timestamp: res.timestamp
                 });
-                newCommentClickHandler('nofocus');
+                newCommentClickHandler(null, 'nofocus');
                 $('html, body').animate({
                     scrollTop: $('#' + res._id).offset().top
                 }, 200);
@@ -119,10 +122,11 @@
         const form = $('.zoia-comment-form').detach();
         $('.zoia-comment-reply[data-id="' + id + '"]').hide().parent().append(form);
         parentCommentID = id;
+        $('#zoia_comment').removeClass('za-form-danger');
         $('#zoia_comment').val('').focus();
     };
 
-    const newCommentClickHandler = (nofocus) => {
+    const newCommentClickHandler = (e, nofocus) => {
         $('.zoia-comment-reply').show();
         const form = $('.zoia-comment-form').detach();
         $('#zoia_btn_newcomment').parent().prepend(form);
@@ -143,6 +147,11 @@
         $.getScript(`/api/lang/blog/${locale}.js`).done(() => {
             $('#zoia_btn_addcomment').click(addComment);
             $('#zoia_btn_newcomment').click(newCommentClickHandler);
+            $('#zoia_comment').keydown((e) => {
+                if (e.ctrlKey && e.keyCode == 13) {
+                    addComment(e);
+                }
+            });
             loadComments();
         });
     });
