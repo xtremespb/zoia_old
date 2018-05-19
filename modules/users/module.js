@@ -7,7 +7,7 @@ module.exports = function(app) {
     app.get('log').info('[users] module loaded');
     return {
         frontend: {
-            prefix: config.core.prefix.account,
+            prefix: config.core.prefix.account || '/account',
             routes: frontend.routes,
             filters: frontend.filters
         },

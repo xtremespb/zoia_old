@@ -404,7 +404,7 @@
                     },
                     onLoadSuccess: (data) => {
                         for (let n in langs) {
-                            if (Object.keys(data.item[n]).length === 0) {
+                            if (Object.keys(data.item[n]).length < 3) {
                                 editShadow[n] = {
                                     enabled: false
                                 };

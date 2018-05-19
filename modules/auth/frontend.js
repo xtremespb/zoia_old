@@ -208,11 +208,11 @@ module.exports = function(app) {
     app.use('/auth/static', app.get('express').static(path.join(__dirname, 'static')));
     let router = Router();
     router.get('/', login);
-    router.get(config.core.prefix.authLogout, logout);
-    router.get(config.core.prefix.authRegister, register);
-    router.get(config.core.prefix.authRegisterConfirm, registerConfirm);
-    router.get(config.core.prefix.authReset, reset);
-    router.get(config.core.prefix.authResetConfirm, resetConfirm);
+    router.get(config.core.prefix.authLogout || '/logout', logout);
+    router.get(config.core.prefix.authRegister || '/register', register);
+    router.get(config.core.prefix.authRegisterConfirm || '/register/confirm', registerConfirm);
+    router.get(config.core.prefix.authReset || '/reset', reset);
+    router.get(config.core.prefix.authResetConfirm || '/reset/confirm', resetConfirm);
 
     return {
         routes: router

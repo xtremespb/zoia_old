@@ -10,6 +10,8 @@ module.exports = function(app) {
     const log = app.get('log');
     const db = app.get('db');
     const sortFields = ['timestamp', 'title', 'status', '_id'];
+    const security = new(require(pathM.join(__dirname, '..', '..', 'core', 'security.js')))(app);
+    const i18n = new(require(pathM.join(__dirname, '..', '..', 'core', 'i18n.js')))(pathM.join(__dirname, 'lang'), app);
 
     const list = async(req, res) => {
         const locale = req.session.currentLocale;
@@ -47,9 +49,14 @@ module.exports = function(app) {
             result.failedField = 'sortField';
             return res.send(result);
         }
-        let fquery = {};
+        let fquery = {
+        };
         try {
             if (search) {
+                fquery.$or = [];
+                if (search.match(/^[0-9]+$/)) {
+                    fquery.$or.push({ _id: parseInt(search, 10) });
+                }
                 let tfq = {};
                 tfq[locale + '.title'] = { $regex: search, $options: 'i' };
                 fquery.$or.push(tfq);
@@ -73,6 +80,7 @@ module.exports = function(app) {
             };
             res.send(JSON.stringify(data));
         } catch (e) {
+            log.error(e);
             res.send(JSON.stringify({
                 status: 0,
                 error: e.message
@@ -108,7 +116,7 @@ module.exports = function(app) {
                         content_p2: ''
                     };
                 }
-                item[lng].content = item[lng].content_p1 + (item[lng].content_p2.length ? '{{cut}}' + item[lng].content_p2 : '');
+                item[lng].content = item[lng].content_p1 + (item[lng].content_p2 && item[lng].content_p2.length ? '{{cut}}' + item[lng].content_p2 : '');
                 delete item[lng].content_p1;
                 delete item[lng].content_p2;
                 item[lng].keywords = Array.isArray(item[lng].keywords) ? item[lng].keywords.join(',') : '';
@@ -118,6 +126,7 @@ module.exports = function(app) {
                 item: item
             }));
         } catch (e) {
+            log.error(e);
             res.send(JSON.stringify({
                 status: 0,
                 error: e.message
@@ -254,9 +263,17 @@ module.exports = function(app) {
                 status: 0
             }));
         }
+        const locale = req.session.currentLocale;
+        const allowed = await security.checkActionInterval(req, 'addBlogComment', 10);
+        if (!allowed) {
+            return res.send(JSON.stringify({
+                status: 0,
+                error: i18n.get().__(locale, 'Please wait some time before you add another comment')
+            }));
+        }
         let comment = req.body.comment;
-        let parentId = req.body.parentId || null;
-        let postId = req.body.postId;
+        const parentId = req.body.parentId || null;
+        const postId = req.body.postId;
         if (!comment || typeof comment !== 'string' || comment.length > 512 ||
             !postId || typeof postId !== 'string' || !postId.match(/^[0-9]{1,10}$/) ||
             parentId && (typeof parentId !== 'string' || !parentId.match(/^[a-f0-9]{24}$/))) {
@@ -264,10 +281,17 @@ module.exports = function(app) {
                 status: -1
             }));
         }
-        
         try {
-            // TODO: check if parent comment exists!
+            if (parentId) {
+                const parentComment = await db.collection('blog_comments').findOne({ _id: new ObjectID(parentId) });
+                if (!parentComment) {
+                    return res.send(JSON.stringify({
+                        status: 0
+                    }));
+                }
+            }
             const timestamp = parseInt(Date.now() / 1000, 10);
+            comment = comment.trim().replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/'/g, '&quot;').replace(/\n/gm, '<br>');
             const insResult = await db.collection('blog_comments').insertOne({
                 userId: String(req.session.auth._id),
                 postId: parseInt(postId, 10),
@@ -346,6 +370,37 @@ module.exports = function(app) {
         }
     };
 
+    const commentRemove = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const commentId = req.body.commentId;
+        if (!commentId || typeof commentId !== 'string' || !commentId.match(/^[a-f0-9]{24}$/)) {
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+        try {
+            let updResult = await db.collection('blog_comments').update({ _id: new ObjectID(commentId) }, { $set: { comment: null } }, { upsert: false });
+            if (!updResult || !updResult.result || !updResult.result.ok) {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            log.error(e);
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
     let router = Router();
     router.get('/list', list);
     router.get('/load', load);
@@ -353,6 +408,7 @@ module.exports = function(app) {
     router.post('/delete', del);
     router.post('/comments/add', commentAdd);
     router.post('/comments/load', loadComments);
+    router.post('/comments/remove', commentRemove);
 
     return {
         routes: router

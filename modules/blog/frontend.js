@@ -229,6 +229,7 @@ module.exports = function(app) {
                 config: config,
                 item: item,
                 auth: req.session.auth,
+                admin: Module.isAuthorizedAdmin(req),
                 uprefix: uprefix,
                 userData: userData,
                 userDataJSON: JSON.stringify(userData[item.authorId])
