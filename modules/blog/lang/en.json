@@ -98,5 +98,7 @@
 	"Could not add your comment": "Could not add your comment",
 	"Could not delete a comment": "Could not delete a comment",
 	"Remove": "Remove",
-	"Comment was deleted": "Comment was deleted"
+	"Comment was deleted": "Comment was deleted",
+	"Posts": "Posts",
+	"Comments": "Comments"
 }
