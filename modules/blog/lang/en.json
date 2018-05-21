@@ -96,5 +96,7 @@
 	"at": "at",
 	"Are you sure you wish to delete the comment?": "Are you sure you wish to delete the comment?",
 	"Could not add your comment": "Could not add your comment",
-	"Could not delete a comment": "Could not delete a comment"
+	"Could not delete a comment": "Could not delete a comment",
+	"Remove": "Remove",
+	"Comment was deleted": "Comment was deleted"
 }
