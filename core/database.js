@@ -1,7 +1,8 @@
 const MongoClient = require('mongodb').MongoClient;
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
-const MongoStoreBrute = require('express-brute-mongo');
+const path = require('path');
+const MongoStoreBrute = require(path.join(__dirname, 'modules', 'expressBruteMongo.js'));
 
 module.exports = class Database {
     constructor(app, mongo, _session) {
@@ -17,6 +18,7 @@ module.exports = class Database {
     async connect() {
         let dbObj;
         try {
+            this.mongo.options.useNewUrlParser = true;
             dbObj = await MongoClient.connect(this.mongo.url, this.mongo.options);
         } catch (e) {
             throw new Error('Could not connect to the MongoDB. Check your settings.');
