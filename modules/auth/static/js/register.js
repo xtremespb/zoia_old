@@ -4,6 +4,7 @@
 (() => {
     $(document).ready(() => {
         const locale = $('#zp_locale').attr('data');
+        const rxp = JSON.parse($('#zp_rxp').attr('data'));
         $.getScript(`/api/lang/auth/${locale}.js`).done(() => {
             $('#zoiaRegister').zoiaFormBuilder({
                 save: {
@@ -85,7 +86,7 @@
                                 min: 3,
                                 max: 20
                             },
-                            regexp: /^[a-z0-9\u0400-\u04FF\u00C0-\u02AF\u0370-\u07BF\u0900-\u097F\u0980-\u09FF\u0A00-\u0A7F\u0B00-\u0B7F]+$/i,
+                            regexp: rxp.username,
                             process: (item) => {
                                 return item.trim().toLowerCase();
                             }

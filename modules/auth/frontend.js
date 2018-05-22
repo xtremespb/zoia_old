@@ -117,7 +117,7 @@ module.exports = function(app) {
         }
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
-        const fieldList = registerConfirmFields.getConfirmFields(config.core && config.core.regexp && config.core.regexp.username ? JSON.stringify(config.core.regexp) : '{"username":"^[A-Za-z0-9_\\\\-]+$"}');
+        const fieldList = registerConfirmFields.getConfirmFields(config.core && config.core.regexp && config.core.regexp.username ? config.core.regexp : {'username':'^[A-Za-z0-9_\-]+$'});
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
@@ -180,7 +180,7 @@ module.exports = function(app) {
         }
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
-        const fieldList = resetConfirmFields.getResetConfirmFields(config.core && config.core.regexp && config.core.regexp.username ? JSON.stringify(config.core.regexp) : '{"username":"^[A-Za-z0-9_\\\\-]+$"}');
+        const fieldList = resetConfirmFields.getResetConfirmFields(config.core && config.core.regexp && config.core.regexp.username ? config.core.regexp : {'username':'^[A-Za-z0-9_\-]+$'});
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {

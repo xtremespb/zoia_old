@@ -134,6 +134,68 @@
         deleteDialog.show();
     };
 
+    const deleteComment = (id) => {
+        if (!id) {
+            return showTable();
+        }
+        let items = [];
+        let names = [];
+        currentDeleteID = [];
+        if (typeof id === 'object') {
+            items = id;
+            currentDeleteID = id;
+            for (let i in id) {
+                names.push($('#comments').zoiaTable().getCurrentData()[id[i]].comment);
+            }
+        } else {
+            items.push(id);
+            currentDeleteID.push(id);
+            names.push($('#comments').zoiaTable().getCurrentData()[id].comment);
+        }
+        let html = '<ul class="za-list za-list-divider">';
+        for (let n in names) {
+            html += '<li>' + names[n] + '</li>';
+        }
+        html += '</ul>'
+        $zUI.modal.confirm(lang['The following comment(s) will be deleted. Continue?'] + '<br><br>' + html, { labels: { ok: lang['Yes'], cancel: lang['Cancel'] }, stack: true }).then(() => {            
+            $('#zoiaSpinnerMain').show();
+            $.ajax({
+            type: 'POST',
+            url: '/api/blog/comments/remove',
+            data: {
+                commentId: currentDeleteID
+            },
+            cache: false
+        }).done((res) => {
+            setTimeout(() => {
+                $('#zoiaSpinnerMain').hide();
+            }, 700);            
+            $('#comments').zoiaTable().load();
+            if (res && res.status === 1) {
+                deleteDialog.hide();
+                $zUI.notification(lang['Operation was successful'], {
+                    status: 'success',
+                    timeout: 1500
+                });
+            } else {
+                $zUI.notification(lang['Cannot delete one or more items'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            }
+        }).fail(() => {
+            setTimeout(() => {
+                $('#zoiaSpinnerMain').hide();
+            }, 700);
+            $('#comments').zoiaTable().load();
+            $zUI.notification(lang['Cannot delete one or more items'], {
+                status: 'danger',
+                timeout: 1500
+            });
+        });
+        }, () => {});
+    };
+
     const ajaxDeleteItem = () => {
         deleteDialogSpinner(true);
         $.ajax({
@@ -306,6 +368,14 @@
                 }).get();
                 if (checked && checked.length > 0) {
                     deleteItem(checked);
+                }
+            });
+            $('.zoiaDeleteCommentsButton').click(function() {
+                const checked = $('.commentsCheckbox:checkbox:checked').map(function() {
+                    return this.id;
+                }).get();
+                if (checked && checked.length > 0) {
+                    deleteComment(checked);
                 }
             });
             $('#zoiaDeleteDialogButton').click(() => {
@@ -618,6 +688,42 @@
                     });
                     $('.zoia-blog-action-del-btn').click(function() {
                         deleteItem($(this).attr('data'));
+                    });
+                },
+                lang: {
+                    error: lang['Could not load data from server. Please try to refresh page in a few moments.'],
+                    noitems: lang['No items to display']
+                }
+            });
+            $('#comments').zoiaTable({
+                url: '/api/blog/list/comments',
+                limit: 20,
+                fields: {
+                    _id: {
+                        sortable: false,
+                        process: (id, item, value) => {
+                            return value || '&ndash;';
+                        }
+                    },
+                    comment: {
+                        sortable: false,
+                        process: (id, item, value) => {
+                            const timestamp = new Date(item.timestamp * 1000).toLocaleString().replace(/\s/gm, '&nbsp;')
+                            return `<article class="za-comment"><header class="za-text-meta">${item.username} &raquo; ${item.title}&nbsp;&nbsp;(${timestamp})</header><div class="za-comment-body">${item.comment}</div></article>`;
+                            //return value || '&ndash;';
+                        }
+                    },
+                    actions: {
+                        sortable: false,
+                        process: (id, item) => {
+                            return '<button class="za-icon-button zoia-comments-action-del-btn" za-icon="icon: trash" data="' + item._id +
+                                '"></button><div style="margin-bottom:17px" class="za-hidden@m">&nbsp;</div>';
+                        }
+                    }
+                },
+                onLoad: () => {
+                    $('.zoia-comments-action-del-btn').click(function() {
+                        deleteComment($(this).attr('data'));
                     });
                 },
                 lang: {

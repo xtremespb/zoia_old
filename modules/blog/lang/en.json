@@ -100,5 +100,9 @@
 	"Remove": "Remove",
 	"Comment was deleted": "Comment was deleted",
 	"Posts": "Posts",
-	"Comments": "Comments"
+	"Comments": "Comments",
+	"Comment": "Comment",
+	"The following comment(s) will be deleted. Continue?": "The following comment(s) will be deleted. Continue?",
+	"Yes": "Yes",
+	"Please wait some time before you add another comment": "Please wait some time before you add another comment"
 }

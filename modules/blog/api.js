@@ -377,14 +377,28 @@ module.exports = function(app) {
                 status: 0
             }));
         }
-        const commentId = req.body.commentId;
-        if (!commentId || typeof commentId !== 'string' || !commentId.match(/^[a-f0-9]{24}$/)) {
-            return res.send(JSON.stringify({
-                status: -1
-            }));
+        let ids = req.body['commentId'];
+        if (!ids || (typeof ids !== 'object' && typeof ids !== 'string')) {
+            output.status = -1;
+            return res.send(JSON.stringify(output));
+        }
+        if (typeof ids === 'string') {
+            const id = ids;
+            ids = [];
+            ids.push(id);
+        }
+        let did = [];
+        for (let i in ids) {
+            const id = ids[i];
+            if (!id.match(/^[a-f0-9]{24}$/)) {
+                output.status = -2;
+                return res.send(JSON.stringify(output));
+            }
+            did.push({ _id: new ObjectID(id) });
         }
         try {
-            let updResult = await db.collection('blog_comments').update({ _id: new ObjectID(commentId) }, { $set: { comment: null } }, { upsert: false });
+        	console.log(did);
+            let updResult = await db.collection('blog_comments').update({ $or: did }, { $set: { comment: null } }, { multi: true, upsert: false });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
                     status: 0
@@ -401,6 +415,107 @@ module.exports = function(app) {
         }
     };
 
+    const listComments = async(req, res) => {
+        const locale = req.session.currentLocale;
+        res.contentType('application/json');
+        if (!Module.isAuthorizedAdmin(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        let skip = req.query.skip || '0';
+        let limit = req.query.limit || '10';
+        let search = req.query.search || '';
+        if (typeof skip !== 'string' || typeof limit !== 'string' || typeof search !== 'string') {
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+        skip = parseInt(skip, 10) || 0;
+        limit = parseInt(limit, 10) || 0;
+        search = search.trim();
+        if (search.length < 3) {
+            search = null;
+        }
+        let fquery = {
+        	comment: { $ne: null }
+        };
+        try {
+            if (search) {
+            	fquery.$or = [];
+            	if (parseInt(search)) {
+            		fquery.$or.push({ postId: parseInt(search) });
+            	}
+            	const unrx = new RegExp(config.core.regexp.username);
+            	if (search.match(unrx)) {
+            		const user = await db.collection('users').findOne({ username: search });
+            		if (user) {
+            			fquery.$or.push({ userId: { $regex: String(user._id), $options: 'i' } });
+            		}
+            	}
+            }
+            let ffields = { _id: 1, userId: 1, postId: 1, comment: 1, timestamp: 1 };
+            const total = await db.collection('blog_comments').find(fquery).count();
+            const items = await db.collection('blog_comments').find(fquery, { sort: { timestamp: -1 }, skip: skip, limit: limit, projection: ffields }).toArray();
+            let usersQuery = [];
+            let blogQuery = [];
+            let usersHash = {};
+            let blogHash = {};
+            for (let i in items) {
+                const item = items[i];
+                if (!usersHash[item.userId]) {
+                	usersQuery.push({ _id: new ObjectID(item.userId) });
+                	usersHash[item.userId] = 1;
+                }
+                if (!blogHash[item.postId]) {
+                	blogQuery.push({ _id: parseInt(item.postId, 10) });
+                	blogHash[item.postId] = 1;
+                }
+            }
+            let posts = {};
+            let users = {};
+            if (blogQuery.length) {
+            	let projection = {
+            		timestamp: 1
+            	};
+            	projection[locale + '.title'] = 1;
+            	const postData = await db.collection('blog').find({ $or: blogQuery }, { skip: 0, projection: projection }).toArray();
+            	if (postData && postData.length) {
+            		for (let i in postData) {
+            			const post = postData[i];
+            			posts[post._id] = post;
+            		}
+            	}
+        	}
+        	if (usersQuery.length){
+            	const usersData = await db.collection('users').find({ $or: usersQuery }, { skip: 0, projection: { username: 1, realname: 1, _id: 1 } }).toArray();
+            	if (usersData && usersData.length) {
+            		for (let i in usersData) {
+            			const user = usersData[i];
+            			users[String(user._id)] = user;
+            		}
+            	}	
+        	}
+        	for (let i in items) {
+        		items[i].title = posts[items[i].postId][locale].title;
+        		items[i].username = users[items[i].userId].realname || users[items[i].userId].username;
+        	}
+            let data = {
+                status: 1,
+                count: items.length,
+                total: total,
+                items: items
+            };
+            res.send(JSON.stringify(data));
+        } catch (e) {
+            log.error(e);
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
     let router = Router();
     router.get('/list', list);
     router.get('/load', load);
@@ -409,6 +524,7 @@ module.exports = function(app) {
     router.post('/comments/add', commentAdd);
     router.post('/comments/load', loadComments);
     router.post('/comments/remove', commentRemove);
+    router.get('/list/comments', listComments);
 
     return {
         routes: router
