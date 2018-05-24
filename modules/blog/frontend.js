@@ -47,7 +47,7 @@ module.exports = function(app) {
             }
         }
         const skip = (page - 1) * configModule.itemsPerPage;
-        const uprefix = i18n.getLanguageURLPrefix(req);        
+        const uprefix = i18n.getLanguageURLPrefix(req);
         let pictureURL = '/users/static/pictures/small_default.png';
         if (req.session.auth && req.session.auth.avatarSet) {
             pictureURL = '/users/static/pictures/small_' + req.session.auth._id + '.jpg';
@@ -166,6 +166,7 @@ module.exports = function(app) {
             }
             // Render
             for (let i in blogItems) {
+                const item = blogItems[i];
                 blogItems[i].timestamp = parseInt(Date.now() / 1000, 10) - blogItems[i].timestamp > 604800 ? moment(item.timestamp * 1000).locale(locale).format('LLLL') : moment(blogItems[i].timestamp * 1000).locale(locale).fromNow();
             }
             let blogHTML = await renderBlog.file(templateBlogList, {

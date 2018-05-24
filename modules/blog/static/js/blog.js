@@ -63,7 +63,7 @@
                 data: {}
             };
         }
-        $('#editForm').zoiaFormBuilder().resetForm();
+        $('#editForm').zoiaFormBuilder().resetForm();        
         currentEditID = null;
         editLanguage = Object.keys(langs)[0];
         // $('#zoiaEditLanguages > li[data=' + editLanguage + ']').click();
@@ -81,6 +81,7 @@
         if (useCodemirror) {
             codemirror.setValue('');
         }
+        $('#editForm_timestamp').val(moment().locale(locale).format(lang.dateTimeTemplate));
     };
 
     const showTable = () => {
@@ -251,10 +252,7 @@
     const onEditLanguageCheckboxClickEvent = () => {
         if ($('#zoiaEditLanguageCheckbox').prop('checked')) {
             $('#editForm').zoiaFormBuilder().resetForm();
-            keywords.setValue('');
-            if (useCodemirror) {
-                codemirror.setValue('');
-            }
+            keywords.setValue('');            
             editShadow[editLanguage].enabled = true;
             editShadow[editLanguage].data = {};
             for (let lng in langs) {
@@ -265,10 +263,17 @@
                     if (editShadow[lng].data.status) {
                         $('#editForm_status').val(editShadow[lng].data.status.value);
                     }
+                    if (editShadow[lng].data.timestamp) {
+                        $('#editForm_timestamp').val(editShadow[lng].data.timestamp.value);
+                    }
                 }
             }
             $('#editForm_content').val('');
             $('#editForm').show();
+            if (useCodemirror) {
+                codemirror.setValue('');
+                codemirror.clearHistory();
+            }
         } else {
             editShadow[editLanguage].enabled = false;
             if (useCodemirror) {
@@ -332,8 +337,10 @@
             editShadow[editLanguage].data.status) {
             const saveStatus = editShadow[editLanguage].data.status;
             const saveTemplate = editShadow[editLanguage].data.template;
+            const saveTimestamp = editShadow[editLanguage].data.timestamp;
             editShadow[lng].data.template = saveTemplate;
             editShadow[lng].data.status = saveStatus;
+            editShadow[lng].data.timestamp = saveTimestamp;
             if (useCodemirror) {
                 editShadow[editLanguage].data.content.value = codemirror.getValue();
             }
@@ -343,10 +350,10 @@
         $('#editForm').zoiaFormBuilder().resetForm();
         $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);
         keywords.setValue(editShadow[editLanguage].data.keywords.value);
+        $('#editForm').show();
         if (useCodemirror) {
             codemirror.setValue(editShadow[editLanguage].data.content.value);
-        }
-        $('#editForm').show();
+        }        
     };
 
     $(document).ready(() => {
@@ -414,6 +421,14 @@
                         }
                         let saveTemplate = editShadow[editLanguage].data.template.value;
                         let saveStatus = editShadow[editLanguage].data.status.value;
+                        const timestampMoment = moment(editShadow[editLanguage].data.timestamp.value, lang.dateTimeTemplate);
+                        if (!timestampMoment.isValid()) {
+                            $('#editForm_timestamp').addClass('za-form-danger');
+                            $('#editForm_timestamp_error_text>span').html(lang['Doesn\'t match required format']);
+                            $('#editForm_timestamp_error_text').show();
+                            return '__stop';
+                        }
+                        const saveTimestamp = parseInt(timestampMoment.valueOf() / 1000, 10);
                         for (let n in editShadow) {
                             if (!editShadow[n].enabled) {
                                 continue;
@@ -429,6 +444,7 @@
                                 }
                             }
                             vr.data.template = saveTemplate;
+                            vr.data.timestamp = saveTimestamp;
                             vr.data.status = saveStatus;
                             data[n] = vr.data;
                         }
@@ -496,6 +512,10 @@
                                 type: 'select',
                                 value: data.item.template
                             };
+                            editShadow[n].data.timestamp = {
+                                type: 'text',
+                                value: moment(data.item.timestamp * 1000).locale(locale).format(lang.dateTimeTemplate)
+                            };
                             editShadow[n].data.keywords = {
                                 type: 'text',
                                 value: data.item[n].keywords
@@ -540,6 +560,7 @@
                     title: {
                         type: 'text',
                         label: lang['Title'],
+                        autofocus: true,
                         css: 'za-width-large@m',
                         validation: {
                             mandatoryCreate: true,
@@ -553,6 +574,23 @@
                             }
                         },
                         helpText: lang['Required, max. 128 characters']
+                    },
+                    timestamp: {
+                        type: 'text',
+                        label: lang['Date and Time'],
+                        css: 'za-width-medium@m',
+                        validation: {
+                            mandatoryCreate: true,
+                            mandatoryEdit: true,
+                            length: {
+                                min: 1,
+                                max: 128
+                            },
+                            process: (item) => {
+                                return item.trim();
+                            }
+                        },
+                        helpText: lang['Required, format'] + ': ' + lang.dateTimeFormat
                     },
                     status: {
                         type: 'select',

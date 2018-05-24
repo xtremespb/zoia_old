@@ -44,3 +44,13 @@ a>.za-spinner>svg {
     box-shadow: -1px 2px 5px 0px rgba(0, 0, 0, 0.34);
     text-align: center;
 }
+
+.zoia-comment-text {
+    -ms-word-break: break-all;
+    word-break: break-all;
+    word-break: break-word;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    -ms-hyphens: auto;
+    hyphens: auto;
+}

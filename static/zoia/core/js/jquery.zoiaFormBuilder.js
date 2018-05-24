@@ -332,6 +332,13 @@
                 that._submit();
             });
             this._captchaInit();
+            // Autofocus
+            for (let n in this.settings.items) {
+                let item = this.settings.items[n];
+                if (item.autofocus) {
+                    $('#' + this._prefix + '_' + n).focus();
+                }
+            }
         },
         _valueslistAddFunc(prefix, name, key, value, nofocus) {
             const valuesListItem = this._template(this.settings.html.valueslistItem, {

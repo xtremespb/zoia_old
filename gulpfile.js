@@ -321,6 +321,7 @@ gulp.task("panel", async () => {
 				"static/zoia/3rdparty/jquery/jquery.min.js",
 				"static/zoia/3rdparty/uikit/js/uikit.min.js",
 				"static/zoia/3rdparty/uikit/js/uikit-icons.min.js",
+				"static/zoia/3rdparty/uikit/js/uikit-fa-icons.min.js",
 				"static/zoia/3rdparty/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js"
 			],
 			{ base: __dirname }

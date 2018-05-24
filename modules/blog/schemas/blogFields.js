@@ -16,6 +16,15 @@
                     return item.trim();
                 }
             },
+            timestamp: {
+                mandatoryCreate: true,
+                length: {
+                    min: 10,
+                    max: 10
+                },
+                type: 'string',
+                regexp: /^[0-9]{10}$/
+            },
             status: {
                 mandatoryCreate: true,
                 length: {

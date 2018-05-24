@@ -415,9 +415,6 @@
     const onEditLanguageCheckboxClickEvent = () => {
         if ($('#zoiaEditLanguageCheckbox').prop('checked')) {
             $('#editForm').zoiaFormBuilder().resetForm();
-            if (useCodemirror) {
-                codemirror.setValue('');
-            }
             editShadow[editLanguage].enabled = true;
             editShadow[editLanguage].data = {};
             for (let lng in langs) {
@@ -439,6 +436,10 @@
             }
             $('#editForm_content').val('');
             $('#editForm').show();
+            if (useCodemirror) {
+                codemirror.setValue('');
+                codemirror.clearHistory();
+            }
         } else {
             editShadow[editLanguage].enabled = false;
             if (useCodemirror) {
@@ -516,11 +517,11 @@
         editLanguage = lng;
         markZoiaLanguagesTab(editLanguage);
         $('#editForm').zoiaFormBuilder().resetForm();
-        $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);
+        $('#editForm').zoiaFormBuilder().deserialize(editShadow[editLanguage].data);        
+        $('#editForm').show();
         if (useCodemirror) {
             codemirror.setValue(editShadow[editLanguage].data.content.value);
-        } 
-        $('#editForm').show();
+        }
     };
 
     $(document).ready(() => {

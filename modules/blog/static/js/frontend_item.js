@@ -150,7 +150,13 @@
                 $('#zoia_comments_loading').hide();
                 $('#zoia_comments_wrap').show();
             }
-        }).fail(() => {});
+        }).fail(() => {
+            $('#zoia_comments_loading').hide();
+            $zUI.notification(lang['Error while loading comments'], {
+                status: 'danger',
+                timeout: 2500
+            });
+        });
     };
 
     const addReplyClickHandler = (e) => {

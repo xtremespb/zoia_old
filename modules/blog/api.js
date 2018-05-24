@@ -151,11 +151,12 @@ module.exports = function(app) {
         let output = {};
         let data = {};
         try {
+            let fields = {};
             for (let i in config.i18n.locales) {
                 let lng = config.i18n.locales[i];
                 data[lng] = {};
                 if (req.body[lng]) {
-                    let fields = validation.checkRequest(req.body[lng], fieldList);
+                    fields = validation.checkRequest(req.body[lng], fieldList);
                     let fieldsFailed = validation.getCheckRequestFailedFields(fields);
                     if (fieldsFailed.length > 0) {
                         output.status = 0;
@@ -188,9 +189,9 @@ module.exports = function(app) {
                     return res.send(JSON.stringify(output));
                 }
             } else {
-                data.timestamp = parseInt(Date.now() / 1000);
                 data.authorId = String(req.session.auth._id);
             }
+            data.timestamp = parseInt(fields.timestamp.value, 10);
             const incr = await db.collection('blog_counters').findAndModify({ _id: 'posts' }, [], { $inc: { seq: 1 } }, { new: true, upsert: true });
             if (!incr || !incr.value || !incr.value.seq) {
                 return res.send(JSON.stringify({
@@ -324,6 +325,7 @@ module.exports = function(app) {
 
     const loadComments = async(req, res) => {
         res.contentType('application/json');
+        const locale = req.session.currentLocale;
         let postId = req.body.postId || req.query.postId;
         if (!postId || typeof postId !== 'string' || !postId.match(/^[0-9]{1,10}$/)) {
             return res.send(JSON.stringify({
@@ -356,6 +358,14 @@ module.exports = function(app) {
                         };
                     }
                 }
+            }
+            for (let i in usersData) {
+            	if (Object.keys(usersData[i]).length === 0) {
+            		usersData[i] = {
+            			username: i18n.get().__(locale, 'Deleted Account'),
+            			picture: '/users/static/pictures/small_default.png'
+            		}
+            	}
             }
             return res.send(JSON.stringify({
                 status: 1,
@@ -498,7 +508,7 @@ module.exports = function(app) {
         	}
         	for (let i in items) {
         		items[i].title = posts[items[i].postId][locale].title;
-        		items[i].username = users[items[i].userId].realname || users[items[i].userId].username;
+        		items[i].username = users[items[i].userId] ? users[items[i].userId].realname || users[items[i].userId].username : i18n.get().__(locale, 'Deleted Account');
         	}
             let data = {
                 status: 1,
@@ -509,6 +519,7 @@ module.exports = function(app) {
             res.send(JSON.stringify(data));
         } catch (e) {
             log.error(e);
+            console.log(e);
             res.send(JSON.stringify({
                 status: 0,
                 error: e.message

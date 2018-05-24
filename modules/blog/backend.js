@@ -39,7 +39,7 @@ module.exports = function(app) {
             });
             res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, config.production ? ['/blog/static/css/blog.min.css'] : [config.codemirror ? '/zoia/3rdparty/codemirror/codemirror.css' : null, '/blog/static/css/blog.css'],
                 config.production ? [config.codemirror ? '/zoia/3rdparty/codemirror/codemirror.js' : '/zoia/3rdparty/ckeditor/ckeditor.js', config.codemirror ? null : '/zoia/3rdparty/ckeditor/adapters/jquery.js', '/blog/static/js/blog.min.js'] : [config.codemirror ? '/zoia/3rdparty/codemirror/codemirror.js' : '/zoia/3rdparty/ckeditor/ckeditor.js', config.codemirror ? '/zoia/3rdparty/codemirror/htmlmixed.js' : '/zoia/3rdparty/ckeditor/adapters/jquery.js',
-                    '/zoia/core/js/jquery.zoiaFormBuilder.js', '/zoia/core/js/jquery.zoiaTable.js', '/zoia/3rdparty/jstree/jstree.min.js', '/blog/static/js/tags-input.js', '/blog/static/js/blog.js'
+                    '/zoia/core/js/jquery.zoiaFormBuilder.js', '/zoia/core/js/jquery.zoiaTable.js', '/zoia/3rdparty/jstree/jstree.min.js', '/blog/static/js/tags-input.js', '/zoia/3rdparty/moment/moment.min.js', '/blog/static/js/blog.js'
                 ]));
         } catch (e) {
             next(new Error(e.message));
