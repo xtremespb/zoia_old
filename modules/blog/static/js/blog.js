@@ -73,13 +73,14 @@
         if (useCodemirror && !codemirror) {
             codemirror = CodeMirror.fromTextArea(document.getElementById('editForm_content'), {
                 mode: 'htmlmixed',
+                lineWrapping: true,
                 lineNumbers: true
             });
-            window.zoiaCodeMirror = codemirror;
-            codemirror.setSize($('#zoia_edit_form_footer').outerWidth() - 3, 300);
+            window.zoiaCodeMirror = codemirror;            
         }
         if (useCodemirror) {
             codemirror.setValue('');
+            codemirror.setSize($('#zoia_edit_form_footer').outerWidth() - 3, 300);
         }
         $('#editForm_timestamp').val(moment().locale(locale).format(lang.dateTimeTemplate));
     };
@@ -358,6 +359,7 @@
         $('#editForm').show();
         if (useCodemirror) {
             codemirror.setValue(editShadow[editLanguage].data.content.value);
+            codemirror.setSize($('#zoia_edit_form_footer').outerWidth() - 3, 300);
         }
     };
 
@@ -542,6 +544,7 @@
                         if (useCodemirror && !codemirror) {
                             codemirror = CodeMirror.fromTextArea(document.getElementById('editForm_content'), {
                                 mode: 'htmlmixed',
+                                lineWrapping: true,
                                 lineNumbers: true
                             });
                             window.zoiaCodeMirror = codemirror;
