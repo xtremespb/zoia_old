@@ -84,6 +84,12 @@
 	"Required, format": "Обязательно, формат",
 	"dateTimeFormat": "ДД/ММ/ГГГГ ЧЧ:ММ",
 	"dateTimeTemplate": "DD/MM/YYYY HH:mm",
-	"Error while loading comments": "Ошибка во время удаления комментария",
-	"Loading data, please wait": "Loading data, please wait"
+	"Error while loading comments": "Ошибка во время загрузки комментариев",
+	"Loading data, please wait": "Загрузка данных, пожалуйста, подождите",
+	"Refresh": "Обновить",
+	"Could not load latest blog posts": "Ошибка во время загрузки последних постов",
+	"Disabled": "Запрещены",
+	"Enabled": "Разрешены",
+	"Please authorize to post add a comment.": "Пожалуйста, авторизируйтесь на сайте для добавления комментария."
+
 }

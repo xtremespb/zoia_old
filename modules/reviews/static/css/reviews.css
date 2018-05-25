@@ -71,6 +71,7 @@
 }
 
 .reviewsBtnSelectAll,
-.reviewsBtnSelectNone {
+.reviewsBtnSelectNone,
+.reviewsBtnRefresh {
     padding: 9px;
 } 

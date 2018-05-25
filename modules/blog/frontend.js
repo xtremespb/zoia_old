@@ -6,6 +6,7 @@ const moment = require('moment');
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const ObjectID = require('mongodb').ObjectID;
 
+let configModule;
 try {
     configModule = require(path.join(__dirname, 'config', 'blog.json'));
 } catch (e) {
@@ -19,6 +20,10 @@ if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateBlogList))) 
 let templateBlogItem = 'frontend_item.html';
 if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateBlogItem))) {
     templateBlogItem = 'custom_' + templateBlogList;
+}
+let templateBlogLatest = 'frontend_latest.html';
+if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateBlogLatest))) {
+    templateBlogLatest = 'custom_' + templateBlogLatest;
 }
 
 module.exports = function(app) {
@@ -37,7 +42,7 @@ module.exports = function(app) {
         }
         let page = 1;
         if (req.query.page && typeof req.query.page === 'string' && req.query.page.match(/^[0-9]{1,10}$/)) {
-            page = parseInt(req.query.page);
+            page = parseInt(req.query.page, 10);
         }
         let tag;
         if (req.query.tag && typeof req.query.tag === 'string' && req.query.tag.length <= 48) {
@@ -48,10 +53,6 @@ module.exports = function(app) {
         }
         const skip = (page - 1) * configModule.itemsPerPage;
         const uprefix = i18n.getLanguageURLPrefix(req);
-        let pictureURL = '/users/static/pictures/small_default.png';
-        if (req.session.auth && req.session.auth.avatarSet) {
-            pictureURL = '/users/static/pictures/small_' + req.session.auth._id + '.jpg';
-        }
         try {
             let what = {
                 status: '1'
@@ -59,7 +60,7 @@ module.exports = function(app) {
             if (tag) {
                 what[locale + '.keywords'] = { $in: [tag] };
             }
-            let ffields = { _id: 1, title: 1, timestamp: 1, status: 1, authorId: 1 };
+            let ffields = { _id: 1, timestamp: 1, status: 1, authorId: 1 };
             ffields[locale + '.title'] = 1;
             ffields[locale + '.content_p1'] = 1;
             ffields[locale + '.cut'] = 1;
@@ -72,15 +73,10 @@ module.exports = function(app) {
             for (let i in blogItems) {
                 if (!usersData[blogItems[i].authorId]) {
                     usersQuery.push({ _id: new ObjectID(blogItems[i].authorId) });
-                }
-                usersData[blogItems[i].authorId] = {
-                    url: '/users/static/pictures/large_default.png'
-                };
-                try {
-                    await fs.access(path.join(__dirname, '..', 'users', 'static', 'pictures', 'small_' + blogItems[i].authorId + '.jpg'), fs.constants.F_OK);
-                    usersData[blogItems[i].authorId].url = '/users/static/pictures/small_' + blogItems[i].authorId + '.jpg';
-                } catch (e) {
-                    // Ignore
+                    usersData[blogItems[i].authorId] = {
+                        username: i18n.get().__(locale, 'Deleted Account'),
+                        url: '/users/static/pictures/small_default.png'
+                    };
                 }
             }
             if (usersQuery.length) {
@@ -88,6 +84,7 @@ module.exports = function(app) {
                 if (users && users.length) {
                     for (let i in users) {
                         usersData[String(users[i]._id)].username = users[i].realname || users[i].username;
+                        usersData[String(users[i]._id)].url = users[i].avatarSet ? '/users/static/pictures/small_' + String(users[i]._id) + '.jpg' : '/users/static/pictures/small_default.png';
                     }
                 }
             }
@@ -166,8 +163,7 @@ module.exports = function(app) {
             }
             // Render
             for (let i in blogItems) {
-                const item = blogItems[i];
-                blogItems[i].timestamp = parseInt(Date.now() / 1000, 10) - blogItems[i].timestamp > 604800 ? moment(item.timestamp * 1000).locale(locale).format('LLLL') : moment(blogItems[i].timestamp * 1000).locale(locale).fromNow();
+                blogItems[i].timestamp = parseInt(Date.now() / 1000, 10) - blogItems[i].timestamp > 604800 ? moment(blogItems[i].timestamp * 1000).locale(locale).format('LLLL') : moment(blogItems[i].timestamp * 1000).locale(locale).fromNow();
             }
             let blogHTML = await renderBlog.file(templateBlogList, {
                 i18n: i18n.get(),
@@ -213,13 +209,10 @@ module.exports = function(app) {
             }
             // Get user names and avatars            
             const user = await db.collection('users').findOne({ _id: new ObjectID(item.authorId) });
-            if (!user) {
-                return next();
-            }
             let userData = {};
             userData[item.authorId] = {};
-            userData[item.authorId].url = user.avatarSet ? '/users/static/pictures/small_' + String(user._id) + '.jpg' : '/users/static/pictures/small_default.png';
-            userData[item.authorId].username = user.realname || user.username;
+            userData[item.authorId].url = user && user.avatarSet ? '/users/static/pictures/small_' + String(user._id) + '.jpg' : '/users/static/pictures/small_default.png';
+            userData[item.authorId].username = user ? user.realname || user.username : i18n.get().__(locale, 'Deleted Account');
             item.timestamp = parseInt(Date.now() / 1000, 10) - item.timestamp > 604800 ? moment(item.timestamp * 1000).locale(locale).format('LLLL') : moment(item.timestamp * 1000).locale(locale).fromNow();
             // Render            
             let blogHTML = await renderBlog.file(templateBlogItem, {
@@ -238,8 +231,8 @@ module.exports = function(app) {
             let html = await renderRoot.template(req, i18n, locale, item[locale].title + ' | ' + i18n.get().__(locale, 'Blog'), {
                 content: blogHTML,
                 extraCSS: config.production ? ['/blog/static/css/frontend.min.css'] : ['/blog/static/css/frontend.css'],
-                extraJS: config.production ? ['/blog/static/js/frontend_item.min.js'] : ['/zoia/3rdparty/moment/moment.min.js', '/blog/static/js/frontend_item.js']
-            });
+                extraJS: config.production ? ['/blog/static/js/frontend_item.min.js'] : ['/zoia/3rdparty/moment/moment-with-locales.min.js', '/blog/static/js/frontend_item.js']
+            }, item.template || config.website.templates[0]);
             res.send(html);
         } catch (e) {
             log.error(e);
@@ -247,12 +240,49 @@ module.exports = function(app) {
         }
     };
 
+    const blogArticlesLatestAsync = async(req) => {
+        if (!req) {
+            return '';
+        }
+        let locale = config.i18n.locales[0];
+        if (req.session && req.session.currentLocale) {
+            locale = req.session.currentLocale;
+        }
+        let ffields = { _id: 1, timestamp: 1, status: 1, authorId: 1 };
+        ffields[locale + '.title'] = 1;
+        try {
+            const blogItems = await db.collection('blog').find({ status: '1' }, { projection: ffields, limit: configModule.blogArticlesLatestCount, sort: { timestamp: -1 } }).toArray();
+            for (let i in blogItems) {
+                blogItems[i].timestamp = parseInt(Date.now() / 1000, 10) - blogItems[i].timestamp > 604800 ? moment(blogItems[i].timestamp * 1000).locale(locale).format('LLLL') : moment(blogItems[i].timestamp * 1000).locale(locale).fromNow();
+            }
+            let blogHTML = await renderBlog.file(templateBlogLatest, {
+                i18n: i18n.get(),
+                locale: locale,
+                lang: JSON.stringify(i18n.get().locales[locale]),
+                configModule: configModule,
+                config: config,
+                items: blogItems
+            });
+            return blogHTML;
+        } catch (e) {
+            return i18n.get().__(locale, 'Could not load latest blog posts') + ': ' + e;
+        }
+    };
+
+    const blogArticlesLatest = (data, callback) => {
+        blogArticlesLatestAsync(data).then(function(html) {
+            callback(null, html);
+        });
+    };
+
     let router = Router();
     router.get('/', listItems);
-    router.get('/post/:id', displayItem);
+    router.get(configModule.prefix.post + '/:id', displayItem);
 
     return {
         routes: router,
-        filters: {}
+        filters: {
+            blogArticlesLatest: blogArticlesLatest
+        }
     };
 };

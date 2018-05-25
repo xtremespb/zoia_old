@@ -20,6 +20,9 @@
                     <button za-icon="icon:close" class="za-icon-button pagesBtnSelectNone" title="{{ i18n.__(locale, 'Select none')}}" za-tooltip="pos:bottom-right"></button>
                 </li>
                 <li>
+                    <button za-icon="icon:refresh" class="za-icon-button pagesBtnRefresh" title="{{ i18n.__(locale, 'Refresh')}}" za-tooltip="pos:bottom-right"></button>
+                </li>
+                <li>
                     <div class="za-inline">
                         <button za-icon="icon:cog" class="za-icon-button pagesBtnSettings" title="{{ i18n.__(locale, 'Settings')}}" za-tooltip="pos:bottom-right"></button>
                         <div za-dropdown="mode:click">
@@ -40,6 +43,7 @@
             <div class="za-button-group za-visible@m">
                 <button class="za-button za-button-default pagesBtnSelectAll" title="{{ i18n.__(locale, 'Select all')}}" za-tooltip="pos:bottom-right"><span za-icon="icon:check"></span></button>
                 <button class="za-button za-button-default pagesBtnSelectNone" title="{{ i18n.__(locale, 'Select none')}}" za-tooltip="pos:bottom-right"><span za-icon="icon:close"></span></button>
+                <button class="za-button za-button-default pagesBtnRefresh" title="{{ i18n.__(locale, 'Refresh')}}" za-tooltip="pos:bottom-right"><span za-icon="icon:refresh"></span></button>
             </div>
             <div class="za-button-group za-visible@m">
                 <div class="za-inline">
@@ -102,7 +106,7 @@
             <div za-spinner></div>
         </div>
     </form>
-    <div id="zoia_edit_form_footer" class="za-width-1-1"></div> 
+    <div id="zoia_edit_form_footer" class="za-width-1-1"></div>
 </div>
 <div id="zoiaFoldersDialog" style="display:none">
     <div class="za-modal-dialog">
@@ -174,7 +178,7 @@
 <div id="zoiaSpinnerMain" style="display:none" class="za-flex za-flex-middle za-flex-center"><span za-spinner style="color:#000"></span></div>
 <div style="display:none">
     <div id="zp_locale" data="{{ locale }}"></div>
-    <div id="zp_codemirror" data="{{ config.codemirror }}"></div> 
+    <div id="zp_codemirror" data="{{ config.codemirror }}"></div>
     <div id="zp_uprefix" data="{{ uprefix }}"></div>
     <div id="zp_langs" data='{{ langs }}'></div>
     <div id="zp_templates" data='{{ templates }}'></div>

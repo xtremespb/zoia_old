@@ -71,6 +71,7 @@
 }
 
 .usersBtnSelectAll,
-.usersBtnSelectNone {
+.usersBtnSelectNone,
+.usersBtnRefresh {
     padding: 9px;
 } 

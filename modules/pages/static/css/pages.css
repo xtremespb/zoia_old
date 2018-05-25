@@ -81,7 +81,8 @@
 }
 
 .pagesBtnSelectAll,
-.pagesBtnSelectNone {
+.pagesBtnSelectNone,
+.pagesBtnRefresh {
     padding: 9px;
 }
 

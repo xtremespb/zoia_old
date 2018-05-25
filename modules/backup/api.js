@@ -244,7 +244,7 @@ module.exports = function(app) {
                             case 'mongo':
                                 const dbdata = await fs.readJson(path.join(__dirname, '..', '..', 'temp', 'backup_' + taskId, item.module, item.from));
                                 for (let j in dbdata) {
-                                    if (dbdata[j]._id) {
+                                    if (dbdata[j]._id && typeof dbdata[j]._id === 'string' && dbdata[j]._id.match(/^[a-f0-9]{24}$/)) {
                                         try {
                                             const oid = new ObjectID(dbdata[j]._id);
                                             dbdata[j]._id = oid;

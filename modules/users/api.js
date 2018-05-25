@@ -347,7 +347,7 @@ module.exports = function(app) {
             } catch (e) {
                 // Ignore
             }
-            let updResult = await db.collection('users').update(what, { $set: { avatarSet: null } }, { upsert: true });
+            let updResult = await db.collection('users').update({ _id: new ObjectID(req.session.auth._id)}, { $set: { avatarSet: null } }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 output.status = -6;
                 return res.send(JSON.stringify(output));

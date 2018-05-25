@@ -37,6 +37,15 @@
             template: {
                 mandatoryCreate: true
             },
+            comments: {
+                mandatoryCreate: true,
+                length: {
+                    min: 1,
+                    max: 1
+                },
+                type: 'string',
+                regexp: /^(0|1)$/
+            },
             keywords: {
                 mandatoryCreate: false,
                 length: {

@@ -71,6 +71,7 @@
 }
 
 .groupsBtnSelectAll,
-.groupsBtnSelectNone {
+.groupsBtnSelectNone,
+.groupsBtnRefresh {
     padding: 9px;
 } 

@@ -49,8 +49,7 @@ module.exports = function(app) {
             result.failedField = 'sortField';
             return res.send(result);
         }
-        let fquery = {
-        };
+        let fquery = {};
         try {
             if (search) {
                 fquery.$or = [];
@@ -180,10 +179,11 @@ module.exports = function(app) {
                     };
                     data.status = fields.status.value;
                     data.template = fields.template.value;
+                    data.comments = fields.comments.value;
                 }
             }
             if (postId) {
-                let page = await db.collection('blog').findOne({ _id: parseInt(postId) });
+                let page = await db.collection('blog').findOne({ _id: parseInt(postId, 10) });
                 if (!page) {
                     output.status = -1;
                     return res.send(JSON.stringify(output));
@@ -283,6 +283,12 @@ module.exports = function(app) {
             }));
         }
         try {
+            const post = await db.collection('blog').findOne({ _id: parseInt(postId, 10) });
+            if (!post || !post.comments || post.comments !== '1') {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
             if (parentId) {
                 const parentComment = await db.collection('blog_comments').findOne({ _id: new ObjectID(parentId) });
                 if (!parentComment) {
@@ -333,6 +339,12 @@ module.exports = function(app) {
             }));
         }
         try {
+            const post = await db.collection('blog').findOne({ _id: parseInt(postId, 10) });
+            if (!post || !post.comments || post.comments !== '1') {
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
+            }
             const comments = await db.collection('blog_comments').find({ postId: parseInt(postId, 10) }).toArray();
             if (!comments) {
                 return res.send(JSON.stringify({
@@ -360,12 +372,12 @@ module.exports = function(app) {
                 }
             }
             for (let i in usersData) {
-            	if (Object.keys(usersData[i]).length === 0) {
-            		usersData[i] = {
-            			username: i18n.get().__(locale, 'Deleted Account'),
-            			picture: '/users/static/pictures/small_default.png'
-            		}
-            	}
+                if (Object.keys(usersData[i]).length === 0) {
+                    usersData[i] = {
+                        username: i18n.get().__(locale, 'Deleted Account'),
+                        picture: '/users/static/pictures/small_default.png'
+                    };
+                }
             }
             return res.send(JSON.stringify({
                 status: 1,
@@ -389,8 +401,9 @@ module.exports = function(app) {
         }
         let ids = req.body['commentId'];
         if (!ids || (typeof ids !== 'object' && typeof ids !== 'string')) {
-            output.status = -1;
-            return res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: -1
+            }));
         }
         if (typeof ids === 'string') {
             const id = ids;
@@ -401,13 +414,14 @@ module.exports = function(app) {
         for (let i in ids) {
             const id = ids[i];
             if (!id.match(/^[a-f0-9]{24}$/)) {
-                output.status = -2;
-                return res.send(JSON.stringify(output));
+                return res.send(JSON.stringify({
+                    status: -2
+                }));
             }
             did.push({ _id: new ObjectID(id) });
         }
         try {
-        	console.log(did);
+            console.log(did);
             let updResult = await db.collection('blog_comments').update({ $or: did }, { $set: { comment: null } }, { multi: true, upsert: false });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
@@ -448,21 +462,21 @@ module.exports = function(app) {
             search = null;
         }
         let fquery = {
-        	comment: { $ne: null }
+            comment: { $ne: null }
         };
         try {
             if (search) {
-            	fquery.$or = [];
-            	if (parseInt(search)) {
-            		fquery.$or.push({ postId: parseInt(search) });
-            	}
-            	const unrx = new RegExp(config.core.regexp.username);
-            	if (search.match(unrx)) {
-            		const user = await db.collection('users').findOne({ username: search });
-            		if (user) {
-            			fquery.$or.push({ userId: { $regex: String(user._id), $options: 'i' } });
-            		}
-            	}
+                fquery.$or = [];
+                if (parseInt(search, 10)) {
+                    fquery.$or.push({ postId: parseInt(search, 10) });
+                }
+                const unrx = new RegExp(config.core.regexp.username);
+                if (search.match(unrx)) {
+                    const user = await db.collection('users').findOne({ username: search });
+                    if (user) {
+                        fquery.$or.push({ userId: { $regex: String(user._id), $options: 'i' } });
+                    }
+                }
             }
             let ffields = { _id: 1, userId: 1, postId: 1, comment: 1, timestamp: 1 };
             const total = await db.collection('blog_comments').find(fquery).count();
@@ -474,42 +488,42 @@ module.exports = function(app) {
             for (let i in items) {
                 const item = items[i];
                 if (!usersHash[item.userId]) {
-                	usersQuery.push({ _id: new ObjectID(item.userId) });
-                	usersHash[item.userId] = 1;
+                    usersQuery.push({ _id: new ObjectID(item.userId) });
+                    usersHash[item.userId] = 1;
                 }
                 if (!blogHash[item.postId]) {
-                	blogQuery.push({ _id: parseInt(item.postId, 10) });
-                	blogHash[item.postId] = 1;
+                    blogQuery.push({ _id: parseInt(item.postId, 10) });
+                    blogHash[item.postId] = 1;
                 }
             }
             let posts = {};
             let users = {};
             if (blogQuery.length) {
-            	let projection = {
-            		timestamp: 1
-            	};
-            	projection[locale + '.title'] = 1;
-            	const postData = await db.collection('blog').find({ $or: blogQuery }, { skip: 0, projection: projection }).toArray();
-            	if (postData && postData.length) {
-            		for (let i in postData) {
-            			const post = postData[i];
-            			posts[post._id] = post;
-            		}
-            	}
-        	}
-        	if (usersQuery.length){
-            	const usersData = await db.collection('users').find({ $or: usersQuery }, { skip: 0, projection: { username: 1, realname: 1, _id: 1 } }).toArray();
-            	if (usersData && usersData.length) {
-            		for (let i in usersData) {
-            			const user = usersData[i];
-            			users[String(user._id)] = user;
-            		}
-            	}	
-        	}
-        	for (let i in items) {
-        		items[i].title = posts[items[i].postId][locale].title;
-        		items[i].username = users[items[i].userId] ? users[items[i].userId].realname || users[items[i].userId].username : i18n.get().__(locale, 'Deleted Account');
-        	}
+                let projection = {
+                    timestamp: 1
+                };
+                projection[locale + '.title'] = 1;
+                const postData = await db.collection('blog').find({ $or: blogQuery }, { skip: 0, projection: projection }).toArray();
+                if (postData && postData.length) {
+                    for (let i in postData) {
+                        const post = postData[i];
+                        posts[post._id] = post;
+                    }
+                }
+            }
+            if (usersQuery.length) {
+                const usersData = await db.collection('users').find({ $or: usersQuery }, { skip: 0, projection: { username: 1, realname: 1, _id: 1 } }).toArray();
+                if (usersData && usersData.length) {
+                    for (let i in usersData) {
+                        const user = usersData[i];
+                        users[String(user._id)] = user;
+                    }
+                }
+            }
+            for (let i in items) {
+                items[i].title = posts[items[i].postId][locale].title;
+                items[i].username = users[items[i].userId] ? users[items[i].userId].realname || users[items[i].userId].username : i18n.get().__(locale, 'Deleted Account');
+            }
             let data = {
                 status: 1,
                 count: items.length,

@@ -80,5 +80,13 @@
 	"Required, format": "Required, format",
 	"dateTimeFormat": "YYYY/MM/DD HH:MM am(pm)",
 	"dateTimeTemplate": "YYYY/MM/DD hh:mm a",
-	"Error while loading comments": "Error while loading comments"
+	"Error while loading comments": "Error while loading comments",
+	"Refresh": "Refresh",
+	"Could not load latest blog posts": "Could not load latest blog posts",
+	"Disabled": "Disabled",
+	"Enabled": "Enabled",
+	"Please authorize to post add a comment.": "Please authorize to post add a comment.",
+	" Reply ": " Reply ",
+	"Remove ": "Remove ",
+	" Comment was deleted ": " Comment was deleted "
 }

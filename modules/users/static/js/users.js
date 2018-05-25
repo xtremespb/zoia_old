@@ -451,6 +451,9 @@
                 window.history.pushState({ action: '' }, document.title, uprefix + corePrefix.admin + '/users');
                 $('#editForm_groups_wrap').scrollTop(0);
             });
+            $('.usersBtnRefresh').click(() => {
+                $('#users').zoiaTable().load();
+            });
             $('.zoiaAdd').click(() => {
                 window.history.pushState({ action: 'create' }, document.title, uprefix + corePrefix.admin + '/users?action=create');
                 createItem();

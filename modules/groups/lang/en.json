@@ -39,5 +39,6 @@
 	"Passwords do not match": "Passwords do not match",
 	"Could not delete admin group because it's a system one.": "Could not delete admin group because it's a system one.",
 	"OK": "OK",
-	"Loading data, please wait": "Loading data, please wait"
+	"Loading data, please wait": "Loading data, please wait",
+	"Refresh": "Refresh"
 }

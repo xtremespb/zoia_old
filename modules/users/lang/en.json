@@ -97,5 +97,6 @@
 	"Could not change e-mail address": "Could not change e-mail address",
 	"Invalid code(s). Please check your input and try again.": "Invalid code(s). Please check your input and try again.",
 	"OK": "OK",
-	"Too many accepts. Now you will be forwarded to the sign in form.": "Too many accepts. Now you will be forwarded to the sign in form."
+	"Too many accepts. Now you will be forwarded to the sign in form.": "Too many accepts. Now you will be forwarded to the sign in form.",
+	"Refresh": "Refresh"
 }

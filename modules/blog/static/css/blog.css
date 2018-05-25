@@ -76,7 +76,9 @@
 .blogBtnSelectAll,
 .blogBtnSelectNone,
 .commentsBtnSelectAll,
-.commentsBtnSelectNone {
+.commentsBtnSelectNone,
+.blogBtnRefresh,
+.commentsBtnRefresh {
     padding: 9px;
 }
 

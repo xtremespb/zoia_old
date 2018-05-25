@@ -397,6 +397,9 @@
             $('#editForm_btnCancel').click(() => {
                 window.history.pushState({ action: '' }, document.title, uprefix + corePrefix.admin + '/groups');
             });
+            $('.groupsBtnRefresh').click(() => {
+                $('#groups').zoiaTable().load();
+            });
             $('.zoiaAdd').click(() => {
                 window.history.pushState({ action: 'create' }, document.title, uprefix + corePrefix.admin + '/groups?action=create');
                 createItem();

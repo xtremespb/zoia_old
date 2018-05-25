@@ -63,7 +63,7 @@
                 data: {}
             };
         }
-        $('#editForm').zoiaFormBuilder().resetForm();        
+        $('#editForm').zoiaFormBuilder().resetForm();
         currentEditID = null;
         editLanguage = Object.keys(langs)[0];
         // $('#zoiaEditLanguages > li[data=' + editLanguage + ']').click();
@@ -157,43 +157,43 @@
         for (let n in names) {
             html += '<li>' + names[n] + '</li>';
         }
-        html += '</ul>'
-        $zUI.modal.confirm(lang['The following comment(s) will be deleted. Continue?'] + '<br><br>' + html, { labels: { ok: lang['Yes'], cancel: lang['Cancel'] }, stack: true }).then(() => {            
+        html += '</ul>';
+        $zUI.modal.confirm(lang['The following comment(s) will be deleted. Continue?'] + '<br><br>' + html, { labels: { ok: lang['Yes'], cancel: lang['Cancel'] }, stack: true }).then(() => {
             $('#zoiaSpinnerMain').show();
             $.ajax({
-            type: 'POST',
-            url: '/api/blog/comments/remove',
-            data: {
-                commentId: currentDeleteID
-            },
-            cache: false
-        }).done((res) => {
-            setTimeout(() => {
-                $('#zoiaSpinnerMain').hide();
-            }, 700);            
-            $('#comments').zoiaTable().load();
-            if (res && res.status === 1) {
-                deleteDialog.hide();
-                $zUI.notification(lang['Operation was successful'], {
-                    status: 'success',
-                    timeout: 1500
-                });
-            } else {
+                type: 'POST',
+                url: '/api/blog/comments/remove',
+                data: {
+                    commentId: currentDeleteID
+                },
+                cache: false
+            }).done((res) => {
+                setTimeout(() => {
+                    $('#zoiaSpinnerMain').hide();
+                }, 700);
+                $('#comments').zoiaTable().load();
+                if (res && res.status === 1) {
+                    deleteDialog.hide();
+                    $zUI.notification(lang['Operation was successful'], {
+                        status: 'success',
+                        timeout: 1500
+                    });
+                } else {
+                    $zUI.notification(lang['Cannot delete one or more items'], {
+                        status: 'danger',
+                        timeout: 1500
+                    });
+                }
+            }).fail(() => {
+                setTimeout(() => {
+                    $('#zoiaSpinnerMain').hide();
+                }, 700);
+                $('#comments').zoiaTable().load();
                 $zUI.notification(lang['Cannot delete one or more items'], {
                     status: 'danger',
                     timeout: 1500
                 });
-            }
-        }).fail(() => {
-            setTimeout(() => {
-                $('#zoiaSpinnerMain').hide();
-            }, 700);
-            $('#comments').zoiaTable().load();
-            $zUI.notification(lang['Cannot delete one or more items'], {
-                status: 'danger',
-                timeout: 1500
             });
-        });
         }, () => {});
     };
 
@@ -252,7 +252,7 @@
     const onEditLanguageCheckboxClickEvent = () => {
         if ($('#zoiaEditLanguageCheckbox').prop('checked')) {
             $('#editForm').zoiaFormBuilder().resetForm();
-            keywords.setValue('');            
+            keywords.setValue('');
             editShadow[editLanguage].enabled = true;
             editShadow[editLanguage].data = {};
             for (let lng in langs) {
@@ -265,6 +265,9 @@
                     }
                     if (editShadow[lng].data.timestamp) {
                         $('#editForm_timestamp').val(editShadow[lng].data.timestamp.value);
+                    }
+                    if (editShadow[lng].data.comments) {
+                        $('#editForm_comments').val(editShadow[lng].data.comments.value);
                     }
                 }
             }
@@ -338,9 +341,11 @@
             const saveStatus = editShadow[editLanguage].data.status;
             const saveTemplate = editShadow[editLanguage].data.template;
             const saveTimestamp = editShadow[editLanguage].data.timestamp;
+            const saveComments = editShadow[editLanguage].data.comments;
             editShadow[lng].data.template = saveTemplate;
             editShadow[lng].data.status = saveStatus;
             editShadow[lng].data.timestamp = saveTimestamp;
+            editShadow[lng].data.comments = saveComments;
             if (useCodemirror) {
                 editShadow[editLanguage].data.content.value = codemirror.getValue();
             }
@@ -353,7 +358,7 @@
         $('#editForm').show();
         if (useCodemirror) {
             codemirror.setValue(editShadow[editLanguage].data.content.value);
-        }        
+        }
     };
 
     $(document).ready(() => {
@@ -421,6 +426,7 @@
                         }
                         let saveTemplate = editShadow[editLanguage].data.template.value;
                         let saveStatus = editShadow[editLanguage].data.status.value;
+                        let saveComments = editShadow[editLanguage].data.comments.value;
                         const timestampMoment = moment(editShadow[editLanguage].data.timestamp.value, lang.dateTimeTemplate);
                         if (!timestampMoment.isValid()) {
                             $('#editForm_timestamp').addClass('za-form-danger');
@@ -446,6 +452,7 @@
                             vr.data.template = saveTemplate;
                             vr.data.timestamp = saveTimestamp;
                             vr.data.status = saveStatus;
+                            vr.data.comments = saveComments;
                             data[n] = vr.data;
                         }
                         data.id = currentEditID;
@@ -511,6 +518,10 @@
                             editShadow[n].data.template = {
                                 type: 'select',
                                 value: data.item.template
+                            };
+                            editShadow[n].data.comments = {
+                                type: 'select',
+                                value: data.item.comments
                             };
                             editShadow[n].data.timestamp = {
                                 type: 'text',
@@ -617,6 +628,25 @@
                         css: 'za-form-width-small',
                         values: templates,
                         default: templates[0]
+                    },
+                    comments: {
+                        type: 'select',
+                        label: lang['Comments'],
+                        css: 'za-form-width-small',
+                        values: {
+                            0: lang.Disabled,
+                            1: lang.Enabled
+                        },
+                        default: 1,
+                        validation: {
+                            mandatoryCreate: true,
+                            mandatoryEdit: true,
+                            length: {
+                                min: 1,
+                                max: 1
+                            },
+                            regexp: /^(0|1)$/
+                        }
                     },
                     keywords: {
                         type: 'tags',
@@ -745,10 +775,9 @@
                     },
                     comment: {
                         sortable: false,
-                        process: (id, item, value) => {
-                            const timestamp = new Date(item.timestamp * 1000).toLocaleString().replace(/\s/gm, '&nbsp;')
+                        process: (id, item) => {
+                            const timestamp = new Date(item.timestamp * 1000).toLocaleString().replace(/\s/gm, '&nbsp;');
                             return `<article class="za-comment"><header class="za-text-meta">${item.username} &raquo; ${item.title}&nbsp;&nbsp;(${timestamp})</header><div class="za-comment-body">${item.comment}</div></article>`;
-                            //return value || '&ndash;';
                         }
                     },
                     actions: {
@@ -806,6 +835,12 @@
             });
             $('#zoiaEditLanguageCheckbox').click(function() {
                 onEditLanguageCheckboxClickEvent();
+            });
+            $('.blogBtnRefresh').click(() => {
+                $('#blog').zoiaTable().load();
+            });
+            $('.commentsBtnRefresh').click(() => {
+                $('#comments').zoiaTable().load();
             });
             initEditor();
             $('.zoia-admin-loading').hide();

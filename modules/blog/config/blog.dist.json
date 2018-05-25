@@ -1,3 +1,9 @@
 {
-	"itemsPerPage": 10
+	"prefix": {
+		"blog": "/blog",
+		"post": "/post"
+	},
+	"allowComments": true,
+	"itemsPerPage": 10,
+	"blogArticlesLatestCount": 5
 }

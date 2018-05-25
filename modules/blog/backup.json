@@ -1,12 +1,8 @@
 {
-    "id": "pages",
+    "id": "blog",
     "items": [
     {
         "type": "mongo",
-        "collections": ["pages", "pages_registry"]
-    },
-    {
-        "type": "directory",
-        "directories": ["static/storage"]
+        "collections": ["blog", "blog_comments", "blog_counters"]
     }]
 }

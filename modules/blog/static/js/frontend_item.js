@@ -1,10 +1,9 @@
 /* eslint max-len: 0 */
 /* eslint no-undef: 0 */
+/* eslint no-use-before-define: 0 */
 
 (() => {
     let locale;
-    let userData;
-    let uprefix;
     let postId;
     let commentTemplate;
     let commentRemovedTemplate;
@@ -19,14 +18,14 @@
         return s;
     };
 
-    const addCommentHTML = (comment, usersData) => {
+    const addCommentHTML = (comment) => {
         let level = 1;
         if (comment.parentId) {
-            const parentLevel = parseInt($(`.za-comment[data-id="${comment.parentId}"]`).attr('data-level'));
+            const parentLevel = parseInt($(`.za-comment[data-id="${comment.parentId}"]`).attr('data-level'), 10);
             level = parentLevel + 1;
         }
         const offset = (level - 1) * 20;
-        const timestamp = moment(parseInt(comment.timestamp, 10) * 1000).locale(locale).format('L [' + lang['at'] + '] LT');;
+        const timestamp = moment(parseInt(comment.timestamp, 10) * 1000).locale(locale).format('L [' + lang['at'] + '] LT');
         const commentHTML = tpl(commentTemplate, {
             id: comment._id,
             level: level,
@@ -35,7 +34,7 @@
             username: comment.username,
             picture: comment.picture,
             timestamp: timestamp
-        })
+        });
         if (comment.parentId) {
             $(`.za-comment[data-id="${comment.parentId}"]`).parent().append(commentHTML);
         } else {
@@ -46,7 +45,7 @@
     const addCommentRemovedHTML = (comment, add) => {
         let level = comment.level || 1;
         if (comment.parentId) {
-            const parentLevel = parseInt($(`.za-comment[data-id="${comment.parentId}"]`).attr('data-level'));
+            const parentLevel = parseInt($(`.za-comment[data-id="${comment.parentId}"]`).attr('data-level'), 10);
             level = parentLevel + 1;
         }
         const offset = (level - 1) * 20;
@@ -54,7 +53,7 @@
             id: comment._id,
             level: level,
             offset: offset
-        })
+        });
         if (add) {
             if (comment.parentId) {
                 $(`.za-comment[data-id="${comment.parentId}"]`).parent().append(commentHTML);
@@ -222,8 +221,6 @@
 
     $(document).ready(() => {
         locale = $('#zp_locale').attr('data');
-        userData = JSON.parse($('#zp_userData').attr('data'));
-        uprefix = $('#zp_uprefix').attr('data');
         commentTemplate = $('#zp_comment').attr('data');
         commentRemovedTemplate = $('#zp_comment_removed').attr('data');
         newCommentHighlight = $('#zp_newCommentHighlight').attr('data');
@@ -232,7 +229,7 @@
             $('#zoia_btn_addcomment').click(addComment);
             $('#zoia_btn_newcomment').click(newCommentClickHandler);
             $('#zoia_comment').keydown((e) => {
-                if (e.ctrlKey && e.keyCode == 13) {
+                if (e.ctrlKey && e.keyCode === 13) {
                     addComment(e);
                 }
             });

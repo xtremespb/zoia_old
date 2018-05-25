@@ -415,6 +415,9 @@
                     noitems: lang['No items to display']
                 }
             });
+            $('.reviewsBtnRefresh').click(() => {
+                $('#reviews').zoiaTable().load();
+            });
             $('#editForm_btnCancel').click(() => {
                 window.history.pushState({ action: '' }, document.title, uprefix + corePrefix.admin + '/reviews');
             });

@@ -1,7 +1,14 @@
+/* eslint max-len: 0 */
 const moduleId = 'blog';
 const path = require('path');
 const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
-const moduleURL = config.core.prefix.admin + '/blog';
+let configModule;
+try {
+    configModule = require(path.join(__dirname, 'config', 'blog.json'));
+} catch (e) {
+    configModule = require(path.join(__dirname, 'config', 'blog.dist.json'));
+}
+const moduleURL = config.core.prefix.admin + configModule.prefix.blog;
 
 const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
 const Router = require('co-router');

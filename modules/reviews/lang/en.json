@@ -53,5 +53,6 @@
 	"Text is missing or is too long": "Text is missing or is too long",
 	"Invalid captcha": "Invalid captcha",
 	"Error while loading data": "Error while loading data",
-	"Your review has been accepted for moderation.": "Your review has been accepted for moderation."
+	"Your review has been accepted for moderation.": "Your review has been accepted for moderation.",
+	"Refresh": "Refresh"
 }

@@ -1199,6 +1199,9 @@
             $('.pagesBtnRebuild').click(() => {
                 ajaxRebuildDatabase();
             });
+            $('.pagesBtnRefresh').click(() => {
+                $('#pages').zoiaTable().load();
+            });
             initEditor();
             $('.zoia-admin-loading').hide();
             $('#zoia_admin_panel_wrap').show();
