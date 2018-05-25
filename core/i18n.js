@@ -18,44 +18,40 @@ module.exports = class I18N {
         if (!this.i18n || !req) {
             return;
         }
-        let detected = false;
+        let detected;
         if (config.i18n.detect.subdomain) {
             if (req.subdomains && req.subdomains.length > 0) {
-                this.i18n.setLocale(req.subdomains[req.subdomains.length - 1]);
+                detected = req.subdomains[req.subdomains.length - 1];
             } else {
-                this.i18n.setLocale(config.i18n.locales[0]);
+                detected = config.i18n.locales[0];
             }
-            detected = true;
         }
         if (!detected && config.i18n.detect.query) {
             if (req.query && req.query.lang && typeof req.query.lang === 'string' && req.query.lang.match(/^[a-z]{2}$/)) {
-                this.i18n.setLocale(req.query.lang);
-                detected = true;
+                detected = req.query.lang;
             }
         }
         if (!detected && config.i18n.detect.cookie) {
             this.i18n.setLocaleFromCookie(req);
-            detected = true;
+            detected = this.i18n.getLocale();
         }
         if (!detected && config.i18n.detect.url) {
             /* eslint no-unused-vars: 0 */
             const [dummy, lng] = req.url.split(/\//);
             if (!req.url.match(/^\/(api)/) && !req.url.match(/\/(static)\//)) {
                 if (lng && lng.match(/^[a-z]{2}$/) && config.i18n.locales.indexOf(lng) > -1) {
-                    this.i18n.setLocale(lng);
+                    detected = lng;
                 } else {
-                    this.i18n.setLocale(config.i18n.locales[0]);
+                    detected = config.i18n.locales[0];
                 }
             } else if (req.session.currentLocale) {
-                this.i18n.setLocale(req.session.currentLocale);
+                detected = req.session.currentLocale;
             }
-            detected = true;
         }
-        let newLocale = this.i18n.getLocale();
         if (!detected && req.session && req.session.currentLocale) {
-            newLocale = req.session.currentLocale;
+            detected = req.session.currentLocale;
         }
-        return (newLocale);
+        return detected || config.i18n.locales[0];
     }
     getLanguageURLPrefix(req) {
         if (!this.i18n || !req || !config.i18n.detect.url) {
