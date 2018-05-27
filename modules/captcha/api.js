@@ -1,7 +1,6 @@
-const path = require('path');
 const Router = require('co-router');
-const captcha = new(require(path.join(__dirname, '..', '..', 'core', 'captcha.js')))();
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const captcha = new(require('../../core/captcha.js'))();
+const config = require('../../core/config.js');
 
 module.exports = function() {
     const getCaptcha = async(req, res) => {

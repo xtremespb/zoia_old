@@ -1,24 +1,23 @@
-const path = require('path');
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
-const loginFields = require(path.join(__dirname, 'schemas', 'loginFields.js'));
-const registerFields = require(path.join(__dirname, 'schemas', 'registerFields.js'));
-const registerConfirmFields = require(path.join(__dirname, 'schemas', 'registerConfirmFields.js'));
-const resetFields = require(path.join(__dirname, 'schemas', 'resetFields.js'));
-const resetConfirmFields = require(path.join(__dirname, 'schemas', 'resetConfirmFields.js'));
-const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js')))();
+const Module = require('../../core/module.js');
+const loginFields = require('./schemas/loginFields.js');
+const registerFields = require('./schemas/registerFields.js');
+const registerConfirmFields = require('./schemas/registerConfirmFields.js');
+const resetFields = require('./schemas/resetFields.js');
+const resetConfirmFields = require('./schemas/resetConfirmFields.js');
+const validation = new(require('../../core/validation.js'))();
 const Router = require('co-router');
 const crypto = require('crypto');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 const ExpressBrute = require('express-brute');
 
 module.exports = function(app) {
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
-    const mailer = new(require(path.join(__dirname, '..', '..', 'core', 'mailer.js')))(app);
-    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
+    const mailer = new(require('../../core/mailer.js'))(app);
+    const render = new(require('../../core/render.js'))(`${__dirname}/views`, app);
     const log = app.get('log');
     const db = app.get('db');
 
-    const failCallback = function(req, res, next, nextValidRequestDate) {
+    const failCallback = function(req, res) {
         const locale = req.session.currentLocale;
         return res.send(JSON.stringify({
             status: 0,
@@ -29,17 +28,13 @@ module.exports = function(app) {
     const authBruteforce = new ExpressBrute(app.get('bruteforceStore'), {
         freeRetries: 5,
         minWait: 500,
-        maxWait: 60 * 1000, // 1 hour,
+        maxWait: 60 * 1000,
         failCallback: failCallback
     });
 
-    /*
-        Log in an user
-    */
-
     const login = async(req, res) => {
         res.contentType('application/json');
-        const fieldList = loginFields.getLoginFields(config.core && config.core.regexp && config.core.regexp.username ? config.core.regexp : {'username':'^[A-Za-z0-9_\-]+$'});
+        const fieldList = loginFields.getLoginFields(config.core && config.core.regexp && config.core.regexp.username ? config.core.regexp : { username: '^[A-Za-z0-9_\-]+$' });
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
@@ -63,77 +58,71 @@ module.exports = function(app) {
             });
         } catch (e) {
             log.error(e);
-            return JSON.stringify({
+            return res.send(JSON.stringify({
                 status: 0,
                 error: e.message
-            });
+            }));
         }
     };
-
-    /*
-        Log out an user
-    */
 
     const logout = async(req, res) => {
         res.contentType('application/json');
-        let output = {
-            status: 1
-        };
         if (!Module.isAuthorized(req)) {
-            output.status = 0;
-            return res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: 0
+            }));
         }
         try {
             Module.logout(req);
-            return res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: 1
+            }));
         } catch (e) {
-            output.status = 0;
-            output.error = e.message;
-            res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
         }
     };
 
-    /*
-        Register    
-    */
-
     const register = async(req, res) => {
         res.contentType('application/json');
-        let output = {
-            status: 1
-        };
         let locale = config.i18n.locales[0];
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
         }
         const uprefix = i18n.getLanguageURLPrefix(req);
-        const fieldList = registerFields.getRegisterFields(config.core && config.core.regexp && config.core.regexp.username ? config.core.regexp : {'username':'^[A-Za-z0-9_\-]+$'});
+        const fieldList = registerFields.getRegisterFields(config.core && config.core.regexp && config.core.regexp.username ? config.core.regexp : { username: '^[A-Za-z0-9_\-]+$' });
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
-            output.status = 0;
-            output.fields = fieldsFailed;
-            return res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: 0,
+                fields: fieldsFailed
+            }));
         }
         if (!req.session || fields.captcha.value !== req.session.captcha) {
-            output.status = -3;
-            output.fields = ['captcha'];
             req.session.captcha = null;
-            return res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: -3,
+                fields: ['captcha']
+            }));
         }
         req.session.captcha = Math.random().toString().substr(2, 4);
         try {
             const user = await db.collection('users').findOne({ username: fields.username.value });
             if (user !== null) {
-                output.status = -1;
-                output.fields = ['username'];
-                return res.send(JSON.stringify(output));
+                return res.send(JSON.stringify({
+                    status: -1,
+                    fields: ['username']
+                }));
             }
             const email = await db.collection('users').findOne({ email: fields.email.value });
             if (email !== null) {
-                output.status = -2;
-                output.fields = ['email'];
-                return res.send(JSON.stringify(output));
+                return res.send(JSON.stringify({
+                    status: -2,
+                    fields: ['email']
+                }));
             }
             const passwordHash = crypto.createHash('md5').update(config.salt + fields.password.value).digest('hex');
             const activationCode = crypto.createHash('md5').update(config.salt + Math.random()).digest('hex');
@@ -146,8 +135,9 @@ module.exports = function(app) {
                 activationCode: activationCode
             });
             if (!insResult || !insResult.result || !insResult.result.ok) {
-                output.status = 0;
-                return res.send(JSON.stringify(output));
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
             }
             let mailHTML = await render.file('mail_register.html', {
                 i18n: i18n.get(),
@@ -157,36 +147,34 @@ module.exports = function(app) {
                 url: config.website.protocol + '://' + config.website.url[locale] + uprefix + config.core.prefix.auth + config.core.prefix.authRegisterConfirm + '?username=' + fields.username.value + '&code=' + activationCode
             });
             await mailer.send(req, fields.email.value, i18n.get().__(locale, 'Confirm your registration'), mailHTML);
-            return res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: 1
+            }));
         } catch (e) {
-            output.status = 0;
             log.error(e);
-            res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: 0
+            }));
         }
     };
 
-    /*
-        Register сonfirmation    
-    */
-
     const registerConfirm = async(req, res) => {
         res.contentType('application/json');
-        let output = {
-            status: 1
-        };        
-        const fieldList = registerConfirmFields.getConfirmFields(config.core && config.core.regexp && config.core.regexp.username ? config.core.regexp : {'username':'^[A-Za-z0-9_\-]+$'});
+        const fieldList = registerConfirmFields.getConfirmFields(config.core && config.core.regexp && config.core.regexp.username ? config.core.regexp : { username: '^[A-Za-z0-9_\-]+$' });
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
-            output.status = 0;
-            output.fields = fieldsFailed;
-            return res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: 0,
+                fields: fieldsFailed
+            }));
         }
         try {
             const user = await db.collection('users').findOne({ username: fields.username.value });
             if (user === null || user.status > 0 || user.activationCode !== fields.code.value) {
-                output.status = -1;
-                return res.send(JSON.stringify(output));
+                return res.send(JSON.stringify({
+                    status: -1
+                }));
             }
             let updResult = await db.collection('users').update({
                 username: fields.username.value
@@ -196,26 +184,23 @@ module.exports = function(app) {
                 }
             });
             if (!updResult || !updResult.result || !updResult.result.ok) {
-                output.status = 0;
-                return res.send(JSON.stringify(output));
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
             }
-            return res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: 1
+            }));
         } catch (e) {
-            output.status = 0;
             log.error(e);
-            res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: 0
+            }));
         }
     };
 
-    /*
-        Password reset    
-    */
-
     const reset = async(req, res) => {
         res.contentType('application/json');
-        let output = {
-            status: 1
-        };
         let locale = config.i18n.locales[0];
         if (req.session && req.session.currentLocale) {
             locale = req.session.currentLocale;
@@ -225,23 +210,26 @@ module.exports = function(app) {
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
-            output.status = 0;
-            output.fields = fieldsFailed;
-            return res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: 0,
+                fields: fieldsFailed
+            }));
         }
         if (!req.session || fields.captcha.value !== req.session.captcha) {
-            output.status = 0;
-            output.fields = ['captcha'];
             req.session.captcha = null;
-            return res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: -3,
+                fields: ['captcha']
+            }));
         }
         req.session.captcha = Math.random().toString().substr(2, 4);
         try {
             const user = await db.collection('users').findOne({ email: fields.email.value });
             if (user === null) {
-                output.status = -1;
-                output.fields = ['email'];
-                return res.send(JSON.stringify(output));
+                return res.send(JSON.stringify({
+                    status: 0,
+                    fields: ['email']
+                }));
             }
             const activationCode = crypto.createHash('md5').update(config.salt + Math.random()).digest('hex');
             let updResult = await db.collection('users').update({
@@ -252,8 +240,9 @@ module.exports = function(app) {
                 }
             });
             if (!updResult || !updResult.result || !updResult.result.ok) {
-                output.status = 0;
-                return res.send(JSON.stringify(output));
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
             }
             let mailHTML = await render.file('mail_reset.html', {
                 i18n: i18n.get(),
@@ -263,36 +252,34 @@ module.exports = function(app) {
                 url: config.website.protocol + '://' + config.website.url[locale] + uprefix + config.core.prefix.auth + config.core.prefix.authResetConfirm + '?username=' + user.username + '&code=' + activationCode + '&password=password'
             });
             await mailer.send(req, fields.email.value, i18n.get().__(locale, 'Confirm password reset'), mailHTML);
-            return res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: 1
+            }));
         } catch (e) {
-            output.status = 0;
             log.error(e);
-            res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: 0
+            }));
         }
     };
 
-    /*
-        Confirm password reset    
-    */
-
     const resetConfirm = async(req, res) => {
         res.contentType('application/json');
-        let output = {
-            status: 1
-        };
-        const fieldList = resetConfirmFields.getResetConfirmFields(config.core && config.core.regexp && config.core.regexp.username ? config.core.regexp : {'username':'^[A-Za-z0-9_\-]+$'});
+        const fieldList = resetConfirmFields.getResetConfirmFields(config.core && config.core.regexp && config.core.regexp.username ? config.core.regexp : { username: '^[A-Za-z0-9_\-]+$' });
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
-            output.status = 0;
-            output.fields = fieldsFailed;
-            return res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: 0,
+                fields: fieldsFailed
+            }));
         }
         try {
             const user = await db.collection('users').findOne({ username: fields.username.value });
             if (user === null || user.status === 0 || fields.code.value !== user.activationCode) {
-                output.status = -1;
-                return res.send(JSON.stringify(output));
+                return res.send(JSON.stringify({
+                    status: -1
+                }));
             }
             const passwordHash = crypto.createHash('md5').update(config.salt + fields.password.value).digest('hex');
             let updResult = await db.collection('users').update({
@@ -304,14 +291,18 @@ module.exports = function(app) {
                 }
             });
             if (!updResult || !updResult.result || !updResult.result.ok) {
-                output.status = 0;
-                return res.send(JSON.stringify(output));
+                return res.send(JSON.stringify({
+                    status: 0
+                }));
             }
-            return res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: 1
+            }));
         } catch (e) {
-            output.status = 0;
             log.error(e);
-            res.send(JSON.stringify(output));
+            return res.send(JSON.stringify({
+                status: 0
+            }));
         }
     };
 

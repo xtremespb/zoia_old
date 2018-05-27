@@ -1,7 +1,6 @@
-const path = require('path');
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+const Module = require('../../core/module.js');
 const Router = require('co-router');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 const fs = require('fs-extra');
 
 module.exports = function(app) {
@@ -37,7 +36,7 @@ module.exports = function(app) {
         }
         try {
             const settingsMerge = Object.assign(config.website, data);
-            await fs.writeJson(path.join(__dirname, '..', '..', 'etc', 'website.json'), settingsMerge, { spaces: '\t' });
+            await fs.writeJson('../../etc/website.json', settingsMerge, { spaces: '\t' });
             config.website = settingsMerge;
             return res.send(JSON.stringify({
                 status: 1
@@ -66,7 +65,7 @@ module.exports = function(app) {
         enabled = enabled === 'true' ? true : false;
         try {
             config.website.maintenance = enabled;
-            await fs.writeJson(path.join(__dirname, '..', '..', 'etc', 'website.json'), config.website, { spaces: '\t' });
+            await fs.writeJson('../../etc/website.json', config.website, { spaces: '\t' });
             return res.send(JSON.stringify({
                 status: 1
             }));

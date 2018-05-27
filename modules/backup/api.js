@@ -1,8 +1,8 @@
 const path = require('path');
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+const Module = require('../../core/module.js');
 const Router = require('co-router');
 const ObjectID = require('mongodb').ObjectID;
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 const fs = require('fs-extra');
 const tar = require('tar');
 const crypto = require('crypto');

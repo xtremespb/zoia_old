@@ -1,17 +1,16 @@
-const pathM = require('path');
-const Module = require(pathM.join(__dirname, '..', '..', 'core', 'module.js'));
-const validation = new(require(pathM.join(__dirname, '..', '..', 'core', 'validation.js')))();
+const Module = require('../../core/module.js');
+const validation = new(require('../../core/validation.js'))();
 const Router = require('co-router');
-const blogFields = require(pathM.join(__dirname, 'schemas', 'blogFields.js'));
-const config = require(pathM.join(__dirname, '..', '..', 'core', 'config.js'));
+const blogFields = require('./schemas/blogFields.js');
+const config = require('../../core/config.js');
 const ObjectID = require('mongodb').ObjectID;
 
 module.exports = function(app) {
     const log = app.get('log');
     const db = app.get('db');
     const sortFields = ['timestamp', 'title', 'status', '_id'];
-    const security = new(require(pathM.join(__dirname, '..', '..', 'core', 'security.js')))(app);
-    const i18n = new(require(pathM.join(__dirname, '..', '..', 'core', 'i18n.js')))(pathM.join(__dirname, 'lang'), app);
+    const security = new(require('../../core/security.js'))(app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
 
     const list = async(req, res) => {
         const locale = req.session.currentLocale;

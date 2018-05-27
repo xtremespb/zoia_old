@@ -1,9 +1,8 @@
-const path = require('path');
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
-const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js')))();
+const Module = require('../../core/module.js');
+const validation = new(require('../../core/validation.js'))();
 const Router = require('co-router');
 const ObjectID = require('mongodb').ObjectID;
-const groupsFields = require(path.join(__dirname, 'schemas', 'groupsFields.js'));
+const groupsFields = require('./schemas/groupsFields.js');
 
 module.exports = function(app) {
     const log = app.get('log');

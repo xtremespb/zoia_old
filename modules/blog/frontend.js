@@ -1,37 +1,36 @@
-const path = require('path');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 const Router = require('co-router');
 const fs = require('fs-extra');
 const moment = require('moment');
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+const Module = require('../../core/module.js');
 const ObjectID = require('mongodb').ObjectID;
 
 let configModule;
 try {
-    configModule = require(path.join(__dirname, 'config', 'blog.json'));
+    configModule = require('./config/blog.json');
 } catch (e) {
-    configModule = require(path.join(__dirname, 'config', 'blog.dist.json'));
+    configModule = require('./config/blog.dist.json');
 }
 
 let templateBlogList = 'frontend.html';
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateBlogList))) {
+if (fs.existsSync('./views/custom_' + templateBlogList)) {
     templateBlogList = 'custom_' + templateBlogList;
 }
 let templateBlogItem = 'frontend_item.html';
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateBlogItem))) {
+if (fs.existsSync('./views/custom_' + templateBlogItem)) {
     templateBlogItem = 'custom_' + templateBlogList;
 }
 let templateBlogLatest = 'frontend_latest.html';
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateBlogLatest))) {
+if (fs.existsSync('./views/custom_' + templateBlogLatest)) {
     templateBlogLatest = 'custom_' + templateBlogLatest;
 }
 
 module.exports = function(app) {
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
     const db = app.get('db');
     const log = app.get('log');
-    const renderBlog = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
-    const renderRoot = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), app);
+    const renderBlog = new(require('../../core/render.js'))(`${__dirname}/views`, app);
+    const renderRoot = new(require('../../core/render.js'))(`${__dirname}/../../views`, app);
 
     const listItems = async(req, res, next) => {
         let filters = app.get('templateFilters');

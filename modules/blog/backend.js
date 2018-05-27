@@ -1,22 +1,22 @@
 /* eslint max-len: 0 */
 const moduleId = 'blog';
 const path = require('path');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 let configModule;
 try {
-    configModule = require(path.join(__dirname, 'config', 'blog.json'));
+    configModule = require('./config/blog.json');
 } catch (e) {
-    configModule = require(path.join(__dirname, 'config', 'blog.dist.json'));
+    configModule = require('./config/blog.dist.json');
 }
 const moduleURL = config.core.prefix.admin + configModule.prefix.blog;
 
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+const Module = require('../../core/module.js');
 const Router = require('co-router');
 
 module.exports = function(app) {
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
-    const panel = new(require(path.join(__dirname, '..', '..', 'core', 'panel.js')))(app);
-    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
+    const panel = new(require('../../core/panel.js'))(app);
+    const render = new(require('../../core/render.js'))(`${__dirname}/views`, app);
     const db = app.get('db');
 
     const list = async(req, res, next) => {
@@ -46,14 +46,14 @@ module.exports = function(app) {
             });
             res.send(await panel.html(req, moduleId, i18n.get().__(locale, 'title'), html, config.production ? [config.codemirror ? '/zoia/3rdparty/codemirror/codemirror.min.css' : null, '/blog/static/css/blog.min.css'] : [config.codemirror ? '/zoia/3rdparty/codemirror/codemirror.css' : null, '/blog/static/css/blog.css'],
                 config.production ? [config.codemirror ? '/zoia/3rdparty/codemirror/codemirror.min.js' : '/zoia/3rdparty/ckeditor/ckeditor.js', config.codemirror ? null : '/zoia/3rdparty/ckeditor/adapters/jquery.js', '/blog/static/js/blog.min.js'] : [config.codemirror ? '/zoia/3rdparty/codemirror/codemirror.min.js' : '/zoia/3rdparty/ckeditor/ckeditor.js', config.codemirror ? '/zoia/3rdparty/codemirror/htmlmixed.js' : '/zoia/3rdparty/ckeditor/adapters/jquery.js',
-                    '/zoia/core/js/jquery.zoiaFormBuilder.js', '/zoia/core/js/jquery.zoiaTable.js', '/zoia/3rdparty/jstree/jstree.min.js', '/blog/static/js/tags-input.js', '/zoia/3rdparty/moment/moment.min.js', '/blog/static/js/blog.js'
+                    '/zoia/core/js/jquery.zoiaFormBuilder.js', '/zoia/core/js/jquery.zoiaTable.js', '/zoia/3rdparty/jstree/jstree.min.js', '/blog/static/js/tags-input.js', '/zoia/3rdparty/moment/moment-with-locales.min.js', '/blog/static/js/blog.js'
                 ]));
         } catch (e) {
             next(new Error(e.message));
         }
     };
 
-    app.use('/blog/static', app.get('express').static(path.join(__dirname, 'static')));
+    app.use('/blog/static', app.get('express').static(`${__dirname}/static`));
 
     let router = Router();
     router.get('/', list);

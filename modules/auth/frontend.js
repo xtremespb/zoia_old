@@ -1,10 +1,9 @@
-const path = require('path');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+const config = require('../../core/config.js');
+const Module = require('../../core/module.js');
 const Router = require('co-router');
-const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js')))();
-const registerConfirmFields = require(path.join(__dirname, 'schemas', 'registerConfirmFields.js'));
-const resetConfirmFields = require(path.join(__dirname, 'schemas', 'resetConfirmFields.js'));
+const validation = new(require('../../core/validation.js'))();
+const registerConfirmFields = require('./schemas/registerConfirmFields.js');
+const resetConfirmFields = require('./schemas/resetConfirmFields.js');
 
 const fs = require('fs');
 
@@ -14,26 +13,26 @@ let templateRegisterConfirm = 'registerConfirm.html';
 let templateReset = 'reset.html';
 let templateResetConfirm = 'resetConfirm.html';
 
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateLogin))) {
+if (fs.existsSync('./views/custom_' + templateLogin)) {
     templateLogin = 'custom_' + templateLogin;
 }
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateRegister))) {
+if (fs.existsSync('./views/custom_' + templateRegister)) {
     templateRegister = 'custom_' + templateRegister;
 }
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateRegisterConfirm))) {
+if (fs.existsSync('./views/custom_' + templateRegisterConfirm)) {
     templateRegisterConfirm = 'custom_' + templateRegisterConfirm;
 }
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateReset))) {
+if (fs.existsSync('./views/custom_' + templateReset)) {
     templateReset = 'custom_' + templateReset;
 }
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateResetConfirm))) {
+if (fs.existsSync('./views/custom_' + templateResetConfirm)) {
     templateResetConfirm = 'custom_' + templateResetConfirm;
 }
 
 module.exports = function(app) {
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
-    const renderAuth = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
-    const renderRoot = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
+    const renderAuth = new(require('../../core/render.js'))(`${__dirname}/views`, app);
+    const renderRoot = new(require('../../core/render.js'))(`${__dirname}/../../views`, app);
 
     const login = async(req, res) => {
         const uprefix = i18n.getLanguageURLPrefix(req);
@@ -205,7 +204,7 @@ module.exports = function(app) {
         res.send(html);
     };
 
-    app.use('/auth/static', app.get('express').static(path.join(__dirname, 'static')));
+    app.use('/auth/static', app.get('express').static(`${__dirname}/static`));
     let router = Router();
     router.get('/', login);
     router.get(config.core.prefix.authLogout || '/logout', logout);

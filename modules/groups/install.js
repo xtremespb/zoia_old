@@ -1,4 +1,3 @@
-
 module.exports = function(data) {
     return async() => {
         const db = data.db;

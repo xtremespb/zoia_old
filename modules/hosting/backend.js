@@ -1,25 +1,24 @@
 const moduleId = 'hosting';
-const path = require('path');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 const moduleURL = config.core.prefix.admin + '/hosting';
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+const Module = require('../../core/module.js');
 const Router = require('co-router');
 const fs = require('fs');
-const plugins = fs.readdirSync(path.join(__dirname, 'plugins_hosting'));
+const plugins = fs.readdirSync(`${__dirname}/plugins_hosting`);
 for (let i in plugins) {
     plugins[i] = plugins[i].replace(/\.js$/, '');
 }
 let configModule;
 try {
-    configModule = require(path.join(__dirname, 'config', 'hosting.json'));
+    configModule = require('./config/hosting.json');
 } catch (e) {
-    configModule = require(path.join(__dirname, 'config', 'hosting.dist.json'));
+    configModule = require('./config/hosting.dist.json');
 }
 
 module.exports = function(app) {
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
-    const panel = new(require(path.join(__dirname, '..', '..', 'core', 'panel.js')))(app);
-    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
+    const panel = new(require('../../core/panel.js'))(app);
+    const render = new(require('../../core/render.js'))(`${__dirname}/views`, app);
 
     const list = async(req, res, next) => {
         try {
@@ -47,7 +46,7 @@ module.exports = function(app) {
         }
     };
 
-    app.use('/hosting/static', app.get('express').static(path.join(__dirname, 'static')));
+    app.use('/hosting/static', app.get('express').static(`${__dirname}/static`));
 
     let router = Router();
     router.get('/', list);

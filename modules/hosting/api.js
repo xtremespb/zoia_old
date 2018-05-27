@@ -1,31 +1,31 @@
 /* eslint max-len: 0 */
 
 const path = require('path');
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
-const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js')))();
+const Module = require('../../core/module.js');
+const validation = new(require('../../core/validation.js'))();
 const Router = require('co-router');
 const ObjectID = require('mongodb').ObjectID;
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
-const accountFields = require(path.join(__dirname, 'schemas', 'accountFields.js'));
-const newAccountFields = require(path.join(__dirname, 'schemas', 'newAccountFields.js'));
+const config = require('../../core/config.js');
+const accountFields = require('./schemas/accountFields.js');
+const newAccountFields = require('./schemas/newAccountFields.js');
 const fs = require('fs');
-const plugins = fs.readdirSync(path.join(__dirname, 'plugins_hosting'));
+const plugins = fs.readdirSync(`${__dirname}/plugins_hosting`);
 for (let i in plugins) {
     plugins[i] = plugins[i].replace(/\.js$/, '');
 }
 let configModule;
 try {
-    configModule = require(path.join(__dirname, 'config', 'hosting.json'));
+    configModule = require('./config/hosting.json');
 } catch (e) {
-    configModule = require(path.join(__dirname, 'config', 'hosting.dist.json'));
+    configModule = require('./config/hosting.dist.json');
 }
 
 module.exports = function(app) {
     const log = app.get('log');
     const db = app.get('db');
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
-    const mailer = new(require(path.join(__dirname, '..', '..', 'core', 'mailer.js')))(app);
-    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
+    const mailer = new(require('../../core/mailer.js'))(app);
+    const render = new(require('../../core/render.js'))(`${__dirname}/views`, app);
 
     const sortFields = ['username'];
 

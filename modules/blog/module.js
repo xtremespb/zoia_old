@@ -1,13 +1,12 @@
 module.exports = function(app) {
-    const path = require('path');
-    const api = require(path.join(__dirname, 'api.js'))(app);
-    const backend = require(path.join(__dirname, 'backend.js'))(app);
-    const frontend = require(path.join(__dirname, 'frontend.js'))(app);
+    const api = require('./api.js')(app);
+    const backend = require('./backend.js')(app);
+    const frontend = require('./frontend.js')(app);
     let configModule;
     try {
-        configModule = require(path.join(__dirname, 'config', 'blog.json'));
+        configModule = require('./config/blog.json');
     } catch (e) {
-        configModule = require(path.join(__dirname, 'config', 'blog.dist.json'));
+        configModule = require('./config/blog.dist.json');
     }
     app.get('log').info('[blog] module loaded');
     return {
