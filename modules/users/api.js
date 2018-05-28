@@ -1,28 +1,28 @@
 const path = require('path');
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
-const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js')))();
+const Module = require('../../core/module.js');
+const validation = new(require('../../core/validation.js'))();
 const Router = require('co-router');
 const ObjectID = require('mongodb').ObjectID;
-const usersFields = require(path.join(__dirname, 'schemas', 'usersFields.js'));
+const usersFields = require('./schemas/usersFields.js');
 const crypto = require('crypto');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 const imageType = require('image-type');
 const Jimp = require('jimp');
 const fs = require('fs-extra');
 
 let configModule;
 try {
-    configModule = require(path.join(__dirname, 'config', 'users.json'));
+    configModule = require('./config/users.json');
 } catch (e) {
-    configModule = require(path.join(__dirname, 'config', 'users.dist.json'));
+    configModule = require('./config/users.dist.json');
 }
 
 module.exports = function(app) {
     const log = app.get('log');
     const db = app.get('db');
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
-    const mailer = new(require(path.join(__dirname, '..', '..', 'core', 'mailer.js')))(app);
-    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
+    const mailer = new(require('../../core/mailer.js'))(app);
+    const render = new(require('../../core/render.js'))(`${__dirname}/views`, app);
 
     const sortFields = ['username', 'email', 'status', 'groups'];
 
@@ -96,14 +96,14 @@ module.exports = function(app) {
         const id = req.query.id;
         if (!id || typeof id !== 'string' || !id.match(/^[a-f0-9]{24}$/)) {
             return res.send(JSON.stringify({
-                status: 0
+                status: -1
             }));
         }
         try {
             const item = await db.collection('users').findOne({ _id: new ObjectID(id) });
             if (!item) {
                 return res.send(JSON.stringify({
-                    status: 0
+                    status: -2
                 }));
             }
             return res.send(JSON.stringify({

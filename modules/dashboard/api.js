@@ -36,7 +36,7 @@ module.exports = function(app) {
         }
         try {
             const settingsMerge = Object.assign(config.website, data);
-            await fs.writeJson('../../etc/website.json', settingsMerge, { spaces: '\t' });
+            await fs.writeJson(`${__dirname}/../../etc/website.json`, settingsMerge, { spaces: '\t' });
             config.website = settingsMerge;
             return res.send(JSON.stringify({
                 status: 1
@@ -65,7 +65,7 @@ module.exports = function(app) {
         enabled = enabled === 'true' ? true : false;
         try {
             config.website.maintenance = enabled;
-            await fs.writeJson('../../etc/website.json', config.website, { spaces: '\t' });
+            await fs.writeJson(`${__dirname}/../../etc/website.json`, config.website, { spaces: '\t' });
             return res.send(JSON.stringify({
                 status: 1
             }));

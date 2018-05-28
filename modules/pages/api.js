@@ -1,10 +1,10 @@
 const pathM = require('path');
-const Module = require(pathM.join(__dirname, '..', '..', 'core', 'module.js'));
-const validation = new(require(pathM.join(__dirname, '..', '..', 'core', 'validation.js')))();
+const Module = require('../../core/module.js');
+const validation = new(require('../../core/validation.js'))();
 const Router = require('co-router');
 const ObjectID = require('mongodb').ObjectID;
-const pagesFields = require(pathM.join(__dirname, 'schemas', 'pagesFields.js'));
-const config = require(pathM.join(__dirname, '..', '..', 'core', 'config.js'));
+const pagesFields = require('./schemas/pagesFields.js');
+const config = require('../../core/config.js');
 const fs = require('fs-extra');
 const Jimp = require('jimp');
 const imageType = require('image-type');

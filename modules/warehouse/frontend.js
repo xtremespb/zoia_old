@@ -1,18 +1,17 @@
-const path = require('path');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 let configModule;
 try {
-    configModule = require(path.join(__dirname, 'config', 'catalog.json'));
+    configModule = require('./config/catalog.json');
 } catch (e) {
-    configModule = require(path.join(__dirname, 'config', 'catalog.dist.json'));
+    configModule = require('./config/catalog.dist.json');
 }
 let jsonAddress;
 try {
-    jsonAddress = require(path.join(__dirname, 'config', 'address.json'));
+    jsonAddress = require('./config/address.json');
 } catch (e) {
-    jsonAddress = require(path.join(__dirname, 'config', 'address.dist.json'));
+    jsonAddress = require('./config/address.dist.json');
 }
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+const Module = require('../../core/module.js');
 const Router = require('co-router');
 const ObjectID = require('mongodb').ObjectID;
 const fs = require('fs');
@@ -23,24 +22,24 @@ let templateCatalogCart = 'catalog_cart.html';
 let templateCatalogOrder = 'catalog_order.html';
 let templateCatalogOrders = 'catalog_orders.html';
 
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateCatalog))) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateCatalog}`)) {
     templateCatalog = 'custom_' + templateCatalog;
 }
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateCatalogItem))) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateCatalogItem}`)) {
     templateCatalogItem = 'custom_' + templateCatalogItem;
 }
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateCatalogOrder))) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateCatalogOrder}`)) {
     templateCatalogOrder = 'custom_' + templateCatalogOrder;
 }
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateCatalogOrders))) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateCatalogOrders}`)) {
     templateCatalogOrders = 'custom_' + templateCatalogOrders;
 }
 
 module.exports = function(app) {
     const db = app.get('db');
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
-    const renderAuth = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
-    const renderRoot = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
+    const renderAuth = new(require('../../core/render.js'))(`${__dirname}/views`, app);
+    const renderRoot = new(require('../../core/render.js'))(`${__dirname}/../../views`, app);
 
     const _findTreeItemById = (tree, id) => {
         for (let i in tree) {
@@ -1002,7 +1001,7 @@ module.exports = function(app) {
         res.send(html);
     };
 
-    app.use(configModule.prefix + '/static', app.get('express').static(path.join(__dirname, 'static')));
+    app.use(configModule.prefix + '/static', app.get('express').static(`${__dirname}/static`));
     let router = Router();
     router.get('/item/:sku', item);
     router.get(/^(.*)?$/, list);

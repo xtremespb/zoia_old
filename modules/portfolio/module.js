@@ -1,11 +1,10 @@
 module.exports = function(app) {
-    const path = require('path');
-    const frontend = require(path.join(__dirname, 'frontend.js'))(app);
+    const frontend = require('./frontend.js')(app);
     let configModule;
     try {
-        configModule = require(path.join(__dirname, 'config', 'portfolio.json'));
+        configModule = require('./config/portfolio.json');
     } catch (e) {
-        configModule = require(path.join(__dirname, 'config', 'portfolio.dist.json'));
+        configModule = require('./config/portfolio.dist.json');
     }
     app.get('log').info('[portfolio] module loaded');
     return {

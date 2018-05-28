@@ -1,26 +1,26 @@
 const path = require('path');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 const Router = require('co-router');
 const fs = require('fs');
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+const Module = require('../../core/module.js');
 
 let configModule;
 try {
-    configModule = require(path.join(__dirname, 'config', 'support.json'));
+    configModule = require('./config/support.json');
 } catch (e) {
-    configModule = require(path.join(__dirname, 'config', 'support.dist.json'));
+    configModule = require('./config/support.dist.json');
 }
 
 const moduleURL = '/support';
 let templateFrontend = 'frontend.html';
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateFrontend))) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateFrontend}`)) {
     templateFrontend = 'custom_' + templateFrontend;
 }
 
 module.exports = function(app) {
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
-    const renderHosting = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
-    const renderRoot = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
+    const renderHosting = new(require('../../core/render.js'))(`${__dirname}/views`, app);
+    const renderRoot = new(require('../../core/render.js'))(`${__dirname}/../../views`, app);
     const log = app.get('log');
 
     const frontend = async(req, res, next) => {

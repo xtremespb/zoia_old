@@ -7,10 +7,10 @@ const fs = require('fs');
 const path = require('path');
 
 gulp.task('cleanup', async() => {
-    fs.unlinkSync(path.join(__dirname, 'static', 'css', 'reviews.min.css'));
-    fs.unlinkSync(path.join(__dirname, 'static', 'css', 'frontend.min.css'));
-    fs.unlinkSync(path.join(__dirname, 'static', 'js', 'reviews.min.js'));
-    fs.unlinkSync(path.join(__dirname, 'static', 'js', 'frontend.min.js'));
+    fs.unlinkSync('./static/css/reviews.min.css');
+    fs.unlinkSync('./static/css/frontend.min.css');
+    fs.unlinkSync('./static/js/reviews.min.js');
+    fs.unlinkSync('./static/js/frontend.min.js');
 });
 
 gulp.task('default', async() => {

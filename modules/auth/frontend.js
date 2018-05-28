@@ -13,19 +13,19 @@ let templateRegisterConfirm = 'registerConfirm.html';
 let templateReset = 'reset.html';
 let templateResetConfirm = 'resetConfirm.html';
 
-if (fs.existsSync('./views/custom_' + templateLogin)) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateLogin}`)) {
     templateLogin = 'custom_' + templateLogin;
 }
-if (fs.existsSync('./views/custom_' + templateRegister)) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateRegister}`)) {
     templateRegister = 'custom_' + templateRegister;
 }
-if (fs.existsSync('./views/custom_' + templateRegisterConfirm)) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateRegisterConfirm}`)) {
     templateRegisterConfirm = 'custom_' + templateRegisterConfirm;
 }
-if (fs.existsSync('./views/custom_' + templateReset)) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateReset}`)) {
     templateReset = 'custom_' + templateReset;
 }
-if (fs.existsSync('./views/custom_' + templateResetConfirm)) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateResetConfirm}`)) {
     templateResetConfirm = 'custom_' + templateResetConfirm;
 }
 

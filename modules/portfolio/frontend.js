@@ -1,28 +1,28 @@
 const path = require('path');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 const Router = require('co-router');
 const fs = require('fs-extra');
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+const Module = require('../../core/module.js');
 
 let templateFrontend = 'frontend.html';
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateFrontend))) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateFrontend}`)) {
     templateFrontend = 'custom_' + templateFrontend;
 }
 let templateFrontendItem = 'frontend_item.html';
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateFrontendItem))) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateFrontendItem}`)) {
     templateFrontendItem = 'custom_' + templateFrontendItem;
 }
 let configModule;
 try {
-    configModule = require(path.join(__dirname, 'config', 'portfolio.json'));
+    configModule = require('./config/portfolio.json');
 } catch (e) {
-    configModule = require(path.join(__dirname, 'config', 'portfolio.dist.json'));
+    configModule = require('./config/portfolio.dist.json');
 }
 
-const files = fs.readdirSync(path.join(__dirname, 'data'));
+const files = fs.readdirSync(`${__dirname}/data`);
 let portfolioData = [];
 for (let i in files) {
-    let json = require(path.join(__dirname, 'data', files[i]));
+    let json = require('./data/' + files[i]);
     json.id = files[i].replace(/\.json$/, '');
     portfolioData.push(json);
 }
@@ -31,9 +31,9 @@ portfolioData.sort(function(a, b) {
 });
 
 module.exports = function(app) {
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
-    const renderPF = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
-    const renderRoot = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
+    const renderPF = new(require('../../core/render.js'))(`${__dirname}/views`, app);
+    const renderRoot = new(require('../../core/render.js'))(`${__dirname}/../../views`, app);
     const log = app.get('log');
 
     const frontend = async(req, res, next) => {
@@ -108,7 +108,7 @@ module.exports = function(app) {
         }
     };
 
-    app.use('/portfolio/static', app.get('express').static(path.join(__dirname, 'static')));
+    app.use('/portfolio/static', app.get('express').static(`${__dirname}/static`));
     let router = Router();
     router.get('/', frontend);
     router.get('/:id', frontendItem);

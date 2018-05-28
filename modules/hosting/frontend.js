@@ -6,7 +6,7 @@ const Module = require('../../core/module.js');
 
 const moduleURL = '/hosting';
 let templateList = 'frontend.html';
-if (fs.existsSync('./views', './custom_' + templateList)) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateList}`)) {
     templateList = 'custom_' + templateList;
 }
 

@@ -1,15 +1,15 @@
 const path = require('path');
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
-const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js')))();
+const Module = require('../../core/module.js');
+const validation = new(require('../../core/validation.js'))();
 const Router = require('co-router');
 const ObjectID = require('mongodb').ObjectID;
-const warehouseFields = require(path.join(__dirname, 'schemas', 'warehouseFields.js'));
-const settingsFields = require(path.join(__dirname, 'schemas', 'settingsFields.js'));
-const propertyFields = require(path.join(__dirname, 'schemas', 'propertyFields.js'));
-const deliveryFields = require(path.join(__dirname, 'schemas', 'deliveryFields.js'));
-const collectionFields = require(path.join(__dirname, 'schemas', 'collectionFields.js'));
-const variantFields = require(path.join(__dirname, 'schemas', 'variantFields.js'));
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const warehouseFields = require('./schemas/warehouseFields.js');
+const settingsFields = require('./schemas/settingsFields.js');
+const propertyFields = require('./schemas/propertyFields.js');
+const deliveryFields = require('./schemas/deliveryFields.js');
+const collectionFields = require('./schemas/collectionFields.js');
+const variantFields = require('./schemas/variantFields.js');
+const config = require('../../core/config.js');
 const fs = require('fs-extra');
 const Jimp = require('jimp');
 const imageType = require('image-type');
@@ -17,16 +17,16 @@ const csv = require('csvtojson');
 
 let configModule;
 try {
-    configModule = require(path.join(__dirname, 'config', 'catalog.json'));
+    configModule = require('./config/catalog.json');
 } catch (e) {
-    configModule = require(path.join(__dirname, 'config', 'catalog.dist.json'));
+    configModule = require('./config/catalog.dist.json');
 }
 
 let jsonAddress;
 try {
-    jsonAddress = require(path.join(__dirname, 'config', 'address.json'));
+    jsonAddress = require('./config/address.json');
 } catch (e) {
-    jsonAddress = require(path.join(__dirname, 'config', 'address.dist.json'));
+    jsonAddress = require('./config/address.dist.json');
 }
 
 const _getJsonAddressById = (id) => {
@@ -65,9 +65,9 @@ module.exports = function(app) {
     const sortOrderFields = ['_id', 'date', 'username', 'status', 'cost'];
     const sortOrdersFields = ['_id', 'date', 'status'];
     const sortPropertyFields = ['pid', 'title'];
-    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
-    const mailer = new(require(path.join(__dirname, '..', '..', 'core', 'mailer.js')))(app);
+    const render = new(require('../../core/render.js'))(`${__dirname}/views`, app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
+    const mailer = new(require('../../core/mailer.js'))(app);
 
     const _loadSettings = async(locale) => {
         const dataSettings = await db.collection('warehouse_registry').findOne({ name: 'warehouseSettings' });

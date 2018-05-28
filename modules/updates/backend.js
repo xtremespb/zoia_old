@@ -1,14 +1,14 @@
 const moduleId = 'updates';
 const path = require('path');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 const moduleURL = config.core.prefix.admin + '/updates';
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+const Module = require('../../core/module.js');
 const Router = require('co-router');
 
 module.exports = function(app) {
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
-    const panel = new(require(path.join(__dirname, '..', '..', 'core', 'panel.js')))(app);
-    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
+    const panel = new(require('../../core/panel.js'))(app);
+    const render = new(require('../../core/render.js'))(`${__dirname}/views`, app);
     const updates = async(req, res, next) => {
         try {
             const uprefix = i18n.getLanguageURLPrefix(req);
@@ -20,7 +20,7 @@ module.exports = function(app) {
             let html = await render.file('updates.html', {
                 i18n: i18n.get(),
                 config: config,
-                dirname: path.join(__dirname, '..', '..'),
+                dirname: `${__dirname}/../..`,
                 locale: locale,
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 corePrefix: JSON.stringify(config.core.prefix),
@@ -32,7 +32,7 @@ module.exports = function(app) {
             next(new Error(e.message));
         }
     };
-    app.use('/updates/static', app.get('express').static(path.join(__dirname, 'static')));
+    app.use('/updates/static', app.get('express').static(`${__dirname}/static`));
     let router = Router();
     router.get('/', updates);
     return {

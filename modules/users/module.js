@@ -1,9 +1,8 @@
 module.exports = function(app) {
-    const path = require('path');
-    const api = require(path.join(__dirname, 'api.js'))(app);
-    const backend = require(path.join(__dirname, 'backend.js'))(app);
-    const frontend = require(path.join(__dirname, 'frontend.js'))(app);
-    const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+    const api = require('./api.js')(app);
+    const backend = require('./backend.js')(app);
+    const frontend = require('./frontend.js')(app);
+    const config = require('../../core/config.js');
     app.get('log').info('[users] module loaded');
     return {
         frontend: {

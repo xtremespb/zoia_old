@@ -12,8 +12,8 @@ if (fs.existsSync(`${__dirname}/views/custom_${templateSwitcherMobile}`)) {
 }
 
 module.exports = function(app) {
-    const render = new(require('../../core/render.js'))(`${__dirname}views`, app);
-    const i18n = new(require('../../core/i18n.js'))(`${__dirname}../../core/lang`, app);
+    const render = new(require('../../core/render.js'))(`${__dirname}/views`, app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/../../core/lang`, app);
 
     const switcherAsync = async(req, type, mobile) => {
         if (!req) {

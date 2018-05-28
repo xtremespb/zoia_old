@@ -1,25 +1,25 @@
 const path = require('path');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 const Router = require('co-router');
 const fs = require('fs-extra');
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+const Module = require('../../core/module.js');
 
 const moduleURL = config.core.prefix.account;
 let templateList = 'account.html';
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateList))) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateList}`)) {
     templateList = 'custom_' + templateList;
 }
 let configModule;
 try {
-    configModule = require(path.join(__dirname, 'config', 'users.json'));
+    configModule = require('./config/users.json');
 } catch (e) {
-    configModule = require(path.join(__dirname, 'config', 'users.dist.json'));
+    configModule = require('./config/users.dist.json');
 }
 
 module.exports = function(app) {
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
-    const renderAccount = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
-    const renderRoot = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
+    const renderAccount = new(require('../../core/render.js'))(`${__dirname}/views`, app);
+    const renderRoot = new(require('../../core/render.js'))(`${__dirname}/../../views`, app);
     const log = app.get('log');
 
     const account = async(req, res, next) => {

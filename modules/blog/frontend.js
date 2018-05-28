@@ -13,15 +13,15 @@ try {
 }
 
 let templateBlogList = 'frontend.html';
-if (fs.existsSync('./views/custom_' + templateBlogList)) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateBlogList}`)) {
     templateBlogList = 'custom_' + templateBlogList;
 }
 let templateBlogItem = 'frontend_item.html';
-if (fs.existsSync('./views/custom_' + templateBlogItem)) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateBlogItem}`)) {
     templateBlogItem = 'custom_' + templateBlogList;
 }
 let templateBlogLatest = 'frontend_latest.html';
-if (fs.existsSync('./views/custom_' + templateBlogLatest)) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateBlogLatest}`)) {
     templateBlogLatest = 'custom_' + templateBlogLatest;
 }
 

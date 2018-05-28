@@ -1,26 +1,26 @@
 const moduleId = 'warehouse';
 const path = require('path');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 const moduleURL = config.core.prefix.admin + '/warehouse';
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+const Module = require('../../core/module.js');
 const Router = require('co-router');
 let jsonAddress;
 try {
-    jsonAddress = require(path.join(__dirname, 'config', 'address.json'));
+    jsonAddress = require('./config/address.json');
 } catch (e) {
-    jsonAddress = require(path.join(__dirname, 'config', 'address.dist.json'));
+    jsonAddress = require('./config/address.dist.json');
 }
 let configModule;
 try {
-    configModule = require(path.join(__dirname, 'config', 'catalog.json'));
+    configModule = require('./config/catalog.json');
 } catch (e) {
-    configModule = require(path.join(__dirname, 'config', 'catalog.dist.json'));
+    configModule = require('./config/catalog.dist.json');
 }
 
 module.exports = function(app) {
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
-    const panel = new(require(path.join(__dirname, '..', '..', 'core', 'panel.js')))(app);
-    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
+    const panel = new(require('../../core/panel.js'))(app);
+    const render = new(require('../../core/render.js'))(`${__dirname}/views`, app);
     const db = app.get('db');
 
     const _loadSettings = async(locale) => {

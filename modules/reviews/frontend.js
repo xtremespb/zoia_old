@@ -1,25 +1,25 @@
 const path = require('path');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 const Router = require('co-router');
 const fs = require('fs');
 
 let templateList = 'frontend.html';
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateList))) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateList}`)){
     templateList = 'custom_' + templateList;
 }
 
 let configModule;
 try {
-    configModule = require(path.join(__dirname, 'config', 'reviews.json'));
+    configModule = require('./config/reviews.json');
 } catch (e) {
-    configModule = require(path.join(__dirname, 'config', 'reviews.dist.json'));
+    configModule = require('./config/reviews.dist.json');
 }
 
 module.exports = function(app) {
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
     const db = app.get('db');
-    const renderReviews = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
-    const renderRoot = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), app);
+    const renderReviews = new(require('../../core/render.js'))(`${__dirname}/views`, app);
+    const renderRoot = new(require('../../core/render.js'))(`${__dirname}/../../views`, app);
 
     const list = async(req, res, next) => {
         let locale = config.i18n.locales[0];

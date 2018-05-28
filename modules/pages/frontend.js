@@ -1,8 +1,7 @@
-const path = require('path');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 const Router = require('co-router');
 
-const templates = require(path.join(__dirname, 'templates.js'));
+const templates = require('./templates.js');
 
 const tpl = (s, d) => {
     for (let p in d) {
@@ -33,9 +32,9 @@ const _treePath = (tree, id, locale, text, _path) => {
 };
 
 module.exports = function(app) {
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
     const db = app.get('db');
-    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, '..', '..', 'views'), app);
+    const render = new(require('../../core/render.js'))(`${__dirname}/../../views`, app);
 
     const content = async(req, res, next) => {
         let filters = app.get('templateFilters');

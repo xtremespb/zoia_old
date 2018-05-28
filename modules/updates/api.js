@@ -1,14 +1,14 @@
 const path = require('path');
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+const Module = require('../../core/module.js');
 const Router = require('co-router');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 const rp = require('request-promise');
 const fs = require('fs-extra');
 const md5File = require('md5-file/promise');
 const targz = require('tar');
 
 module.exports = function(app) {
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
 
     const check = async(req, res) => {
         res.contentType('application/json');

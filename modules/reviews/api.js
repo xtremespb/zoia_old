@@ -1,14 +1,14 @@
 const path = require('path');
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
-const validation = new(require(path.join(__dirname, '..', '..', 'core', 'validation.js')))();
+const Module = require('../../core/module.js');
+const validation = new(require('../../core/validation.js'))();
 const Router = require('co-router');
 const ObjectID = require('mongodb').ObjectID;
-const reviewsFields = require(path.join(__dirname, 'schemas', 'reviewsFields.js'));
+const reviewsFields = require('./schemas/reviewsFields.js');
 
 module.exports = function(app) {
     const log = app.get('log');
     const db = app.get('db');
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
 
     const sortFields = ['name', 'status', 'timestamp'];
 

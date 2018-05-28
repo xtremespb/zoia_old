@@ -1,6 +1,5 @@
 /* eslint max-len: 0 */
 const fs = require('fs-extra');
-const path = require('path');
 const ObjectId = require('mongodb').ObjectID;
 const inquirer = require('inquirer');
 module.exports = function(data) {
@@ -219,7 +218,7 @@ module.exports = function(data) {
         }
         console.log('      Creating storage directory...');
         try {
-            await fs.mkdir(path.join(__dirname, 'static', 'storage'));
+            await fs.mkdir(`${__dirname}/static/storage`);
         } catch (e) {
             console.log('      [!] Not created. Already exists?');
         }

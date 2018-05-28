@@ -1,17 +1,16 @@
 module.exports = function(app) {
-    const path = require('path');
-    const api = require(path.join(__dirname, 'api.js'))(app);
-    const backend = require(path.join(__dirname, 'backend.js'))(app);
-    const frontend = require(path.join(__dirname, 'frontend.js'))(app);
+    const api = require('./api.js')(app);
+    const backend = require('./backend.js')(app);
+    const frontend = require('./frontend.js')(app);
     let configModule;
     try {
-        configModule = require(path.join(__dirname, 'config', 'catalog.json'));
+        configModule = require('./config/catalog.json');
     } catch (e) {
-        configModule = require(path.join(__dirname, 'config', 'catalog.dist.json'));
+        configModule = require('./config/catalog.dist.json');
     }
     if (configModule.payments && configModule.payments.enabled) {
         try {
-            require(path.join(__dirname, 'plugins', configModule.payments.plugin, 'routes'))(app, frontend.routes);
+            require(`./plugins/${configModule.payments.plugin}/routes`)(app, frontend.routes);
         } catch (e) {
             app.get('log').error('Could not load payments plugin: ' + e);
         }

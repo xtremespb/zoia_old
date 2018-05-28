@@ -1,5 +1,4 @@
-const path = require('path');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 
 module.exports = function(app) {
     const db = app.get('db');

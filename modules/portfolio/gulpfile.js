@@ -14,9 +14,9 @@ gulp.task('default', async() => {
     gulp.src(['static/css/frontend.css'], { base: __dirname })
         .pipe(minifyCSS())
         .pipe(concat('frontend.min.css'))
-        .pipe(gulp.dest(path.join('static', 'css')));
+        .pipe(gulp.dest('./static/css'));
     gulp.src(['static/css/frontend_item.css'], { base: __dirname })
         .pipe(minifyCSS())
         .pipe(concat('frontend_item.min.css'))
-        .pipe(gulp.dest(path.join('static', 'css')));
+        .pipe(gulp.dest('./static/css'));
 });

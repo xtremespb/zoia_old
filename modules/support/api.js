@@ -1,26 +1,26 @@
 /* eslint max-len: 0 */
 
 const path = require('path');
-const Module = require(path.join(__dirname, '..', '..', 'core', 'module.js'));
+const Module = require('../../core/module.js');
 const Router = require('co-router');
 const crypto = require('crypto');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 const fs = require('fs-extra');
 
 let configModule;
 try {
-    configModule = require(path.join(__dirname, 'config', 'support.json'));
+    configModule = require('./config/support.json');
 } catch (e) {
-    configModule = require(path.join(__dirname, 'config', 'support.dist.json'));
+    configModule = require('./config/support.dist.json');
 }
 
 module.exports = function(app) {
     const log = app.get('log');
     const db = app.get('db');
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, 'lang'), app);
-    const mailer = new(require(path.join(__dirname, '..', '..', 'core', 'mailer.js')))(app);
-    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
-    const security = new(require(path.join(__dirname, '..', '..', 'core', 'security.js')))(app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
+    const mailer = new(require('../../core/mailer.js'))(app);
+    const render = new(require('../../core/render.js'))(`${__dirname}/views`, app);
+    const security = new(require('../../core/security.js'))(app);
 
     const sortFields = ['_id', 'status', 'timestamp', 'username', 'title', 'priority'];
 
@@ -504,7 +504,7 @@ module.exports = function(app) {
             }
             const filenameHash = crypto.createHash('md5').update(String(Date.now()) + filename).digest('hex');
             await fs.ensureDir(dir);
-            await fs.writeFile(path.join(dir, filenameHash), req.files['files[]'].data);
+            await fs.writeFile(path.join(__dirname, dir, filenameHash), req.files['files[]'].data);
             if (!data.files) {
                 data.files = [];
             }
@@ -794,7 +794,7 @@ module.exports = function(app) {
             }
             const filenameHash = crypto.createHash('md5').update(String(Date.now()) + filename).digest('hex');
             await fs.ensureDir(dir);
-            await fs.writeFile(path.join(dir, filenameHash), req.files['files[]'].data);
+            await fs.writeFile(path.join(__dirname, dir, filenameHash), req.files['files[]'].data);
             if (!data.files) {
                 data.files = [];
             }
