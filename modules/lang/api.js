@@ -1,6 +1,6 @@
 const path = require('path');
 const Router = require('co-router');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 
 module.exports = function(app) {
     const log = app.get('log');

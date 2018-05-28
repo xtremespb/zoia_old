@@ -1,7 +1,6 @@
 module.exports = function(app) {
-    const path = require('path');
-    const api = require(path.join(__dirname, 'api.js'))(app);
-    const frontend = require(path.join(__dirname, 'frontend.js'))(app);
+    const api = require('./api.js')(app);
+    const frontend = require('./frontend.js')(app);
     app.get('log').info('[lang] module loaded');
     return {
         frontend: {

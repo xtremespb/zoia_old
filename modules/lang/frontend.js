@@ -1,19 +1,19 @@
 const path = require('path');
-const config = require(path.join(__dirname, '..', '..', 'core', 'config.js'));
+const config = require('../../core/config.js');
 const fs = require('fs');
 
 let templateSwitcherDesktop = 'switcher_desktop.html';
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateSwitcherDesktop))) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateSwitcherDesktop}`)) {
     templateSwitcherDesktop = 'custom_' + templateSwitcherDesktop;
 }
 let templateSwitcherMobile = 'switcher_mobile.html';
-if (fs.existsSync(path.join(__dirname, 'views', 'custom_' + templateSwitcherMobile))) {
+if (fs.existsSync(`${__dirname}/views/custom_${templateSwitcherMobile}`)) {
     templateSwitcherMobile = 'custom_' + templateSwitcherMobile;
 }
 
 module.exports = function(app) {
-    const render = new(require(path.join(__dirname, '..', '..', 'core', 'render.js')))(path.join(__dirname, 'views'), app);
-    const i18n = new(require(path.join(__dirname, '..', '..', 'core', 'i18n.js')))(path.join(__dirname, '..', '..', 'core', 'lang'), app);
+    const render = new(require('../../core/render.js'))(`${__dirname}views`, app);
+    const i18n = new(require('../../core/i18n.js'))(`${__dirname}../../core/lang`, app);
 
     const switcherAsync = async(req, type, mobile) => {
         if (!req) {
