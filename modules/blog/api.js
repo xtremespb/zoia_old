@@ -420,7 +420,6 @@ module.exports = function(app) {
             did.push({ _id: new ObjectID(id) });
         }
         try {
-            console.log(did);
             let updResult = await db.collection('blog_comments').update({ $or: did }, { $set: { comment: null } }, { multi: true, upsert: false });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({
@@ -532,7 +531,6 @@ module.exports = function(app) {
             res.send(JSON.stringify(data));
         } catch (e) {
             log.error(e);
-            console.log(e);
             res.send(JSON.stringify({
                 status: 0,
                 error: e.message

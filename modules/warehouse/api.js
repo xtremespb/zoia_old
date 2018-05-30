@@ -3824,7 +3824,6 @@ module.exports = function(app) {
             if (order.paid !== data.paid) {
                 diff.paid = data.paid ? 2 : 1;
             }
-            console.log(diff);
             const updResult = await db.collection('warehouse_orders').update({ _id: id }, { $set: data }, { upsert: true });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 return res.send(JSON.stringify({

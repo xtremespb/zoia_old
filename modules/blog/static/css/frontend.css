@@ -54,3 +54,11 @@ a>.za-spinner>svg {
     -ms-hyphens: auto;
     hyphens: auto;
 }
+
+.zoia-wrap-keywords {
+    margin-top: 4px;
+}
+
+.zoia-wrap-keywords > a {
+    text-decoration: underline;
+}

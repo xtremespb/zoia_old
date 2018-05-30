@@ -1,8 +1,8 @@
 <article class="za-article za-margin">
-    <div class="za-article-meta"><img src="{{ userData[item.authorId].url }}" class="za-border-circle" style="width:24px;height:24px;margin-top:-3px">&nbsp;{{ userData[item.authorId].username }}&nbsp;&nbsp;&nbsp;{{ item.timestamp }}</div>
+    <div class="za-article-meta za-text-small"><img src="{{ userData[item.authorId].url }}" class="za-border-circle" style="width:24px;height:24px;margin-top:-3px">&nbsp;{{ userData[item.authorId].username }}&nbsp;&nbsp;&nbsp;{{ item.timestamp }}</div>
     <div class="za-article-title">{{ item[locale].title }}</div>
     {% if item[locale].keywords.length %}
-    <div class="za-text-small za-margin-top">
+    <div class="za-text-small zoia-wrap-keywords">
         {% for tag in item[locale].keywords %}
         <a class="zoia-blog-tag" href="{{uprefix}}{{ configModule.prefix.blog }}?tag={{ tag }}">{{ tag }}</a>{% if loop.last != true %},{% endif %} {% endfor %}
     </div>
