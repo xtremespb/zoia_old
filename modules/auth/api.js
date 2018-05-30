@@ -125,7 +125,7 @@ module.exports = function(app) {
                 }));
             }
             const passwordHash = crypto.createHash('md5').update(config.salt + fields.password.value).digest('hex');
-            const activationCode = crypto.createHash('md5').update(config.salt + Math.random()).digest('hex');
+            const activationCode = config.testMode ? 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' : crypto.createHash('md5').update(config.salt + Math.random()).digest('hex');
             const insResult = await db.collection('users').insertOne({
                 username: fields.username.value,
                 email: fields.email.value,
@@ -231,7 +231,7 @@ module.exports = function(app) {
                     fields: ['email']
                 }));
             }
-            const activationCode = crypto.createHash('md5').update(config.salt + Math.random()).digest('hex');
+            const activationCode = config.testMode ? 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' : crypto.createHash('md5').update(config.salt + Math.random()).digest('hex');
             let updResult = await db.collection('users').update({
                 email: fields.email.value
             }, {
