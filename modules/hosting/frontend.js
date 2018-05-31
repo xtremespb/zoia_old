@@ -21,7 +21,7 @@ module.exports = function(app) {
     const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
     const db = app.get('db');
     const renderHosting = new(require('../../core/render.js'))(`${__dirname}/views`, app);
-    const renderRoot = new(require('../../core/render.js'))(`${__dirname}/../../lang`, app);
+    const renderRoot = new(require('../../core/render.js'))(`${__dirname}/../../views`, app);
     const log = app.get('log');
 
     const list = async(req, res, next) => {

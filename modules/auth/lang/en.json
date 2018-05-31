@@ -52,5 +52,8 @@
 	"Too short": "Too short",
 	"Doesn't match required format": "Doesn't match required format",
 	"Passwords do not match": "Passwords do not match",
-	"Too many requests": "Too many requests"
+	"Too many requests": "Too many requests",
+	"Invalid authorization code. Please close this window and try again.": "Invalid authorization code. Please close this window and try again.",
+	"Authorization": "Authorization",
+	"Error while processing your authorization.": "Error while processing your authorization."
 }

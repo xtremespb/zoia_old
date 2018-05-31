@@ -12,6 +12,7 @@
     let hosts = {};
 
     let locale;
+    let uprefix;
     let configModule;
     let plugins;
     let corePrefix;
