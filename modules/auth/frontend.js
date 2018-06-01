@@ -29,6 +29,17 @@ if (fs.existsSync(`${__dirname}/views/custom_${templateResetConfirm}`)) {
     templateResetConfirm = 'custom_' + templateResetConfirm;
 }
 
+let configModule;
+try {
+    configModule = require('./config/oauth.json');
+} catch (e) {
+    configModule = require('./config/oauth.dist.json');
+}
+
+for (let i in configModule) {
+    configModule[i].url = configModule[i].url.replace(/{id}/gm, configModule[i].id).replace(/{redirect_uri}/gm, configModule[i].redirect_uri);
+}
+
 module.exports = function(app) {
     const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
     const renderAuth = new(require('../../core/render.js'))(`${__dirname}/views`, app);
@@ -58,6 +69,8 @@ module.exports = function(app) {
             lang: JSON.stringify(i18n.get().locales[locale]),
             config: config,
             prefix: config.core.prefix.auth,
+            configModule: configModule,
+            authMethods: Object.keys(configModule),
             rxp: config.core && config.core.regexp && config.core.regexp.username ? JSON.stringify(config.core.regexp) : '{"username":"^[A-Za-z0-9_\\\\-]+$"}',
             redirect: url
         });
@@ -116,7 +129,7 @@ module.exports = function(app) {
         }
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
-        const fieldList = registerConfirmFields.getConfirmFields(config.core && config.core.regexp && config.core.regexp.username ? config.core.regexp : {'username':'^[A-Za-z0-9_\-]+$'});
+        const fieldList = registerConfirmFields.getConfirmFields(config.core && config.core.regexp && config.core.regexp.username ? config.core.regexp : { 'username': '^[A-Za-z0-9_\-]+$' });
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
@@ -179,7 +192,7 @@ module.exports = function(app) {
         }
         let filters = app.get('templateFilters');
         renderRoot.setFilters(filters);
-        const fieldList = resetConfirmFields.getResetConfirmFields(config.core && config.core.regexp && config.core.regexp.username ? config.core.regexp : {'username':'^[A-Za-z0-9_\-]+$'});
+        const fieldList = resetConfirmFields.getResetConfirmFields(config.core && config.core.regexp && config.core.regexp.username ? config.core.regexp : { 'username': '^[A-Za-z0-9_\-]+$' });
         let fields = validation.checkRequest(req, fieldList);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {

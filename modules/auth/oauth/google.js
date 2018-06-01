@@ -36,46 +36,51 @@ module.exports = function(app, router) {
     const process = async(req, res) => {
         const locale = req.session.currentLocale;
         const code = req.query.code || req.body.code;
-        if (!code || typeof code !== 'string' || !code.match(/^[0-9a-f]{1,128}$/)) {
+        if (!code || typeof code !== 'string' || code.length > 128) {
             return renderPage(req, res, i18n.get().__(locale, 'Invalid authorization code. Please close this window and try again.'));
         }
         try {
-            const response1 = await rp(`https://oauth.vk.com/access_token?client_id=${configPlugin.vk.id}&client_secret=${configPlugin.vk.secret}&code=${code}&redirect_uri=${config.website.protocol}://${config.website.url[locale]}${config.core.prefix.auth}/oauth/vk`);
-            const data1 = JSON.parse(response1);
-            if (!data1 || !data1.email || !data1.user_id) {
-                return renderPage(req, res, i18n.get().__(locale, 'Could not retreive your e-mail address.'));
-            }
-            const accessToken = data1.access_token;
-            const userID = data1.user_id;
-            const response2 = await rp(`https://api.vk.com/method/users.get?uids=${userID}&fields=first_name,last_name,email&access_token=${accessToken}&v=5.78`);
-            const data2 = JSON.parse(response2);
-            if (!data2 || !data2.response || !data2.response.length) {
+            const data1 = await rp({
+                method: 'POST',
+                uri: 'https://accounts.google.com/o/oauth2/token',
+                form: {
+                    code: code,
+                    client_id: configPlugin.google.id,
+                    client_secret: configPlugin.google.secret,
+                    redirect_uri: `${config.website.protocol}://${config.website.url[locale]}${config.core.prefix.auth}/oauth/google`,
+                    grant_type: 'authorization_code'
+                },
+                json: true
+            });
+            if (!data1 || !data1.access_token) {
                 return renderPage(req, res, i18n.get().__(locale, 'Could not retreive your profile information.'));
             }
-            const email = data1.email;
-            const firstName = data2.response[0].first_name;
-            const lastName = data2.response[0].last_name;
-            const passwordHash = crypto.createHash('md5').update(config.salt + Date.now() + Math.random()).digest('hex');
-            let username = email.substring(0, email.lastIndexOf("@")).replace(/[\W_\-]+/g, '');
-            let userDuplicate = await db.collection('users').findOne({ username: username });
-            if (userDuplicate) {
-                username = String(userID);
-                userDuplicate = await db.collection('users').findOne({ username: username });
+            const accessToken = data1.access_token;
+            const response2 = await rp(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${accessToken}`);
+            const data2 = JSON.parse(response2);
+            if (!data2 || !data2.email) {
+                return renderPage(req, res, i18n.get().__(locale, 'Could not retreive your profile information.'));
             }
+            const email = data2.email;
+            const username = email.substring(0, email.lastIndexOf("@")).replace(/[\W_\-]+/g, '');
+            const firstName = data2.given_name;
+            const lastName = data2.family_name;
+            const passwordHash = crypto.createHash('md5').update(config.salt + Date.now() + Math.random()).digest('hex');
+            const userDuplicate = await db.collection('users').findOne({ username: username });
             const user = await db.collection('users').findOne({ email: email });
             if (user) {
                 req.session.auth = user;
             } else {
                 const insResult = await db.collection('users').insertOne({
-                    username: userDuplicate ? `vk${Date.now()}` : username,
+                    username: userDuplicate ? `google${Date.now()}` : username,
                     email: email,
                     password: passwordHash,
                     timestamp: parseInt(Date.now() / 1000, 10),
                     status: 1,
                     realname: `${firstName} ${lastName}`,
-                    source: 'vk'
-                });
-                if (!insResult || !insResult.result || !insResult.result.ok) {
+                    source: 'google'
+                })
+;                if (!insResult || !insResult.result || !insResult.result.ok) {
                     return renderPage(req, res, i18n.get().__(locale, 'Cannot register your account.'));
                 }
                 req.session.auth = insResult.ops[0];
@@ -87,5 +92,5 @@ module.exports = function(app, router) {
         }
     };
 
-    router.all('/oauth/vk', process);
+    router.all('/oauth/google', process);
 };

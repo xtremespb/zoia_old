@@ -489,6 +489,7 @@ gulp.task('auth', async() => {
             .src(
                 [
                     'static/zoia/3rdparty/uikit/js/bundle.min.js',
+                    'modules/auth/static/js/auth-fa-icons.min.js',
                     'modules/auth/static/js/login'
                 ], { base: __dirname }
             )

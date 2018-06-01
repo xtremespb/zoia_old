@@ -115,6 +115,14 @@
                     }
                 }
             });
+            $('.zoia-btn-oauth').click(function() {
+                const url = $(this).attr('data-url');
+                const wLeft = window.screenLeft ? window.screenLeft : window.screenX;
+                const wTop = window.screenTop ? window.screenTop : window.screenY;
+                const left = wLeft + (window.innerWidth / 2) - (800 / 2);
+                const top = wTop + (window.innerHeight / 2) - (600 / 2);
+                window.open(url, 'targetWindow', `toolbar=no, location = no, status = no, menubar = no, scrollbars = yes, resizable = yes, width = 800, height = 500, top = ${top}, left = ${left}`);
+            });
             $('.zoia-page-loading').hide();
             $('#zoia_auth_wrap').show();
         });
