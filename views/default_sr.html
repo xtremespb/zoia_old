@@ -49,7 +49,7 @@
                         </li>
                         {% else %}
                         <li><a href="{{ uprefix }}{{ config.core.prefix.auth }}">{{ i18nc.__(locale, 'Sign In') }}</a></li>
-                        <li><a href="{{ uprefix }}{{ config.core.prefix.auth }}{{ config.core.prefix.authRegister }}r">{{ i18nc.__(locale, 'Register') }}</a></li>{% endif %}
+                        <li><a href="{{ uprefix }}{{ config.core.prefix.auth }}{{ config.core.prefix.authRegister }}">{{ i18nc.__(locale, 'Register') }}</a></li>{% endif %}
                     </ul>
                     {{ req | switcherDesktopQuery }}
                 </div>
