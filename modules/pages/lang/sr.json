@@ -50,7 +50,7 @@
     "Characters and numbers only (1-64 chars), leave blank for root page": "Симболи и бројеви (1-64), оставите празно за почетну страницу",
     "Required, max. 128 characters": "Захтевано, до 128 карактера",
     "Optional, max. 128 characters": "Опционо, до 128 карактера",
-    "Content": "Опис",
+    "Content": "Садржај",
     "Zoia": "ЗОИА",
     "Could not get directory content": "Грешка приликом преузимања података",
     "Directory doesn't exists": "Фасцикла не постоји",
