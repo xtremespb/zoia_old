@@ -271,7 +271,9 @@ module.exports = function(app) {
         }
         const skip = (page - 1) * configModule.itemsPerPage;
         let sortQuery = req.query.s || '';
-        let sort = {};
+        let sort = {
+            pinned: -1
+        };
         if (sortQuery && typeof sortQuery === 'string') {
             switch (sortQuery) {
                 case 'title':

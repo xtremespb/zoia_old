@@ -242,5 +242,10 @@
 	"Your order has been updated.": "Your order has been updated.",
 	"Order Update": "Order Update",
 	"yes": "yes",
-	"no": "no"
+	"no": "no",
+	"Pinned": "Pinned",
+	"pinned": [
+		"No",
+		"Yes"
+	]
 }

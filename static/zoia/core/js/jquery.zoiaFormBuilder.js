@@ -269,6 +269,7 @@
                             name: n,
                             label: item.label,
                             bullet: bullet,
+                            rows: (item.rows ? item.rows : '2'),
                             css: (item.css ? ' ' + item.css : ''),
                             autofocus: (item.autofocus ? 'autofocus' : ''),
                             helpText: (item.helpText ? this._template(this.settings.html.helpText, {

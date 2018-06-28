@@ -81,7 +81,7 @@ module.exports = function(app, router) {
             return renderPage(req, res, `<script type="text/javascript">window.opener.location.reload();window.close();</script>`);
         } catch (e) {
             log.error(e);
-            return renderPage(req, res, i18n.get().__(locale, 'Error while processing your authorization.'));
+            return renderPage(req, res, i18n.get().__(locale, 'Error while processing your authorization.' + e));
         }
     };
 

@@ -50,7 +50,7 @@
 	"Characters and numbers only (1-64 chars), leave blank for root page": "Символы и цифры (1-64), оставьте пустым для корневой страницы",
 	"Required, max. 128 characters": "Обязательно, до 128 символов",
 	"Optional, max. 128 characters": "Необязательно, до 128 символов",
-	"Content": "Описание",
+	"Content": "Контент страницы",
 	"Zoia": "Zoia",
 	"Could not get directory content": "Ошибка во время получения информации",
 	"Directory doesn't exists": "Директория не существует",

@@ -18,7 +18,7 @@
     <div class="za-margin za-form-horizontal">
         <label class="za-form-label" for="za_catalog_form_email">{{ i18n.__(locale, 'E-mail')}}:<span class="za-text-danger za-text-bold">&nbsp;*</span></label>
         <div class="za-form-controls">
-            <input class="za-input za-form-width-large za-catalog-order-form-rx za-catalog-form-input" id="za_catalog_form_email" data-mask="/^(?:[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-])+@(?:[a-zA-Z0-9]|[^\u0000-\u007F])(?:(?:[a-zA-Z0-9-]|[^\u0000-\u007F]){0,61}(?:[a-zA-Z0-9]|[^\u0000-\u007F]))?(?:\.(?:[a-zA-Z0-9]|[^\u0000-\u007F])(?:(?:[a-zA-Z0-9-]|[^\u0000-\u007F]){0,61}(?:[a-zA-Z0-9]|[^\u0000-\u007F]))?)*$/" data-mandatory="true" maxlength="100" value="{{ email }}">
+            <input class="za-input za-form-width-large za-catalog-order-form-rx za-catalog-form-input" id="za_catalog_form_email" data-mask="^(?:[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-])+@(?:[a-zA-Z0-9]|[^\u0000-\u007F])(?:(?:[a-zA-Z0-9-]|[^\u0000-\u007F]){0,61}(?:[a-zA-Z0-9]|[^\u0000-\u007F]))?(?:\.(?:[a-zA-Z0-9]|[^\u0000-\u007F])(?:(?:[a-zA-Z0-9-]|[^\u0000-\u007F]){0,61}(?:[a-zA-Z0-9]|[^\u0000-\u007F]))?)*$" data-mandatory="true" maxlength="100" value="{{ email }}">
             </select>
         </div>
     </div>

@@ -1568,6 +1568,7 @@ module.exports = function(app) {
                     data.amount = fields.amount.value;
                     data.price = parseFloat(fields.price.value);
                     data.status = fields.status.value;
+                    data.pinned = fields.pinned.value;
                     data.variants = fields.variants.value;
                 }
             }

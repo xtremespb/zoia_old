@@ -1158,6 +1158,9 @@
                     if (editShadow[lng].data.status) {
                         $('#editForm_status').val(editShadow[lng].data.status.value);
                     }
+                    if (editShadow[lng].data.pinned) {
+                        $('#editForm_pinned').val(editShadow[lng].data.pinned.value);
+                    }
                     if (editShadow[lng].data.variants) {
                         $('#editForm').zoiaFormBuilder().deserializePart('variants', editShadow[lng].data.variants);
                     }
@@ -1201,6 +1204,7 @@
             let savePrice = editShadow[editLanguage].data.price;
             let saveStatus = editShadow[editLanguage].data.status;
             let saveVariants = editShadow[editLanguage].data.variants;
+            let savePinned = editShadow[editLanguage].data.pinned;
             editShadow[lng].data.folder = saveFolder;
             editShadow[lng].data.images = saveImages;
             editShadow[lng].data.sku = saveSKU;
@@ -1209,6 +1213,7 @@
             editShadow[lng].data.price = savePrice;
             editShadow[lng].data.status = saveStatus;
             editShadow[lng].data.variants = saveVariants;
+            editShadow[lng].data.pinned = savePinned;
         }
         syncEditFormProperties(editLanguage);
         $('#editForm').zoiaFormBuilder().resetForm();
@@ -2876,6 +2881,7 @@
                         let saveAmount = editShadow[editLanguage].data.amount.value;
                         let savePrice = editShadow[editLanguage].data.price.value;
                         let saveStatus = editShadow[editLanguage].data.status.value;
+                        let savePinned = editShadow[editLanguage].data.pinned.value;
                         let saveVariants = editShadow[editLanguage].data.variants.value;
                         for (let n in editShadow) {
                             if (!editShadow[n].enabled) {
@@ -2903,6 +2909,7 @@
                             vr.data.amount = saveAmount;
                             vr.data.price = savePrice;
                             vr.data.status = saveStatus;
+                            vr.data.pinned = savePinned;
                             vr.data.images = saveImages;
                             vr.data.variants = saveVariants;
                             data[n] = vr.data;
@@ -3032,6 +3039,10 @@
                                 type: 'select',
                                 value: data.item.status
                             };
+                            editShadow[n].data.pinned = {
+                                type: 'select',
+                                value: data.item.pinned
+                            };
                             editShadow[n].data.keywords = {
                                 type: 'text',
                                 value: data.item[n].keywords
@@ -3045,6 +3056,7 @@
                                 value: data.item[n].content
                             };
                         }
+                        console.log(editShadow);
                         $('#zoiaEditLanguageCheckbox').prop('checked', editShadow[editLanguage].enabled);
                         $('.selectPropertyItemClose').unbind();
                         for (let n in langs) {
@@ -3197,7 +3209,26 @@
                                 min: 1,
                                 max: 1
                             },
-                            regexp: /^(0|1|2)$/
+                            regexp: /^(0|1)$/
+                        }
+                    },
+                    pinned: {
+                        type: 'select',
+                        label: lang['Pinned'],
+                        css: 'za-form-width-small',
+                        values: {
+                            0: lang.pinned[0],
+                            1: lang.pinned[1]
+                        },
+                        default: '0',
+                        validation: {
+                            mandatoryCreate: true,
+                            mandatoryEdit: true,
+                            length: {
+                                min: 1,
+                                max: 1
+                            },
+                            regexp: /^(0|1)$/
                         }
                     },
                     images: {
