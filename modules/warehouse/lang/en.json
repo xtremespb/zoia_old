@@ -247,5 +247,15 @@
 	"pinned": [
 		"No",
 		"Yes"
-	]
+	],
+	"Out of Stock": "Out of Stock",
+	"Some of items you purchase are not available anymore": "Some of items you purchase are not available anymore",
+	"Go to Order": "Go to Order",
+	"Return": "Return",
+	"Yes": "Yes",
+	"No": "No",
+	"Order will be cancelled and all items will be returned to the warehouse. Continue?": "Order will be cancelled and all items will be returned to the warehouse. Continue?",
+	"Order & Pay": "Order & Pay",
+	"Notice: you should make a payment within a hour, your order will be cancelled otherwise!": "Notice: you should make a payment within a hour, your order will be cancelled otherwise!",
+	"View order": "View order"
 }

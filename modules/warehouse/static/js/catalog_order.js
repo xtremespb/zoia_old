@@ -14,6 +14,7 @@
     let addressJSON;
     let weight;
     let isAuth;
+    let payBeforeOrderIsPlaced;
     let currencyPosition;
 
     const filterInput = function() {
@@ -105,6 +106,12 @@
             $('.za_catalog_order_submit_spinner').hide();
             if (res.status !== 1 || !res.order) {
                 captchaRefresh();
+                if (res.error) {
+                    return $zUI.notification(res.error, {
+                        status: 'danger',
+                        timeout: 1500
+                    });
+                }
                 if (res.fields) {
                     let focusS = false;
                     for (let i in res.fields) {
@@ -128,9 +135,16 @@
                     });
                 }
             } else {
-                $('#za_catalog_order_wrap').hide();
-                $('#za_catalog_order_success_id').html(res.order._id);
-                $('#za_catalog_order_success').show();
+                if (payBeforeOrderIsPlaced) {
+                    $('.za_catalog_order_submit_spinner').show();
+                    location.href = $('#za_order_btn_pay').attr('data') + '/payment?id=' + res.order._id;
+                } else {
+                    $('#za_catalog_order_wrap').hide();
+                    $('#za_catalog_order_success_id').html(res.order._id);
+                    $('#za_catalog_order_success').show();
+                    $('#za_order_btn_pay').attr('href', $('#za_order_btn_pay').attr('data') + '/payment?id=' + res.order._id);
+                    $('#za_order_btn_goto').attr('href', $('#za_order_btn_pay').attr('data') + '/orders?action=view&id=' + res.order._id);
+                }
             }
         }).fail(() => {
             loading = false;
@@ -225,6 +239,7 @@
         addressJSON = JSON.parse($('#zp_addressJSON').attr('data'));
         weight = parseFloat($('#zp_weight').attr('data'));
         isAuth = $('#zp_isAuth').attr('data') === 'true' ? true : false;
+        payBeforeOrderIsPlaced = $('#zp_payBeforeOrderIsPlaced').attr('data') === 'true' ? true : false;
         currencyPosition = $('#zp_currencyPosition').attr('data');
         $.getScript(`/api/lang/warehouse/${locale}.js`).done(() => {
             let formHTML = '';

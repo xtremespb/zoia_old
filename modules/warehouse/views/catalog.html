@@ -11,10 +11,8 @@
     {% if configModule.cart %}
     <div class="za-width-auto">
         <div class="za-catalog-cart za-margin">
-            <a href="{{ uprefix }}{{ configModule.prefix }}/cart" class="za-button za-button-default za-button-small"><span class="za-badge za-catalog-cart-count za-box-shadow" style="display:none">0</span>&nbsp;{{ i18n.__(locale, 'Cart')}}</a> 
-            {% if auth %}
-            <a href="{{ uprefix }}{{ configModule.prefix }}/orders" class="za-button za-button-default za-button-small">{{ i18n.__(locale, 'My orders')}}</a>
-            {% endif %}
+            <a href="{{ uprefix }}{{ configModule.prefix }}/cart" class="za-button za-button-default za-button-small"><span class="za-badge za-catalog-cart-count za-box-shadow" style="display:none">0</span>&nbsp;{{ i18n.__(locale, 'Cart')}}</a> {% if auth %}
+            <a href="{{ uprefix }}{{ configModule.prefix }}/orders" class="za-button za-button-default za-button-small">{{ i18n.__(locale, 'My orders')}}</a> {% endif %}
         </div>
     </div>
     {% endif %}
@@ -78,8 +76,15 @@
                 <div class="za-catalog-item-price">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{% if item.price %}{{ item.price }}{% else %}0{% endif %}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</div>
                 {% if configModule.cart %}
                 <div class="za-catalog-item-buttons">
+                    {% if item.amount > 0 %}
                     <button class="za-button za-button-primary za-button-small za-catalog-item-button" data="{{ item._id }}">
-                        <div za-spinner="ratio:0.5" class="za-catalog-item-button-spinner" style="display:none" data="{{ item._id }}"></div>{{ i18n.__(locale, 'Add to cart')}}</button>
+                        <div za-spinner="ratio:0.5" class="za-catalog-item-button-spinner" style="display:none" data="{{ item._id }}"></div>{{ i18n.__(locale, 'Add to cart')}}
+                    </button>
+                    {% else %}
+                    <button class="za-button za-button-default za-button-small">
+                        {{ i18n.__(locale, 'Out of Stock')}}
+                    </button>
+                    {% endif %}
                 </div>
                 {% else %}
                 <div class="za-catalog-item-buttons">

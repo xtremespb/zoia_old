@@ -398,7 +398,7 @@
             cache: false
         }).done((res) => {
             $('#zoiaSpinnerMain').hide();
-            if (res && res.status === 1 && res.item) {
+            if (res && res.status === 1) {
                 currentAddressData = res.addressData;
                 $('#zoiaOrderDialogButtons').show();
                 $('#za_catalog_order_tabs').find('li:first').click();
@@ -2773,6 +2773,41 @@
         }, 200);
     };
 
+    const zoiaOrderDialogReturnClick = () => {
+        $zUI.modal.confirm(lang['Order will be cancelled and all items will be returned to the warehouse. Continue?'], { labels: { ok: lang['Yes'], cancel: lang['Cancel'] }, stack: true }).then(() => {
+            orderDialog.hide();
+            $('#zoiaSpinnerMain').show();
+            $.ajax({
+                type: 'POST',
+                url: '/api/warehouse/orders/return',
+                data: {
+                    id: currentEditID
+                },
+                cache: false
+            }).done((res) => {
+                $('#zoiaSpinnerMain').hide();
+                if (res && res.status === 1) {                    
+                    $zUI.notification(lang.fieldErrors['Saved successfully'], {
+                        status: 'success',
+                        timeout: 1500
+                    });
+                    $('#orders').zoiaTable().load();
+                } else {
+                    $zUI.notification(lang.fieldErrors['Could not save to the database'], {
+                        status: 'danger',
+                        timeout: 1500
+                    });
+                }
+            }).fail(() => {
+                $('#zoiaSpinnerMain').hide();
+                $zUI.notification(lang.fieldErrors['Could not save to the database'], {
+                    status: 'danger',
+                    timeout: 1500
+                });
+            }, 200);
+        }, () => {});
+    };
+
     const warehouseBtnRefreshClick = () => {
         $('#warehouse').zoiaTable().load();
     };
@@ -3056,7 +3091,6 @@
                                 value: data.item[n].content
                             };
                         }
-                        console.log(editShadow);
                         $('#zoiaEditLanguageCheckbox').prop('checked', editShadow[editLanguage].enabled);
                         $('.selectPropertyItemClose').unbind();
                         for (let n in langs) {
@@ -4852,6 +4886,7 @@
                 e.preventDefault();
             });
             $('#zoiaOrderDialogButton').click(zoiaOrderDialogButtonClick);
+            $('#zoiaOrderDialogReturn').click(zoiaOrderDialogReturnClick);
             $('.warehouseBtnRefresh').click(warehouseBtnRefreshClick);
             $('.ordersBtnRefresh').click(ordersBtnRefreshClick);
             $('#zoiaOrderAddOptionsAdd').click(zoiaOrderAddOptionsAddClick);

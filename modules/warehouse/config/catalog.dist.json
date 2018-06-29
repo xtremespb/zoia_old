@@ -1,5 +1,5 @@
 {
-    "prefix": "/shop",
+    "prefix": "/catalog",
     "itemsPerPage": 12,
     "thumb":
     {
@@ -12,6 +12,6 @@
     {
         "enabled": true,
         "plugin": "robokassa"
-    }
-
+    },
+    "payBeforeOrderIsPlaced": false
 }

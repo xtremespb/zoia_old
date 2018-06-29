@@ -247,5 +247,15 @@
 	"pinned": [
 		"Нет",
 		"Да"
-	]
+	],
+	"Out of Stock": "Нет в наличии",
+	"Some of items you purchase are not available anymore": "Некоторых товары из корзины уже нет в наличии",
+	"Go to Order": "Перейти к заказу",
+	"Return": "Вернуться",
+	"Yes": "Да",
+	"No": "Нет",
+	"Order will be cancelled and all items will be returned to the warehouse. Continue?": "Заказ будет удален, все остатки на складе буду скорректированы. Продолжить?",
+	"Order & Pay": "Заказать и оплатить",
+	"Notice: you should make a payment within a hour, your order will be cancelled otherwise!": "Внимание: необходимо оплатить заказ в течение одного часа, иначе он будет отменен!",
+	"View order": "Просмотр заказа"
 }

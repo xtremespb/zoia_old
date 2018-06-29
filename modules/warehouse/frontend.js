@@ -331,7 +331,7 @@ module.exports = function(app) {
         if (!what.$and.length) {
             delete what.$and;
         }
-        let ffields = { _id: 1, folder: 1, sku: 1, status: 1, price: 1, images: 1 };
+        let ffields = { _id: 1, folder: 1, sku: 1, status: 1, price: 1, images: 1, amount: 1 };
         ffields[locale + '.title'] = 1;
         const settings = await _loadSettings(locale);
         const catalogItemsCount = await db.collection('warehouse').find(what, { projection: ffields }).count();
@@ -589,7 +589,7 @@ module.exports = function(app) {
                     propertiesQuery.push({ pid: iid });
                 }
             }
-            let ffields = { _id: 1, price: 1, variants: 1 };
+            let ffields = { _id: 1, price: 1, variants: 1, amount: 1 };
             ffields[locale + '.title'] = 1;
             ffields[locale + '.properties'] = 1;
             const cartDB = await db.collection('warehouse').find({ $or: query }, { sort: {}, projection: ffields }).toArray();
@@ -622,11 +622,22 @@ module.exports = function(app) {
                             }
                         }
                     }
-                    cartData[cartDB[i]._id] = {
-                        text: cartDB[i][locale] ? cartDB[i][locale].title : '',
-                        price: parseFloat(cartDB[i].price),
-                        variants: variants
-                    };
+                    if (cartDB[i].amount > 0) {
+                        cartData[cartDB[i]._id] = {
+                            text: cartDB[i][locale] ? cartDB[i][locale].title : '',
+                            price: parseFloat(cartDB[i].price),
+                            variants: variants,
+                            amount: cartDB[i].amount
+                        };
+                    } else {
+                        for (let c in cart) {
+                            const [id] = c.split('|');
+                            if (String(id) === String(cartDB[i]._id)) {
+                                delete cart[c];
+                            }
+                        }
+                        req.session.catalog_cart = cart;
+                    }
                 }
                 let variantsData = {};
                 if (variantsQuery.length) {
@@ -640,7 +651,13 @@ module.exports = function(app) {
                 // Build cartArr
                 for (let i in cart) {
                     const [id, variant] = i.split('|');
+                    if (!cartData[id]) {
+                        continue;
+                    }
                     const itemCart = cart[i];
+                    if (itemCart.count > cartData[id].amount) {
+                        itemCart.count = cartData[id].amount;
+                    }
                     let price = cartData[id].price;
                     if (variant && cartData[id].variants[variant]) {
                         price = parseFloat(cartData[id].variants[variant]);
@@ -774,7 +791,7 @@ module.exports = function(app) {
                     propertiesQuery.push({ pid: iid });
                 }
             }
-            let ffields = { _id: 1, price: 1, variants: 1 };
+            let ffields = { _id: 1, price: 1, variants: 1, amount: 1 };
             ffields[locale + '.title'] = 1;
             ffields[locale + '.properties'] = 1;
             const cartDB = await db.collection('warehouse').find({ $or: query }).toArray();
@@ -807,12 +824,23 @@ module.exports = function(app) {
                             }
                         }
                     }
-                    cartData[cartDB[i]._id] = {
-                        text: cartDB[i][locale] ? cartDB[i][locale].title : '',
-                        price: parseFloat(cartDB[i].price),
-                        weight: cartDB[i].weight,
-                        variants: variants
-                    };
+                    if (cartDB[i].amount > 0) {
+                        cartData[cartDB[i]._id] = {
+                            text: cartDB[i][locale] ? cartDB[i][locale].title : '',
+                            price: parseFloat(cartDB[i].price),
+                            weight: cartDB[i].weight,
+                            variants: variants,
+                            amount: cartDB[i].amount
+                        };
+                    } else {
+                        for (let c in cart) {
+                            const [id] = c.split('|');
+                            if (String(id) === String(cartDB[i]._id)) {
+                                delete cart[c];
+                            }
+                        }
+                        req.session.catalog_cart = cart;
+                    }
                 }
                 let variantsData = {};
                 if (variantsQuery.length) {
@@ -826,7 +854,13 @@ module.exports = function(app) {
                 // Build cartArr
                 for (let i in cart) {
                     const [id, variant] = i.split('|');
+                    if (!cartData[id]) {
+                        continue;
+                    }
                     const itemCart = cart[i];
+                    if (itemCart.count > cartData[id].amount) {
+                        itemCart.count = cartData[id].amount;
+                    }
                     let price = cartData[id].price;
                     if (variant && cartData[id].variants[variant]) {
                         price = parseFloat(cartData[id].variants[variant]);

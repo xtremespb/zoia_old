@@ -43,7 +43,7 @@
     <div class="za-margin-top" id="za_order_costs">
     </div>
     {% if configModule.payments.enabled %}
-    <div class="za-margin-large-top">
+    <div class="za-margin-large-top" id="za_order_btn_pay_wrap">
         <a href="#" data="{{ uprefix }}{{ configModule.prefix }}" class="za-button za-button-primary" id="za_order_btn_pay">{{ i18n.__(locale, 'Pay')}}</a>
     </div>
     {% endif %}

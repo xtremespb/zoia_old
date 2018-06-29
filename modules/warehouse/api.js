@@ -1565,7 +1565,7 @@ module.exports = function(app) {
                     data.url = fields.url.value;
                     data.sku = fields.sku.value;
                     data.weight = fields.weight.value;
-                    data.amount = fields.amount.value;
+                    data.amount = fields.amount.value ? parseInt(fields.amount.value, 10) : 0;
                     data.price = parseFloat(fields.price.value);
                     data.status = fields.status.value;
                     data.pinned = fields.pinned.value;
@@ -3137,6 +3137,7 @@ module.exports = function(app) {
     const order = async(req, res) => {
         res.contentType('application/json');
         const locale = req.session.currentLocale;
+        const uprefix = i18n.getLanguageURLPrefix(req);
         let errorFields = [];
         if (!configModule.cart) {
             return res.send(JSON.stringify({
@@ -3200,6 +3201,7 @@ module.exports = function(app) {
             delete template._id;
             delete template.name;
         }
+        let warehouseQuery = [];
         try {
             //
             // Build orderData hash
@@ -3217,13 +3219,12 @@ module.exports = function(app) {
             let weight = 0;
             let cartArr = [];
             if (Object.keys(cart).length > 0) {
-                let query = [];
                 let propertiesQuery = [];
                 let filter = {};
                 for (let i in cart) {
                     const [id] = i.split('|');
                     if (!filter[id]) {
-                        query.push({
+                        warehouseQuery.push({
                             _id: new ObjectID(id)
                         });
                         filter[id] = true;
@@ -3240,10 +3241,10 @@ module.exports = function(app) {
                         propertiesQuery.push({ pid: iid });
                     }
                 }
-                let ffields = { _id: 1, price: 1, variants: 1, sku: 1 };
+                let ffields = { _id: 1, price: 1, variants: 1, sku: 1, amount: 1 };
                 ffields[locale + '.title'] = 1;
                 ffields[locale + '.properties'] = 1;
-                const cartDB = await db.collection('warehouse').find({ $or: query }, { projection: ffields }).toArray();
+                const cartDB = await db.collection('warehouse').find({ $or: warehouseQuery }, { projection: ffields }).toArray();
                 if (cartDB && cartDB.length) {
                     let propertiesData = {};
                     let propertiesCost = {};
@@ -3278,7 +3279,8 @@ module.exports = function(app) {
                             price: parseFloat(cartDB[i].price),
                             weight: cartDB[i].weight,
                             sku: cartDB[i].sku,
-                            variants: variants
+                            variants: variants,
+                            amount: cartDB[i].amount
                         };
                     }
                     let variantsData = {};
@@ -3337,6 +3339,12 @@ module.exports = function(app) {
                                 const costArr = propertiesCost[iid].split(/,/);
                                 price += parseFloat(costArr[cnt]);
                             }
+                        }
+                        if (item.count > cartData[id].amount) {
+                            return res.send(JSON.stringify({
+                                status: -100,
+                                error: i18n.get().__(locale, 'Some of items you purchase are not available anymore')
+                            }));
                         }
                         cartArr.push({
                             id: id,
@@ -3457,6 +3465,13 @@ module.exports = function(app) {
                 }));
             }
             orderData._id = incr.value.seq;
+            // orderData.hidden = configModule.payBeforeOrderIsPlaced ? true : false;
+            //
+            // Decrement amounts
+            //
+            if (warehouseQuery && warehouseQuery.length) {
+                await db.collection('warehouse').update({ $or: warehouseQuery }, { $inc: { amount: -1 } });
+            }
             //
             // Insert order to the database
             // 
@@ -3506,9 +3521,12 @@ module.exports = function(app) {
                 }
                 addressHTML = _processTemplate(template.data, orderData.address);
             }
+            const viewURL = config.website.protocol + '://' + config.website.url[locale] + uprefix + configModule.prefix + '/orders?action=view&id=' + orderData._id;
+            const payURL = config.website.protocol + '://' + config.website.url[locale] + uprefix + configModule.prefix + '/payment?id=' + orderData._id;
             let mailUserHTML = await render.file('mail_neworder_user.html', {
                 i18n: i18n.get(),
                 locale: locale,
+                auth: req.session.auth ? true : false,
                 lang: JSON.stringify(i18n.get().locales[locale]),
                 config: config,
                 cart: cartArr,
@@ -3517,6 +3535,8 @@ module.exports = function(app) {
                 delivery: deliveryArr,
                 configModule: configModule,
                 addressHTML: addressHTML,
+                viewURL: viewURL,
+                payURL: payURL,
                 orderStatus: i18n.get().__(locale, 'orderStatuses')[orderData.status]
             });
             let mailAdminHTML = await render.file('mail_neworder_admin.html', {
@@ -3592,15 +3612,15 @@ module.exports = function(app) {
             result.failedField = 'sortField';
             return res.send(result);
         }
-        let fquery = {};
+        let fquery = {
+            // hidden: false
+        };
         try {
             if (search) {
-                fquery = {
-                    $or: [
-                        { _id: parseInt(search, 10) },
-                        { username: { $regex: search, $options: 'i' } }
-                    ]
-                };
+                fquery.$or = [
+                    { _id: parseInt(search, 10) },
+                    { username: { $regex: search, $options: 'i' } }
+                ];
             }
             let ffields = { _id: 1, date: 1, username: 1, costs: 1, status: 1 };
             const total = await db.collection('warehouse_orders').find(fquery).count();
@@ -3682,27 +3702,27 @@ module.exports = function(app) {
         const id = req.body.id;
         if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/)) {
             return res.send(JSON.stringify({
-                status: 0
+                status: -1
             }));
         }
         try {
             const item = await db.collection('warehouse_orders').findOne({ _id: parseInt(id, 10) });
             if (!item) {
                 return res.send(JSON.stringify({
-                    status: 0
+                    status: -2
                 }));
             }
             if (!Module.isAuthorizedAdmin(req)) {
                 if (!Module.isAuthorized(req) || req.session.auth.username !== item.username) {
                     return res.send(JSON.stringify({
-                        status: 0
+                        status: -3
                     }));
                 }
             }
             const deliveryDB = await db.collection('warehouse_delivery').findOne({ pid: item.delivery });
             if (!deliveryDB) {
                 return res.send(JSON.stringify({
-                    status: 0
+                    status: -4
                 }));
             }
             let querySKU = [];
@@ -3733,7 +3753,7 @@ module.exports = function(app) {
             let ffields = { _id: 1, sku: 1, variants: 1 };
             ffields[locale + '.title'] = 1;
             ffields[locale + '.properties'] = 1;
-            const cartDB = await db.collection('warehouse').find({ $or: querySKU }, { projection: ffields }).toArray();
+            const cartDB = querySKU && querySKU.length ? await db.collection('warehouse').find({ $or: querySKU }, { projection: ffields }).toArray() : {};
             let cartData = {};
             let variantsQuery = [];
             let variants = {};
@@ -3784,7 +3804,7 @@ module.exports = function(app) {
         } catch (e) {
             log.error(e);
             res.send(JSON.stringify({
-                status: 0,
+                status: -5,
                 error: e.message
             }));
         }
@@ -3842,6 +3862,45 @@ module.exports = function(app) {
                 });
                 await mailer.send(req, data.email, i18n.get().__(locale, 'Order Update'), mailUserHTML);
             }
+            return res.send(JSON.stringify({
+                status: 1
+            }));
+        } catch (e) {
+            log.error(e);
+            res.send(JSON.stringify({
+                status: 0,
+                error: e.message
+            }));
+        }
+    };
+
+    const returnOrder = async(req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorized(req) || !configModule.cart) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        const locale = req.session.currentLocale;
+        let id = req.body.id;
+        if (!id || typeof id !== 'string' || !id.match(/^[0-9]+$/)) {
+            return res.send(JSON.stringify({
+                status: -1
+            }));
+        }
+        try {
+            const order = await db.collection('warehouse_orders').findOne({ _id: parseInt(id, 10) });
+            if (!order) {
+                return res.send(JSON.stringify({
+                    status: -2
+                }));
+            }
+            for (let i in order.cart) {
+                const [cid] = i.split('|');
+                const count = order.cart[i].count;
+                await db.collection('warehouse').update({ sku: cid }, { $inc: { amount: parseInt(count, 10) } });
+            }
+            await db.collection('warehouse_orders').update({ _id: parseInt(id, 10) }, { $set: { status: 0, cart: {} } });
             return res.send(JSON.stringify({
                 status: 1
             }));
@@ -4050,6 +4109,7 @@ module.exports = function(app) {
     router.post('/orders/delete', delOrder);
     router.post('/orders/load', loadOrder);
     router.post('/orders/save', saveOrder);
+    router.post('/orders/return', returnOrder);
     router.post('/orders/load/item', loadItemData);
     // Frontend routes
     router.post('/cart/add', cartAdd);

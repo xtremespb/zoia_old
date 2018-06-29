@@ -31,7 +31,6 @@
         </div>
     </div>
     <div class="za-alert-danger" za-alert id="za_catalog_order_form_error" style="display:none">
-        <a class="za-alert-close" za-close></a>
         <p>{{ i18n.__(locale, 'Form contains errors. Please check it and re-submit your order.')}}</p>
     </div>
     <form class="za-form-horizontal za-margin-top" id="za_catalog_order_form" style="display:none">
@@ -53,7 +52,10 @@
                     <br>{{ item.propertiesData[itg] }}&nbsp;({{ item.propertiesCount[itg] }}) {% endfor %} {% for slt in item.selectsID %}
                     <br>{{ item.selectsTitles[slt] }}: {{ item.selectsValues[slt] }} {% endfor %}</td>
                 <td class="za-table-shrink">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{% if item.price !== 'NaN' %}{{ item.price }}{% else %}0{% endif %}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
-                <td class="za-table-shrink"><div class="za-text-center za-visible@m">{{ item.count }}</div><div class="za-hidden@m">{{ item.count }}&nbsp;{{ i18n.__(locale, 'pc(s).')}}</div></td>
+                <td class="za-table-shrink">
+                    <div class="za-text-center za-visible@m">{{ item.count }}</div>
+                    <div class="za-hidden@m">{{ item.count }}&nbsp;{{ i18n.__(locale, 'pc(s).')}}</div>
+                </td>
                 <td class="za-table-shrink za-catalog-order-subtotal" data="{{ item.id }}" data-val="{{ item.subtotal }}">{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{% if item.subtotal !== 'NaN' %}{{ item.subtotal }}{% else %}0{% endif %}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</td>
             </tr>
             {% endfor %}
@@ -80,13 +82,21 @@
         {{ i18n.__(locale, 'Total sum')}}:&nbsp;<span class="za-catalog-cart-total" data-total="{{ total }}"></span>
     </div>
     <div class="za-margin-top">
+        {% if configModule.payBeforeOrderIsPlaced %}<div class="za-alert-warning" za-alert>
+            <p>{{ i18n.__(locale, 'Notice: you should make a payment within a hour, your order will be cancelled otherwise!') }}</p>
+        </div>{% endif %}
         <button class="za-button za-button-primary" id="za_catalog_order_submit">
-            <div za-spinner class="za_catalog_order_submit_spinner" style="display:none"></div>{{ i18n.__(locale, 'Place Order')}}</button>
+            <div za-spinner class="za_catalog_order_submit_spinner" style="display:none"></div>{% if configModule.payBeforeOrderIsPlaced %}{{ i18n.__(locale, 'Order & Pay') }}{% else %}{{ i18n.__(locale, 'Place Order')}}{% endif %}</button>
     </div>
 </div>
 <div za-alert id="za_catalog_order_success" style="display:none">
     <p>{{ i18n.__(locale, 'Your order has been placed and it is being processed.')}}</p>
     <p><b>{{ i18n.__(locale, 'Order ID')}}</b>:&nbsp;<span id="za_catalog_order_success_id"></span></p>
+    <div class="za-margin-top">
+        {% if configModule.payments.enabled %}
+        <a href="#" data="{{ uprefix }}{{ configModule.prefix }}" class="za-button za-button-primary" id="za_order_btn_pay">{{ i18n.__(locale, 'Pay')}}</a>&nbsp; {% endif %}
+        {% if isAuth == 'true' %}<a href="#" data="{{ uprefix }}{{ configModule.prefix }}" class="za-button za-button-primary" id="za_order_btn_goto">{{ i18n.__(locale, 'Go to Order')}}</a>{% endif %}
+    </div>
 </div>
 <div style="display:none">
     <div id="zp_locale" data="{{ locale }}"></div>
@@ -95,9 +105,10 @@
     <div id="zp_weight" data="{{ weight }}"></div>
     <div id="zp_isAuth" data="{{ isAuth }}"></div>
     <div id="zp_currencyPosition" data="{{ configModule.currencyPosition }}"></div>
+    <div id="zp_payBeforeOrderIsPlaced" data="{{ configModule.payBeforeOrderIsPlaced }}"></div>
 </div>
 {% else %}
-<div class="uk-alert-danger" uk-alert>
+<div class="za-alert-danger" za-alert>
     <p>{{ i18n.__(locale, 'There are no items in cart yet.')}}</p>
 </div>
 {% endif %}

@@ -12,10 +12,8 @@
     {% if configModule.cart %}
     <div class="za-width-auto">
         <div class="za-catalog-cart">
-            <a href="{{ uprefix }}{{ configModule.prefix }}/cart" class="za-button za-button-default za-button-small"><span class="za-badge za-catalog-cart-count za-box-shadow" style="display:none">0</span>&nbsp;{{ i18n.__(locale, 'Cart')}}</a>
-            {% if auth %}
-            <a href="{{ uprefix }}{{ configModule.prefix }}/orders" class="za-button za-button-default za-button-small">{{ i18n.__(locale, 'My orders')}}</a>
-            {% endif %}
+            <a href="{{ uprefix }}{{ configModule.prefix }}/cart" class="za-button za-button-default za-button-small"><span class="za-badge za-catalog-cart-count za-box-shadow" style="display:none">0</span>&nbsp;{{ i18n.__(locale, 'Cart')}}</a> {% if auth %}
+            <a href="{{ uprefix }}{{ configModule.prefix }}/orders" class="za-button za-button-default za-button-small">{{ i18n.__(locale, 'My orders')}}</a> {% endif %}
         </div>
     </div>
     {% endif %}
@@ -49,40 +47,50 @@
             <!-- -->
             {% for p in data[locale].properties %}
             <!-- -->
-            {% if props[p.d] %}
-            {% if propsType[p.d] == 0 %}                       
+            {% if props[p.d] %} {% if propsType[p.d] == 0 %}
             <div class="za-grid-small" za-grid>
                 <div class="za-width-expand" za-leader>{{ props[p.d] }}</div>
                 <div>{{ p.v }}</div>
             </div>
-            {% endif %}
-            {% endif %}
+            {% endif %} {% endif %}
             <!-- -->
-            {% if propsType[p.d] == 1 %}            
+            {% if propsType[p.d] == 1 %}
             <div class="za-catalog-item-header za-margin-top za-margin-bottom">{{ p.v }}</div>
             {% endif %}
             <!-- -->
-            {% if propsType[p.d] == 2 %}            
+            {% if propsType[p.d] == 2 %}
             <div class="za-margin-top za-margin-bottom za-grid-small" za-grid>
-                <div class="za-width-expand" za-leader><label><input class="za-checkbox za-catalog-item-checkbox" type="checkbox" data-id="{{ p.d }}" data-price="{{ p.v }}">&nbsp;{{ props[p.d] }}</label></div>
+                <div class="za-width-expand" za-leader>
+                    <label>
+                        <input class="za-checkbox za-catalog-item-checkbox" type="checkbox" data-id="{{ p.d }}" data-price="{{ p.v }}">&nbsp;{{ props[p.d] }}</label>
+                </div>
                 <div>{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ p.v }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</div>
             </div>
             {% endif %}
             <!-- -->
-            {% if propsType[p.d] == 3 %}            
+            {% if propsType[p.d] == 3 %}
             <div class="za-margin-top za-margin-bottom za-grid-small" za-grid>
-                <div class="za-width-expand" za-leader><label><input class="za-checkbox za-catalog-item-integer" type="checkbox" data-id="{{ p.d }}" data-price="{{ p.v }}">&nbsp;{{ props[p.d] }}&nbsp;{% if propsPostfixes[p.d] == 'float' %}<input class="za-input za-form-width-small za-catalog-item-integer-field za-form-small" value="1" type="number" min="1" step="0.01" id="za_catalog_item_integer_{{ p.d }}">{% else %}<input class="za-input za-form-width-small za-catalog-item-integer-field za-form-small" value="1" type="number" min="1" step="1" id="za_catalog_item_integer_{{ p.d }}">{% endif %}</label></div>
+                <div class="za-width-expand" za-leader>
+                    <label>
+                        <input class="za-checkbox za-catalog-item-integer" type="checkbox" data-id="{{ p.d }}" data-price="{{ p.v }}">&nbsp;{{ props[p.d] }}&nbsp;{% if propsPostfixes[p.d] == 'float' %}
+                        <input class="za-input za-form-width-small za-catalog-item-integer-field za-form-small" value="1" type="number" min="1" step="0.01" id="za_catalog_item_integer_{{ p.d }}">{% else %}
+                        <input class="za-input za-form-width-small za-catalog-item-integer-field za-form-small" value="1" type="number" min="1" step="1" id="za_catalog_item_integer_{{ p.d }}">{% endif %}</label>
+                </div>
                 <div>{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}<span id="za_catalog_item_integer_val_{{ p.d }}">{{ p.v }}</span>{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}</div>
             </div>
             {% endif %}
             <!-- -->
-            {% if propsType[p.d] == 4 %}            
+            {% if propsType[p.d] == 4 %}
             <div class="za-margin-top za-margin-bottom za-grid-small" za-grid>
-                <div class="za-width-expand" za-leader><label>{{ props[p.d] }}</label>&nbsp;</div>
-                <div><select class="za-select za-form-width-medium za-catalog-item-select">{% for i in propsValues[p.d] %}<option value="{{ loop.index0 }}" data-id="{{ p.d }}" data-price="{{ p.v[loop.index0] }}">{{ i }}</option>{% endfor %}</select></div>
+                <div class="za-width-expand" za-leader>
+                    <label>{{ props[p.d] }}</label>&nbsp;</div>
+                <div>
+                    <select class="za-select za-form-width-medium za-catalog-item-select">{% for i in propsValues[p.d] %}
+                        <option value="{{ loop.index0 }}" data-id="{{ p.d }}" data-price="{{ p.v[loop.index0] }}">{{ i }}</option>{% endfor %}</select>
+                </div>
             </div>
             {% endif %}
-            <!-- -->            
+            <!-- -->
             {% endfor %}
             <!-- -->
             {% endif %}
@@ -103,19 +111,24 @@
                     <label>
                         <input class="za-radio za-catalog-item-variant" type="radio" name="za_item_variants" data-id="{{ var.d }}" data-price="{{ var.v }}">&nbsp;{{ variants[var.d] }}&nbsp;&ndash;&nbsp;{% if configModule.currencyPosition == 'left' %}{{ settings.currency }}{% endif %}{{ var.v }}{% if configModule.currencyPosition == 'right' %}&nbsp;{{ settings.currency }}{% endif %}
                     </label>
-                    <br>
-                    {% endfor %}
+                    <br> {% endfor %}
                 </div>
             </div>
-            {% endif %}
-            {% if configModule.cart %}
+            {% endif %} {% if configModule.cart %}
             <div class="za-margin-top">
+                {% if data.amount > 0 %}
                 <button class="za-button za-button-primary za-catalog-cart-add-btn">
-                    <div za-spinner="ratio:0.5" class="za-catalog-cart-add-spinner" style="display:none"></div>{{ i18n.__(locale, 'Add to Cart')}}</button>
+                    <div za-spinner="ratio:0.5" class="za-catalog-cart-add-spinner" style="display:none"></div>{{ i18n.__(locale, 'Add to Cart')}}
+                </button>
+                {% else %}
+                <button class="za-button za-button-default">
+                    {{ i18n.__(locale, 'Out of Stock')}}
+                </button>
+                {% endif %}
             </div>
             {% endif %}
         </div>
-    </div>    
+    </div>
 </div>
 <div style="display:none">
     <div id="zp_locale" data="{{ locale }}"></div>

@@ -123,6 +123,11 @@
                     $('.za-catalog-metadata-wrap').removeClass('za-grid-divider');
                 }
                 $('#za_order_address').html(addressHTML);
+                if (order.status > 0) {
+                    $('#za_order_btn_pay_wrap').show();
+                } else {
+                    $('#za_order_btn_pay_wrap').hide();
+                }
                 if (order.paid) {
                     $('#za_order_status_badge_paid').show();
                     $('#za_order_status_badge_unpaid').hide();
