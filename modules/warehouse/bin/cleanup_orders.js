@@ -1,3 +1,5 @@
+#!/usr/bin/node
+
 const path = require('path');
 const config = require(path.join(__dirname, '..', '..', '..', 'core', 'config.js'));
 
@@ -15,7 +17,7 @@ const script = async() => {
         if (orders && orders.length) {
             for (let i in orders) {
                 const order = orders[i];
-                for (let c in order.cart) {
+                for (let c in order.cart) 
                     const [cid] = c.split('|');
                     const count = order.cart[c].count;
                     await db.collection('warehouse').update({ sku: cid }, { $inc: { amount: parseInt(count, 10) } });

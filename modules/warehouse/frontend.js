@@ -565,7 +565,7 @@ module.exports = function(app) {
         const cart = req.session.catalog_cart || {};
         let cartArr = [];
         let total = 0;
-        if (Object.keys(cart).length > 0) {
+        if (Object.keys(cart).length > 0) {            
             let query = [];
             let filter = {};
             let propertiesQuery = [];
@@ -593,6 +593,7 @@ module.exports = function(app) {
             ffields[locale + '.title'] = 1;
             ffields[locale + '.properties'] = 1;
             const cartDB = await db.collection('warehouse').find({ $or: query }, { sort: {}, projection: ffields }).toArray();
+            let cartData = {};
             if (cartDB && cartDB.length) {
                 let propertiesData = {};
                 let propertiesCost = {};
@@ -605,7 +606,6 @@ module.exports = function(app) {
                         }
                     }
                 }
-                let cartData = {};
                 let variantsQuery = [];
                 for (let i in cartDB) {
                     let variants = {};
@@ -652,6 +652,8 @@ module.exports = function(app) {
                 for (let i in cart) {
                     const [id, variant] = i.split('|');
                     if (!cartData[id]) {
+                        delete cart[i];
+                        req.session.catalog_cart = cart;
                         continue;
                     }
                     const itemCart = cart[i];
@@ -723,6 +725,13 @@ module.exports = function(app) {
                     total += price * itemCart.count;
                 }
                 total = parseFloat(total).toFixed(2).replace(/\.00$/gm, '');
+            }
+            for (let i in cart) {
+                const [id, variant] = i.split('|');
+                if (!cartData[id]) {
+                    delete cart[i];
+                    req.session.catalog_cart = cart;
+                }
             }
         }
         // Render
@@ -855,6 +864,7 @@ module.exports = function(app) {
                 for (let i in cart) {
                     const [id, variant] = i.split('|');
                     if (!cartData[id]) {
+                        req.session.catalog_cart = cart;
                         continue;
                     }
                     const itemCart = cart[i];

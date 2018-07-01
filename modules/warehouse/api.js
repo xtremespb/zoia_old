@@ -3141,20 +3141,20 @@ module.exports = function(app) {
         let errorFields = [];
         if (!configModule.cart) {
             return res.send(JSON.stringify({
-                status: 0
+                status: -1
             }));
         }
         if (!Module.isAuthorized(req) && (!req.session || req.body.captcha !== req.session.captcha)) {
             req.session.captcha = null;
             return res.send(JSON.stringify({
-                status: 0,
+                status: -2,
                 fields: ['captcha']
             }));
         }
         let orderData = {};
         if (!req.body.delivery || typeof req.body.delivery !== 'string') {
             return res.send(JSON.stringify({
-                status: 0,
+                status: -3,
                 fields: ['delivery']
             }));
         }
@@ -3166,7 +3166,7 @@ module.exports = function(app) {
         }
         if (!deliveryData || !deliveryData.length) {
             return res.send(JSON.stringify({
-                status: 0,
+                status: -4,
                 fields: ['delivery']
             }));
         }
@@ -3178,7 +3178,7 @@ module.exports = function(app) {
         }
         if (!deliveryRec) {
             return res.send(JSON.stringify({
-                status: 0,
+                status: -5,
                 fields: ['delivery']
             }));
         }
@@ -3188,7 +3188,7 @@ module.exports = function(app) {
             !orderData.email.match(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/) || orderData.email.length > 100 ||
             !orderData.phone.match(/^[\+][0-9]{4,24}$/) || orderData.phone.length > 30) {
             return res.send(JSON.stringify({
-                status: 0,
+                status: -6,
                 fields: ['email', 'phone']
             }));
         }
@@ -3446,7 +3446,7 @@ module.exports = function(app) {
             }
             if (errorFields.length) {
                 return res.send(JSON.stringify({
-                    status: 0,
+                    status: -7,
                     fields: errorFields
                 }));
             }
@@ -3461,7 +3461,7 @@ module.exports = function(app) {
             const incr = await db.collection('warehouse_counters').findAndModify({ _id: 'orders' }, [], { $inc: { seq: 1 } }, { new: true, upsert: true });
             if (!incr || !incr.value || !incr.value.seq) {
                 return res.send(JSON.stringify({
-                    status: 0
+                    status: -8
                 }));
             }
             orderData._id = incr.value.seq;
@@ -3478,7 +3478,7 @@ module.exports = function(app) {
             const insResult = await db.collection('warehouse_orders').insertOne(orderData);
             if (!insResult || !insResult.result || !insResult.result.ok) {
                 return res.send(JSON.stringify({
-                    status: 0
+                    status: -9
                 }));
             }
             // 

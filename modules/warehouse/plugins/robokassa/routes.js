@@ -69,7 +69,7 @@ module.exports = function(app, router) {
         return res.redirect(303, configPlugin.url + '?MrchLogin=' + configPlugin.sMerchantLogin + '&OutSum=' +
             orderData.costs.total + '&InvId=' + orderData._id + '&Desc=' + i18n.get().__(locale, 'Payment for Order ID') +
             ' ' + orderData._id + '&SignatureValue=' + signature + '&IncCurrLabel=' + configPlugin.sIncCurrLabel +
-            '&Culture=' + locale + '&IsTest=1&rnd=' + Math.random().toString().replace('.', ''));
+            '&Culture=' + locale + '&IsTest=0&rnd=' + Math.random().toString().replace('.', ''));
     };
     /*
     
