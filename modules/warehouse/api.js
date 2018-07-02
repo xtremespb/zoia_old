@@ -3375,6 +3375,10 @@ module.exports = function(app) {
                         weight += cartData[id].weight + item.count;
                     }
                 }
+            } else {
+                return res.send(JSON.stringify({
+                    status: -101
+                }));
             }
             orderData.costs.totalWares = orderData.costs.total;
             if (weight && deliveryRec.cost_weight) {
@@ -3465,6 +3469,8 @@ module.exports = function(app) {
                 }));
             }
             orderData._id = incr.value.seq;
+            orderData.paid = false;
+            orderData.locale = locale;
             // orderData.hidden = configModule.payBeforeOrderIsPlaced ? true : false;
             //
             // Decrement amounts
@@ -3827,6 +3833,8 @@ module.exports = function(app) {
             }));
         }
         data.paid = data.paid === 'true' ? true : false;
+        data.status = parseInt(data.status, 10);
+        data.date = parseInt(data.date, 10);
         id = parseInt(id, 10);
         try {
             const order = await db.collection('warehouse_orders').findOne({ _id: id });

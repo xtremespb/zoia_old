@@ -132,8 +132,8 @@
 	"Import complete": "Импорт успешно выполнен",
 	"Delivery": "Доставка",
 	"Delivery Options": "Опции доставки",
-	"Cost": "Стоимость",
-	"Weight Cost": "Стоимость за единицу весу",
+	"Cost": "Цена",
+	"Weight Cost": "Цена за единицу весу",
 	"Need to enter an address": "Требуется ввести адрес",
 	"Local pickup": "Самовывоз",
 	"Address Templates": "Шаблоны адреса",
@@ -257,5 +257,10 @@
 	"Order will be cancelled and all items will be returned to the warehouse. Continue?": "Заказ будет удален, все остатки на складе буду скорректированы. Продолжить?",
 	"Order & Pay": "Заказать и оплатить",
 	"Notice: you should make a payment within a hour, your order will be cancelled otherwise!": "Внимание: необходимо оплатить заказ в течение одного часа, иначе он будет отменен!",
-	"View order": "Просмотр заказа"
+	"View order": "Просмотр заказа",
+	"Thank you for your payment.": "Спасибо за оплату заказа.",
+	"If you have any questions about your order, please contact support to get help.": "Если у Вас есть вопросы по поводу заказа, пожалуйста, свяжитесь с поддержкой.",
+	"Order was Paid by Customer": "Заказ оплачен клиентом",
+	"An order on your website was paid by customer.": "Клиент оплатил заказ в Вашем интернет-магазине.",
+	"Please check your admin panel to get more information on this order.": "Пожалуйста, зайдите в панель администратора для проверки параметров заказа."
 }

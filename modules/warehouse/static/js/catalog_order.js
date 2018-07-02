@@ -103,8 +103,12 @@
             cache: false
         }).done((res) => {
             loading = false;
+            if (res && parseInt(res.status, 10) === -101) {
+                location.href = $('#za_order_btn_pay').attr('data');
+                return;
+            }
             $('.za_catalog_order_submit_spinner').hide();
-            if (res.status !== 1 || !res.order) {
+            if (res.status !== 1 || !res.order) {                
                 captchaRefresh();
                 if (res.error) {
                     return $zUI.notification(res.error, {

@@ -257,5 +257,10 @@
 	"Order will be cancelled and all items will be returned to the warehouse. Continue?": "Order will be cancelled and all items will be returned to the warehouse. Continue?",
 	"Order & Pay": "Order & Pay",
 	"Notice: you should make a payment within a hour, your order will be cancelled otherwise!": "Notice: you should make a payment within a hour, your order will be cancelled otherwise!",
-	"View order": "View order"
+	"View order": "View order",
+	"Thank you for your payment.": "Thank you for your payment.",
+	"If you have any questions about your order, please contact support to get help.": "If you have any questions about your order, please contact support to get help.",
+	"Order was Paid by Customer": "Order was Paid by Customer",
+	"An order on your website was paid by customer.": "An order on your website was paid by customer.",
+	"Please check your admin panel to get more information on this order.": "Please check your admin panel to get more information on this order."
 }
