@@ -47,6 +47,10 @@ a {
     font-size: 10px;
 }
 
+.zoia-subnav {
+    min-width: 250px;
+}
+
 @media (max-width: 640px) {
     .zoia-content-container {
         margin-top: -25px;
@@ -54,6 +58,12 @@ a {
     }
     .zoia-wrap-content {
         min-height: calc(100vh - 212px);
+    }
+    .zoia-pages-subnav>li>a {
+        color: #666;
+    }
+    .zoia-subnav {
+        display: none;
     }
 }
 

@@ -55,8 +55,19 @@
                 </div>
             </nav>
         </div>
-        <div class="za-container zoia-wrap-content zoia-content-container">
-            {{ content }}
+        <div class="za-container zoia-wrap-content zoia-content-container za-flex">
+            {% if folderPagesCount > 0 %}
+            <div class="za-margin-right zoia-subnav">{{ [req, pageFolder, pageID, locale] | contents }}</div>
+            {% endif %}
+            <div>
+                {% if folderPagesCount > 0 %}
+                <a class="za-icon-button za-margin-small-right za-margin-bottom za-hidden@s" za-icon="icon:chevron-down" type="button" id="zoia_catalog_folders_toggle" style="float:right;margin-top:8px"></a>
+                <div za-drop="mode:click" style="display:none">
+                    {{ [req, pageFolder, pageID, locale] | contents }}
+                </div>
+                {% endif %}
+                {{ content }}
+            </div>
         </div>
         <div class="za-container zoia-wrap-footer">
             <div class="zoia-footer-container">

@@ -1,7 +1,13 @@
 const config = require('../../core/config.js');
 const Router = require('co-router');
+const fs = require('fs');
 
 const templates = require('./templates.js');
+
+let templateContents = 'contents.html';
+if (fs.existsSync(`${__dirname}/views/custom_${templateContents}`)) {
+    templateContents = 'custom_' + templateContents;
+}
 
 const tpl = (s, d) => {
     for (let p in d) {
@@ -35,6 +41,7 @@ module.exports = function(app) {
     const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
     const db = app.get('db');
     const render = new(require('../../core/render.js'))(`${__dirname}/../../views`, app);
+    const renderLocal = new(require('../../core/render.js'))(`${__dirname}/views`, app);
 
     const content = async(req, res, next) => {
         let filters = app.get('templateFilters');
@@ -60,8 +67,9 @@ module.exports = function(app) {
         };
         url = url.replace(/\/$/, '');
         filter[locale] = 1;
-        let pageData = await db.collection('pages').findOne({ url: url }, filter);
+        let pageData = await db.collection('pages').findOne({ url: url }, { sort: {}, projection: filter });
         if (pageData && pageData[locale] && pageData[locale].title && pageData.status) {
+            const folderPagesCount = await db.collection('pages').find({ folder: pageData.folder, name: { $ne: '' }, status: '1' }).count();
             let vars = {
                 req: req,
                 locale: locale,
@@ -101,7 +109,10 @@ module.exports = function(app) {
             let html = await render.template(req, i18n, locale, pageData[locale].title || '', {
                 content: pageData[locale].content || '',
                 keywords: pageData[locale].keywords || '',
-                description: pageData[locale].description || ''
+                description: pageData[locale].description || '',
+                pageFolder: pageData.folder,
+                pageID: String(pageData._id),
+                folderPagesCount: folderPagesCount
             }, pageData.template || config.website.templates[0]);
             return res.send(html);
         }
@@ -144,13 +155,55 @@ module.exports = function(app) {
         }
     };
 
+    const contentsAsync = async(data) => {
+        if (!data || !Array.isArray(data) || data.length < 4) {
+            return '';
+        }
+        const req = data[0];
+        const folder = data[1];
+        const pageID = data[2];
+        const locale = data[3];
+        const css = data.length > 3 ? data[4] : '';
+        const uprefix = i18n.getLanguageURLPrefix(req);
+        let filter = {
+            status: 1,
+            url: 1
+        };
+        filter[locale] = 1;
+        let sort = {};
+        sort[locale] = 1;
+        try {
+            let output = '';
+            let pages = await db.collection('pages').find({ folder: folder, status: '1', name: { $ne: '' } }, { sort: sort, projection: filter }).toArray();
+            if (pages && pages.length > 0) {
+                output = await renderLocal.file(templateContents, {
+                    locale: locale, 
+                    pages: pages,
+                    pageID: pageID,
+                    uprefix: uprefix,
+                    css: css
+                });
+            }
+            return output;
+        } catch (e) {
+            return '';
+        }
+    };
+
+    const contents = (data, callback) => {
+        contentsAsync(data).then(function(html) {
+            callback(null, html);
+        });
+    };
+
     let router = Router();
     router.get(/(.*)/, content);
 
     return {
         routes: router,
         filters: {
-            breadcrumbsAsync: breadcrumbsAsync
+            breadcrumbsAsync: breadcrumbsAsync,
+            contents: contents
         }
     };
 };

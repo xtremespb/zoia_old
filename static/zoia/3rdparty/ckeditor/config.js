@@ -8,5 +8,5 @@ CKEDITOR.editorConfig = function( config ) {
 	// config.language = 'fr';
 	// config.uiColor = '#AADC6E';
 	config.extraPlugins = 'blogcut';
-	config.enterMode = CKEDITOR.ENTER_BR;
+	//config.enterMode = CKEDITOR.ENTER_BR;
 };
