@@ -1,5 +1,3 @@
-#!/usr/bin/node
-
 const path = require('path');
 const config = require(path.join(__dirname, '..', '..', '..', 'core', 'config.js'));
 
@@ -12,12 +10,13 @@ const script = async() => {
         const cleanstamp = 3600;
         const orders = await db.collection('warehouse_orders').find({
             date: { $lt: (timestamp - cleanstamp) },
-            status: { $gt: 0 }
+            status: 1,
+            paid: false
         }).toArray();
         if (orders && orders.length) {
             for (let i in orders) {
                 const order = orders[i];
-                for (let c in order.cart) 
+                for (let c in order.cart) {
                     const [cid] = c.split('|');
                     const count = order.cart[c].count;
                     await db.collection('warehouse').update({ sku: cid }, { $inc: { amount: parseInt(count, 10) } });
