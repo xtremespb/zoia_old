@@ -85,10 +85,6 @@
                 bgClose: false,
                 escClose: false
             });
-            deleteDialog = $zUI.modal('#zoiaDeleteDialog', {
-                bgClose: false,
-                escClose: false
-            });
             $('#editForm').zoiaFormBuilder({
                 save: {
                     url: '/api/brb/save',
@@ -226,37 +222,11 @@
                             return value;
                         }
                     },
-                    email: {
-                        sortable: true,
-                        process: (id, item, value) => {
-                            return value;
-                        }
-                    },
-                    status: {
-                        sortable: true,
-                        process: (id, item, value) => {
-                            return lang.statuses[value] || '&ndash;';
-                        }
-                    },
-                    groups: {
-                        sortable: true,
-                        process: (id, item, value) => {
-                            if (!value) {
-                                return '&ndash;';
-                            }
-                            const groups = value.replace(/,/gm, ', ');
-                            if (groups.length <= 50) {
-                                return groups;
-                            }
-                            return groups.substr(0, groups.lastIndexOf(', ', 50)) + ' (' + lang['and some more'] + ')';
-                        }
-                    },
                     actions: {
                         sortable: false,
                         process: (id, item) => {
                             return '<button class="za-icon-button zoia-brb-action-edit-btn" za-icon="icon: pencil" data="' + item._id +
-                                '" style="margin-right:5px"></button><button class="za-icon-button zoia-brb-action-del-btn" za-icon="icon: trash" data="' + item._id +
-                                '"></button><div style="margin-bottom:17px" class="za-hidden@m">&nbsp;</div>';
+                                '" style="margin-right:5px"></button>';
                         }
                     }
                 },
@@ -264,9 +234,6 @@
                     $('.zoia-brb-action-edit-btn').click(function() {
                         window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, uprefix + corePrefix.admin + '/brb?action=edit&id=' + $(this).attr('data'));
                         editItem($(this).attr('data'));
-                    });
-                    $('.zoia-brb-action-del-btn').click(function() {
-                        deleteItem($(this).attr('data'));
                     });
                 },
                 lang: {

@@ -11,6 +11,8 @@
     let defaults = {
         limit: 10,
         maxPages: 7,
+        offline: false,
+        offlineData: {},
         html: {
             spinnerHTML: '<div style="width:40px;height:40px;background-color:#333;-webkit-animation:sk-rotateplane 1.2s infinite ease-in-out;animation: sk-rotateplane 1.2s infinite ease-in-out;margin: auto;position: absolute;top:0;left:0;bottom:0;right:0"></div>',
             spinnerWrapCSS: 'background:#fff;position:absolute;opacity:0.6',
@@ -227,83 +229,147 @@
             return this.currentData;
         },
         load() {
-            if (!this.settings.url || this.loading) {
-                return;
-            }
-            const that = this;
-            let html = '';
-            this._loading(true);
-            this.loading = true;
-            $.ajax({
-                type: 'GET',
-                url: this.settings.url,
-                data: {
-                    limit: this.settings.limit,
-                    skip: this.page * this.settings.limit - this.settings.limit,
-                    sortField: this.settings.sort.field,
-                    sortDirection: this.settings.sort.direction,
-                    search: this.search
-                },
-                cache: false
-            }).done((res) => {
-                that.loading = false;
-                if (res) {
-                    that.pages = parseInt(res.total / that.settings.limit, 10);
-                    if (res.total % that.settings.limit > 0) {
-                        that.pages++;
+            if (this.settings.offline) {
+                let html = '';
+                this.pages = parseInt(this.settings.offlineData.length / this.settings.limit, 10);
+                if (this.settings.offlineData.length % this.settings.limit > 0) {
+                    this.pages++;
+                }
+                this.settings.offlineData.sort((a, b) => {
+                    return (a[this.settings.sort.field] > b[this.settings.sort.field]) ? (this.settings.sort.direction === 'asc' ? -1 : 1) : ((b[this.settings.sort.field] > a[this.settings.sort.field]) ? (this.settings.sort.direction === 'asc' ? 1 : -1) : 0);
+                });
+                let offlineDataFiltered = [];
+                let _skip = this.page * this.settings.limit - this.settings.limit;
+                let _to = _skip + this.settings.limit;
+                if (_to > this.settings.offlineData.length) {
+                    _to = this.settings.offlineData.length;
+                }
+                for (let i = _skip; i < _to; i++) {
+                    if (this.settings.offlineData[i]) {
+                        offlineDataFiltered.push(this.settings.offlineData[i]);
                     }
-                    that.total = res.total;
-                    that._pagination();
-                    that.currentData = {};
-                    for (let i in res.items) {
-                        let item = res.items[i];
-                        that.currentData[item._id] = item;
-                        html += '<tr>';
-                        for (let h in that.header) {
-                            if (that.header[h] === that.element.id + 'ID') {
-                                html += '<td><input type="checkbox" id="' + item._id + '" class="za-checkbox ' + that.element.id + 'Checkbox"></td>';
-                            } else {
-                                let found = false;
-                                let th = that.header[h].replace(new RegExp('^' + that.element.id + '_'), '');
-                                for (let ie in item) {
-                                    if (ie === th && that.settings.fields[ie]) {
-                                        if (item[ie] && typeof item[ie] === 'string') {
-                                            item[ie] = item[ie].replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-                                        }
-                                        html += '<td>' + that.settings.fields[ie].process(ie, item, item[ie]) + '</td>';
-                                        found = true;
+                }
+                this.total = this.settings.offlineData.length;
+                this._pagination();
+                this.currentData = {};
+                for (let i in offlineDataFiltered) {
+                    let item = offlineDataFiltered[i];
+                    this.currentData[item._id || item.id] = item;
+                    html += '<tr>';
+                    for (let h in this.header) {
+                        if (this.header[h] === this.element.id + 'ID') {
+                            html += '<td><input type="checkbox" id="' + (item._id || item.id) + '" class="za-checkbox ' + this.element.id + 'Checkbox"></td>';
+                        } else {
+                            let found = false;
+                            let th = this.header[h].replace(new RegExp('^' + this.element.id + '_'), '');
+                            for (let ie in item) {
+                                if (ie === th && this.settings.fields[ie]) {
+                                    if (item[ie] && typeof item[ie] === 'string') {
+                                        item[ie] = item[ie].replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
                                     }
+                                    html += '<td>' + this.settings.fields[ie].process(ie, item, item[ie]) + '</td>';
+                                    found = true;
                                 }
-                                if (!found) {
-                                    if (that.settings.fields[th] && that.settings.fields[th].process) {
-                                        html += '<td>' + that.settings.fields[th].process(th, item) + '</td>';
-                                    } else {
-                                        html += '<td></td>';
-                                    }
+                            }
+                            if (!found) {
+                                if (this.settings.fields[th] && this.settings.fields[th].process) {
+                                    html += '<td>' + this.settings.fields[th].process(th, item) + '</td>';
+                                } else {
+                                    html += '<td></td>';
                                 }
                             }
                         }
-                        html += '</tr>';
                     }
-                    $(that.element).find('tbody').html(html.length ? html : that._template(that.settings.html.errorHTML, { error: that.settings.lang.noitems }));
-                    that._loading(false);
-                    $('*[data-page="' + that.page + '"]').parent().addClass('za-active');
-                    that._bindSelectButtons();
-                    if (that.settings.sort.field) {
-                        that._sortIndicator(that.settings.sort.field, that.settings.sort.direction);
+                    html += '</tr>';
+                }
+                $(this.element).find('tbody').html(html.length ? html : this._template(this.settings.html.errorHTML, { error: this.settings.lang.noitems }));
+                this._loading(false);
+                $('*[data-page="' + this.page + '"]').parent().addClass('za-active');
+                this._bindSelectButtons();
+                if (this.settings.sort.field) {
+                    this._sortIndicator(this.settings.sort.field, this.settings.sort.direction);
+                }
+                $(this.element).find('thead').show();
+                this.settings.onLoad();
+            } else {
+                if (!this.settings.url || this.loading) {
+                    return;
+                }
+                const that = this;
+                let html = '';
+                this._loading(true);
+                this.loading = true;
+                $.ajax({
+                    type: 'GET',
+                    url: this.settings.url,
+                    data: {
+                        limit: this.settings.limit,
+                        skip: this.page * this.settings.limit - this.settings.limit,
+                        sortField: this.settings.sort.field,
+                        sortDirection: this.settings.sort.direction,
+                        search: this.search
+                    },
+                    cache: false
+                }).done((res) => {
+                    that.loading = false;
+                    if (res) {
+                        that.pages = parseInt(res.total / that.settings.limit, 10);
+                        if (res.total % that.settings.limit > 0) {
+                            that.pages++;
+                        }
+                        that.total = res.total;
+                        that._pagination();
+                        that.currentData = {};
+                        for (let i in res.items) {
+                            let item = res.items[i];
+                            that.currentData[item._id] = item;
+                            html += '<tr>';
+                            for (let h in that.header) {
+                                if (that.header[h] === that.element.id + 'ID') {
+                                    html += '<td><input type="checkbox" id="' + item._id + '" class="za-checkbox ' + that.element.id + 'Checkbox"></td>';
+                                } else {
+                                    let found = false;
+                                    let th = that.header[h].replace(new RegExp('^' + that.element.id + '_'), '');
+                                    for (let ie in item) {
+                                        if (ie === th && that.settings.fields[ie]) {
+                                            if (item[ie] && typeof item[ie] === 'string') {
+                                                item[ie] = item[ie].replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+                                            }
+                                            html += '<td>' + that.settings.fields[ie].process(ie, item, item[ie]) + '</td>';
+                                            found = true;
+                                        }
+                                    }
+                                    if (!found) {
+                                        if (that.settings.fields[th] && that.settings.fields[th].process) {
+                                            html += '<td>' + that.settings.fields[th].process(th, item) + '</td>';
+                                        } else {
+                                            html += '<td></td>';
+                                        }
+                                    }
+                                }
+                            }
+                            html += '</tr>';
+                        }
+                        $(that.element).find('tbody').html(html.length ? html : that._template(that.settings.html.errorHTML, { error: that.settings.lang.noitems }));
+                        that._loading(false);
+                        $('*[data-page="' + that.page + '"]').parent().addClass('za-active');
+                        that._bindSelectButtons();
+                        if (that.settings.sort.field) {
+                            that._sortIndicator(that.settings.sort.field, that.settings.sort.direction);
+                        }
+                        $(that.element).find('thead').show();
+                        that.settings.onLoad();
+                    } else {
+                        that.loading = false;
+                        that._loading(false);
+                        $(that.element).find('tbody').html(that._template(that.settings.html.errorHTML, { error: that.settings.lang.error }));
                     }
-                    $(that.element).find('thead').show();
-                    that.settings.onLoad();
-                } else {
+                }).fail(() => {
                     that.loading = false;
                     that._loading(false);
                     $(that.element).find('tbody').html(that._template(that.settings.html.errorHTML, { error: that.settings.lang.error }));
-                }
-            }).fail(() => {
-                that.loading = false;
-                that._loading(false);
-                $(that.element).find('tbody').html(that._template(that.settings.html.errorHTML, { error: that.settings.lang.error }));
-            });
+                });
+            }
         }
     });
     // Plugin wrapper

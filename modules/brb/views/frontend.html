@@ -1,0 +1,107 @@
+<div class="zoia-wrap-info za-width-1-1" style="display:none">
+    <h1>{{ i18n.__(locale, 'Your BRB Account')}}</h1>
+    <div class="za-grid-collapse" za-grid>
+        <div>
+            <div class="za-tile za-tile-primary za-padding-small">
+                <p class="za-text-small">{{ i18n.__(locale, 'Account ID')}}:</p>
+                <p class="za-h4" style="margin-top:0">{{ apiInfo.name }}</p>
+            </div>
+        </div>
+        <div>
+            <div class="za-tile za-tile-muted za-padding-small">
+                <p class="za-text-small">{{ i18n.__(locale, 'Cost')}}:</p>
+                <p class="za-h4 za-text-primary" style="margin-top:0">${{ apiInfo.portfolio_cost }}</p>
+            </div>
+        </div>
+        <div>
+            <div class="za-tile za-tile-muted za-padding-small">
+                <p class="za-text-small">{{ i18n.__(locale, 'Realized')}}:</p>
+                <p class="za-h4 za-text-{% if apiInfo.realized < 0 %}danger{% else %}success{% endif %}" style="margin-top:0">{% if apiInfo.realized < 0 %}-${{ apiInfo.realized | abs }}{% else %}${{ apiInfo.realized | abs }}{% endif %}</p>
+            </div>
+        </div>
+        <div>
+            <div class="za-tile za-tile-muted za-padding-small">
+                <p class="za-text-small">{{ i18n.__(locale, 'Not Realized')}}:</p>
+                <p class="za-h4 za-text-{% if apiInfo.unrealized < 0 %}danger{% else %}success{% endif %}" style="margin-top:0">{% if apiInfo.unrealized < 0 %}-${{ apiInfo.unrealized | abs }}{% else %}${{ apiInfo.unrealized | abs }}{% endif %}</p>
+            </div>
+        </div>
+    </div>
+    <div class="za-overflow-auto">
+        <table class="za-table za-table-divider za-table-striped za-table-hover za-table-middle" id="tickers">
+            <thead class="noselect" style="display:none">
+                <tr>
+                    <th id="tickers_ticker" class="za-table-shrink">{{ i18n.__(locale, 'Ticker')}}</th>
+                    <th id="tickers_position_date" class="za-table-shrink">{{ i18n.__(locale, 'Date')}}</th>
+                    <th id="tickers_position_time" class="za-table-shrink">{{ i18n.__(locale, 'Time')}}</th>
+                    <th id="tickers_price" class="za-table-shrink">{{ i18n.__(locale, 'Price')}}</th>
+                    <th id="tickers_position" class="za-table-shrink">{{ i18n.__(locale, 'Position')}}</th>
+                    <th id="tickers_position_value" class="za-table-shrink">{{ i18n.__(locale, 'Volume')}}</th>
+                    <th id="tickers_average_price" class="za-table-shrink">{{ i18n.__(locale, 'Avg. Price')}}</th>
+                    <th id="tickers_market_price" class="za-table-shrink">{{ i18n.__(locale, 'Market Price')}}</th>
+                    <th id="tickers_position_prc" class="za-table-shrink">{{ i18n.__(locale, 'Position')}}</th>
+                    <th id="tickers_unrealized" class="za-table-shrink">{{ i18n.__(locale, 'Profit/Loss $')}}</th>
+                    <th id="tickers_tp" class="za-table-shrink">{{ i18n.__(locale, 'Profit')}}</th>
+                    <th id="tickers_sl" class="za-table-shrink">{{ i18n.__(locale, 'Loss')}}</th>
+                    <th id="tickers_potpro" class="za-table-shrink">{{ i18n.__(locale, 'Pot. Profit')}}</th>
+                    <th id="tickers_potlos" class="za-table-shrink">{{ i18n.__(locale, 'Pot. Loss')}}</th>
+                    <th id="tickers_protolos" class="za-table-shrink">{{ i18n.__(locale, 'Ratio')}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="100%">
+                        <div za-spinner style="margin:-2px 5px 0 0"></div>
+                        &nbsp;{{ i18n.__(locale, 'Loading data, please wait')}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="zoia-wrap-ticker za-width-1-1" style="display:none">
+    <div class="za-flex za-flex-wrap яф-grid-match" za-grid>
+        <div class="za-flex za-flex-center za-width-auto@m za-width-auto@l za-width-auto@s">
+            <div class="za-width-auto">
+                <div class="za-background-primary za-padding-small">
+                    <div class="zoia-ticker-name zoia-header-font"></div>
+                    <div class="za-text-small zoia-ticker-full-name"></div>
+                </div>
+                <div class="za-text-large za-text-center zoia-ticker-position za-text-danger"></div>
+            </div>
+        </div>
+        <div class="za-flex za-flex-center za-flex-middle za-width-expand@s za-width-1-1@s zoia-header-font">
+            <div class="zoia-ticker-price"></div>
+        </div>
+        <div class="za-width-auto@m za-flex za-flex-middle za-flex-center">
+            <div za-grid class="za-flex za-flex-center za-flex-middle">
+                <div class="za-width-1-3 za-flex za-flex-center za-flex-middle">
+                    <div>
+                        <div class="za-text-small">{{ i18n.__(locale, 'Entry')}}:</div>
+                        <div class="za-text-large zoia-ticker-entry">$0</div>
+                    </div>
+                </div>
+                <div class="za-width-1-3 za-flex za-flex-center za-flex-middle">
+                    <div>
+                        <div class="za-text-small">{{ i18n.__(locale, 'TP')}}:</div>
+                        <div class="za-text-large zoia-ticker-tp">$0</div>
+                    </div>
+                </div>
+                <div class="za-width-1-3 za-flex za-flex-center za-flex-middle">
+                    <div>
+                        <div class="za-text-small">{{ i18n.__(locale, 'SL')}}:</div>
+                        <div class="za-text-large zoia-ticker-sl">$0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="zoia-loading">
+    <div za-spinner style="margin-right:10px"></div>&nbsp;{{ i18n.__(locale, 'Loading data, please wait')}}...
+</div>
+<div style="display:none">
+    <div id="zp_locale" data="{{ locale }}"></div>
+    <div id="zp_uprefix" data="{{ uprefix }}"></div>
+    <div id="zp_tickers" data='{{ apiTickersJSON }}'></div>
+    <div id="zp_apiInfo" data='{{ apiInfoJSON }}'></div>
+</div>

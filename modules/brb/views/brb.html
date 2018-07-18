@@ -4,18 +4,10 @@
         <div>
             <ul class="za-iconnav za-hidden@m">
                 <li>
-                    <button za-icon="icon: check" class="za-icon-button brbBtnSelectAll" title="{{ i18n.__(locale, 'Select all')}}" za-tooltip="pos: bottom-right"></button>
-                </li>
-                <li>
-                    <button za-icon="icon: close" class="za-icon-button brbBtnSelectNone" title="{{ i18n.__(locale, 'Select none')}}" za-tooltip="pos: bottom-right"></button>
-                </li>
-                <li>
                     <button za-icon="icon:refresh" class="za-icon-button brbBtnRefresh" title="{{ i18n.__(locale, 'Refresh')}}" za-tooltip="pos:bottom-right"></button>
                 </li>
             </ul>
             <div class="za-button-group za-visible@m">
-                <button class="za-button za-button-default brbBtnSelectAll" title="{{ i18n.__(locale, 'Select all')}}" za-tooltip="pos:bottom-right"><span za-icon="icon:check"></span></button>
-                <button class="za-button za-button-default brbBtnSelectNone" title="{{ i18n.__(locale, 'Select none')}}" za-tooltip="pos:bottom-right"><span za-icon="icon:close"></span></button>
                 <button class="za-button za-button-default brbBtnRefresh" title="{{ i18n.__(locale, 'Refresh')}}" za-tooltip="pos:bottom-right"><span za-icon="icon:refresh"></span></button>
             </div>
         </div>
@@ -30,11 +22,7 @@
     <table class="za-table za-table-divider za-table-striped za-table-hover za-table-responsive za-table-middle" id="brb">
         <thead class="noselect" style="display:none">
             <tr>
-                <th id="brbID" class="za-table-shrink"></th>
-                <th id="brb_username" class="za-table-shrink">{{ i18n.__(locale, 'Username')}}</th>
-                <th id="brb_email" class="za-table-shrink">{{ i18n.__(locale, 'E-mail')}}</th>
-                <th id="brb_groups">{{ i18n.__(locale, 'Groups')}}</th>
-                <th id="brb_status" class="za-table-shrink">{{ i18n.__(locale, 'Status')}}</th>
+                <th id="brb_username">{{ i18n.__(locale, 'Username')}}</th>
                 <th id="brb_actions">{{ i18n.__(locale, 'Actions')}}</th>
             </tr>
         </thead>

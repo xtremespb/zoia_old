@@ -1,5 +1,5 @@
 {
-	"title": "Пользователи",
+	"title": "BRB",
 	"Select all": "Выбрать все",
 	"Select none": "Отменить выбор",
 	"Username": "Логин",
@@ -50,7 +50,6 @@
 	"and some more": "и др.",
 	"Loading data, please wait": "Загрузка данных, пожалуйста, подождите",
 	"In demo mode, you cannot edit or delete admin user. Thats not an error.": "В демо-режиме Вы не можете редактировать или удалять администратора (admin). Это не является ошибкой.",
-	"Your Account": "Личный кабинет",
 	"Summary": "Основное",
 	"Registration date": "Дата регистрации",
 	"E-mail address": "Адрес E-mail",
@@ -99,5 +98,7 @@
 	"OK": "OK",
 	"Too many accepts. Now you will be forwarded to the sign in form.": "Слишком много попыток ввода. Сейчас Вы будете перенаправлены на форму авторизации.",
 	"Refresh": "Refresh",
-	"Portfolio ID": "ID портфеля"
+	"Portfolio ID": "ID портфеля",
+	"Your BRB Account": "Личный кабинет BRB",
+	"Account ID": "Account ID"
 }

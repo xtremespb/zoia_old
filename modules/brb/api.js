@@ -137,7 +137,6 @@ module.exports = function(app) {
         let output = {};
         const fieldList = brbFields.getUsersFields();
         let fields = validation.checkRequest(req, fieldList);
-        console.log(fields);
         let fieldsFailed = validation.getCheckRequestFailedFields(fields);
         if (fieldsFailed.length > 0) {
             output.status = 0;
