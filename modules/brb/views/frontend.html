@@ -1,5 +1,5 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js" type="text/javscript"></script>
 <div class="zoia-wrap-info za-width-1-1" style="display:none">
-    <h1>{{ i18n.__(locale, 'Your BRB Account')}}</h1>
     <div class="za-grid-collapse" za-grid>
         <div>
             <div class="za-tile za-tile-primary za-padding-small">
@@ -26,7 +26,7 @@
             </div>
         </div>
     </div>
-    <div class="za-overflow-auto">
+    <div class="za-overflow-auto za-margin-bottom*">
         <table class="za-table za-table-divider za-table-striped za-table-hover za-table-middle" id="tickers">
             <thead class="noselect" style="display:none">
                 <tr>
@@ -57,9 +57,12 @@
             </tbody>
         </table>
     </div>
+    <div id="chartTickers" style="width:100%;height:600px;" class="za-margin-top">
+        <div za-spinner style="margin-right:10px"></div>&nbsp;{{ i18n.__(locale, 'Loading data, please wait')}}...
+    </div>
 </div>
 <div class="zoia-wrap-ticker za-width-1-1" style="display:none">
-    <div class="za-flex za-flex-wrap яф-grid-match" za-grid>
+    <div class="za-flex za-flex-wrap za-grid-match" za-grid>
         <div class="za-flex za-flex-center za-width-auto@m za-width-auto@l za-width-auto@s">
             <div class="za-width-auto">
                 <div class="za-background-primary za-padding-small">
@@ -99,6 +102,9 @@
 <div class="zoia-loading">
     <div za-spinner style="margin-right:10px"></div>&nbsp;{{ i18n.__(locale, 'Loading data, please wait')}}...
 </div>
+<script type="text/javascript" src="/brb/static/amcharts/amcharts.js"></script>
+<script type="text/javascript" src="/brb/static/amcharts/serial.js"></script>
+<script type="text/javascript" src="/brb/static/amcharts/themes/light.js"></script>
 <div style="display:none">
     <div id="zp_locale" data="{{ locale }}"></div>
     <div id="zp_uprefix" data="{{ uprefix }}"></div>

@@ -9,7 +9,7 @@
 
     let currentTicker;
 
-    const zoiaTickerLinkClickHandler = function(data) {
+    const zoiaTickerLinkClickHandler = function (data) {
         currentTicker = data || currentTicker;
         $('.zoia-wrap-info').hide();
         $('.zoia-wrap-ticker').show();
@@ -25,7 +25,7 @@
             case 'ticker':
                 zoiaTickerLinkClickHandler(currentTicker);
                 break;
-            default:                
+            default:
                 $('.zoia-wrap-ticker').hide();
                 $('.zoia-wrap-info').show();
                 break;
@@ -37,7 +37,7 @@
         uprefix = $('#zp_uprefix').attr('data');
         tickers = JSON.parse($('#zp_tickers').attr('data'));
         info = JSON.parse($('#zp_apiInfo').attr('data'));
-        $('#tickers>thead>tr>th').each(function() {
+        $('#tickers>thead>tr>th').each(function () {
             $(this).html($(this).html().replace(/\s/gm, '&nbsp;'));
         });
         currentTicker = window.localStorage.getItem('currentTicker') ? JSON.parse(window.localStorage.getItem('currentTicker')) : {};
@@ -114,8 +114,8 @@
                     position_prc: {
                         sortable: false,
                         process: (id, item, value) => {
-                            const val = parseFloat(item.market_price / info.portfolio_cost * item.position_value).toFixed(2);
-                            return (parseFloat(val) < 0 ? '-$' : '$') + val;
+                            const val = parseFloat(item.market_price / info.portfolio_cost * 100).toFixed(2);
+                            return (parseFloat(val) < 0 ? '-$' : '$') + Math.abs(val);
                         }
                     },
                     tp: {
@@ -158,11 +158,108 @@
                     noitems: lang['No items to display']
                 }
             });
-            $('.zoia-ticker-link').click(function(e) {
+            $('.zoia-ticker-link').click(function (e) {
                 e.preventDefault();
-                window.history.pushState({ action: 'ticker' }, document.title, uprefix + '/brb');
+                window.history.pushState({
+                    action: 'ticker'
+                }, document.title, uprefix + '/brb');
                 window.localStorage.setItem('currentTicker', $(this).attr('data'));
                 zoiaTickerLinkClickHandler(JSON.parse($(this).attr('data')));
+            });
+
+            $.ajax({
+                type: 'GET',
+                url: '/api/brb/getChartData',
+                cache: false
+            }).done((res) => {
+                if (res && res.status === 1) {
+                    const chart = AmCharts.makeChart("chartTickers", {
+                        "type": "serial",
+                        "theme": "light",
+                        "marginRight": 0,
+                        "marginLeft": 0,
+                        "autoMarginOffset": 20,
+                        "mouseWheelZoomEnabled": true,
+                        "dataDateFormat": "YYYY-MM-DD hh:mm",
+                        "valueAxes": [{
+                            "id": "v1",
+                            "axisAlpha": 0,
+                            "position": "left",
+                            "ignoreAxisWidth": true
+                        }],
+                        "balloon": {
+                            "borderThickness": 1,
+                            "shadowAlpha": 0
+                        },
+                        "graphs": [{
+                            "id": "g1",
+                            "balloon": {
+                                "drop": true,
+                                "adjustBorderColor": false,
+                                "color": "#ffffff"
+                            },
+                            "bullet": "round",
+                            "bulletBorderAlpha": 1,
+                            "bulletColor": "#FFFFFF",
+                            "bulletSize": 5,
+                            "hideBulletsCount": 50,
+                            "lineThickness": 2,
+                            "title": "red line",
+                            "useLineColorForBulletBorder": true,
+                            "valueField": "value",
+                            "balloonText": "<span style='font-size:18px;'>[[value]]</span>"
+                        }],
+                        "chartScrollbar": {
+                            "graph": "g1",
+                            "oppositeAxis": false,
+                            "offset": 30,
+                            "scrollbarHeight": 80,
+                            "backgroundAlpha": 0,
+                            "selectedBackgroundAlpha": 0.1,
+                            "selectedBackgroundColor": "#888888",
+                            "graphFillAlpha": 0,
+                            "graphLineAlpha": 0.5,
+                            "selectedGraphFillAlpha": 0,
+                            "selectedGraphLineAlpha": 1,
+                            "autoGridCount": true,
+                            "color": "#AAAAAA"
+                        },
+                        "chartCursor": {
+                            "pan": true,
+                            "valueLineEnabled": true,
+                            "valueLineBalloonEnabled": true,
+                            "cursorAlpha": 1,
+                            "cursorColor": "#258cbb",
+                            "limitToGraph": "g1",
+                            "valueLineAlpha": 0.2,
+                            "valueZoomable": true
+                        },
+                        "valueScrollbar": {
+                            "oppositeAxis": false,
+                            "offset": 50,
+                            "scrollbarHeight": 10
+                        },
+                        "categoryField": "date",
+                        "categoryAxis": {
+                            "parseDates": true,
+                            "dashLength": 1,
+                            "minorGridEnabled": true
+                        },
+                        "export": {
+                            "enabled": true
+                        },
+                        "dataProvider": res.chartData.map((item) => {
+                            return {
+                                date: moment.unix(item.time_snap).format('YYYY-MM-DD hh:mm'),
+                                value: item.portfolio_cost
+                            };
+                        })
+                    });
+                } else {
+                    $('#chartTickers').html(lang['Could not fetch information from API.']);
+                }
+            }).fail(() => {
+                $('#chartTickers').html(lang['Could not fetch information from API.']);
             });
         });
     });

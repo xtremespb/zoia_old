@@ -6,7 +6,7 @@ module.exports = function(app) {
     app.get('log').info('[brb] module loaded');
     return {
         frontend: {
-            prefix: '/brb',
+            prefix: '/',
             routes: frontend.routes,
             filters: frontend.filters
         },

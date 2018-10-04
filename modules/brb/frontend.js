@@ -4,8 +4,9 @@ const Router = require('co-router');
 const fs = require('fs-extra');
 const Module = require('../../core/module.js');
 const rp = require('request-promise');
+const moment = require('moment');
 
-const moduleURL = '/brb';
+const moduleURL = '';
 let templateList = 'frontend.html';
 if (fs.existsSync(`${__dirname}/views/custom_${templateList}`)) {
     templateList = 'custom_' + templateList;
@@ -21,14 +22,14 @@ try {
     configModule = require('./config/brb.dist.json');
 }
 
-module.exports = function(app) {
+module.exports = function (app) {
     const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
     const renderAccount = new(require('../../core/render.js'))(`${__dirname}/views`, app);
     const renderRoot = new(require('../../core/render.js'))(`${__dirname}/../../views`, app);
     const log = app.get('log');
     const db = app.get('db');
 
-    const renderErrorHTML = async(req, res, locale, message) => {
+    const renderErrorHTML = async (req, res, locale, message) => {
         const listHTML = await renderAccount.file(templateError, {
             i18n: i18n.get(),
             locale: locale,
@@ -42,7 +43,7 @@ module.exports = function(app) {
         res.send(html);
     };
 
-    const frontend = async(req, res, next) => {
+    const frontend = async (req, res, next) => {
         const uprefix = i18n.getLanguageURLPrefix(req);
         if (!Module.isAuthorized(req)) {
             return res.redirect(303, (config.core.prefix.auth ? uprefix + config.core.prefix.auth : uprefix + '/auth') + '?redirect=' + uprefix + moduleURL + '&_=' + Math.random().toString().replace('.', ''));
@@ -59,7 +60,11 @@ module.exports = function(app) {
         try {
             let apiInfo;
             let apiTickers;
-            const cache1 = await db.collection('brb_cache').findOne({ pid: req.session.auth.portfolioid, request: 'getInfo' });
+            let apiChartData;
+            const cache1 = await db.collection('brb_cache').findOne({
+                pid: req.session.auth.portfolioid,
+                request: 'getInfo'
+            });
             if (cache1) {
                 apiInfo = cache1.data;
             } else {
@@ -73,9 +78,22 @@ module.exports = function(app) {
                     return await renderErrorHTML(req, res, locale, i18n.get().__(locale, 'Could not fetch information from API.'));
                 }
                 apiInfo = response.data;
-                await db.collection('brb_cache').update({ pid: req.session.auth.portfolioid, request: 'getInfo' }, { pid: req.session.auth.portfolioid, request: 'getInfo', timestamp: new Date(), data: apiInfo }, { upsert: true });
+                await db.collection('brb_cache').update({
+                    pid: req.session.auth.portfolioid,
+                    request: 'getInfo'
+                }, {
+                    pid: req.session.auth.portfolioid,
+                    request: 'getInfo',
+                    timestamp: new Date(),
+                    data: apiInfo
+                }, {
+                    upsert: true
+                });
             }
-            const cache2 = await db.collection('brb_cache').findOne({ pid: req.session.auth.portfolioid, request: 'getTickers' });
+            const cache2 = await db.collection('brb_cache').findOne({
+                pid: req.session.auth.portfolioid,
+                request: 'getTickers'
+            });
             if (cache2) {
                 apiTickers = cache2.data;
             } else {
@@ -89,8 +107,19 @@ module.exports = function(app) {
                     return await renderErrorHTML(req, res, locale, i18n.get().__(locale, 'Could not fetch information from API.'));
                 }
                 apiTickers = response.tickerData;
-                await db.collection('brb_cache').update({ pid: req.session.auth.portfolioid, request: 'getTickers' }, { pid: req.session.auth.portfolioid, request: 'getTickers', timestamp: new Date(), data: apiTickers }, { upsert: true });
+                await db.collection('brb_cache').update({
+                    pid: req.session.auth.portfolioid,
+                    request: 'getTickers'
+                }, {
+                    pid: req.session.auth.portfolioid,
+                    request: 'getTickers',
+                    timestamp: new Date(),
+                    data: apiTickers
+                }, {
+                    upsert: true
+                });
             }
+            
             let listHTML = await renderAccount.file(templateList, {
                 i18n: i18n.get(),
                 locale: locale,
@@ -107,7 +136,7 @@ module.exports = function(app) {
             let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Your BRB Account'), {
                 content: listHTML,
                 extraCSS: config.production ? ['/brb/static/css/frontend.min.css'] : ['/brb/static/css/frontend.css'],
-                extraJS: config.production ? ['/brb/static/js/frontend.min.js'] : ['/zoia/core/js/jquery.zoiaTable.js', '/brb/static/js/frontend.js']
+                extraJS: config.production ? ['/brb/static/js/frontend.min.js'] : ['/zoia/core/js/jquery.zoiaTable.js', '/zoia/3rdparty/moment/moment-with-locales.min.js', '/brb/static/js/frontend.js']
             });
             res.send(html);
         } catch (e) {

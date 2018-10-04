@@ -5,6 +5,13 @@ const moduleURL = config.core.prefix.admin + '/brb';
 const Module = require('../../core/module.js');
 const Router = require('co-router');
 
+let configModule;
+try {
+    configModule = require('./config/brb.json');
+} catch (e) {
+    configModule = require('./config/brb.dist.json');
+}
+
 module.exports = function(app) {
     const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
     const panel = new(require('../../core/panel.js'))(app);

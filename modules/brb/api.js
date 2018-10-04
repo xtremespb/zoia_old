@@ -1,14 +1,10 @@
-const path = require('path');
 const Module = require('../../core/module.js');
 const validation = new(require('../../core/validation.js'))();
 const Router = require('co-router');
 const ObjectID = require('mongodb').ObjectID;
 const brbFields = require('./schemas/brbFields.js');
-const crypto = require('crypto');
-const config = require('../../core/config.js');
-const imageType = require('image-type');
-const Jimp = require('jimp');
-const fs = require('fs-extra');
+const rp = require('request-promise');
+const moment = require('moment');
 
 let configModule;
 try {
@@ -17,16 +13,13 @@ try {
     configModule = require('./config/brb.dist.json');
 }
 
-module.exports = function(app) {
+module.exports = function (app) {
     const log = app.get('log');
     const db = app.get('db');
-    const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
-    const mailer = new(require('../../core/mailer.js'))(app);
-    const render = new(require('../../core/render.js'))(`${__dirname}/views`, app);
 
     const sortFields = ['username', 'email', 'status', 'groups'];
 
-    const list = async(req, res) => {
+    const list = async (req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
             return res.send(JSON.stringify({
@@ -62,15 +55,33 @@ module.exports = function(app) {
         try {
             if (search) {
                 fquery = {
-                    $or: [
-                        { username: { $regex: search, $options: 'i' } },
-                        { email: { $regex: search, $options: 'i' } },
-                        { groups: { $regex: search, $options: 'i' } }
+                    $or: [{
+                            username: {
+                                $regex: search,
+                                $options: 'i'
+                            }
+                        },
+                        {
+                            email: {
+                                $regex: search,
+                                $options: 'i'
+                            }
+                        },
+                        {
+                            groups: {
+                                $regex: search,
+                                $options: 'i'
+                            }
+                        }
                     ]
                 };
             }
             const total = await db.collection('users').find(fquery).count();
-            const items = await db.collection('users').find(fquery, { skip: skip, limit: limit, sort: sort }).toArray();
+            const items = await db.collection('users').find(fquery, {
+                skip: skip,
+                limit: limit,
+                sort: sort
+            }).toArray();
             let data = {
                 status: 1,
                 count: items.length,
@@ -86,7 +97,7 @@ module.exports = function(app) {
         }
     };
 
-    const load = async(req, res) => {
+    const load = async (req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
             return res.send(JSON.stringify({
@@ -100,7 +111,9 @@ module.exports = function(app) {
             }));
         }
         try {
-            const item = await db.collection('users').findOne({ _id: new ObjectID(id) });
+            const item = await db.collection('users').findOne({
+                _id: new ObjectID(id)
+            });
             if (!item) {
                 return res.send(JSON.stringify({
                     status: -2
@@ -121,7 +134,7 @@ module.exports = function(app) {
         }
     };
 
-    const save = async(req, res) => {
+    const save = async (req, res) => {
         res.contentType('application/json');
         if (!Module.isAuthorizedAdmin(req)) {
             return res.send(JSON.stringify({
@@ -144,7 +157,15 @@ module.exports = function(app) {
             return res.send(JSON.stringify(output));
         }
         try {
-            let updResult = await db.collection('users').update({ _id: new ObjectID(id) }, { $set: { portfolioid: fields.portfolioid.value } }, { upsert: true });
+            let updResult = await db.collection('users').update({
+                _id: new ObjectID(id)
+            }, {
+                $set: {
+                    portfolioid: fields.portfolioid.value
+                }
+            }, {
+                upsert: true
+            });
             if (!updResult || !updResult.result || !updResult.result.ok) {
                 output.status = 0;
                 return res.send(JSON.stringify(output));
@@ -158,10 +179,74 @@ module.exports = function(app) {
         }
     };
 
+    const getChartData = async (req, res) => {
+        res.contentType('application/json');
+        if (!Module.isAuthorized(req)) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+        if (!req.session.auth.portfolioid) {
+            return res.send(JSON.stringify({
+                status: 0,
+                error: 'No portfolio ID'
+            }));
+        }
+        try {
+            let apiChartData;
+            const cache = await db.collection('brb_cache').findOne({
+                pid: req.session.auth.portfolioid,
+                request: 'getChartData'
+            });
+            if (cache) {
+                apiChartData = typeof cache.data === 'string' ? JSON.parse(cache.data) : cache.data;
+            } else {
+                let response;
+                try {
+                    response = JSON.parse(await rp(`${configModule.api.url}/getChartData?id=${req.session.auth.portfolioid}`));
+                } catch (e) {
+                    return res.send(JSON.stringify({
+                        status: 0
+                    }));
+                }
+                if (!response || response.status !== 1) {
+                    return res.send(JSON.stringify({
+                        status: 0
+                    }));
+                }
+                apiChartData = JSON.parse(response.chartData);
+                for (let i in apiChartData) {
+                    apiChartData[i].time_snap = moment(apiChartData[i].time_snap).unix();
+                }
+                apiChartData = Array.from(new Set(apiChartData));
+                await db.collection('brb_cache').update({
+                    pid: req.session.auth.portfolioid,
+                    request: 'getChartData'
+                }, {
+                    pid: req.session.auth.portfolioid,
+                    request: 'getChartData',
+                    timestamp: new Date(),
+                    data: apiChartData
+                }, {
+                    upsert: true
+                });
+            }
+            return res.send(JSON.stringify({
+                status: 1,
+                chartData: apiChartData
+            }));
+        } catch (e) {
+            return res.send(JSON.stringify({
+                status: 0
+            }));
+        }
+    };
+
     let router = Router();
     router.get('/list', list);
     router.get('/load', load);
     router.post('/save', save);
+    router.get('/getChartData', getChartData);
 
     return {
         routes: router
