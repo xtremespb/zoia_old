@@ -49,6 +49,10 @@
 	"Which sites you like might be used as examples?": "Which sites you like might be used as examples?",
 	"Website examples": "Website examples",
 	"Competitors": "Competitors",
+	"Code": "Code",
+	"Code you see on the picture": "Code you see on the picture",
 	"2-3 websites of your competitors": "2-3 websites of your competitors",
-	"To start your project we need to get more information. Please fill the fields below.": "To start your project we need to get more information. Please fill the fields below."
+	"Send": "Send",
+	"To start your project we need to get more information. Please fill the fields below.": "To start your project we need to get more information. Please fill the fields below.",
+	"Error while loading data from server.": "Error while loading data from server."
 }

@@ -57,8 +57,42 @@
             </tbody>
         </table>
     </div>
-    <div id="chartTickers" style="width:100%;height:600px;" class="za-margin-top">
-        <div za-spinner style="margin-right:10px"></div>&nbsp;{{ i18n.__(locale, 'Loading data, please wait')}}...
+    <div class="za-flex za-margin-top" style="height: 50px">
+        <div><button type="button" id="chartSettingsButton" class="za-button za-button-default za-button-small chart-button" style="display:none;">{{ i18n.__(locale, 'Settings')}}</button>&nbsp;
+        <button type="button" id="chartEverythingButton" class="za-button za-button-default za-button-small chart-button chart-button-period za-button-secondary" style="display:none;">{{ i18n.__(locale, 'Everything')}}</button>&nbsp;
+        <button type="button" id="chartMonthButton" class="za-button za-button-default za-button-small chart-button chart-button-period" style="display:none;">{{ i18n.__(locale, 'Month')}}</button>&nbsp;
+        <button type="button" id="chartWeekButton" class="za-button za-button-default za-button-small chart-button chart-button-period" style="display:none;">{{ i18n.__(locale, 'Week')}}</button>&nbsp;
+        </div>
+        <div class="za-width-expand"><div id="chartTickersSpinner" style="display: inline-block;float: right;"><div za-spinner style="margin-right:10px"></div>&nbsp;{{ i18n.__(locale, 'Loading data, please wait')}}...</div></div>
+    </div>    
+    <div id="chartTickers" style="width:100%;height:600px"></div>
+    </div>
+</div>
+
+<div id="chartSettingsModal">
+    <div class="za-modal-dialog">
+        <button class="za-modal-close-default" type="button" za-close></button>
+        <div class="za-modal-header">
+            <h2 class="za-modal-title">{{ i18n.__(locale, 'Settings')}}</h2>
+        </div>
+        <div class="za-modal-body">
+            <div class="za-text-bold">{{ i18n.__(locale, 'Display chart')}}:</div>
+            <div class="za-margin za-grid-small za-child-width-auto za-grid zoia-chart-checkboxes">
+                <label><input class="za-checkbox zoia-chart-checkbox zoia-chart-checkbox-line" type="checkbox" checked> {{ i18n.__(locale, 'Line')}}</label>
+                <label><input class="za-checkbox zoia-chart-checkbox zoia-chart-checkbox-candles" type="checkbox" checked> {{ i18n.__(locale, 'Candles')}}</label>                        
+            </div>
+            <div class="za-text-bold">{{ i18n.__(locale, 'Colors')}}:</div>
+            <div class="za-margin za-grid-small za-child-width-auto za-grid">
+                <label><input type="color" value="#444444" id="chartColorLine"> {{ i18n.__(locale, 'Line')}}</label>
+                <label><input type="color" value="#50ba27" id="chartColorPositive"> {{ i18n.__(locale, 'Positive candle')}}</label>
+                <label><input type="color" value="#db4c3c" id="chartColorNegative"> {{ i18n.__(locale, 'Negative candle')}}</label>
+            </div>
+        </div>
+        <div class="za-modal-footer za-text-right">
+            <button class="za-button za-button-primary chart-settings-button" id="chartSettingsSaveButton" type="button">{{ i18n.__(locale, 'Save')}}</button>
+            <button class="za-button za-button-default chart-settings-button za-modal-close" type="button">{{ i18n.__(locale, 'Cancel')}}</button>
+            <div za-spinner id="chartSettingsSpinner" style="display:none"></div>
+        </div>
     </div>
 </div>
 <div class="zoia-wrap-ticker za-width-1-1" style="display:none">

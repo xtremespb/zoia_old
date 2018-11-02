@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const winston = require('winston');
 
-((async function init() {
+((async function init() {    
     try {
         const config = require(path.join(__dirname, 'config.js'));
         if (!config.log) {
@@ -101,7 +101,7 @@ const winston = require('winston');
         log.info('Starting...');
     } catch (e) {
         // That's error
-        console.log(e.stack || e.message);
+        console.log(e);
         process.exit(1);
     }
 })());

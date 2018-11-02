@@ -22,7 +22,7 @@ try {
     configModule = require('./config/brb.dist.json');
 }
 
-module.exports = function (app) {
+module.exports = function(app) {
     const i18n = new(require('../../core/i18n.js'))(`${__dirname}/lang`, app);
     const renderAccount = new(require('../../core/render.js'))(`${__dirname}/views`, app);
     const renderRoot = new(require('../../core/render.js'))(`${__dirname}/../../views`, app);
@@ -101,12 +101,13 @@ module.exports = function (app) {
                 try {
                     response = JSON.parse(await rp(`${configModule.api.url}/getTickers?id=${req.session.auth.portfolioid}`));
                 } catch (e) {
-                    return await renderErrorHTML(req, res, locale, i18n.get().__(locale, 'Could not fetch information from API.'));
+                    // return await renderErrorHTML(req, res, locale, i18n.get().__(locale, 'Could not fetch information from API.'));
+                    response = { status: 1 };
                 }
                 if (!response || response.status !== 1) {
                     return await renderErrorHTML(req, res, locale, i18n.get().__(locale, 'Could not fetch information from API.'));
                 }
-                apiTickers = response.tickerData;
+                apiTickers = response.tickerData || [];
                 await db.collection('brb_cache').update({
                     pid: req.session.auth.portfolioid,
                     request: 'getTickers'
@@ -119,7 +120,7 @@ module.exports = function (app) {
                     upsert: true
                 });
             }
-            
+
             let listHTML = await renderAccount.file(templateList, {
                 i18n: i18n.get(),
                 locale: locale,

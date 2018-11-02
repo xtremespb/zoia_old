@@ -4,7 +4,7 @@ const Router = require('co-router');
 const fs = require('fs');
 const Module = require('../../core/module.js');
 
-const moduleURL = '/hosting';
+const moduleURL = '/customer';
 let templateList = 'frontend.html';
 if (fs.existsSync(`${__dirname}/views/custom_${templateList}`)) {
     templateList = 'custom_' + templateList;
@@ -77,7 +77,7 @@ module.exports = function(app) {
                 totalFunds: totalFunds,
                 transactions: transactions
             });
-            let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Hosting'), {
+            let html = await renderRoot.template(req, i18n, locale, i18n.get().__(locale, 'Customer Accounts'), {
                 content: listHTML,
                 extraCSS: config.production ? ['/hosting/static/css/frontend.min.css'] : ['/hosting/static/css/frontend.css'],
                 extraJS: config.production ? ['/hosting/static/js/frontend.min.js'] : ['/zoia/core/js/jquery.zoiaFormBuilder.js', '/hosting/static/js/frontend.js']

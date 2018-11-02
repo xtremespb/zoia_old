@@ -18,7 +18,7 @@
                     text: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-form-controls"><input class="za-input {prefix}-form-field{css}" id="{prefix}_{name}" type="{type}" placeholder=""{autofocus}><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>',
                     select: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-form-controls"><select class="za-select {prefix}-form-field{css}" id="{prefix}_{name}"{autofocus}>{values}</select></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
                     passwordConfirm: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-flex"><div class="{prefix}-field-wrap"><input class="za-input {prefix}-form-field" id="{prefix}_{name}" type="password" placeholder=""{autofocus}></div><div><input class="za-input {prefix}-form-field" id="{prefix}_{name}Confirm" type="password" placeholder=""></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div>',
-                    captcha: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-grid za-grid-small"><div><input class="za-input {prefix}-form-field {prefix}-captcha-field{css}" type="text" placeholder="" id="{prefix}_{name}"{autofocus}></div><div><div class="za-form-controls"><img class="{prefix}-captcha-img"></div></div></div><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}',
+                    captcha: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}">{label}:</label><div class="za-form-controls"><input class="za-input {prefix}-form-field{css} {prefix}-captcha-field{css}" id="{prefix}_{name}" type="{type}" placeholder=""{autofocus}>&nbsp;<img class="{prefix}-captcha-img"><div id="{prefix}_{name}_error_text" class="{prefix}-error-text" style="display:none"><span class="za-label-danger"></span></div>{helpText}</div></div>',
                     buttonsWrap: '<div class="{css}">{buttons}{html}</div>',
                     button: '<button class="za-button {prefix}-form-button{css}" id="{prefix}_{name}" type="{type}">{label}</button>',
                     launcher: '<div class="za-margin"><label class="za-form-label" for="{prefix}_{name}_btn">{label}:</label><div class="za-flex"><div id="{prefix}_{name}_val" class="{prefix}-{name}-selector" data="{data}">{value}</div><div><button class="za-button za-button-default" id="{prefix}_{name}_btn" type="button">{labelBtn}</button></div></div>{helpText}</div>',
@@ -35,10 +35,20 @@
                     onInit: () => {},
                     onSaveSubmit: () => {},
                     onSaveValidate: () => {
-                        //$('#zoiaRegisterSpinner').show();
+                        $('#zoiaBriefSpinner').show();
                     },
-                    onSaveSuccess: () => {},
-                    onSaveError: (res) => {}
+                    onSaveSuccess: () => {
+                        $('#zoiaBriefSpinner').hide();
+                    },
+                    onSaveError: (res) => {
+                        $('#zoiaBriefSpinner').hide();
+                        if (res && parseInt(res.status, 10) !== -3) {
+                            $('#zoiaBriefError>p').html(lang['Error while loading data from server.']).parent().show();
+                            $('#zoiaBriefError')[0].scrollIntoView(true);
+                        } else {
+                            $('#zoiaBrief_captcha').focus();
+                        }
+                    }
                 },
                 items: {
                     title: {
@@ -100,7 +110,14 @@
                         css: 'za-form-width-small',
                         autofocus: false,
                         values: { 1: lang['Yes'], 0: lang['No'] },
-                        value: 0
+                        value: 0,
+                        validation: {
+                            mandatoryCreate: false,
+                            regexp: /^(0|1)$/,
+                            process: (item) => {
+                                return item;
+                            }
+                        }
                     },
                     slogan: {
                         type: 'text',
@@ -125,7 +142,14 @@
                         css: 'za-form-width-small',
                         autofocus: false,
                         values: { 1: lang['Yes'], 0: lang['No'] },
-                        value: 0
+                        value: 0,
+                        validation: {
+                            mandatoryCreate: false,
+                            regexp: /^(0|1)$/,
+                            process: (item) => {
+                                return item;
+                            }
+                        }
                     },
                     message: {
                         type: 'textarea',
@@ -240,7 +264,14 @@
                         css: 'za-form-width-small',
                         autofocus: false,
                         values: { 1: lang['Yes'], 0: lang['No'] },
-                        value: 0
+                        value: 0,
+                        validation: {
+                            mandatoryCreate: false,
+                            regexp: /^(0|1)$/,
+                            process: (item) => {
+                                return item;
+                            }
+                        }
                     },
                     domains: {
                         type: 'textarea',
@@ -272,6 +303,13 @@
                             4: lang.types[4],
                             5: lang.types[5],
                             6: lang.types[6]
+                        },
+                        validation: {
+                            mandatoryCreate: false,
+                            regexp: /^(0|1|2|3|4|5|6)$/,
+                            process: (item) => {
+                                return item;
+                            }
                         }
                     },
                     navigation: {
@@ -298,7 +336,14 @@
                         css: 'za-form-width-small',
                         autofocus: false,
                         values: { 1: lang['Yes'], 0: lang['No'] },
-                        value: 0
+                        value: 0,
+                        validation: {
+                            mandatoryCreate: false,
+                            regexp: /^(0|1)$/,
+                            process: (item) => {
+                                return item;
+                            }
+                        }
                     },
                     pcontent: {
                         type: 'select',
@@ -306,7 +351,14 @@
                         css: 'za-form-width-small',
                         autofocus: false,
                         values: { 1: lang['Yes'], 0: lang['No'] },
-                        value: 0
+                        value: 0,
+                        validation: {
+                            mandatoryCreate: false,
+                            regexp: /^(0|1)$/,
+                            process: (item) => {
+                                return item;
+                            }
+                        }
                     },
                     support: {
                         type: 'select',
@@ -314,7 +366,14 @@
                         css: 'za-form-width-small',
                         autofocus: false,
                         values: { 1: lang['Yes'], 0: lang['No'] },
-                        value: 0
+                        value: 0,
+                        validation: {
+                            mandatoryCreate: false,
+                            regexp: /^(0|1)$/,
+                            process: (item) => {
+                                return item;
+                            }
+                        }
                     },
                     pages: {
                         type: 'text',
@@ -349,6 +408,32 @@
                                 return item.trim();
                             }
                         }
+                    },
+                    captcha: {
+                        type: 'captcha',
+                        label: lang.Code,
+                        helpText: lang['Code you see on the picture'],
+                        validation: {
+                            mandatoryCreate: true,
+                            length: {
+                                min: 4,
+                                max: 4
+                            },
+                            regexp: /^[0-9]+$/,
+                            process: (item) => {
+                                return item.trim();
+                            }
+                        }
+                    },
+                    buttons: {
+                        type: 'buttons',
+                        css: 'za-margin-top',
+                        buttons: [{
+                            name: 'btnSave',
+                            label: '<div za-spinner class="za-margin-right" id="zoiaBriefSpinner" style="display:none"></div>' + lang.Send,
+                            css: 'za-button-primary',
+                            type: 'submit'
+                        }]
                     }
                 }
             });

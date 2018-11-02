@@ -1,5 +1,5 @@
 {
-	"title": "Хостинг",
+	"title": "Личный кабинет",
 	"Add": "Добавить",
 	"Delete": "Удалить",
 	"Select all": "Выбрать все",
@@ -40,7 +40,7 @@
 	"Are you sure you wish to delete the account?": "Вы действительно желаете удалить аккаунт?",
 	"OK": "OK",
 	"Account has been deleted": "Аккаунт был удален",
-	"Hosting": "Хостинг",
+	"Customer Accounts": "Аккаунты",
 	"Account&nbsp;ID": "ID&nbsp;аккаунта",
 	"Plan": "Тариф",
 	"You have got no hosting accounts.": "В настоящий момент у Вас нет ни одного аккаунта.",

@@ -3,64 +3,186 @@
         global[i] = vars[i];
     }
 })({
-    getBlogFields: function() {
+    getBriefFields: function() {
         return {
             title: {
                 mandatoryCreate: true,
                 length: {
-                    min: 1,
-                    max: 128
+                    min: 3,
+                    max: 64
                 },
-                type: 'string',                
-                process: function(item) {
+                process: (item) => {
                     return item.trim();
                 }
             },
-            timestamp: {
+            contact: {
                 mandatoryCreate: true,
                 length: {
-                    min: 10,
-                    max: 10
+                    min: 3,
+                    max: 256
                 },
-                type: 'string',
-                regexp: /^[0-9]{10}$/
+                process: (item) => {
+                    return item.trim();
+                }
             },
-            status: {
+            products: {
                 mandatoryCreate: true,
                 length: {
-                    min: 1,
-                    max: 1
+                    min: 3,
+                    max: 256
                 },
-                type: 'string',
-                regexp: /^(0|1|2)$/
+                process: (item) => {
+                    return item.trim();
+                }
             },
-            template: {
-                mandatoryCreate: true
+            identity: {
+                mandatoryCreate: false
             },
-            comments: {
-                mandatoryCreate: true,
-                length: {
-                    min: 1,
-                    max: 1
-                },
-                type: 'string',
-                regexp: /^(0|1)$/
-            },
-            keywords: {
+            slogan: {
                 mandatoryCreate: false,
                 length: {
-                    min: 1,
-                    max: 128
+                    min: 3,
+                    max: 256
                 },
-                type: 'string',                
-                process: function(item) {
+                process: (item) => {
+                    return item.trim();
+                }
+            },
+            website: {
+                mandatoryCreate: false,
+                regexp: /^(0|1)$/
+            },
+            message: {
+                mandatoryCreate: false,
+                length: {
+                    min: 3,
+                    max: 256
+                },
+                process: (item) => {
+                    return item.trim();
+                }
+            },
+            purpose: {
+                mandatoryCreate: false,
+                length: {
+                    min: 3,
+                    max: 256
+                },
+                process: (item) => {
+                    return item.trim();
+                }
+            },
+            colors: {
+                mandatoryCreate: false,
+                length: {
+                    min: 3,
+                    max: 256
+                },
+                process: (item) => {
+                    return item.trim();
+                }
+            },
+            competitors: {
+                mandatoryCreate: false,
+                length: {
+                    min: 3,
+                    max: 256
+                },
+                process: (item) => {
+                    return item.trim();
+                }
+            },
+            examples: {
+                mandatoryCreate: false,
+                length: {
+                    min: 3,
+                    max: 256
+                },
+                process: (item) => {
+                    return item.trim();
+                }
+            },
+            nexamples: {
+                mandatoryCreate: false,
+                length: {
+                    min: 3,
+                    max: 256
+                },
+                process: (item) => {
+                    return item.trim();
+                }
+            },
+            hosting: {
+                mandatoryCreate: false,
+                regexp: /^(0|1)$/
+            },
+            domains: {
+                mandatoryCreate: false,
+                length: {
+                    min: 3,
+                    max: 256
+                },
+                process: (item) => {
+                    return item.trim();
+                }
+            },
+            type: {
+                mandatoryCreate: false,
+                regexp: /^(0|1|2|3|4|5|6)$/
+            },
+            navigation: {
+                mandatoryCreate: false,
+                length: {
+                    min: 3,
+                    max: 256
+                },
+                process: (item) => {
                     return item.trim();
                 }
             },
             content: {
                 mandatoryCreate: false,
-                type: 'string',                
-                process: function(item) {
+                regexp: /^(0|1)$/
+            },
+            pcontent: {
+                mandatoryCreate: false,
+                regexp: /^(0|1)$/
+            },
+            support: {
+                mandatoryCreate: false,
+                regexp: /^(0|1)$/,
+                process: (item) => {
+                    return item.trim();
+                }
+            },
+            pages: {
+                mandatoryCreate: true,
+                length: {
+                    min: 1,
+                    max: 32
+                },
+                process: (item) => {
+                    return item.trim();
+                }
+            },
+            budget: {
+                mandatoryCreate: true,
+                length: {
+                    min: 1,
+                    max: 32
+                },
+                process: (item) => {
+                    return item.trim();
+                }
+            },
+            captcha: {
+                mandatoryCreate: true,
+                length: {
+                    min: 4,
+                    max: 4
+                },
+                regexp: /^[0-9]+$/,
+                process: (item) => {
                     return item.trim();
                 }
             }
