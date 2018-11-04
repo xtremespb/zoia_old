@@ -25,6 +25,17 @@
                     return item.trim();
                 }
             },
+            email: {
+                mandatoryCreate: true,
+                length: {
+                    min: 3,
+                    max: 64
+                },
+                regexp: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                process: (item) => {
+                    return item.trim();
+                }
+            },
             products: {
                 mandatoryCreate: true,
                 length: {

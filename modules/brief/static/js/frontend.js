@@ -39,6 +39,8 @@
                     },
                     onSaveSuccess: () => {
                         $('#zoiaBriefSpinner').hide();
+                        $('#zoiaBriefSuccess').show();
+                        $('#zoiaBrief').hide();
                     },
                     onSaveError: (res) => {
                         $('#zoiaBriefSpinner').hide();
@@ -74,13 +76,31 @@
                         label: lang['Contact person, contact information'],
                         css: 'za-form-width-large',
                         autofocus: false,
-                        helpText: lang['A person to contact, phone or e-mail address'],
+                        helpText: lang['A person to contact, phone etc.'],
                         validation: {
                             mandatoryCreate: true,
                             length: {
                                 min: 3,
                                 max: 256
                             },
+                            process: (item) => {
+                                return item.trim();
+                            }
+                        }
+                    },
+                    email: {
+                        type: 'text',
+                        label: lang['E-mail'],
+                        css: 'za-form-width-large',
+                        autofocus: false,
+                        helpText: lang['Your valid e-mail address'],
+                        validation: {
+                            mandatoryCreate: true,
+                            length: {
+                                min: 3,
+                                max: 64
+                            },
+                            regexp: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                             process: (item) => {
                                 return item.trim();
                             }

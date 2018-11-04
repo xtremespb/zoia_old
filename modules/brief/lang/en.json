@@ -8,7 +8,7 @@
 	"Your company or project title": "Your company or project title",
 	"Contact person, contact information": "Contact person, contact information",
 	"Products or services you provide": "Products or services you provide",
-	"A person to contact, phone or e-mail address": "A person to contact, phone or e-mail address",
+	"A person to contact, phone etc.": "A person to contact, phone etc.",
 	"A brief information about your services or products": "A brief information about your services or products",
 	"Does your company have a logo or corporate identity?": "Does your company have a logo or corporate identity?",
 	"Does your company have a website?": "Does your company have a website?",
@@ -54,5 +54,8 @@
 	"2-3 websites of your competitors": "2-3 websites of your competitors",
 	"Send": "Send",
 	"To start your project we need to get more information. Please fill the fields below.": "To start your project we need to get more information. Please fill the fields below.",
-	"Error while loading data from server.": "Error while loading data from server."
+	"Error while loading data from server.": "Error while loading data from server.",
+	"Your brief information has been received, thank you!<br>We will contact you shortly as soon as we process your request.": "Your brief information has been received, thank you!<br>We will contact you shortly as soon as we process your request.",
+	"Your valid e-mail address": "Your valid e-mail address",
+	"E-mail": "E-mail"
 }
