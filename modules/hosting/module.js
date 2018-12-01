@@ -23,12 +23,12 @@ module.exports = function(app) {
             filters: frontend.filters
         },
         backend: {
-            prefix: '/customer',
+            prefix: '/hosting',
             routes: backend.routes,
             info: backend.info
         },
         api: {
-            prefix: '/customer',
+            prefix: '/hosting',
             routes: api.routes
         }
     };

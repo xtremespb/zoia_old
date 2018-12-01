@@ -136,7 +136,7 @@
         configModule = JSON.parse($('#zp_configModule').attr('data'));
         totalFunds = parseFloat($('#zp_totalFunds').attr('data'));
         transactionsLength = parseInt($('#zp_transactionsLength').attr('data'), 10);
-        $.getScript(`/api/lang/customer/${locale}.js`).done(() => {
+        $.getScript(`/api/lang/hosting/${locale}.js`).done(() => {
             const formBuilderLang = {
                 mandatoryMissing: lang['Should not be empty'],
                 tooShort: lang['Too short'],

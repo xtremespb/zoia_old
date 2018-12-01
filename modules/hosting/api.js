@@ -112,7 +112,8 @@ module.exports = function(app) {
             let data = {
                 status: 1,
                 count: items.length,
-                items: items
+                items: items,
+                total: total
             };
             res.send(JSON.stringify(data));
         } catch (e) {

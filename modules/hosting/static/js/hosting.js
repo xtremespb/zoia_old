@@ -36,7 +36,7 @@
                 $('#zoiaSpinnerWhite').show();
                 $.ajax({
                     type: 'GET',
-                    url: '/api/customer/account/delete',
+                    url: '/api/hosting/account/delete',
                     cache: false,
                     data: {
                         id: accountID
@@ -77,7 +77,7 @@
         userDialog.show().then(() => {
             $.ajax({
                 type: 'GET',
-                url: '/api/customer/load',
+                url: '/api/hosting/load',
                 cache: false,
                 data: {
                     id: id
@@ -133,7 +133,7 @@
         $('#zoia_spn_correction_save').show();
         $.ajax({
             type: 'GET',
-            url: '/api/customer/correction',
+            url: '/api/hosting/correction',
             cache: false,
             data: {
                 id: currentEditID,
@@ -260,11 +260,11 @@
                 }
             },
             save: {
-                url: '/api/customer/account/save',
+                url: '/api/hosting/account/save',
                 method: 'POST'
             },
             load: {
-                url: '/api/customer/account/load',
+                url: '/api/hosting/account/load',
                 method: 'GET'
             },
             items: {
@@ -379,7 +379,7 @@
         });
         $('#zoia_btn_account_add').click(zoiaBtnAccountAddClickHandler);
         $('#hosting').zoiaTable({
-            url: '/api/customer/list',
+            url: '/api/hosting/list',
             limit: 20,
             sort: {
                 field: 'username',
@@ -414,7 +414,7 @@
             },
             onLoad: () => {
                 $('.zoia-hosting-action-edit-btn').click(function() {
-                    window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, uprefix + corePrefix.admin + '/customer?action=edit&id=' + $(this).attr('data'));
+                    window.history.pushState({ action: 'edit', id: $(this).attr('data') }, document.title, uprefix + corePrefix.admin + '/hosting?action=edit&id=' + $(this).attr('data'));
                     editItem($(this).attr('data'));
                 });
                 $('.zoia-hosting-action-del-btn').click(function() {
@@ -434,7 +434,7 @@
         corePrefix = JSON.parse($('#zp_corePrefix').attr('data'));
         configModule = JSON.parse($('#zp_configModule').attr('data'));
         plugins = JSON.parse($('#zp_plugins').attr('data'));
-        $.getScript(`/api/lang/customer/${locale}.js`).done(() => {
+        $.getScript(`/api/lang/hosting/${locale}.js`).done(() => {
             init();
             $('.zoia-admin-loading').hide();
             $('#zoia_admin_panel_wrap').show();
